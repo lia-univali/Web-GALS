@@ -1,5 +1,5 @@
 import { Token } from '../analyser/Token';
-import { BasicScanner } from '../simulator/BasicScanner';
+import type { BasicScanner } from '../simulator/BasicScanner';
 import { LexicalError } from '../analyser/SystemErros';
 import { CHAR, UNION, CLOSURE, CLOSURE_OB, OPTIONAL, PARENTHESIS_OPEN, PARENTHESIS_CLOSE, BRACKETS_OPEN, BRACKETS_CLOSE, COMPLEMENT, ALL, INTERVAL, DEFINITION } from './Constants';
 

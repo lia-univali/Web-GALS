@@ -23,6 +23,7 @@
     "@rushstack/eslint-patch": "^1.2.0",
     "@tsconfig/node18": "^2.0.1",
     "@types/hashmap": "^2.3.1",
+    "@types/lodash.clonedeep": "^4.5.7",
     "@types/node": "^18.16.17",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/eslint-config-prettier": "^7.1.0",
