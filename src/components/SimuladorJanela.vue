@@ -1,0 +1,254 @@
+<script lang="ts">
+
+    import { computed, defineComponent } from 'vue';
+    import { projetoStore} from '@/stores/projetoStore';
+    import { Token } from '@/assets/scripts/gals-lib/analyser/Token';
+    import { lexSimulation } from '@/assets/scripts/gals-functions';
+    //import { simulateLex } from '@/assets/scripts/gals-lib/service/SimulatorService';
+
+    export default defineComponent({
+        name: 'SimuladorJanela',
+        components:{
+        },
+        data(){
+            return {
+                resultadoLexico: new Map<Token, string>()
+            };
+        },
+        setup() {
+            const store = projetoStore();
+
+            const selecionado = computed(() => {
+                return store.selecionado;
+            });
+
+            const projetos = computed(() => {
+                return store.listaProjetos;
+            });
+
+            return {
+                store,
+            }
+        },
+        methods: {
+            simularLexico() {
+                const selecionado = this.store.selecionado
+                const projeto = this.store.listaProjetos[selecionado];
+                const textoSimulador = this.store.textoSimulador;
+
+                console.log(projeto);
+                console.log(textoSimulador);
+
+                this.resultadoLexico = lexSimulation(textoSimulador, projeto.regularDefinitions, projeto.tokens);
+               
+            }
+        }
+    }); 
+</script>
+
+<template>
+    <div class="contentor__simulacao">
+
+        <div class="container__saida__simulacao">
+
+            <div class="conjunto__botoes">
+                <button class="botao__tipo__simulacao esquerda"> Léxico </button>
+                <button class="botao__tipo__simulacao direita"> Sintático </button>
+            </div>
+
+            <div class="saida__simulacao">  
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Lexeme</th>
+                            <th>Posição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(valor, chave) in resultadoLexico" :key="chave">
+                            <td>{{ valor[1] }}</td>
+                            <td>{{ valor[0].lexeme }}</td>
+                            <td>{{ valor[0].position }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div class="container__botao__simular">
+                <button class="botao__simular" @click="simularLexico"> Simular </button>
+            </div>
+            
+        </div>
+        
+    </div>
+</template>
+
+<style scoped>
+    table {
+        font-family: sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        border-collapse: collapse;
+        width: 100%;
+        border-radius: 15px;
+    }
+
+    th {
+        text-align: left;
+        padding: 10px 10px 10px 10px;
+        border-bottom:1px solid rgb(217, 217, 217);
+        text-align: center;
+        
+    }
+
+    table,
+    td {
+        padding: 8px 8px 8px 10px;
+        border-bottom:1px solid rgb(217, 217, 217);
+    }
+
+    tr:nth-child(even) {
+        background-color: #eff2f5;
+    }
+
+
+    tr:not(:first-child):hover {
+        background-color: rgba(114, 114, 113, 0.2);
+    }
+
+    tr:hover {
+        background-color: rgba(114, 114, 113, 0.2);
+    }
+    .saida__simulacao{
+        background-color: white;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        
+    }
+
+    .contentor__simulacao{
+        display: flex;
+        background-color: white;
+        border-radius: 5px;
+        height: 100%;
+        flex-grow: 2;
+    }
+
+    .container__saida__simulacao{
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        border-radius: 5px;
+
+        flex-grow: 2;
+    }
+    .container__botao__simular{
+        margin: 0px;
+        padding: 0px;
+        display: flex;
+        justify-content: center;
+    }
+    .botao__tipo__simulacao{
+        font-family: 'IBM Plex Sans';
+        font-weight: bold;
+        font-size: 15px;
+        color: #424242;
+        text-decoration: none;
+
+        text-align: center;  
+        vertical-align:middle;
+
+        border: none;
+        border-bottom: 1px solid;
+        border-color: #B1B1B1;
+        background-color: white;
+
+        width: 100%;
+        height: 39px;
+        
+    }
+    
+    .botao__tipo__simulacao.esquerda{
+        border-top-left-radius: 5px;
+        border-right: 1px solid;
+        border-color: #B1B1B1;
+    }
+
+    .botao__tipo__simulacao.direita{
+        border-top-right-radius: 5px;
+    }
+
+    .botao__tipo__simulacao:hover {
+        background-color: #9ED15C
+    }
+
+    .conjunto__botoes{
+        margin: 0px;
+        padding: 0%;
+
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+        border-bottom-left-radius: 5px;
+        border-color: #B1B1B1;
+
+        background-color: white;
+
+        display: flex;
+        flex-grow: 1;
+
+        box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    }
+
+    .botao__simular{
+        font-family: 'IBM Plex Sans';
+        font-weight: bold;
+        font-size: 15px;
+        color: white;
+        text-decoration: none;
+
+        text-align: center;  
+        vertical-align:middle;
+
+        border: none;
+        border-radius: 12px;
+        background-color: #9ED15C;
+
+        width: 150px;
+        height: 38px;
+
+        display:flex;
+        align-items: center;
+        justify-content: center;
+
+        margin: 5px;
+        
+    }
+
+    .botao__simular::before{
+        content: url(@/assets/icons/Simular.svg);
+        vertical-align:middle;
+    }
+
+    .botao__simular:hover {
+        background-color: #749a43
+    }
+
+    .botao__simular:active {
+        background-color: #749a43;
+        box-shadow: 0 1px #666;
+        transform: translateY(1px);
+    }
+
+    .caixa.simulador{
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        box-shadow: none;
+        height: auto;
+        border-right: 2px solid;
+        border-color: #B1B1B1;
+    }
+</style>
