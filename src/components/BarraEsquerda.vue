@@ -60,7 +60,7 @@ export default defineComponent({
             const thatStore = this.store;
             const reader = new FileReader();
 
-            reader.readAsText(file, 'UTF-8');
+            reader.readAsText(file, 'ISO-8859-4');
 
             reader.onload = function () {
 
