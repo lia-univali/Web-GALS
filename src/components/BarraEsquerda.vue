@@ -131,16 +131,28 @@ export default defineComponent({
 <template>
   <div class="barra__esquerda">
     <div class="selecao__botoes">
-      <button class="botao projetos" @click="abrirProjetos"></button>
+      <button
+        class="botao projetos"
+        @click="abrirProjetos"
+        v-bind:class="paginaAberta == 'Projetos' ? 'selecionado' : 'nao_selecionado'"
+      ></button>
       <button class="botao opcao" @click="abrirOpcaoes"></button>
-      <button class="botao documentacao" @click="abrirDocumentacao"></button>
+      <button
+        class="botao documentacao"
+        @click="abrirDocumentacao"
+        v-bind:class="paginaAberta == 'Documentação' ? 'selecionado' : 'nao_selecionado'"
+      ></button>
       <label class="botao__input" @change="abrirArquivo">
         <input name="file" type="file" id="file" ref="myFiles" accept=".gals" />
         Custom Upload
       </label>
       <button class="botao novo__projeto" @click="abrirModalNovoArquivo"></button>
       <button class="botao salvar" @click="salvarArquivo"></button>
-      <button class="botao informacoes" @click="abrirInformacoes"></button>
+      <button
+        class="botao informacoes"
+        @click="abrirInformacoes"
+        v-bind:class="paginaAberta == 'Informações' ? 'selecionado' : 'nao_selecionado'"
+      ></button>
     </div>
 
     <div class="conteudo" :style="{ display: estiloDisplayConteudo }">
@@ -229,7 +241,7 @@ h2 {
 
 .botao {
   border: none;
-  border-radius: 5px;
+  border-radius: 1px;
   background-color: white;
 
   width: 50px;
@@ -239,11 +251,11 @@ h2 {
 }
 
 .botao:hover {
-  background-color: #9ed15c;
+  background-color: #e6e6e6;
 }
 
 .botao:active {
-  background-color: #9ed15c;
+  background-color: #e6e6e6;
   box-shadow: 0 1px #666;
   transform: translateY(1px);
 }
@@ -293,7 +305,7 @@ input[type='file'] {
 
 .botao__input {
   border: none;
-  border-radius: 5px;
+  border-radius: 1px;
   background-color: white;
 
   width: 50px;
@@ -305,11 +317,11 @@ input[type='file'] {
 }
 
 .botao__input:hover {
-  background-color: #9ed15c;
+  background-color: #e6e6e6;
 }
 
 .botao__input:active {
-  background-color: #9ed15c;
+  background-color: #e6e6e6;
   box-shadow: 0 1px #666;
   transform: translateY(1px);
 }
@@ -338,6 +350,16 @@ input[type='file'] {
   margin: 0;
   padding: 0;
   cursor: pointer;
+}
+
+.selecionado {
+  border-left: 3px solid #aace65;
+  border-right: 3px solid #aace65;
+}
+
+.nao__selecionado {
+  border-left: 3px solid #ffffff;
+  border-right: 3px solid #ffffff;
 }
 </style>
 @/assets/scripts/salvador@/assets/scripts/saver
