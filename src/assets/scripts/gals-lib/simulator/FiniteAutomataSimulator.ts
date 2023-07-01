@@ -42,7 +42,7 @@ export class FiniteAutomataSimulator implements BasicScanner{
 		if ( ! this.hasInput() )
 			return null;
 		
-		let start: number = this._position;
+		const start: number = this._position;
 		
 		let state : number= 0;
 		let lastState : number = 0;
@@ -61,7 +61,7 @@ export class FiniteAutomataSimulator implements BasicScanner{
 			}
 			else
 			{
-				let tfs: number = this._fa.tokenForState(state);
+				const tfs: number = this._fa.tokenForState(state);
 				if (tfs >= 0){
 					endState = state;
 					end = this._position;
@@ -86,7 +86,7 @@ export class FiniteAutomataSimulator implements BasicScanner{
 			return this.nextToken();
 		else
 		{
-			let lexeme: string = this._input.substring(start, end);
+			const lexeme: string = this._input.substring(start, end);
 			token = this.lookupToken(token, lexeme);
 			return new Token(token, lexeme, start);
 		}
@@ -101,8 +101,8 @@ export class FiniteAutomataSimulator implements BasicScanner{
 
 		while (start <= end){
             
-			let half: number = (start+end)/2;
-			let comp: number = this.compareValues(this._fa.specialCases[half].key, (key));
+			const half: number = Math.floor((start+end)/2);
+			const comp: number = this.compareValues(this._fa.specialCases[half].key, key);
 
 			if (comp == 0)
 				return this._fa.specialCases[half].value;
@@ -127,10 +127,10 @@ export class FiniteAutomataSimulator implements BasicScanner{
 	}
 
     private compareValues( str1: string ,str2: string): number {
-        let lim: number = Math.min(str1.length, str2.length);
+        const lim: number = Math.min(str1.length, str2.length);
         for (let k = 0; k < lim; k++) {
-            let c1: number = str1.charCodeAt(k);
-            let c2: number = str2.charCodeAt(k);
+            const c1: number = str1.charCodeAt(k);
+            const c2: number = str2.charCodeAt(k);
             if (c1 != c2) {
                 return c1 - c2;
             }
