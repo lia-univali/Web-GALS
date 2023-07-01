@@ -20,8 +20,6 @@ export default defineComponent({
     BarraEsquerda,
     ModalNovoArquivo,
     ModalConfiguracoes
-    // Multipane,
-    // MultipaneResizer
   }
 })
 </script>
@@ -72,24 +70,20 @@ body {
   background-color: #aeaeae;
 }
 
-/* width */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
   border-radius: 20px;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background: #cecece;
   border-radius: 5px;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #cecece;
 }
@@ -161,5 +155,4 @@ body {
   border-radius: 3px;
   transition: 0.3s;
 }
-
 </style>
