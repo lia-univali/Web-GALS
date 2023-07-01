@@ -80,6 +80,29 @@ body {
   background-color: #AEAEAE;
 }
 
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 20px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #cecece; 
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #cecece; 
+} 
+
 .contentor__geral {
   display: flex;
   height: calc(100vh - 70px);
