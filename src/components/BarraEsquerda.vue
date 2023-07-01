@@ -12,7 +12,8 @@ export default defineComponent({
   },
   data() {
     return {
-      paginaAberta: 'Projetos'
+      paginaAberta: 'Projetos',
+      estiloDisplayConteudo: 'flex'
     }
   },
   setup() {
@@ -34,6 +35,7 @@ export default defineComponent({
   },
   methods: {
     abrirProjetos() {
+      this.colapsaConteudo('Projetos')
       this.paginaAberta = 'Projetos'
     },
     abrirOpcaoes() {
@@ -45,6 +47,7 @@ export default defineComponent({
       }
     },
     abrirDocumentacao() {
+      this.colapsaConteudo('Documentação')
       this.paginaAberta = 'Documentação'
     },
     abrirArquivo() {
@@ -82,7 +85,7 @@ export default defineComponent({
 
       input.value = ''
     },
-    abrirModalArquivo() {
+    abrirModalNovoArquivo() {
       const formulario = document.getElementById('modal__arquivo')
       if (formulario != null) formulario.style.display = 'flex'
 
@@ -113,7 +116,13 @@ export default defineComponent({
       }
     },
     abrirInformacoes() {
+      this.colapsaConteudo('Informações')
       this.paginaAberta = 'Informações'
+    },
+    colapsaConteudo(pagina: string) {
+      if (this.paginaAberta == pagina)
+        this.estiloDisplayConteudo = this.estiloDisplayConteudo == 'flex' ? 'none' : 'flex'
+      else this.estiloDisplayConteudo = 'flex'
     }
   }
 })
@@ -129,12 +138,12 @@ export default defineComponent({
         <input name="file" type="file" id="file" ref="myFiles" accept=".gals" />
         Custom Upload
       </label>
-      <button class="botao novo__projeto" @click="abrirModalArquivo"></button>
+      <button class="botao novo__projeto" @click="abrirModalNovoArquivo"></button>
       <button class="botao salvar" @click="salvarArquivo"></button>
       <button class="botao informacoes" @click="abrirInformacoes"></button>
     </div>
 
-    <div class="conteudo">
+    <div class="conteudo" :style="{ display: estiloDisplayConteudo }">
       <h2>{{ paginaAberta }}</h2>
 
       <div v-if="paginaAberta == 'Projetos'" class="abaProjetos">
@@ -192,10 +201,12 @@ h2 {
 .conteudo {
   margin: 0px;
   padding: 5%;
-  width: 100%;
+  width: 340px;
   border-radius: 5px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+
+  border-left: 2px solid rgb(217, 217, 217);
 
   display: flex;
   flex-direction: column;
@@ -214,8 +225,6 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  border-right: 2px solid;
-  border-color: #b1b1b1;
 }
 
 .botao {

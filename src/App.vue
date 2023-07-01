@@ -98,8 +98,6 @@ body {
 
 .contentor__esquerda {
   flex-grow: 1;
-  min-width: 400px;
-  max-width: 400px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
