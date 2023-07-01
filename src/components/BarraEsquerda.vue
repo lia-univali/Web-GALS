@@ -65,9 +65,6 @@ export default defineComponent({
           /#Options\n|\n#RegularDefinitions\n|\n#Tokens\n|\n#NonTerminals\n|\n#Grammar\n/
         )
 
-        console.log(reader.result as string)
-        console.log(splitResultado)
-
         const newProject = {
           id: thatStore.totalProjetos,
           fileName: file.name,

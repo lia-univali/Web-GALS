@@ -32,7 +32,6 @@ export default defineComponent({
   },
   watch: {
     selecionado() {
-      console.log('Selecionado: ' + this.selecionado)
       const definicoesRegulares = document.getElementById('textoDefinicoesRegulares')
       const tokens = document.getElementById('textoTokens')
       const naoTerminais = document.getElementById('textoNaoTerminais')
@@ -64,70 +63,12 @@ export default defineComponent({
 <template>
   <div class="caixa">
     <p class="caixa__titulo">{{ titulo }}</p>
-    <div v-if="titulo == 'Definições Regulares' && selecionado == -1" class="caixa__interna">
+
+    <div v-if="projetos[selecionado] == undefined" class="caixa__interna">
       <textarea
-        id="textoDefinicoesRegulares"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
+        name="textoCodigoVazio"
         class="texto__codigo"
-        spellcheck="false"
-        disabled
-      ></textarea>
-    </div>
-    <div v-else-if="titulo == 'Tokens' && selecionado == -1" class="caixa__interna">
-      <textarea
-        id="textoTokens"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        disabled
-      ></textarea>
-    </div>
-    <div v-else-if="titulo == 'Não Terminais' && selecionado == -1" class="caixa__interna">
-      <textarea
-        id="textoNaoTerminais"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        disabled
-      ></textarea>
-    </div>
-    <div v-else-if="titulo == 'Gramática' && selecionado == -1" class="caixa__interna">
-      <textarea
-        id="textoGramatica"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        disabled
-      ></textarea>
-    </div>
-    <div v-else-if="titulo == 'Saida' && selecionado == -1" class="caixa__interna">
-      <textarea
-        id="textoSaida"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        disabled
-      ></textarea>
-    </div>
-    <div v-else-if="titulo == 'Simulação' && selecionado == -1" class="caixa__interna">
-      <textarea
-        id="textoSimulacao"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        disabled
+        :disabled="selecionado == -1"
       ></textarea>
     </div>
     <div v-else-if="titulo == 'Definições Regulares'" class="caixa__interna">
@@ -139,6 +80,7 @@ export default defineComponent({
         class="texto__codigo"
         spellcheck="false"
         v-model="projetos[selecionado].regularDefinitions"
+        :disabled="selecionado == -1"
       ></textarea>
     </div>
     <div v-else-if="titulo == 'Tokens'" class="caixa__interna">
@@ -150,6 +92,7 @@ export default defineComponent({
         class="texto__codigo"
         spellcheck="false"
         v-model="projetos[selecionado].tokens"
+        :disabled="selecionado == -1"
       ></textarea>
     </div>
     <div v-else-if="titulo == 'Não Terminais'" class="caixa__interna">
@@ -161,6 +104,7 @@ export default defineComponent({
         class="texto__codigo"
         spellcheck="false"
         v-model="projetos[selecionado].nonTerminals"
+        :disabled="selecionado == -1"
       ></textarea>
     </div>
     <div v-else-if="titulo == 'Gramática'" class="caixa__interna">
@@ -172,6 +116,7 @@ export default defineComponent({
         class="texto__codigo"
         spellcheck="false"
         v-model="projetos[selecionado].grammar"
+        :disabled="selecionado == -1"
       ></textarea>
     </div>
     <div v-else-if="titulo == 'Saida'" class="caixa__interna">
@@ -195,6 +140,7 @@ export default defineComponent({
         class="texto__codigo"
         spellcheck="false"
         v-model="projetos[selecionado].textSimulator"
+        :disabled="selecionado == -1"
       ></textarea>
     </div>
   </div>
