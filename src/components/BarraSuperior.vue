@@ -9,11 +9,11 @@ export default defineComponent({
 
 <template>
   <div class="barra__superior">
-    <label class="logo">GALS</label>
+    <span class="logo">GALS</span>
 
     <button class="botao__gerar__codigo">Gerar Código</button>
 
-    <label> </label>
+    <span> </span>
   </div>
 </template>
 
