@@ -118,9 +118,9 @@ export function lexSimulation(
     console.log(error)
   }
 
-  console.log(tokensModel)
+  // console.log(tokensModel)
 
-  console.log('Simulação Comcluida')
+  // console.log('Simulação Comcluida')
 
   return tokensModel
 }

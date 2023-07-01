@@ -327,8 +327,8 @@ export class FiniteAutomataGenerator {
     let sc: KeyValuePar[] = new Array()
 
     const clone = Object.assign({}, scList.toArray())
-    sc = Object.setPrototypeOf(clone,  KeyValuePar.prototype)
-    
+    sc = Object.setPrototypeOf(clone, KeyValuePar.prototype)
+
     //sc = cloneDeep(scList.toArray())//this one is the older clone
 
     let cont: number[][] = Array.from({ length: states.size() }, () => Array.from({ length: 2 }))

@@ -26,12 +26,18 @@ export default defineComponent({
       if (selecionado == -1) return
 
       const projeto = this.store.listaProjetos[selecionado]
+      try {
+        this.resultadoLexico = lexSimulation(
+          projeto.textSimulator,
+          projeto.regularDefinitions,
+          projeto.tokens
+        )
 
-      this.resultadoLexico = lexSimulation(
-        projeto.textSimulator,
-        projeto.regularDefinitions,
-        projeto.tokens
-      )
+        projeto.consoleExit = 'Simulação Concluida'
+      } catch (error) {
+        console.log(error as Object)
+        projeto.consoleExit = (error as Error).message
+      }
     }
   }
 })
@@ -77,7 +83,7 @@ table {
   font-weight: 400;
   font-style: normal;
   border-collapse: collapse;
-  width: 100%;
+  width: calc(100% - 1px);
   border-radius: 15px;
 }
 
@@ -85,13 +91,28 @@ th {
   text-align: left;
   padding: 10px 10px 10px 10px;
   border-bottom: 1px solid rgb(217, 217, 217);
-  text-align: center;
+  border-left: 1px solid rgb(217, 217, 217);
+  border-right: 1px solid rgb(217, 217, 217);
+  position: relative;
 }
 
-table,
+th::before {
+  background-color: rgb(217, 217, 217);
+}
+
 td {
   padding: 8px 8px 8px 10px;
   border-bottom: 1px solid rgb(217, 217, 217);
+  border-left: 1px solid rgb(217, 217, 217);
+  border-right: 1px solid rgb(217, 217, 217);
+}
+
+table td:first-child {
+  border-left: none;
+}
+
+table td:last-child {
+  border-right: none;
 }
 
 tr:nth-child(even) {
@@ -136,8 +157,7 @@ tr:hover {
 }
 .botao__tipo__simulacao {
   font-family: 'IBM Plex Sans';
-  font-weight: bold;
-  font-size: 15px;
+  font-size: 16px;
   color: #424242;
   text-decoration: none;
 
@@ -150,7 +170,7 @@ tr:hover {
   background-color: white;
 
   width: 100%;
-  height: 39px;
+  height: 22px;
 }
 
 .botao__tipo__simulacao.esquerda {
@@ -222,14 +242,5 @@ tr:hover {
   background-color: #749a43;
   box-shadow: 0 1px #666;
   transform: translateY(1px);
-}
-
-.caixa.simulador {
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-  box-shadow: none;
-  height: auto;
-  border-right: 2px solid;
-  border-color: #b1b1b1;
 }
 </style>
