@@ -126,7 +126,7 @@ body {
 
 .contentor__centro__superior {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 67px);
   flex-grow: 1;
   display: flex;
 
