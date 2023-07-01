@@ -1,413 +1,368 @@
-import { SemanticError, LexicalError, SyntaticError} from "../analyser/SystemErros";
-import { MetaException } from "../util/MetaException";
-import { LineScanner } from "./LineScanner";
-import { FiniteAutomataGenerator } from './FiniteAutomataGenerator';
-import { AnalysisError } from "../analyser/AnalysisError";
-import { FiniteAutomata } from "../generator/FiniteAutomata";
-import { Token } from "../analyser/Token";
-import { REParser } from "./REParser";
-import { Node } from "./Node";
-import { ErrorLog } from "../ErrorLog";
-
-export class LineParser{
-
-   	private scanner: LineScanner = new LineScanner();
-   	private pos: number = 0;
-	private gen: FiniteAutomataGenerator | null = null;
-
-	parseFA(defs: string, tokens: string, scannerCaseSensitive: boolean): FiniteAutomata {//throws MetaException{
-
-		this.gen = new FiniteAutomataGenerator(scannerCaseSensitive);
-
-		try {
-			this.parseDefs(defs);	
-		} catch (error) {
-			ErrorLog.Instance.add(error as AnalysisError);
-		}
-		
-		this.parseTokens(tokens);
-
-		try
-		{
-         let fa: FiniteAutomata | null = this.gen.generateAutomata();
-         
-		 if(fa == null) throw new AnalysisError("Automato gerado é nulo");
-		
-		 return fa;
-		}
-		catch (error){
-			console.log(error);
-			throw new MetaException(MetaException.Mode.TOKEN, 0, error as AnalysisError);
-		}
-
-	}
-
-	private parseDefs(str: string) { // throws MetaException
-
-		if(this.gen == null) return;
-
-		let tknzr: string[] =  str.split(/(\n)/g);
-		let lineCount: number = 0;
-		
-		for(let line of tknzr) {
-			
-			if (line == "\n") {
-
-				lineCount++;
-
-				continue;
-			}
-			
-			this.scanner.text = line;
-			
-			try {
-
-				let t: Token | null = this.nextToken();
-				
-				this.pos = 0;
-				if (t != null && t.id == LineScanner.ID) {
-
-					let id: string = t.lexeme;
-
-					this.pos = t.position + id.length;
-
-					t = this.nextToken();
-
-					if (t != null && t.id == LineScanner.COLON) {
-						
-						this.pos = t.position + 1;
-						t = this.nextToken();
-						
-						if (t != null && t.id == LineScanner.RE) {
-							
-							let re: string = t.lexeme;
-							
-							try {
-								let tokenParsed: Node | undefined = this.parseRE(re);
-								if(tokenParsed == undefined) return;
-								this.gen.addDefinition(id, tokenParsed);
-							}
-							catch (e) {
-                        		let analysisError =  e as AnalysisError;
-								analysisError.position = (analysisError.position + this.pos);
-								throw analysisError;
-							}	
-						} else
-							throw new SyntaticError("Era esperado uma Expressão Regular", this.pos);
-					} else
-						throw new SyntaticError("Era esperado ':'", this.pos);
-				} else if (t == null)
-					continue;
-				else
-					throw new SyntaticError("Era esperado um identificador", this.pos);
-			}
-			catch (e) {
-				throw new MetaException(MetaException.Mode.DEFINITION, 0, e as AnalysisError);
-			}
-		}
-	}
+import { SemanticError, LexicalError, SyntaticError } from '../analyser/SystemErros'
+import { MetaException } from '../util/MetaException'
+import { LineScanner } from './LineScanner'
+import { FiniteAutomataGenerator } from './FiniteAutomataGenerator'
+import { AnalysisError } from '../analyser/AnalysisError'
+import { FiniteAutomata } from '../generator/FiniteAutomata'
+import { Token } from '../analyser/Token'
+import { REParser } from './REParser'
+import { Node } from './Node'
+import { ErrorLog } from '../ErrorLog'
+
+export class LineParser {
+  private scanner: LineScanner = new LineScanner()
+  private pos: number = 0
+  private gen: FiniteAutomataGenerator | null = null
 
-//    private parseDefs(string: string){ // throws MetaException
+  parseFA(defs: string, tokens: string, scannerCaseSensitive: boolean): FiniteAutomata {
+    //throws MetaException{
 
-// 	   //StringTokenizer tknzr = new StringTokenizer(string, "\n");
-//       let tknzr: string[] =  string.split(/(\n)/g);
+    this.gen = new FiniteAutomataGenerator(scannerCaseSensitive)
 
-// 		let lineCount: number = 0;
+    try {
+      this.parseDefs(defs)
+    } catch (error) {
+      ErrorLog.Instance.add(error as AnalysisError)
+    }
 
-// 		for(let line of tknzr){
+    this.parseTokens(tokens)
 
-// 			if (line == "\n"){
-// 				lineCount++;
-// 				continue;
-// 			}
+    try {
+      let fa: FiniteAutomata | null = this.gen.generateAutomata()
 
-// 			this.scanner.text = line;
+      if (fa == null) throw new AnalysisError('Automato gerado é nulo')
 
-// 			try{
+      return fa
+    } catch (error) {
+      console.log(error)
+      throw new MetaException(MetaException.Mode.TOKEN, 0, error as AnalysisError)
+    }
+  }
 
-// 				let t: Token | null = this.nextToken();
+  private parseDefs(str: string) {
+    // throws MetaException
 
-// 				this.pos = 0;
+    if (this.gen == null) return
 
-// 				if (t != null && t.id == LineScanner.ID){
+    let tknzr: string[] = str.split(/(\n)/g)
+    let lineCount: number = 0
 
-// 					let id: string = t.lexeme;
+    for (let line of tknzr) {
+      if (line == '\n') {
+        lineCount++
 
-// 					this.pos = t.position +id.length;
+        continue
+      }
 
-// 					t = this.nextToken();
+      this.scanner.text = line
 
-// 					if (t != null && t.id == LineScanner.COLON){
+      try {
+        let t: Token | null = this.nextToken()
 
-// 						this.pos = t.position + 1;
+        this.pos = 0
+        if (t != null && t.id == LineScanner.ID) {
+          let id: string = t.lexeme
 
-// 						t = this.nextToken();
+          this.pos = t.position + id.length
 
-// 						if (t != null && t.id == LineScanner.RE){
+          t = this.nextToken()
 
-// 							let re: string = t.lexeme;
+          if (t != null && t.id == LineScanner.COLON) {
+            this.pos = t.position + 1
+            t = this.nextToken()
 
-// 							try{
-                        		
-// 								if(this.gen == null) throw new AnalysisError("Gerador de Automatos Finitos é nulo!");
-								
-// 								let node: Node | undefined =  this.parseRE(re);
-// 								if(node != undefined)
-								
-// 								this.gen.addDefinition(id, node);
-// 							}
-// 							catch (e){
+            if (t != null && t.id == LineScanner.RE) {
+              let re: string = t.lexeme
 
-//                         		let analysisError =  e as AnalysisError;
-// 								analysisError.position = (analysisError.position + this.pos);
+              try {
+                let tokenParsed: Node | undefined = this.parseRE(re)
+                if (tokenParsed == undefined) return
+                this.gen.addDefinition(id, tokenParsed)
+              } catch (e) {
+                let analysisError = e as AnalysisError
+                analysisError.position = analysisError.position + this.pos
+                throw analysisError
+              }
+            } else throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
+          } else throw new SyntaticError("Era esperado ':'", this.pos)
+        } else if (t == null) continue
+        else throw new SyntaticError('Era esperado um identificador', this.pos)
+      } catch (e) {
+        throw new MetaException(MetaException.Mode.DEFINITION, 0, e as AnalysisError)
+      }
+    }
+  }
 
-// 								throw analysisError;
-// 							}	
-// 						} else throw new SyntaticError("Era esperado uma Expressão Regular", this.pos);
+  //    private parseDefs(string: string){ // throws MetaException
 
-// 					} else throw new SyntaticError("Era esperado ':'", this.pos);
+  // 	   //StringTokenizer tknzr = new StringTokenizer(string, "\n");
+  //       let tknzr: string[] =  string.split(/(\n)/g);
 
-// 				} else if (t == null) continue;
+  // 		let lineCount: number = 0;
 
-// 				else throw new SyntaticError("Era esperado um identificador", this.pos);
+  // 		for(let line of tknzr){
 
-// 			}catch (e){
-// 				throw new MetaException(MetaException.Mode.DEFINITION, lineCount, e as AnalysisError);
-// 			}
+  // 			if (line == "\n"){
+  // 				lineCount++;
+  // 				continue;
+  // 			}
 
-// 		}
+  // 			this.scanner.text = line;
 
-// 	}
+  // 			try{
 
-	private parseTokens(tokenInput: string){ // throws MetaException
+  // 				let t: Token | null = this.nextToken();
 
-		let lineCount: number = 0;
-		//StringTokenizer tknzr = new StringTokenizer(string, "\n", true);
-		//let tknzr: string[] =  tokenInput.split(/(\n)/g);
-		let tknzr: string[] =  tokenInput.split(/(\n)/g);
+  // 				this.pos = 0;
 
-		for(let line of tknzr){
-			if (line === "\n"){
+  // 				if (t != null && t.id == LineScanner.ID){
 
-				lineCount++;
+  // 					let id: string = t.lexeme;
 
-				continue;
-			}
+  // 					this.pos = t.position +id.length;
 
-			this.scanner.text = line;
+  // 					t = this.nextToken();
 
-			try{
+  // 					if (t != null && t.id == LineScanner.COLON){
 
-				let t: Token | null = this.nextToken();
+  // 						this.pos = t.position + 1;
 
-				this.pos = 0;
+  // 						t = this.nextToken();
 
-				if (t != null){
+  // 						if (t != null && t.id == LineScanner.RE){
 
-					this.pos = t.position + t.lexeme.length;
+  // 							let re: string = t.lexeme;
 
-					switch (t.id){
+  // 							try{
 
-						case LineScanner.COLON:
+  // 								if(this.gen == null) throw new AnalysisError("Gerador de Automatos Finitos é nulo!");
 
-							this.parseIgnore();
-							break;
+  // 								let node: Node | undefined =  this.parseRE(re);
+  // 								if(node != undefined)
 
-						case LineScanner.ID:
-						case LineScanner.STR:
+  // 								this.gen.addDefinition(id, node);
+  // 							}
+  // 							catch (e){
 
-							this.parseId(t);
-							break;
+  //                         		let analysisError =  e as AnalysisError;
+  // 								analysisError.position = (analysisError.position + this.pos);
 
-						default:
-							throw new SyntaticError("Era esperado um identificador", 0);
-					}
-				}
-			} catch (e) {
-				throw new MetaException(MetaException.Mode.TOKEN, lineCount, e as AnalysisError);
-			}
-		}
-	}
+  // 								throw analysisError;
+  // 							}
+  // 						} else throw new SyntaticError("Era esperado uma Expressão Regular", this.pos);
 
-   private parseIgnore(){ // throws AnalysisError
+  // 					} else throw new SyntaticError("Era esperado ':'", this.pos);
 
-		let t: Token | null = this.nextToken();
+  // 				} else if (t == null) continue;
 
-		if (t != null && t.id == LineScanner.RE){
+  // 				else throw new SyntaticError("Era esperado um identificador", this.pos);
 
-			let re: string = t.lexeme;
+  // 			}catch (e){
+  // 				throw new MetaException(MetaException.Mode.DEFINITION, lineCount, e as AnalysisError);
+  // 			}
 
-			try{
-            	if(this.gen == null) throw new AnalysisError("Gerador de Autômatos Finitos não inicializado!");
+  // 		}
 
-					if (re.charAt(0) == '!'){
+  // 	}
 
-						let node: Node | undefined =  this.parseRE(re.substring(1));
-						if(node != undefined)
-							this.gen.addIgnore(node, false);
-					}
-				else{
-					
-					let node: Node | undefined =  this.parseRE(re);
-					if(node != undefined)
-						this.gen.addIgnore(node, true);
-				}
+  private parseTokens(tokenInput: string) {
+    // throws MetaException
 
-			} catch (e) {
+    let lineCount: number = 0
+    //StringTokenizer tknzr = new StringTokenizer(string, "\n", true);
+    //let tknzr: string[] =  tokenInput.split(/(\n)/g);
+    let tknzr: string[] = tokenInput.split(/(\n)/g)
 
-            	let analysisError = e as AnalysisError;
+    for (let line of tknzr) {
+      if (line === '\n') {
+        lineCount++
 
-				analysisError.position =  (analysisError.position + t.position);
+        continue
+      }
 
-				throw analysisError;
-			}	
-		} else throw new SyntaticError("Era esperado uma Expressão Regular", this.pos);
-	}
+      this.scanner.text = line
 
+      try {
+        let t: Token | null = this.nextToken()
 
-	//TODO Weird
-	private parseId(t: Token | null){ // throws AnalysisError
+        this.pos = 0
 
-		if(t == null) return;
+        if (t != null) {
+          this.pos = t.position + t.lexeme.length
 
-		let id: string = t.lexeme;
+          switch (t.id) {
+            case LineScanner.COLON:
+              this.parseIgnore()
+              break
 
-		t = this.nextToken();
+            case LineScanner.ID:
+            case LineScanner.STR:
+              this.parseId(t)
+              break
 
-		if (t == null){
-			try {
+            default:
+              throw new SyntaticError('Era esperado um identificador', 0)
+          }
+        }
+      } catch (e) {
+        throw new MetaException(MetaException.Mode.TOKEN, lineCount, e as AnalysisError)
+      }
+    }
+  }
 
-				if(this.gen == null) return;
-				let node: Node | undefined =  this.parseRE(id);
-				if(node == undefined) return;
+  private parseIgnore() {
+    // throws AnalysisError
 
-				this.gen.addExpression(id, node, true);
+    let t: Token | null = this.nextToken()
 
-			} catch (e) {
-				let analysisError = e as AnalysisError;
-				analysisError.position =  (analysisError.position)//+ t.position); // TODO NULL DONT HAVE POSITION
-				throw analysisError;
-			}
-		}else{
+    if (t != null && t.id == LineScanner.RE) {
+      let re: string = t.lexeme
 
-			this.pos = t.position + t.lexeme.length;
+      try {
+        if (this.gen == null)
+          throw new AnalysisError('Gerador de Autômatos Finitos não inicializado!')
 
-			switch (t.id) {
-				case  LineScanner.COLON:
-					this.parseIdEnd(id);
-					break;
-				case LineScanner.EQUALS:
-					this.parseSpecialCase(id);
-					break;
-				default:
-					this.pos = t.position;
-					throw new SyntaticError("Era esperado ':' ou '='", this.pos);
-			}
+        if (re.charAt(0) == '!') {
+          let node: Node | undefined = this.parseRE(re.substring(1))
+          if (node != undefined) this.gen.addIgnore(node, false)
+        } else {
+          let node: Node | undefined = this.parseRE(re)
+          if (node != undefined) this.gen.addIgnore(node, true)
+        }
+      } catch (e) {
+        let analysisError = e as AnalysisError
 
-		}
-	}
+        analysisError.position = analysisError.position + t.position
 
-	private parseIdEnd(id: string){// throws AnalysisError
+        throw analysisError
+      }
+    } else throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
+  }
 
-		let t: Token | null = this.nextToken();
+  //TODO Weird
+  private parseId(t: Token | null) {
+    // throws AnalysisError
 
-		if (t == null || t.id != LineScanner.RE){
-			throw new SyntaticError("Era esperado uma Expressão Regular", this.pos);
-		}
+    if (t == null) return
 
-		let re: string = t.lexeme;
+    let id: string = t.lexeme
 
+    t = this.nextToken()
 
-		try {
+    if (t == null) {
+      try {
+        if (this.gen == null) return
+        let node: Node | undefined = this.parseRE(id)
+        if (node == undefined) return
 
-			if(this.gen == null) return;
+        this.gen.addExpression(id, node, true)
+      } catch (e) {
+        let analysisError = e as AnalysisError
+        analysisError.position = analysisError.position //+ t.position); // TODO NULL DONT HAVE POSITION
+        throw analysisError
+      }
+    } else {
+      this.pos = t.position + t.lexeme.length
 
-			if (re.charAt(0) == '!'){
-				let node: Node | undefined =  this.parseRE(re.substring(1));
-				if(node != undefined)
-				this.gen.addExpression(id, node, false);
-			}
-			else{
-				let node: Node | undefined =  this.parseRE(re);
-				if(node != undefined)
-				this.gen.addExpression(id,node, true);
-			}
-		} catch (e) {
-				let analysisError = e as AnalysisError;
-				analysisError.position =  (analysisError.position+ t.position);
-				throw analysisError;
-		}
-	}
+      switch (t.id) {
+        case LineScanner.COLON:
+          this.parseIdEnd(id)
+          break
+        case LineScanner.EQUALS:
+          this.parseSpecialCase(id)
+          break
+        default:
+          this.pos = t.position
+          throw new SyntaticError("Era esperado ':' ou '='", this.pos)
+      }
+    }
+  }
 
-	private parseSpecialCase(id: string){// throws AnalysisError
+  private parseIdEnd(id: string) {
+    // throws AnalysisError
 
-		let t: Token | null = this.nextToken();
+    let t: Token | null = this.nextToken()
 
-		if (t != null && t.id == LineScanner.ID){
+    if (t == null || t.id != LineScanner.RE) {
+      throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
+    }
 
-			let id2: string = t.lexeme;
+    let re: string = t.lexeme
 
-			this.pos = t.position + id.length;
+    try {
+      if (this.gen == null) return
 
-			t = this.nextToken();
+      if (re.charAt(0) == '!') {
+        let node: Node | undefined = this.parseRE(re.substring(1))
+        if (node != undefined) this.gen.addExpression(id, node, false)
+      } else {
+        let node: Node | undefined = this.parseRE(re)
+        if (node != undefined) this.gen.addExpression(id, node, true)
+      }
+    } catch (e) {
+      let analysisError = e as AnalysisError
+      analysisError.position = analysisError.position + t.position
+      throw analysisError
+    }
+  }
 
-			if (t != null && t.id == LineScanner.COLON){
-				this.pos = t.position + 1;
+  private parseSpecialCase(id: string) {
+    // throws AnalysisError
 
-				t = this.nextToken();
+    let t: Token | null = this.nextToken()
 
-				if (t != null && t.id == LineScanner.STR){
+    if (t != null && t.id == LineScanner.ID) {
+      let id2: string = t.lexeme
 
-					let re: string = t.lexeme;
+      this.pos = t.position + id.length
 
-					re = re.substring(1, re.length - 1);
+      t = this.nextToken()
 
-					try {
+      if (t != null && t.id == LineScanner.COLON) {
+        this.pos = t.position + 1
 
-						if(this.gen == null )return;
-						this.gen.addSpecialCase(id, id2, re);
+        t = this.nextToken()
 
-					} catch (e) {
-						let analysisError = e as AnalysisError;
-						analysisError.position =  (analysisError.position+ t.position);
-						throw analysisError;	
-					}
+        if (t != null && t.id == LineScanner.STR) {
+          let re: string = t.lexeme
 
-					t = this.nextToken();
+          re = re.substring(1, re.length - 1)
 
-					if (t != null)
-						throw new SyntaticError("Só é permitido uma definição por linha", t.position);
+          try {
+            if (this.gen == null) return
+            this.gen.addSpecialCase(id, id2, re)
+          } catch (e) {
+            let analysisError = e as AnalysisError
+            analysisError.position = analysisError.position + t.position
+            throw analysisError
+          }
 
-				}
-				else throw new SyntaticError("Era esperado uma Expressão Regular", this.pos);
-			}
-			else throw new SyntaticError("Era esperado ':'", this.pos);
-		}
-		else throw new SyntaticError("Era esperado um Identificador", this.pos);
-	}
+          t = this.nextToken()
 
-	private nextToken(): Token | null{ //  throws LexicalError
+          if (t != null)
+            throw new SyntaticError('Só é permitido uma definição por linha', t.position)
+        } else throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
+      } else throw new SyntaticError("Era esperado ':'", this.pos)
+    } else throw new SyntaticError('Era esperado um Identificador', this.pos)
+  }
 
-		let t: Token | null = this.scanner.nextToken();
-		if (t != null){
+  private nextToken(): Token | null {
+    //  throws LexicalError
 
-			if (t.id == LineScanner.COMMENT)
-				t = this.nextToken();
-			else if (t.id == LineScanner.ERROR)
-				throw new LexicalError("Token inválido", t.position);
-		}
-		return t;
-	}	
+    let t: Token | null = this.scanner.nextToken()
+    if (t != null) {
+      if (t.id == LineScanner.COMMENT) t = this.nextToken()
+      else if (t.id == LineScanner.ERROR) throw new LexicalError('Token inválido', t.position)
+    }
+    return t
+  }
 
+  private parseRE(re: string): Node | undefined {
+    //  throws AnalysisError
 
-	private parseRE(re: string): Node | undefined{ //  throws AnalysisError
+    let parser: REParser = new REParser()
 
-		let parser: REParser = new REParser();
-
-		if(this.gen != null)
-			return parser.parse(re, this.gen);
-		else
-			return undefined;
-	}
-
+    if (this.gen != null) return parser.parse(re, this.gen)
+    else return undefined
+  }
 }

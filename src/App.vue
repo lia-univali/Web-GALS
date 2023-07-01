@@ -9,8 +9,6 @@ import ModalConfiguracoes from './components/ModalConfiguracoes.vue';
 import { Splitpanes, Pane } from 'splitpanes';
 import 'splitpanes/dist/splitpanes.css'
 
-//import { Multipane, MultipaneResizer } from 'vue-multipane';
-
 export default defineComponent({
   name: 'GalsWeb',
   components: {

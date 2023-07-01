@@ -1,30 +1,24 @@
-import { List } from "./DataStructures";
-import { AnalysisError } from "./analyser/AnalysisError";
+import { List } from './DataStructures'
+import { AnalysisError } from './analyser/AnalysisError'
 
-export class ErrorLog{
+export class ErrorLog {
+  private static _instance: ErrorLog
 
-    private static _instance: ErrorLog
+  private errorList: List<AnalysisError>
 
+  private constructor() {
+    this.errorList = new List()
+  }
 
-    private errorList: List<AnalysisError>;
+  public static get Instance() {
+    return this._instance || (this._instance = new this())
+  }
 
-    private constructor()
-    {
-        this.errorList = new List; 
-    }
+  public static get errorList(): List<Error> {
+    return this.errorList
+  }
 
-    public static get Instance()
-    {
-        return this._instance || (this._instance = new this());
-    }
-
-    public static get errorList(): List<Error>{
-        return this.errorList;
-    }
-
-    add(error: AnalysisError){
-        this.errorList.add(error);
-    }
-
-
+  add(error: AnalysisError) {
+    this.errorList.add(error)
+  }
 }

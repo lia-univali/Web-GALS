@@ -1,11 +1,10 @@
 <script lang="ts">
 
-    import { computed, defineComponent } from 'vue';
+    import { defineComponent } from 'vue';
     import { projetoStore} from '@/stores/projetoStore';
     import { Token } from '@/assets/scripts/gals-lib/analyser/Token';
     import { lexSimulation } from '@/assets/scripts/gals-functions';
-    //import { simulateLex } from '@/assets/scripts/gals-lib/service/SimulatorService';
-
+    
     export default defineComponent({
         name: 'SimuladorJanela',
         components:{
@@ -17,29 +16,21 @@
         },
         setup() {
             const store = projetoStore();
-
-            const selecionado = computed(() => {
-                return store.selecionado;
-            });
-
-            const projetos = computed(() => {
-                return store.listaProjetos;
-            });
-
+            
             return {
                 store,
             }
         },
         methods: {
             simularLexico() {
+                
                 const selecionado = this.store.selecionado
+
+                if(selecionado == -1) return;
+
                 const projeto = this.store.listaProjetos[selecionado];
-                const textoSimulador = this.store.textoSimulador;
 
-                console.log(projeto);
-                console.log(textoSimulador);
-
-                this.resultadoLexico = lexSimulation(textoSimulador, projeto.regularDefinitions, projeto.tokens);
+                this.resultadoLexico = lexSimulation(projeto.textSimulator, projeto.regularDefinitions, projeto.tokens);
                
             }
         }
