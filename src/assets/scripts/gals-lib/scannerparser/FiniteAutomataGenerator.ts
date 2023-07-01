@@ -4,8 +4,8 @@ import { IntegerSet, List } from '../DataStructures'
 import { FiniteAutomata, KeyValuePar } from '../generator/FiniteAutomata'
 import { CHAR, CLOSURE, CLOSURE_OB, OPTIONAL, UNION } from './Constants'
 import TreeMap from 'ts-treemap'
-import cloneDeep from 'lodash.clonedeep'
 import HashMap from 'hashmap'
+//import cloneDeep from 'lodash.clonedeep'
 
 /* 
     Modifications:
@@ -321,13 +321,15 @@ export class FiniteAutomataGenerator {
 
       let end: number = scList.size()
 
-      //TODO Convert code
       scIndexes[i] = [start, end]
     }
 
     let sc: KeyValuePar[] = new Array()
 
-    sc = cloneDeep(scList.toArray())
+    const clone = Object.assign({}, scList.toArray())
+    sc = Object.setPrototypeOf(clone,  KeyValuePar.prototype)
+    
+    //sc = cloneDeep(scList.toArray())//this one is the older clone
 
     let cont: number[][] = Array.from({ length: states.size() }, () => Array.from({ length: 2 }))
 
