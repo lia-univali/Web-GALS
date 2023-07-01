@@ -39,9 +39,9 @@ export default defineComponent({
 
     <div class="contentor__centro">
       <div class="contentor__centro__superior">
-        <splitpanes class="default-theme" horizontal>
+        <splitpanes horizontal>
           <pane>
-            <splitpanes class="default-theme" vertival>
+            <splitpanes vertival>
               <pane>
                 <AreaCodigo titulo="Tokens" />
               </pane>
@@ -142,34 +142,24 @@ body {
   margin-top: 10px;
 }
 
-.splitpanes {
-  background-color: transparent;
-}
-
-.splitpanes__splitter {
-  background-color: transparent;
-  position: relative;
-  z-index: 1041;
-}
-
-.splitpanes__splitter:before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  transition: opacity 0.4s;
-  background-color: rgba(255, 0, 0, 0.3);
-  opacity: 0;
-  z-index: 1;
-}
-
 .splitpanes--vertical > .splitpanes__splitter {
-  min-width: 20px;
-  background-color: transparent;
+  min-width: 10px;
 }
 
 .splitpanes--horizontal > .splitpanes__splitter {
-  min-height: 20px;
-  background-color: #aeaeae;
+  min-height: 10px;
 }
+
+.splitpanes--vertical > .splitpanes__splitter:hover {
+  background-color: #a8d19b;
+  border-radius: 3px;
+  transition: 0.3s;
+}
+
+.splitpanes--horizontal > .splitpanes__splitter:hover {
+  background-color: #a8d19b;
+  border-radius: 3px;
+  transition: 0.3s;
+}
+
 </style>
