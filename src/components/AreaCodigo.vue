@@ -158,7 +158,7 @@ export default defineComponent({
 
   font-family: 'Fira Code';
 
-  white-space: nowrap;
+  white-space: pre;
 }
 
 .caixa {
