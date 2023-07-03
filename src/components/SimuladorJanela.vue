@@ -36,7 +36,7 @@ export default defineComponent({
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
         console.log(error as Object)
-        projeto.consoleExit = (error as Error).message
+        projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
     }
   }
