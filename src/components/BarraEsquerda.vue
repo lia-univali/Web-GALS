@@ -161,7 +161,7 @@ export default defineComponent({
       <div v-if="paginaAberta == 'Projetos'" class="abaProjetos">
         <div class="lista__projetos" v-if="store.totalProjetos > 0">
           <div v-for="projeto in projetos" :key="projeto.id" class="projeto__acaoes">
-            <button @click="store.changeSelected(projeto.id)" class="botao__mudar__projeto">
+            <button @click="store.changeSelected(projeto.id)" class="botao__mudar__projeto" v-bind:class="selecionado == projeto.id ? 'selecionado__projeto' : ''">
               {{ projeto.fileName }}
             </button>
             <button @click="store.deleteProject(projeto.id)" class="botao__excluir__projeto">
@@ -355,6 +355,11 @@ input[type='file'] {
 .selecionado {
   border-left: 3px solid #aace65;
   border-right: 3px solid #aace65;
+}
+
+.selecionado__projeto {
+  font-weight: bold;
+  color: #839f50;
 }
 
 .nao__selecionado {
