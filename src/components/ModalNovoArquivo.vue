@@ -35,6 +35,7 @@ export default defineComponent({
         }
 
         this.store.addProject(newProject)
+        this.store.selectLastProject()
         this.fecharModal()
       }
     }

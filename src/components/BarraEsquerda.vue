@@ -81,6 +81,7 @@ export default defineComponent({
         }
 
         thatStore.addProject(newProject)
+        thatStore.selectLastProject()
       }
 
       input.value = ''

@@ -41,6 +41,9 @@ export const projetoStore = defineStore('projetos', {
     },
     addProject(newProject: Projeto) {
       this.listaProjetos.push(newProject)
+    },
+    selectLastProject() {
+      this.selecionado = this.listaProjetos.length - 1; 
     }
   }
 })
