@@ -136,18 +136,18 @@ export default defineComponent({
         @click="abrirProjetos"
         v-bind:class="paginaAberta == 'Projetos' ? 'selecionado' : 'nao_selecionado'"
       ></button>
-      <button class="botao opcao" @click="abrirOpcaoes"></button>
+      <button class="botao novo__projeto" @click="abrirModalNovoArquivo"></button>
+      <label class="botao__input" @change="abrirArquivo">
+        <input name="file" type="file" id="file" ref="myFiles" accept=".gals" />
+        Custom Upload
+      </label>
+      <button class="botao salvar" @click="salvarArquivo"></button>
       <button
         class="botao documentacao"
         @click="abrirDocumentacao"
         v-bind:class="paginaAberta == 'Documentação' ? 'selecionado' : 'nao_selecionado'"
       ></button>
-      <label class="botao__input" @change="abrirArquivo">
-        <input name="file" type="file" id="file" ref="myFiles" accept=".gals" />
-        Custom Upload
-      </label>
-      <button class="botao novo__projeto" @click="abrirModalNovoArquivo"></button>
-      <button class="botao salvar" @click="salvarArquivo"></button>
+      <button class="botao opcao" @click="abrirOpcaoes"></button>
       <button
         class="botao informacoes"
         @click="abrirInformacoes"
