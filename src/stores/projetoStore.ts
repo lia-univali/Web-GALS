@@ -15,7 +15,20 @@ export interface Projeto {
 export const projetoStore = defineStore('projetos', {
   state: () => {
     return {
-      listaProjetos: [] as Projeto[],
+      listaProjetos: [
+        {
+          'id': 0,
+          'fileName': 'untitled.gals',
+          'options': '',
+          'regularDefinitions': '',
+          'tokens': '',
+          'nonTerminals': '',
+          'grammar': '',
+          'textSimulator': '',
+          'consoleExit': '',
+
+        },
+      ] as Projeto[],
       selecionado: -1
     }
   },
