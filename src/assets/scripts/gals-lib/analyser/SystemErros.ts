@@ -29,3 +29,11 @@ export class SyntaticError extends AnalysisError {
     }
   }
 }
+
+export class NotLLException extends Error
+{	
+	constructor(string: string)
+	{
+		super(string);
+	}
+}

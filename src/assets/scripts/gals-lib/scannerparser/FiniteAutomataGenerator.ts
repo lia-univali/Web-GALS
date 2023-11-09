@@ -265,7 +265,7 @@ export class FiniteAutomataGenerator {
   }
 
   public makeAtomata(
-    states: List<Set<number>>,
+    states: List<IntegerSet>,
     trans: Map<number, Map<string, number>>,
     finals: Map<number, number>,
     back: Map<number, boolean>,
@@ -523,8 +523,8 @@ export class FiniteAutomataGenerator {
         n.nullable = true
 
         if (l != null) {
-          l.metaData.first.forEach((item) => n.first.add(item))
-          l.metaData.last.forEach((item) => n.last.add(item))
+          l.metaData.first.list().forEach((item) => n.first.add(item))
+          l.metaData.last.list().forEach((item) => n.last.add(item))
         }
 
         break
@@ -533,8 +533,8 @@ export class FiniteAutomataGenerator {
         n.nullable = false
 
         if (l != null) {
-          l.metaData.first.forEach((item) => n.first.add(item))
-          l.metaData.last.forEach((item) => n.last.add(item))
+          l.metaData.first.list().forEach((item) => n.first.add(item))
+          l.metaData.last.list().forEach((item) => n.last.add(item))
         }
 
         break
@@ -544,11 +544,11 @@ export class FiniteAutomataGenerator {
 
         n.nullable = l.metaData.nullable || r.metaData.nullable
 
-        l.metaData.first.forEach((item) => n.first.add(item))
-        r.metaData.first.forEach((item) => n.first.add(item))
+        l.metaData.first.list().forEach((item) => n.first.add(item))
+        r.metaData.first.list().forEach((item) => n.first.add(item))
 
-        l.metaData.last.forEach((item) => n.last.add(item))
-        r.metaData.last.forEach((item) => n.last.add(item))
+        l.metaData.last.list().forEach((item) => n.last.add(item))
+        r.metaData.last.list().forEach((item) => n.last.add(item))
 
         break
 
@@ -557,16 +557,16 @@ export class FiniteAutomataGenerator {
 
         n.nullable = l.metaData.nullable && r.metaData.nullable
 
-        l.metaData.first.forEach((item) => n.first.add(item))
+        l.metaData.first.list().forEach((item) => n.first.add(item))
 
         if (l.metaData.nullable) {
-          r.metaData.first.forEach((item) => n.first.add(item))
+          r.metaData.first.list().forEach((item) => n.first.add(item))
         }
 
-        r.metaData.last.forEach((item) => n.last.add(item))
+        r.metaData.last.list().forEach((item) => n.last.add(item))
 
         if (r.metaData.nullable) {
-          l.metaData.last.forEach((item) => n.last.add(item))
+          l.metaData.last.list().forEach((item) => n.last.add(item))
         }
 
         break

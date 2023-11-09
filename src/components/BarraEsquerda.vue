@@ -4,6 +4,8 @@ import AreaCodigo from '@/components/AreaCodigo.vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import salvador from '@/assets/scripts/saver'
+import { lexicalTable, nonTerminalsFromGrammar, syntacticTable } from '@/assets/scripts/gals-functions'
+import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
   name: 'BarraEsquerda',
@@ -74,7 +76,7 @@ export default defineComponent({
           options: splitResultado[1] == undefined ? '' : splitResultado[1],
           regularDefinitions: splitResultado[2] == undefined ? '' : splitResultado[2],
           tokens: splitResultado[3] == undefined ? '' : splitResultado[3],
-          nonTerminals: splitResultado[4] == undefined ? '' : splitResultado[4],
+          nonTerminals: splitResultado[4] == undefined ? '' : splitResultado[4].split("\n")[0].trim(),
           grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
           textSimulator: '',
           consoleExit: ''
@@ -110,7 +112,7 @@ export default defineComponent({
           (regularDefinitions == undefined ? '' : regularDefinitions) +
           '\n\n'
         codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n\n'
-        codigo += '#NonTerminals\n' + (nonTerminals == undefined ? '' : nonTerminals) + '\n\n'
+        codigo += '#NonTerminals\n' + (nonTerminals == undefined ? '' : nonTerminalsFromGrammar(nonTerminals, grammar)) + '\n\n'
         codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar) + '\n\n'
 
         salvador.download(codigo, this.projetos[this.selecionado].fileName, '.gals')
@@ -124,7 +126,48 @@ export default defineComponent({
       if (this.paginaAberta == pagina)
         this.estiloDisplayConteudo = this.estiloDisplayConteudo == 'flex' ? 'none' : 'flex'
       else this.estiloDisplayConteudo = 'flex'
-    }
+    },
+    mostrarTabelaLexico() {
+      const selecionado = this.store.selecionado
+      const projeto = this.store.listaProjetos[selecionado]
+
+      const html: string = lexicalTable(
+        projeto.regularDefinitions,
+        projeto.tokens
+      );
+
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      } else {
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      }
+    },
+    mostrarTabelaSintatico() {
+      const selecionado = this.store.selecionado
+      const projeto = this.store.listaProjetos[selecionado]
+
+      const html: string = syntacticTable(
+          projeto.regularDefinitions,
+          projeto.tokens,
+          projeto.nonTerminals,
+          projeto.grammar,
+          Options.PARSER_SLR,
+          null
+      );
+
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      } else {
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      }
+    },
+    
   }
 })
 </script>
@@ -170,15 +213,18 @@ export default defineComponent({
             </button>
           </div>
         </div>
+        <AreaCodigo titulo="Simbolo inicial" />
         <AreaCodigo titulo="Definições Regulares" />
-        <AreaCodigo titulo="Não Terminais" />
       </div>
       <div v-else-if="paginaAberta == 'Opções'">
         <div v-if="store.totalProjetos > 0">
           <p>{{ projetos[selecionado].options }}</p>
         </div>
       </div>
-      <div v-else-if="paginaAberta == 'Documentação'"></div>
+      <div v-else-if="paginaAberta == 'Documentação'">
+        <button @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
+        <button @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
+      </div>
       <div v-else-if="paginaAberta == 'Informações'"></div>
     </div>
   </div>

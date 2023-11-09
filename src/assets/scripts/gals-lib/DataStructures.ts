@@ -6,6 +6,7 @@ interface IStack<T> {
 }
 
 export class Stack<T> implements IStack<T> {
+
   private storage: T[] = []
 
   constructor(private capacity: number = Infinity) {}
@@ -21,12 +22,24 @@ export class Stack<T> implements IStack<T> {
     return this.storage.pop()
   }
 
+  get(index: number): T | undefined {
+    return this.storage[index]
+  }
+
   peek(): T | undefined {
     return this.storage[this.size() - 1]
   }
 
   size(): number {
     return this.storage.length
+  }
+
+  empty(): boolean{
+    return this.storage.length == 0;
+  }
+
+  clear() {
+    this.storage =[];
   }
 }
 
@@ -42,8 +55,16 @@ export class List<T> {
     return this.items.length
   }
 
+  set(i: number, value: T) {
+    this.items[i] = value;
+  }
+
   add(value: T): void {
     this.items.push(value)
+  }
+
+  addAll(list: List<T>): void {
+    this.items.concat(list.toArray());
   }
 
   get(index: number): T {
@@ -60,9 +81,17 @@ export class List<T> {
     return true
   }
 
+  removeByIndex(index: number): T {
+    let item = this.items[index];
+    this.items.splice(index, 1);
+    return item
+  }
+
   contains(value: T): boolean {
+    //return this.items.indexOf(valueToCheck) !== -1
     return this.items.includes(value)
   }
+
 
   indexOf(value: T): number {
     return this.items.indexOf(value)
@@ -77,7 +106,25 @@ export class List<T> {
   }
 
   toString(): string {
-    return JSON.stringify(this)
+
+    // let result = "[";
+
+    // if(Array.isArray(this.items[0])){
+    
+    //   for(let item of this.items){
+
+    //     if(item instanceof List){
+    //       result+= item.toString() + ", ";
+    //     }
+    //   }
+    //   result += "]";
+    //   return result;
+    // }else
+      return `[${this.items.toString().split(',').join(', ')}]`
+  }
+
+  toJSON() {
+    return { values: this.items }
   }
 
   [Symbol.iterator](): IterableIterator<T> {
@@ -87,19 +134,25 @@ export class List<T> {
 
 export class IntegerSet {
   private _elements_set: Set<number>
-  private _elements: number;
+  private _elements: number; // TODO: Passar para Bigint
 
   [Symbol.toStringTag]: string = 'IntegerSet'
 
-  public constructor(data?: IntegerSet) {
-    if (data instanceof IntegerSet) {
-      this._elements_set = data.getNumberSet()
-      this._elements = data.getNumber()
-      return
-    }
+  public constructor(data?: IntegerSet | number) {
+    if(data === undefined){
+      this._elements = 0
+      this._elements_set = new Set<number>()
+    }else{
+      if (data instanceof IntegerSet) {
+        this._elements_set = data.getNumberSet()
+        this._elements = data.getNumber()
+      }else{ // Number
+        this._elements = 0
+        this._elements_set = new Set<number>()
 
-    this._elements = 0
-    this._elements_set = new Set<number>()
+        this.add(data);
+      }
+    }
   }
 
   public clone(): IntegerSet {
@@ -129,7 +182,7 @@ export class IntegerSet {
     this._elements = this._elements | mask
   }
 
-  private getBit(bitPos: number): boolean {
+  public getBit(bitPos: number): boolean {
     let operation = this._elements
     for (let i = 0; i < bitPos; i++) {
       operation >>= 1
@@ -154,11 +207,11 @@ export class IntegerSet {
     return this._elements_set.size === 0
   }
 
-  public add(i: number): this {
+  public add(i: number): boolean {
     this._elements_set.add(i)
     let added = !this.getBit(i)
     this.setBit(i)
-    return this
+    return added;
   }
 
   public first(): number {
@@ -179,7 +232,7 @@ export class IntegerSet {
   }
 
   public has(i: number): boolean {
-    // Contains
+  // Contains
     return this._elements_set.has(i)
   }
 
@@ -200,6 +253,15 @@ export class IntegerSet {
     this._elements = this._elements | is._elements
 
     is._elements_set.forEach((element) => this._elements_set.add(element))
+
+    return cardinality != this.size
+  }
+
+  public addAllArray(is: Array<number>): boolean { // TODO: Validar
+    let cardinality = this.size
+    // this._elements = this._elements | is._elements
+
+    is.forEach((element) => this.add(element))
 
     return cardinality != this.size
   }
@@ -236,16 +298,81 @@ export class IntegerSet {
     return this.list().values()
   }
 
-  forEach(
-    callbackfn: (value: number, value2: number, set: Set<number>) => void,
-    thisArg?: any
-  ): void {
-    for (const element of this.list().values()) {
-      callbackfn.call(thisArg, element, element, this)
-    }
+  equals(otherSet: IntegerSet): boolean {
+    let otherList = otherSet.list();
+    let list = this.list();
+
+    if (list.length !== otherList.length) return false;
+    
+    return list.every((value, index) => value === otherList[index]);
   }
+
+  // forEach(
+  //   callbackfn: (value: number, value2: number, set: Set<number>) => void,
+  //   thisArg?: any
+  // ): void {
+  //   for (const element of this.list().values()) {
+  //     callbackfn.call(thisArg, element, element, this)
+  //   }
+  // }
 
   [Symbol.iterator](): IterableIterator<number> {
     return this.list().values()
+  }
+
+  toJSON() {
+    return { values: this._elements_set }
+  }
+  
+  toString() : string { return `{${this.list().toString().split(',').join(', ')}}`; }
+}
+
+export class TreeNode<T> {
+
+  private _value: T | null;
+  private _parent: TreeNode<T> | null;
+  private _children: TreeNode<T>[];
+
+  constructor(value?: T, parent?: TreeNode<T>) {
+    this._value = (value === undefined? null : value);
+    this._parent = (parent === undefined? null : parent);
+    this._children = [];
+  }
+
+  add(child: TreeNode<T>): TreeNode<T> {
+    child.parent = this;
+    this._children.push(child);
+    return child;
+  }
+
+  get value(): T | null {
+    return this._value;
+  }
+
+  get parent(): TreeNode<T> | null{
+    return this._parent;
+  }
+
+  get children(): TreeNode<T>[]{
+    return this._children;
+  }
+
+  set value(value: T | null) {
+    this._value = value;
+  }
+
+  set parent(parent: TreeNode<T> | null){
+    this._parent = parent;
+  }
+
+  set children(children: TreeNode<T>[]){
+    this._children = children;
+  }
+
+  toJSON() {
+    return { 
+      "value": this.value,
+      "children": this.children
+    }
   }
 }

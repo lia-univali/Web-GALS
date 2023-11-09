@@ -1,5 +1,6 @@
 import { SemanticError } from '../analyser/SystemErros'
-import { List } from '../DataStructures'
+import { IntegerSet, List } from '../DataStructures'
+import { HTMLDialog } from '../HTMLDialog'
 import { FiniteAutomataSimulator } from '../simulator/FiniteAutomataSimulator'
 
 /*
@@ -24,7 +25,7 @@ export class FiniteAutomata {
   private _transitions: List<Map<string, number>>
   private _finals: number[]
   private _context: number[][]
-  private _alphabet: Set<number>
+  private _alphabet: IntegerSet
   private _tokenNames: List<string>
   private _errors: string[] = []
   private _hasContext: boolean = false
@@ -32,7 +33,7 @@ export class FiniteAutomata {
   private _specialCases: KeyValuePar[]
 
   constructor(
-    alphabet: Set<number>,
+    alphabet: IntegerSet,
     transitions: List<Map<string, number>>,
     finals: number[],
     specialCasesIndexes: number[][],
@@ -99,33 +100,6 @@ export class FiniteAutomata {
 
   //TODO Representation methods go here
 
-  private getChar(c: string): string {
-    switch (c) {
-      case '\n':
-        return '\\n'
-      case '\r':
-        return '\\r'
-      case '\t':
-        return '\\t'
-      case ' ':
-        return "' '"
-      case '"':
-        return '&quot;'
-      case '&':
-        return '&amp;'
-      case '<':
-        return '&lt;'
-      case '>':
-        return '&gt;'
-      default:
-        let charNumber: number = c.charCodeAt(0)
-
-        if ((charNumber >= 32 && charNumber <= 126) || (charNumber >= 161 && charNumber <= 255))
-          return '' + c
-        else return '' + charNumber
-    }
-  }
-
   private finalStatesFromState(state: number): Set<number> {
     let visited: Set<number> = new Set<number>()
 
@@ -137,7 +111,7 @@ export class FiniteAutomata {
     loop: while (changed) {
       changed = false
       for (let st of visited) {
-        for (let v of this._alphabet) {
+        for (let v of this._alphabet.list()) {
           let c: string = String.fromCodePoint(v)
 
           let next: number = this.nextState(c, st)
@@ -255,5 +229,132 @@ export class FiniteAutomata {
 
   public hasContext(): boolean {
     return this._hasContext
+  }
+
+  public translateString(str: string): string {
+
+		let result = "";
+		for (let i=0; i < str.length; i++)
+		{
+			let c = str.charAt(i);
+      
+			switch (c)
+			{
+				case '"':
+					result+="&quot;";
+					break;
+				case '&':
+					result+="&amp;";
+					break;
+				case '<':
+					result+="&lt;";
+					break;
+				case '>':
+					result+="&gt;";
+					break;
+				default:
+					result+=c;
+			}
+		}
+			
+		return result;
+  } 
+
+
+  public asHTML(): string {
+    let result = "";
+  
+    result +=
+    "<HTML>"+
+    "<HEAD>"+
+    "<TITLE> Tabela de Transições </TITLE>"+
+    "</HEAD>"+
+    "<BODY><FONT face=\"Verdana, Arial, Helvetica, sans-serif\">"+
+    "<TABLE border=1 cellspacing=0>";
+    
+    result +=
+                "<TR align=center>"+
+                "<TD rowspan=\"2\" bgcolor=black><FONT color=white><B>ESTADO</B></FONT></TD>"+
+                "<TD rowspan=\"2\" bgcolor=black><FONT color=white><B>TOKEN<BR>RETORNADO</B></FONT></TD>"+
+                "<TD colspan=\""+ this._alphabet.size +"\" bgcolor=black><FONT color=white><B>ENTRADA</B></FONT></TD>"+
+        "</TR>"+
+        "<TR align=center>";
+      
+    for(let x of this._alphabet.list()){
+      let c: string = this.escapeSpecialCharacters(String.fromCodePoint(x));
+			result += "<TD bgcolor=#99FF66 nowrap><B>"+ c +"</B></TD>";
+    }
+
+    result += "</TR>";
+                      
+    for (let it = 0; it < this._transitions.size(); it++ ) {
+      result += "<TR align=center>"+
+              "<TD bgcolor=#99FF66><B>"+it+"</B></TD>";
+
+      let t = this._finals[it];
+      let clr: string | null = null;
+      
+      if (t > 0)
+      {
+        if (clr == null)
+          clr = "#FFFFCC";
+          
+        let caption: string = HTMLDialog.translateString(this._tokenNames.get(t-2));
+        
+        if (this.getOrigin(it) >= 0)
+          caption += " / "+ this.getOrigin(it);
+        result += "<TD bgcolor="+clr+" nowrap>" + caption + "</TD>";
+      }
+      else if (t == 0)
+      {
+        if (clr == null)
+          clr = "#99CCFF";
+        result+="<TD bgcolor="+clr+"><B>:</B></TD>";
+      }
+      else if (t == -2)
+        result+="<TD bgcolor=#FF0000>?</TD>";
+      else
+      {
+        if (clr == null)
+          clr = "#FFCC99";
+        result+="<TD bgcolor="+clr+">?</TD>";
+      }
+        
+      let x: Map<string, number> = this._transitions.get(it);
+
+      for(let i of this._alphabet.list()){
+        result += "<TD width=40 bgcolor=#F5F5F5>";
+        let integ = x.get( String.fromCodePoint(i));
+        
+        if (integ != undefined && integ >= 0)
+          result+=integ;
+        else
+          result+="-";
+          
+        result+="</TD>";
+      }
+      result+="</TR>";
+    }
+    
+    result+=
+    "</TABLE>"+
+    "</FONT></BODY>"+
+    "</HTML>"+
+    "";
+
+    // // var uri = "data:text/html," + encodeURIComponent(result);var newWindow = window.open(uri);
+    // var tab = window.open('about:blank', '_blank'); 
+    // if(tab ==  null) return result;
+    // tab.document.write(result); // where 'html' is a variable containing your HTML tab.document.close(); // to finish loading the page
+
+    return result;
+  }
+
+  escapeSpecialCharacters(input: string) {
+    return input
+    .replace(/\n/g, '\\n')
+    .replace(/\t/g, '\\t')
+    .replace(/\r/g, '\\r')
+    .replace(/\s/g, "' '")
   }
 }

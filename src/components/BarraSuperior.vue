@@ -9,7 +9,7 @@ export default defineComponent({
 
 <template>
   <div class="barra__superior">
-    <span class="logo">GALS</span>
+    <span class="logo">WEB</span>
 
     <button class="botao__gerar__codigo">Gerar Código</button>
 
@@ -36,7 +36,7 @@ export default defineComponent({
 }
 
 .logo::after {
-  content: '\00a0WEB';
+  content: '\00a0GALS';
   color: #9ed15c;
 }
 

@@ -236,7 +236,7 @@ export class Node {
 
     let bfr = '['
 
-    newNode.alphabet.forEach((value) => {
+    newNode.alphabet.list().forEach((value) => {
       bfr += String.fromCharCode(value)
     })
 

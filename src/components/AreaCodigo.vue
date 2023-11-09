@@ -95,17 +95,15 @@ export default defineComponent({
         :disabled="selecionado == -1"
       ></textarea>
     </div>
-    <div v-else-if="titulo == 'Não Terminais'" class="caixa__interna">
-      <textarea
+    <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna__input">
+      <input
         id="textoNaoTerminais"
         name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
+        class="input__codigo"
         spellcheck="false"
         v-model="projetos[selecionado].nonTerminals"
         :disabled="selecionado == -1"
-      ></textarea>
+      />
     </div>
     <div v-else-if="titulo == 'Gramática'" class="caixa__interna">
       <textarea
@@ -161,6 +159,17 @@ export default defineComponent({
   white-space: pre;
 }
 
+.input__codigo {
+  outline: none;
+  resize: none;
+  width: 99%;
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box; /* Firefox, other Gecko */
+  box-sizing: border-box; /* Opera/IE 8+ */
+  text-align: center;
+  font-family: 'Fira Code';
+}
+
 .caixa {
   margin: 0px;
   padding: 0px;
@@ -180,6 +189,12 @@ export default defineComponent({
   padding: 3px;
   width: 100%;
   height: calc(100% - 21.333px);
+}
+
+.caixa__interna__input{
+  margin: 0px;
+  padding: 3px;
+  width: 100%;
 }
 
 .caixa__titulo {
