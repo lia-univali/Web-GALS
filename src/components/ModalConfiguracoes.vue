@@ -37,7 +37,7 @@ export default defineComponent({
     <h2>Configurações</h2>
     <div class="modal__configuracoes__inner" id="modal__configuracoes__inner">
       <span id="close" v-on:click="fecharModal"></span>
-      <p v-if="selecionado != -1">{{ projetos[selecionado].options }}</p>
+      <p v-if="selecionado != -1" style="white-space: pre-line; text-align: center;">{{ projetos[selecionado].options }}</p>
     </div>
   </div>
 </template>

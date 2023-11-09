@@ -57,7 +57,7 @@ export default defineComponent({
         </splitpanes>
       </div>
       <div class="contentor__centro__inferior">
-        <AreaCodigo titulo="Saida" />
+        <AreaCodigo titulo="Saída" />
       </div>
     </div>
   </div>

@@ -213,10 +213,10 @@ export default defineComponent({
             </button>
           </div>
         </div>
-        <AreaCodigo titulo="Simbolo inicial" />
         <div class="codigo__definicao__regulares">
           <AreaCodigo titulo="Definições Regulares" />
         </div>
+        <AreaCodigo titulo="Simbolo inicial" />
       </div>
       <div v-else-if="paginaAberta == 'Opções'">
         <div v-if="store.totalProjetos > 0">
@@ -235,6 +235,7 @@ export default defineComponent({
 <style scoped>
 .codigo__definicao__regulares{
   margin: 0;
+  margin-bottom: 10px;
   padding: 0;
   height: calc(100% - 228px);
 }

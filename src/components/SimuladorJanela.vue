@@ -82,6 +82,7 @@ export default defineComponent({
 <template>
   <div class="contentor__simulacao">
     <div class="container__saida__simulacao">
+      <p class="caixa__titulo">Saída da Simulação</p>
 
       <div class="saida__simulacao" v-if="tipoSimulacao === 'Lexico'">
         <table>
@@ -102,7 +103,6 @@ export default defineComponent({
         </table>
       </div>
       <div class="saida__simulacao" v-if="tipoSimulacao === 'Sintático'">
-        <h2>Saida</h2>
         <TreeBrowser
         :node="resultadoSintatico.toJSON()"
         :id="-1"
@@ -119,6 +119,19 @@ export default defineComponent({
 </template>
 
 <style scoped>
+.caixa__titulo {
+  font-family: 'IBM Plex Sans';
+  font-weight: 600;
+  color: #424242;
+
+  border-bottom: 1px solid;
+  border-color: #b1b1b1;
+
+  text-align: center;
+  margin: 0px;
+  padding: 0px;
+}
+
 table {
   font-family: sans-serif;
   font-weight: 400;
@@ -191,6 +204,9 @@ tr:hover {
   flex-grow: 2;
 }
 .container__botao__simular {
+  border-top: 1px solid;
+  border-color: #b1b1b1;
+
   margin: 0px;
   padding: 0px;
   display: flex;

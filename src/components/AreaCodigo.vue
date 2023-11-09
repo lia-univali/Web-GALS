@@ -122,7 +122,7 @@ export default defineComponent({
         :disabled="selecionado == -1"
       ></textarea>
     </div>
-    <div v-else-if="titulo == 'Saida'" class="caixa__interna">
+    <div v-else-if="titulo == 'Saída'" class="caixa__interna">
       <textarea
         id="textoSaida"
         name="textoCodigo"
@@ -186,19 +186,18 @@ export default defineComponent({
 
   flex-grow: 1;
 
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
 }
 
 .caixa__input {
   margin: 0px;
-  margin-bottom: 20px;
   padding: 0px;
   width: 100%;
 
   border-radius: 5px;
   background-color: white;
 
-  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.10);
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
 }
 
 .caixa__interna {
