@@ -12,7 +12,7 @@ import { LRGeneratorFactory } from './gals-lib/generator/parser/lr/LRGeneratorFa
 import { LexicalData } from './gals-lib/generator/scanner/LexicalData'
 import { Parser } from './gals-lib/parserparser/Parser'
 import { LineParser } from './gals-lib/scannerparser/LineParser'
-import { BasicScanner } from './gals-lib/simulator/BasicScanner'
+import type { BasicScanner } from './gals-lib/simulator/BasicScanner'
 import { FiniteAutomataSimulator } from './gals-lib/simulator/FiniteAutomataSimulator'
 import { LRParserSimulator } from './gals-lib/simulator/LRParserSimulator'
 import { MetaException } from './gals-lib/util/MetaException'

@@ -4,7 +4,7 @@ import { Token } from "../analyser/Token";
 import { Command } from "../generator/parser/lr/Command";
 import { LRGenerator } from "../generator/parser/lr/LRGenerator";
 import { Production } from "../util/Production";
-import { BasicScanner } from "./BasicScanner";
+import type { BasicScanner } from "./BasicScanner";
 
 export class LRParserSimulator
 {

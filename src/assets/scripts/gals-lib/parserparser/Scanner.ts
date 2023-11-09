@@ -1,6 +1,6 @@
 import { LexicalError } from "../analyser/SystemErros";
 import { Token } from "../analyser/Token";
-import { BasicScanner } from "../simulator/BasicScanner";
+import type { BasicScanner } from "../simulator/BasicScanner";
 import { Constants } from "./Constants";
 
 export class Scanner implements BasicScanner
