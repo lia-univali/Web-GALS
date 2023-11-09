@@ -214,7 +214,9 @@ export default defineComponent({
           </div>
         </div>
         <AreaCodigo titulo="Simbolo inicial" />
-        <AreaCodigo titulo="Definições Regulares" />
+        <div class="codigo__definicao__regulares">
+          <AreaCodigo titulo="Definições Regulares" />
+        </div>
       </div>
       <div v-else-if="paginaAberta == 'Opções'">
         <div v-if="store.totalProjetos > 0">
@@ -231,9 +233,14 @@ export default defineComponent({
 </template>
 
 <style scoped>
+.codigo__definicao__regulares{
+  margin: 0;
+  padding: 0;
+  height: calc(100% - 228px);
+}
 .abaProjetos {
-  overflow: auto;
-  overflow-x: hidden;
+  /* overflow: auto;
+  overflow-x: hidden; */
   height: 100%;
 }
 

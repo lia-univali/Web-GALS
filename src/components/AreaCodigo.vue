@@ -61,15 +61,20 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="caixa">
+  <div :class="[titulo === 'Simbolo inicial' ? 'caixa__input' : 'caixa']">
     <p class="caixa__titulo">{{ titulo }}</p>
 
     <div v-if="projetos[selecionado] == undefined" class="caixa__interna">
-      <textarea
-        name="textoCodigoVazio"
-        class="texto__codigo"
-        :disabled="selecionado == -1"
-      ></textarea>
+        <input v-if="titulo === 'Simbolo inicial'"
+          name="textoCodigoVazio"
+          class="input__codigo"
+          :disabled="selecionado == -1"
+        />
+        <textarea v-else
+          name="textoCodigoVazio"
+          class="texto__codigo"
+          :disabled="selecionado == -1"
+        ></textarea>
     </div>
     <div v-else-if="titulo == 'Definições Regulares'" class="caixa__interna">
       <textarea
@@ -182,6 +187,18 @@ export default defineComponent({
   flex-grow: 1;
 
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.caixa__input {
+  margin: 0px;
+  margin-bottom: 20px;
+  padding: 0px;
+  width: 100%;
+
+  border-radius: 5px;
+  background-color: white;
+
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.10);
 }
 
 .caixa__interna {
