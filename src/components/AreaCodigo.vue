@@ -2,6 +2,16 @@
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import { defineComponent } from 'vue'
+// import Prism Editor
+import { PrismEditor } from 'vue-prism-editor';
+import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+
+// import highlighting library (you can use any library you want just return html string)
+import { highlight, languages } from 'prismjs';
+import 'prismjs/components/prism-clike';
+import 'prismjs/components/prism-bnf';
+import 'prismjs/components/prism-yaml';
+import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
 
 export default defineComponent({
   name: 'AreaCodigo',
@@ -12,6 +22,8 @@ export default defineComponent({
     return {
       texto: 'Area de Texto para teste'
     }
+  },components: {
+    PrismEditor 
   },
   setup() {
     const store = projetoStore()
@@ -56,7 +68,17 @@ export default defineComponent({
         (simulador as HTMLInputElement).value = this.projetos[this.selecionado].textSimulator
     }
   },
-  methods: {}
+  methods: {
+    highlighterBNF(code: string) {
+      return highlight(code, languages.bnf, "bnf");
+    },
+    highlighterCustom(code: string) {
+      return highlight(code, languages.yaml, "yaml");
+    },
+    highlighterNone(code: string) {
+      return code;
+    },
+  }
 })
 </script>
 
@@ -89,7 +111,7 @@ export default defineComponent({
       ></textarea>
     </div>
     <div v-else-if="titulo == 'Tokens'" class="caixa__interna">
-      <textarea
+      <prism-editor
         id="textoTokens"
         name="textoCodigo"
         rows="4"
@@ -98,7 +120,9 @@ export default defineComponent({
         spellcheck="false"
         v-model="projetos[selecionado].tokens"
         :disabled="selecionado == -1"
-      ></textarea>
+        :highlight="highlighterCustom"
+        :line-numbers="true"
+      />
     </div>
     <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna__input">
       <input
@@ -111,7 +135,7 @@ export default defineComponent({
       />
     </div>
     <div v-else-if="titulo == 'Gramática'" class="caixa__interna">
-      <textarea
+      <prism-editor
         id="textoGramatica"
         name="textoCodigo"
         rows="4"
@@ -120,7 +144,9 @@ export default defineComponent({
         spellcheck="false"
         v-model="projetos[selecionado].grammar"
         :disabled="selecionado == -1"
-      ></textarea>
+        :highlight="highlighterBNF"
+        :line-numbers="true"
+      />
     </div>
     <div v-else-if="titulo == 'Saída'" class="caixa__interna">
       <textarea
@@ -135,7 +161,7 @@ export default defineComponent({
       ></textarea>
     </div>
     <div v-else-if="titulo == 'Simulação'" class="caixa__interna">
-      <textarea
+      <prism-editor
         id="textoSimulacao"
         name="textoCodigo"
         rows="4"
@@ -144,7 +170,9 @@ export default defineComponent({
         spellcheck="false"
         v-model="projetos[selecionado].textSimulator"
         :disabled="selecionado == -1"
-      ></textarea>
+        :highlight="highlighterNone"
+        :line-numbers="true"
+      />
     </div>
   </div>
 </template>
