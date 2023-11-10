@@ -183,6 +183,7 @@ tr:hover {
   background-color: white;
   width: 100%;
   height: 100%;
+  overflow: auto;
 }
 
 .saida__simulacao__arvore {
