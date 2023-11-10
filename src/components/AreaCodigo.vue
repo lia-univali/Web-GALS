@@ -11,7 +11,7 @@ import { highlight, languages } from 'prismjs';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-bnf';
 import 'prismjs/components/prism-yaml';
-import 'prismjs/themes/prism-tomorrow.css'; // import syntax highlighting styles
+import 'prismjs/themes/prism.css'; // import syntax highlighting styles
 
 export default defineComponent({
   name: 'AreaCodigo',
@@ -20,7 +20,7 @@ export default defineComponent({
   },
   data() {
     return {
-      texto: 'Area de Texto para teste'
+      texto: 'Area de Texto para teste',
     }
   },components: {
     PrismEditor 
@@ -73,7 +73,26 @@ export default defineComponent({
       return highlight(code, languages.bnf, "bnf");
     },
     highlighterCustom(code: string) {
-      return highlight(code, languages.yaml, "yaml");
+      return highlight(code, languages["token"] = {
+        'string': {
+		pattern: /"[^\r\n"]*"|'[^\r\n']*'/
+	},
+	'definition': {
+            pattern: /<[^<>\r\n\t]+>(?=\s*::=)/,
+            alias: ['rule', 'keyword'],
+            inside: {
+              'punctuation': /^<|>$/
+            }
+          },
+          'rule': {
+            pattern: /<[^<>\r\n\t]+>/,
+            inside: {
+              'punctuation': /^<|>$/
+            }
+          },
+          'operator': /:|[|()[\]{}*+?]|\.{3}/
+
+      }, "token");
     },
     highlighterNone(code: string) {
       return code;
@@ -189,7 +208,7 @@ export default defineComponent({
 
   font-family: 'Fira Code';
 
-  white-space: pre;
+  white-space: pre !important;
 }
 
 .input__codigo {

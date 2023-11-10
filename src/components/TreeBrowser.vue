@@ -6,11 +6,14 @@ export default defineComponent({
   components: {},
   props:{
     node: Object,
-    depth:{
-      type: Number,
-      default: 0
+    isFinal: {
+      type: Boolean,
+      default: true
     },
-    id: Number
+    isRoot: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {
@@ -23,75 +26,85 @@ export default defineComponent({
       return this.node.children && this.node.children.length;
     }
   },
-  methods: {
-    toggle() {
-      if (this.isFolder) {
-        this.isOpen = !this.isOpen;
-      }
-    },
-    openCloseCharacter(): string {
-      if (this.isFolder) {
-        return this.isOpen ?  "-": "+"
-      }else{
-        return ""
-      }
-    },
-  }
 })
 </script>
 
 <template>
-  <div class="teste"
-  >
-   <div 
-      class="node"
-      :style="{'margin-left': `${depth * 20}px`}"
-      @click="toggle"
-    >
-      <span class="type">{{openCloseCharacter()}}</span>
-      
-      {{node?.value}}
-
-    </div>
-
-    <div :class="{'hidden': !isOpen, 'show': isOpen}">
+  <div class="tree">
+  <ul>
+    <li :class="{ 'not__final': !isFinal, 'root': isRoot}">
+      <details :open="isRoot" v-if="isFolder" >
+        <summary :style="{ fontWeight: isFolder ? 'bold' : 'normal',  color: isFolder ? 'green' : 'black' }">{{node?.value}}</summary>
         <TreeBrowser
           v-for="(child, index) in node?.children"
-          :key="child.value == null? '' : child.value "
+          :key="(child.value == null) ? '' : child.value "
           :node="child"
-          :depth="depth + 1"
-          :id="index"
+          :is-final="index == node?.children.length - 1"
+          :is-root="false"
         />
-    </div>
-    
+      </details>
+      <div v-else><li>{{node?.value}}</li></div>
+    </li>
+  </ul>
   </div>
 </template>
 
 <style scoped>
-
-  .teste{
-    border: 1px solid #333;
+  .tree{
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow: auto;
   }
-  .node{
 
-    
-    text-align: left;
+  ul{
+    font-family: 'IBM Plex Sans';
+    list-style: none;
+    line-height: 2em;
+  }
+
+  ul summary{
     cursor: pointer;
-
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-
+    list-style-type: '';
   }
-  
-  .hidden{
+
+  ul summary::after{
+    cursor: pointer;
+    list-style-type: '';
+  }
+
+  ul li{
+    position: relative;
+  }
+
+  ul li::before{
+    position: absolute;
+    left: -20px;
+    top: 0px;
+    border-left: 2px solid  ;
+    border-bottom: 2px solid black;
+    content: "";
+    width: 14px;
+    height: 1em;
+  }
+
+  .not__final::after{
+    position: absolute;
+    left: -20px;
+    bottom: 0px;
+    border-left: 2px solid black;
+    content: "";
+    width: 7px;
+    height: 100%;
+  }
+
+  .root::after{
     display: none;
   }
-  .show{
-    visibility: block;
+
+  .root::before{
+    display: none;
   }
-  
+
 </style>

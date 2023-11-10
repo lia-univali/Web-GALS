@@ -224,8 +224,8 @@ export default defineComponent({
         </div>
       </div>
       <div v-else-if="paginaAberta == 'Documentação'">
-        <button @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
-        <button @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
+        <button class="btn" @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
+        <button class="btn" @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
       </div>
       <div v-else-if="paginaAberta == 'Informações'"></div>
     </div>
@@ -233,6 +233,38 @@ export default defineComponent({
 </template>
 
 <style scoped>
+
+.btn{
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000000;
+  background-color: #fafafa;
+  padding: 10px 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: solid #cccccc 1px;
+  box-shadow: none;
+  border-radius: 5px;
+  transition : 90ms;
+  transform: translateY(0);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  width: 100% ;
+  justify-content: center
+}
+
+.btn:hover{
+  transition : 90ms;
+  padding: 10px 31px;
+  transform : translateY(-0px);
+  background-color: #fff;
+  color: #1b9100;
+  border: solid 1px #328c22;
+}
+
 .codigo__definicao__regulares{
   margin: 0;
   margin-bottom: 10px;

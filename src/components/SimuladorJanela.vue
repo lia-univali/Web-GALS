@@ -103,13 +103,12 @@ export default defineComponent({
         </table>
       </div>
       <div class="saida__simulacao" v-if="tipoSimulacao === 'Sintático'">
-        <TreeBrowser
-        :node="resultadoSintatico.toJSON()"
-        :id="-1"
-        />
+          <div>
+            <TreeBrowser
+            :node="resultadoSintatico.toJSON()"
+            />
+          </div>
       </div>
-
-
       <div class="container__botao__simular">
         <button class="botao__simular" @click="simularLexico">Simular Lexico</button>
         <button class="botao__simular" @click="simularSintatico">Simular Sintático</button>
@@ -184,7 +183,12 @@ tr:hover {
   background-color: white;
   width: 100%;
   height: 100%;
-  overflow: auto;
+}
+
+.saida__simulacao__arvore {
+  background-color: white;
+  width: 100%;
+  height: 100%;
 }
 
 .contentor__simulacao {
