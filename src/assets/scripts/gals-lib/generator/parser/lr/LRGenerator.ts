@@ -125,16 +125,18 @@ export abstract class LRGenerator
 	public buildIntTable(): number[][][]
 	{
 		let commands: Command[][] = this.buildTable();
-	
+
 		let result: number[][][]  = [];
 	
-		for (let i=0; i<result.length; i++)
-			for (let j=0; j<result[i].length; j++)
+		for (let i=0; i<commands.length; i++){
+			result[i] = [];
+			for (let j=0; j<commands[i].length; j++)
 			{
+				result[i][j] = [];
 				result[i][j][0] = commands[i][j].getType();
 				result[i][j][1] = commands[i][j].getParameter();
 			}
-	 
+		}
 		return result;
 	}
 
