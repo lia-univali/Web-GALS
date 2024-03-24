@@ -52,6 +52,9 @@ export default defineComponent({
       this.colapsaConteudo('Documentação')
       this.paginaAberta = 'Documentação'
     },
+    abrirDocumentacaoHTML(){
+      window.open('.\\Gals-Web\\src\\assets\\files\\help.html', '_blank');
+    },
     abrirArquivo() {
       const input: HTMLInputElement = document.getElementById('file') as HTMLInputElement
 
@@ -69,17 +72,17 @@ export default defineComponent({
         const splitResultado: string[] = (reader.result as string).split(
           /#Options\n|\n#RegularDefinitions\n|\n#Tokens\n|\n#NonTerminals\n|\n#Grammar\n/
         )
-
         const newProject = {
           id: thatStore.totalProjetos,
           fileName: file.name,
           options: splitResultado[1] == undefined ? '' : splitResultado[1],
           regularDefinitions: splitResultado[2] == undefined ? '' : splitResultado[2],
           tokens: splitResultado[3] == undefined ? '' : splitResultado[3],
-          nonTerminals: splitResultado[4] == undefined ? '' : splitResultado[4].split("\n")[0].trim(),
+          nonTerminals: splitResultado[4] == undefined ? '' : splitResultado[4].split("\n").filter(str => !str.startsWith('//'))[0].trim(),
           grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
           textSimulator: '',
-          consoleExit: ''
+          consoleExit: '',
+          optionsGals: new Options()
         }
 
         thatStore.addProject(newProject)
@@ -166,8 +169,7 @@ export default defineComponent({
       } else {
         projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
-    },
-    
+    }
   }
 })
 </script>
@@ -203,7 +205,7 @@ export default defineComponent({
       <h2>{{ paginaAberta }}</h2>
 
       <div v-if="paginaAberta == 'Projetos'" class="abaProjetos">
-        <div class="lista__projetos" v-if="store.totalProjetos > 0">
+        <div class="lista__projetos" >
           <div v-for="projeto in projetos" :key="projeto.id" class="projeto__acaoes">
             <button @click="store.changeSelected(projeto.id)" class="botao__mudar__projeto" v-bind:class="selecionado == projeto.id ? 'selecionado__projeto' : ''">
               {{ projeto.fileName }}
@@ -227,12 +229,30 @@ export default defineComponent({
         <button class="btn" @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
         <button class="btn" @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
       </div>
-      <div v-else-if="paginaAberta == 'Informações'"></div>
+      <div v-else-if="paginaAberta == 'Informações'">
+        <div class="container__links">
+          <a class="link" href="Gals-Web/files/help.html" target="_blank">DOCUMENTAÇÃO</a>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+
+.container__links {
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  flex-direction: column;
+  gap: 20px;
+}
+
+.link{
+  font-family: 'IBM Plex Sans';
+  text-align: center;
+  font-weight: 600;
+}
 
 .btn{
   font-family: Roboto, sans-serif;
@@ -281,6 +301,9 @@ export default defineComponent({
   width: 100%;
   height: 30%;
   max-height: 170px;
+  min-height: 170px;
+  border:2px solid #ECF0F1;
+  border-radius: 3px;
   overflow: auto;
 }
 

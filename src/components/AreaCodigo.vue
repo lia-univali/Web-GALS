@@ -97,6 +97,9 @@ export default defineComponent({
     highlighterNone(code: string) {
       return code;
     },
+    focusEditor(id: number) {
+      (document.getElementsByClassName("prism-editor__textarea")[id] as HTMLElement).focus();
+    }
   }
 })
 </script>
@@ -129,7 +132,7 @@ export default defineComponent({
         :disabled="selecionado == -1"
       ></textarea>
     </div>
-    <div v-else-if="titulo == 'Tokens'" class="caixa__interna">
+    <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor(0)">
       <prism-editor
         id="textoTokens"
         name="textoCodigo"
@@ -153,8 +156,8 @@ export default defineComponent({
         :disabled="selecionado == -1"
       />
     </div>
-    <div v-else-if="titulo == 'Gramática'" class="caixa__interna">
-      <prism-editor
+    <div v-else-if="titulo == 'Gramática'" class="caixa__interna"  @click="focusEditor(2)">
+      <prism-editor 
         id="textoGramatica"
         name="textoCodigo"
         rows="4"
@@ -179,7 +182,7 @@ export default defineComponent({
         v-model="projetos[selecionado].consoleExit"
       ></textarea>
     </div>
-    <div v-else-if="titulo == 'Simulação'" class="caixa__interna">
+    <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor(1)">
       <prism-editor
         id="textoSimulacao"
         name="textoCodigo"
@@ -206,7 +209,7 @@ export default defineComponent({
   -moz-box-sizing: border-box; /* Firefox, other Gecko */
   box-sizing: border-box; /* Opera/IE 8+ */
 
-  font-family: 'Fira Code';
+  font-family: 'Fira Mono';
 
   white-space: pre !important;
 }
@@ -219,7 +222,7 @@ export default defineComponent({
   -moz-box-sizing: border-box; /* Firefox, other Gecko */
   box-sizing: border-box; /* Opera/IE 8+ */
   text-align: center;
-  font-family: 'Fira Code';
+  font-family: 'Fira Mono';
 }
 
 .caixa {

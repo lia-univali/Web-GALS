@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import BarraSuperior from '@/components/BarraSuperior.vue'
 import AreaCodigo from './components/AreaCodigo.vue'
 import SimuladorJanela from './components/SimuladorJanela.vue'
@@ -8,6 +8,7 @@ import ModalNovoArquivo from './components/ModalNovoArquivo.vue'
 import ModalConfiguracoes from './components/ModalConfiguracoes.vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
+import { projetoStore } from './stores/projetoStore'
 
 export default defineComponent({
   name: 'GalsWeb',
@@ -20,6 +21,23 @@ export default defineComponent({
     BarraEsquerda,
     ModalNovoArquivo,
     ModalConfiguracoes
+  },
+  setup() {
+    const store = projetoStore()
+
+    const layout = computed(() => {
+      return store.layout
+    })
+
+    return {
+      layout
+    }
+  }, methods: {
+    resizeLayout(event: any){
+      this.layout.token = event[0].size
+      this.layout.simulacao = event[1].size
+      this.layout.saidaSimulacao = event[2].size
+    }
   }
 })
 </script>
@@ -37,21 +55,21 @@ export default defineComponent({
 
     <div class="contentor__centro">
       <div class="contentor__centro__superior">
-        <splitpanes horizontal>
-          <pane>
-            <splitpanes vertival>
-              <pane>
+        <splitpanes horizontal id="splitpanesHorizontal" @resize="layout.gramatica = $event[1].size">
+          <pane :size=" 100 - layout.gramatica">
+            <splitpanes vertival @resize="resizeLayout($event)">
+              <pane :size="layout.token">
                 <AreaCodigo titulo="Tokens" />
               </pane>
-              <pane>
+              <pane :size="layout.simulacao">
                 <AreaCodigo titulo="Simulação" />
               </pane>
-              <pane>
+              <pane :size="layout.saidaSimulacao">
                 <SimuladorJanela />
               </pane>
             </splitpanes>
           </pane>
-          <pane>
+          <pane :size="layout.gramatica">
             <AreaCodigo titulo="Gramática" />
           </pane>
         </splitpanes>

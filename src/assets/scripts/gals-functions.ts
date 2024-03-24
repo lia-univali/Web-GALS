@@ -26,6 +26,29 @@ enum Mode {
   SYNTATIC,
   BOTH
 }
+export class Gals{
+
+}
+
+function parseDefsOnTokens(def: string, tok: string): string{
+  const tknzr: string[] = def.split('\n').filter(Boolean)
+  const defTermo : Map<string, string> = new Map()
+
+  for (let line of tknzr) {
+    line = line.trim();
+    
+    const termo = line.split(':').filter(Boolean);
+    defTermo.set('{'+termo[0].trim()+'}', termo[1].trim());
+  }
+
+
+  for (const [key, value] of defTermo.entries()) {
+    const regex = new RegExp(key, "g");
+    tok = tok.replace(regex, value)
+  }
+
+  return tok;
+}
 
 export function lexicalSimulation(
   input: string,
@@ -33,6 +56,14 @@ export function lexicalSimulation(
   tokens: string
 ): Map<Token, string> {
   const mode: number = Mode.LEXICAL
+
+  try {
+    tokens = parseDefsOnTokens(definitions, tokens)
+    definitions = '' 
+  } catch (error) {
+    throw new LexicalError("Definições com problemas - Verificar Definições");
+  }
+
 
   const sensitive: boolean = true
   const erroLog: ErrorLog = ErrorLog.Instance
