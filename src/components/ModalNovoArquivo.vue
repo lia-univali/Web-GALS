@@ -1,6 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { projetoStore } from '@/stores/projetoStore'
+import { projetoStore, type Projeto } from '@/stores/projetoStore'
 
 export default defineComponent({
   name: 'ModalNovoArquivo',
@@ -32,7 +32,7 @@ export default defineComponent({
           grammar: '',
           textSimulator: '',
           consoleExit: ''
-        }
+        } as Projeto
 
         this.store.addProject(newProject)
         this.store.selectLastProject()
