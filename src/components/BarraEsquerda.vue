@@ -4,6 +4,8 @@ import AreaCodigo from '@/components/AreaCodigo.vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import salvador from '@/assets/scripts/saver'
+import { lexicalTable, nonTerminalsFromGrammar, syntacticTable } from '@/assets/scripts/gals-functions'
+import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
   name: 'BarraEsquerda',
@@ -50,6 +52,9 @@ export default defineComponent({
       this.colapsaConteudo('Documentação')
       this.paginaAberta = 'Documentação'
     },
+    abrirDocumentacaoHTML(){
+      window.open('.\\Gals-Web\\src\\assets\\files\\help.html', '_blank');
+    },
     abrirArquivo() {
       const input: HTMLInputElement = document.getElementById('file') as HTMLInputElement
 
@@ -67,17 +72,17 @@ export default defineComponent({
         const splitResultado: string[] = (reader.result as string).split(
           /#Options\n|\n#RegularDefinitions\n|\n#Tokens\n|\n#NonTerminals\n|\n#Grammar\n/
         )
-
         const newProject = {
           id: thatStore.totalProjetos,
           fileName: file.name,
           options: splitResultado[1] == undefined ? '' : splitResultado[1],
           regularDefinitions: splitResultado[2] == undefined ? '' : splitResultado[2],
           tokens: splitResultado[3] == undefined ? '' : splitResultado[3],
-          nonTerminals: splitResultado[4] == undefined ? '' : splitResultado[4],
+          nonTerminals: splitResultado[4] == undefined ? '' : splitResultado[4].split("\n").filter(str => !str.startsWith('//'))[0].trim(),
           grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
           textSimulator: '',
-          consoleExit: ''
+          consoleExit: '',
+          optionsGals: new Options()
         }
 
         thatStore.addProject(newProject)
@@ -110,7 +115,7 @@ export default defineComponent({
           (regularDefinitions == undefined ? '' : regularDefinitions) +
           '\n\n'
         codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n\n'
-        codigo += '#NonTerminals\n' + (nonTerminals == undefined ? '' : nonTerminals) + '\n\n'
+        codigo += '#NonTerminals\n' + (nonTerminals == undefined ? '' : nonTerminalsFromGrammar(nonTerminals, grammar)) + '\n\n'
         codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar) + '\n\n'
 
         salvador.download(codigo, this.projetos[this.selecionado].fileName, '.gals')
@@ -124,6 +129,46 @@ export default defineComponent({
       if (this.paginaAberta == pagina)
         this.estiloDisplayConteudo = this.estiloDisplayConteudo == 'flex' ? 'none' : 'flex'
       else this.estiloDisplayConteudo = 'flex'
+    },
+    mostrarTabelaLexico() {
+      const selecionado = this.store.selecionado
+      const projeto = this.store.listaProjetos[selecionado]
+
+      const html: string = lexicalTable(
+        projeto.regularDefinitions,
+        projeto.tokens
+      );
+
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      } else {
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      }
+    },
+    mostrarTabelaSintatico() {
+      const selecionado = this.store.selecionado
+      const projeto = this.store.listaProjetos[selecionado]
+
+      const html: string = syntacticTable(
+          projeto.regularDefinitions,
+          projeto.tokens,
+          projeto.nonTerminals,
+          projeto.grammar,
+          Options.PARSER_SLR,
+          null
+      );
+
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      } else {
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      }
     }
   }
 })
@@ -160,7 +205,7 @@ export default defineComponent({
       <h2>{{ paginaAberta }}</h2>
 
       <div v-if="paginaAberta == 'Projetos'" class="abaProjetos">
-        <div class="lista__projetos" v-if="store.totalProjetos > 0">
+        <div class="lista__projetos" >
           <div v-for="projeto in projetos" :key="projeto.id" class="projeto__acaoes">
             <button @click="store.changeSelected(projeto.id)" class="botao__mudar__projeto" v-bind:class="selecionado == projeto.id ? 'selecionado__projeto' : ''">
               {{ projeto.fileName }}
@@ -170,24 +215,85 @@ export default defineComponent({
             </button>
           </div>
         </div>
-        <AreaCodigo titulo="Definições Regulares" />
-        <AreaCodigo titulo="Não Terminais" />
+        <div class="codigo__definicao__regulares">
+          <AreaCodigo titulo="Definições Regulares" />
+        </div>
+        <AreaCodigo titulo="Simbolo inicial" />
       </div>
       <div v-else-if="paginaAberta == 'Opções'">
         <div v-if="store.totalProjetos > 0">
           <p>{{ projetos[selecionado].options }}</p>
         </div>
       </div>
-      <div v-else-if="paginaAberta == 'Documentação'"></div>
-      <div v-else-if="paginaAberta == 'Informações'"></div>
+      <div v-else-if="paginaAberta == 'Documentação'">
+        <button class="btn" @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
+        <button class="btn" @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
+      </div>
+      <div v-else-if="paginaAberta == 'Informações'">
+        <div class="container__links">
+          <a class="link" href="Gals-Web/files/help.html" target="_blank">DOCUMENTAÇÃO</a>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+
+.container__links {
+  display: flex;
+  justify-content: center; 
+  align-items: center; 
+  flex-direction: column;
+  gap: 20px;
+}
+
+.link{
+  font-family: 'IBM Plex Sans';
+  text-align: center;
+  font-weight: 600;
+}
+
+.btn{
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #000000;
+  background-color: #fafafa;
+  padding: 10px 30px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: solid #cccccc 1px;
+  box-shadow: none;
+  border-radius: 5px;
+  transition : 90ms;
+  transform: translateY(0);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  width: 100% ;
+  justify-content: center
+}
+
+.btn:hover{
+  transition : 90ms;
+  padding: 10px 31px;
+  transform : translateY(-0px);
+  background-color: #fff;
+  color: #1b9100;
+  border: solid 1px #328c22;
+}
+
+.codigo__definicao__regulares{
+  margin: 0;
+  margin-bottom: 10px;
+  padding: 0;
+  height: calc(100% - 228px);
+}
 .abaProjetos {
-  overflow: auto;
-  overflow-x: hidden;
+  /* overflow: auto;
+  overflow-x: hidden; */
   height: 100%;
 }
 
@@ -195,6 +301,9 @@ export default defineComponent({
   width: 100%;
   height: 30%;
   max-height: 170px;
+  min-height: 170px;
+  border:2px solid #ECF0F1;
+  border-radius: 3px;
   overflow: auto;
 }
 

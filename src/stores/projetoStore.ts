@@ -1,3 +1,4 @@
+import type { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import { defineStore } from 'pinia'
 
 export interface Projeto {
@@ -10,13 +11,40 @@ export interface Projeto {
   grammar: string
   textSimulator: string
   consoleExit: string
+  optionsGals: Options
+}
+
+export interface Layout {
+  token: number,
+  simulacao: number,
+  saidaSimulacao: number,
+  gramatica: number,
 }
 
 export const projetoStore = defineStore('projetos', {
   state: () => {
     return {
-      listaProjetos: [] as Projeto[],
-      selecionado: -1
+      listaProjetos: [
+        {
+          'id': 0,
+          'fileName': 'untitled.gals',
+          'options': '',
+          'regularDefinitions': '',
+          'tokens': '',
+          'nonTerminals': '',
+          'grammar': '',
+          'textSimulator': '',
+          'consoleExit': '',
+
+        },
+      ] as Projeto[],
+      selecionado: -1,
+      layout: {
+        'token': 33.3333,
+        'simulacao': 33.3333,
+        'saidaSimulacao': 33.3333,
+        'gramatica': 50,
+      } as Layout
     }
   },
   getters: {

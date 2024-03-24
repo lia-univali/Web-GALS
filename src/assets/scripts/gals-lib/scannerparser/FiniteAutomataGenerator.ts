@@ -265,7 +265,7 @@ export class FiniteAutomataGenerator {
   }
 
   public makeAtomata(
-    states: List<Set<number>>,
+    states: List<IntegerSet>,
     trans: Map<number, Map<string, number>>,
     finals: Map<number, number>,
     back: Map<number, boolean>,
@@ -302,31 +302,35 @@ export class FiniteAutomataGenerator {
       }
     }
 
-    let scList: List<KeyValuePar> = new List()
+    let scList: Array<KeyValuePar> = [];
 
     //TODO Verify What it does
     //let scIndexes: number[][] =  Array.from({length: (this._tokenList.size() + 2)}, () => Array.from({length: 10}));
-    let scIndexes: number[][] = Array(this._tokenList.size() + 2).fill([0, 0])
+    let scIndexes: number[][] = Array(this._tokenList.size() + 2).fill(undefined)
 
     for (let i = 0; i < scIndexes.length; i++) {
       let m: Map<string, number> | undefined = this._specialCases.get(i)
 
-      let start: number = scList.size()
+      let start: number = scList.length
 
       if (m != undefined) {
-        for (const [key, value] of m.entries()) {
-          scList.add(new KeyValuePar(key, value))
-        }
+
+        const entriesArray = new Map([...m.entries()].sort());
+
+        for (const [key, value] of entriesArray.entries()) {
+          scList.push(new KeyValuePar(key, value))
+        }   
       }
 
-      let end: number = scList.size()
+      
+      let end: number = scList.length
 
       scIndexes[i] = [start, end]
     }
 
     let sc: KeyValuePar[] = new Array()
 
-    const clone = Object.assign({}, scList.toArray())
+    const clone = Object.assign({}, scList)
     sc = Object.setPrototypeOf(clone, KeyValuePar.prototype)
 
     //sc = cloneDeep(scList.toArray())//this one is the older clone
@@ -523,8 +527,8 @@ export class FiniteAutomataGenerator {
         n.nullable = true
 
         if (l != null) {
-          l.metaData.first.forEach((item) => n.first.add(item))
-          l.metaData.last.forEach((item) => n.last.add(item))
+          l.metaData.first.list().forEach((item) => n.first.add(item))
+          l.metaData.last.list().forEach((item) => n.last.add(item))
         }
 
         break
@@ -533,8 +537,8 @@ export class FiniteAutomataGenerator {
         n.nullable = false
 
         if (l != null) {
-          l.metaData.first.forEach((item) => n.first.add(item))
-          l.metaData.last.forEach((item) => n.last.add(item))
+          l.metaData.first.list().forEach((item) => n.first.add(item))
+          l.metaData.last.list().forEach((item) => n.last.add(item))
         }
 
         break
@@ -544,11 +548,11 @@ export class FiniteAutomataGenerator {
 
         n.nullable = l.metaData.nullable || r.metaData.nullable
 
-        l.metaData.first.forEach((item) => n.first.add(item))
-        r.metaData.first.forEach((item) => n.first.add(item))
+        l.metaData.first.list().forEach((item) => n.first.add(item))
+        r.metaData.first.list().forEach((item) => n.first.add(item))
 
-        l.metaData.last.forEach((item) => n.last.add(item))
-        r.metaData.last.forEach((item) => n.last.add(item))
+        l.metaData.last.list().forEach((item) => n.last.add(item))
+        r.metaData.last.list().forEach((item) => n.last.add(item))
 
         break
 
@@ -557,16 +561,16 @@ export class FiniteAutomataGenerator {
 
         n.nullable = l.metaData.nullable && r.metaData.nullable
 
-        l.metaData.first.forEach((item) => n.first.add(item))
+        l.metaData.first.list().forEach((item) => n.first.add(item))
 
         if (l.metaData.nullable) {
-          r.metaData.first.forEach((item) => n.first.add(item))
+          r.metaData.first.list().forEach((item) => n.first.add(item))
         }
 
-        r.metaData.last.forEach((item) => n.last.add(item))
+        r.metaData.last.list().forEach((item) => n.last.add(item))
 
         if (r.metaData.nullable) {
-          l.metaData.last.forEach((item) => n.last.add(item))
+          l.metaData.last.list().forEach((item) => n.last.add(item))
         }
 
         break
