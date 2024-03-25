@@ -54,12 +54,12 @@ export default defineComponent({
     },
     abrirDocumentacaoHTML(){
       let url
-      if (import.meta.env.DEV){
+      if (process.env.NODE_ENV === 'development'){
         url = '.\\Gals-Web\\src\\assets\\files\\help.html';
       }else{
         url = '.\\src\\assets\\files\\help.html';
       }
-      
+
       window.open(url, '_blank');
     },
     abrirArquivo() {
