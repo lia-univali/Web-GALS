@@ -52,15 +52,15 @@ export default defineComponent({
       this.colapsaConteudo('Documentação')
       this.paginaAberta = 'Documentação'
     },
-    abrirDocumentacaoHTML(){
+    getLinkDocumentacaoHTML(): string{
       let url
       if (process.env.NODE_ENV === 'development'){
-        url = '.\\Gals-Web\\src\\assets\\files\\help.html';
+        url = 'Gals-Web/files/help.html';
       }else{
-        url = '.\\files\\help.html';
+        url = 'files/help.html';
       }
       console.log(url)
-      window.open(url, '_blank');
+      return url;
     },
     abrirArquivo() {
       const input: HTMLInputElement = document.getElementById('file') as HTMLInputElement
@@ -238,7 +238,7 @@ export default defineComponent({
       </div>
       <div v-else-if="paginaAberta == 'Informações'">
         <div class="container__links">
-          <a class="link" href="Gals-Web/files/help.html" target="_blank">DOCUMENTAÇÃO</a>
+          <a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a>
         </div>
       </div>
     </div>
