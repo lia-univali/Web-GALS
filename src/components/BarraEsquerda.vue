@@ -57,9 +57,9 @@ export default defineComponent({
       if (process.env.NODE_ENV === 'development'){
         url = '.\\Gals-Web\\src\\assets\\files\\help.html';
       }else{
-        url = '.\\src\\assets\\files\\help.html';
+        url = '.\\files\\help.html';
       }
-
+      console.log(url)
       window.open(url, '_blank');
     },
     abrirArquivo() {
