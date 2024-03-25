@@ -165,6 +165,14 @@ export function lexicalTable(
   definitions: string,
   tokens: string
 ): string {
+
+  try {
+    tokens = parseDefsOnTokens(definitions, tokens)
+    definitions = '' 
+  } catch (error) {
+    throw new LexicalError("Definições com problemas - Verificar Definições");
+  }
+
   const sensitive: boolean = true
   const lp: LineParser = new LineParser()
   const fa: FiniteAutomata = lp.parseFA(definitions, tokens, sensitive)
@@ -181,6 +189,13 @@ export function syntacticSimulation(
   parser: number,
   faSim: BasicScanner | null
 ): TreeNode<string> {
+
+  try {
+    tokens = parseDefsOnTokens(definitions, tokens)
+    definitions = '' 
+  } catch (error) {
+    throw new LexicalError("Definições com problemas - Verificar Definições");
+  }
 
   // Pega não terminais direto do grammar
   const lines = grammar.split('\n');
@@ -256,7 +271,7 @@ export function syntacticSimulation(
       nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
 
       g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
-      console.log("______________________________GRAMAR IS PARSED______________________________");
+      // console.log("______________________________GRAMAR IS PARSED______________________________");
     } else {
       g = undefined; //TODO: Pegar da classe para não refazelo
     }
@@ -286,15 +301,15 @@ export function syntacticSimulation(
 
   if(parserResult === null) throw new SyntaticError("Erro na criação do Parser Sintático");
 
-  console.log("______________Simulator Created______________");
+  // console.log("______________Simulator Created______________");
 
-  console.log("\n\n********* Finite Automata HTML (Lexico) *********\n\n");
-  console.log(fa.asHTML());
+  // console.log("\n\n********* Finite Automata HTML (Lexico) *********\n\n");
+  // console.log(fa.asHTML());
 
-  console.log("\n\n********* Parser HTML (Sintatico) *********\n\n");
-  console.log(parserResult.tableAsHTML());
+  // console.log("\n\n********* Parser HTML (Sintatico) *********\n\n");
+  // console.log(parserResult.tableAsHTML());
 
-  console.log("\n\n______________Tree Creation______________\n\n");
+  // console.log("\n\n______________Tree Creation______________\n\n");
 
   // Passo 5 Simula os tokens reconhecidos na operação de clique da classe SimulateWindow - método: syntClick
 
@@ -325,6 +340,13 @@ export function syntacticTable(
   faSim: BasicScanner | null
 ): string {
 
+  try {
+    tokens = parseDefsOnTokens(definitions, tokens)
+    definitions = '' 
+  } catch (error) {
+    throw new LexicalError("Definições com problemas - Verificar Definições");
+  }
+
   // Pega não terminais direto do grammar
   const lines = grammar.split('\n');
   const results = new Set<string>();
@@ -399,7 +421,7 @@ export function syntacticTable(
       nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
 
       g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
-      console.log("______________________________GRAMAR IS PARSED______________________________");
+      // console.log("______________________________GRAMAR IS PARSED______________________________");
     } else {
       g = undefined; //TODO: Pegar da classe para não refazelo
     }
@@ -468,6 +490,13 @@ export function generateCode(
   grammar: string, 
   options:Options): TreeMap<string, string> {
 
+    try {
+      tokens = parseDefsOnTokens(definitions, tokens)
+      definitions = '' 
+    } catch (error) {
+      throw new LexicalError("Definições com problemas - Verificar Definições");
+    }
+
   // Pega não terminais direto do grammar
   const lines = grammar.split('\n');
   const results = new Set<string>();
@@ -542,7 +571,7 @@ export function generateCode(
       nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
 
       g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
-      console.log("______________________________GRAMAR IS PARSED______________________________");
+      // console.log("______________________________GRAMAR IS PARSED______________________________");
     } else {
       g = undefined; //TODO: Pegar da classe para não refazelo
     }
@@ -643,7 +672,7 @@ function simulateLL(
 function simulateSLR(fa: FiniteAutomata, g: Grammar, tokenNameList: Array<string>, faSim: BasicScanner | null, sensitive: boolean)
 : [LRParserSimulator, BasicScanner, LRGenerator]
 {	
-  console.log("___________________________simulateSLR___________________________");
+  // console.log("___________________________simulateSLR___________________________");
   // lex.setEnabled(fa != null);
   // synt.setEnabled(g != null);
   

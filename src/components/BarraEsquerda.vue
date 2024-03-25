@@ -53,7 +53,14 @@ export default defineComponent({
       this.paginaAberta = 'Documentação'
     },
     abrirDocumentacaoHTML(){
-      window.open('.\\Gals-Web\\src\\assets\\files\\help.html', '_blank');
+      let url
+      if (import.meta.env.DEV){
+        url = '.\\Gals-Web\\src\\assets\\files\\help.html';
+      }else{
+        url = '.\\src\\assets\\files\\help.html';
+      }
+      
+      window.open(url, '_blank');
     },
     abrirArquivo() {
       const input: HTMLInputElement = document.getElementById('file') as HTMLInputElement

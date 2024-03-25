@@ -81,7 +81,7 @@ export class SLRGenerator extends LRGenerator
      */
 	protected computeItems(): List<List<LRItem>>
     {
-		console.log("_____________Compute Items SLR___________");
+		// console.log("_____________Compute Items SLR___________");
     	const s: List<LRItem> = new List();
     	const sp: IntegerSet = this.g.productionsFor(this.g.startSymbol);
     	const f: number =  sp.list()[0];//new BitSetIterator(sp).nextInt();
@@ -106,18 +106,18 @@ export class SLRGenerator extends LRGenerator
 	    			for (let i=0; i<items.size(); i++)
 	    			{
 	    				const m: LRItem = items.get(i);
-	    				console.log("i: " + i + " item size: " + items.size());
+	    				// console.log("i: " + i + " item size: " + items.size());
 	    				const p: Production = m.production;
 	    				if (p.get_rhs().length > m.position)
 	    				{
-							console.log(p.get_rhs().length +" > " + m.position);
+							// console.log(p.get_rhs().length +" > " + m.position);
 							//console.log("indice: " + teste++);
 							//console.log("items: " + items.toString() + "  |  p.get_rhs: " + p.get_rhs()[m.position]);
 	    					const gt: List<LRItem> = this.goTo(items, p.get_rhs()[m.position]);
 							//console.log("gt: " + gt.toString());
 		    				//if (gt.size() != 0 && ! c.contains(gt))
 							teste++;
-							console.log("gt.size(): " + gt.size() +" | containsList: " + this.containsList(c, gt));
+							// console.log("gt.size(): " + gt.size() +" | containsList: " + this.containsList(c, gt));
 							if (gt.size() != 0 && ! this.containsList(c, gt))
 		    				{
 		    					c.add(gt);
@@ -132,7 +132,7 @@ export class SLRGenerator extends LRGenerator
 			//if(teste == 10) break;
     	}
 
-		console.log("teste: " + teste);
+		// console.log("teste: " + teste);
 
     	return c;
     }

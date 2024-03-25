@@ -126,7 +126,7 @@ export function simulateLex(
 
   console.log(tokensModel)
 
-  console.log('DEU')
+  // console.log('DEU')
 
   return tokensModel
 }

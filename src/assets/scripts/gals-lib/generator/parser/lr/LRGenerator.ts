@@ -23,7 +23,7 @@ export abstract class LRGenerator
 		this.semanticStart = g.FIRST_SEMANTIC_ACTION();
 		this.firstSementicAction = g.FIRST_SEMANTIC_ACTION();// g.SEMANTIC_ACTION_COUNT;
 		
-		console.log("semanticStart: " +this.semanticStart+ " | firstSementicAction: " + this.firstSementicAction);
+		//console.log("semanticStart: " +this.semanticStart+ " | firstSementicAction: " + this.firstSementicAction);
 
 		this.g = g.asNormalLR();
 	
