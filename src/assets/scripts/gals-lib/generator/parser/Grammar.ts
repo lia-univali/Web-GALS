@@ -1,4 +1,5 @@
 import { IntegerSet, List } from "../../DataStructures";
+import { HTMLDialog } from "../../HTMLDialog";
 import { Production } from "../../util/Production";
 import { cloneDeep } from "lodash";
 // import { List<Production> } from "../../util/ProfuctionList";
@@ -42,9 +43,9 @@ export class Grammar {
         this.setSymbols(terminalsCopy, nonTerminalsCopy, startSymbolCopy);
         this.setProductions(productionsCopy);
         this.fillFirstSet();
-        // console.log("fillFirstSet: " + this.firstSet.toString());
+        console.log("fillFirstSet: " + this.firstSet.toString());
         this.fillFollowSet();
-        // console.log("fillFollowSet: " + this.followSet.toString());
+        console.log("fillFollowSet: " + this.followSet.toString());
     }
 
     /**
@@ -237,31 +238,31 @@ export class Grammar {
 
 		let result: IntegerSet = new IntegerSet();
 
-        // console.log("x: " + x + " | start: " +  start);
+        console.log("x: " + x + " | start: " +  start);
 		
 		if (x.length - start == 1 && x[start] == Grammar.DOLLAR){
             result.add(Grammar.DOLLAR);
-            // console.log("DOLLAR");
+            console.log("DOLLAR");
         }
 		if (this.isEpsilon(x, start)){
 			result.add(Grammar.EPSILON);
-            // console.log("EPSILON");
+            console.log("EPSILON");
         }
 		else {
 			let k: number = x.length;
 			while (this.isSemanticAction(x[start]))
 				start++;
 				
-            // console.log("k: " + k + " | start: " + start);
+            console.log("k: " + k + " | start: " + start);
 
 			let f: IntegerSet = cloneDeep(this.first(x[start]));
             f.delete(Grammar.EPSILON);
 
-            // console.log("f: " + f.toString());
+            console.log("f: " + f.toString());
 
             result.addAll(f);
 
-            // console.log("result: " + result.toString());
+            console.log("result: " + result.toString());
 
             let i = start;
             while (i < k-1 && this.first(x[i]).has(Grammar.EPSILON))
@@ -271,15 +272,15 @@ export class Grammar {
                 f.delete(Grammar.EPSILON);
                 result.addAll(f);
 
-                // console.log("loop result: " + result.toString());
+                console.log("loop result: " + result.toString());
 
             }
             if (i == k-1 && this.first(x[i]).has(Grammar.EPSILON)){
                 result.add(Grammar.EPSILON);
-                // console.log("EPSILON END");
+                console.log("EPSILON END");
             }
 		}
-        // console.log("END result: " + result.toString());
+        console.log("END result: " + result.toString());
 		return result;
 	}
 
@@ -293,8 +294,8 @@ export class Grammar {
             this.firstSet[i] = new IntegerSet();
         }
 
-        // console.log("Tamnaho: " + this.firstSet.length);
-        // console.log("Set: " +  this.firstSet.toString());
+        console.log("Tamnaho: " + this.firstSet.length);
+        console.log("Set: " +  this.firstSet.toString());
 
         for (let A = this.FIRST_NON_TERMINAL; A < this.FIRST_SEMANTIC_ACTION(); A++)
         {
@@ -302,7 +303,7 @@ export class Grammar {
                 this.firstSet[A].add(Grammar.EPSILON);
         }
 
-        // console.log("Epsilon: " + this.firstSet.toString());
+        console.log("Epsilon: " + this.firstSet.toString());
 
         for (let a = Grammar.FIRST_TERMINAL; a < this.FIRST_NON_TERMINAL; a++) {
             this.firstSet[a].add(a);
@@ -320,7 +321,7 @@ export class Grammar {
             }
         }
 
-        // console.log("For: " + this.firstSet.toString());
+        console.log("For: " + this.firstSet.toString());
 
         let changed: boolean;
         do {
@@ -340,26 +341,26 @@ export class Grammar {
                 let P = this._productions.get(i);
                 let old = cloneDeep(this.firstSet[P.get_lhs()]);
                 let testeFirst = this.first(P.get_rhs());
-                // console.log(`Index: ${i} | fist: ${testeFirst.toString()}`);
+                console.log(`Index: ${i} | fist: ${testeFirst.toString()}`);
                 this.firstSet[P.get_lhs()].addAll(testeFirst);
                 if (!changed){
                     if(!old.equals(this.first(P.get_lhs()))){
                         changed = true;
-                        // console.log("changed: " + changed);
+                        console.log("changed: " + changed);
                     }
                 }
             }
 
         }
         while (changed);
-        // console.log("End: " + this.firstSet.toString());
+        console.log("End: " + this.firstSet.toString());
     }
         
 	/**
      * Calcula os conjuntos FOLLOW de todos os símbolos não terminais de Gramática
      */
     private fillFollowSet() {
-        // console.log("_________________START followSet_____________________")
+        console.log("_________________START followSet_____________________")
         this.followSet = new Array<IntegerSet>();
 
         for (let i = 0; i < this._symbols.length; i++) {
@@ -369,7 +370,7 @@ export class Grammar {
         this.followSet[this._startSymbol].add(Grammar.DOLLAR); // TODO Validar comportamento FIRST_SEMANTIC_ACTION
         let changes: boolean;
         
-        // console.log("DOLLAR: " + this.followSet.toString());
+        console.log("DOLLAR: " + this.followSet.toString());
 
         do {
             changes = false;
@@ -379,15 +380,15 @@ export class Grammar {
                 for (let j = 0 ; j < P.get_rhs().length; j++)
                 {
 
-                    // console.log("Index i: " + i + " Limit:" + this._productions.size() + " | Index j: " +  j + " Limit:" + P.get_rhs().length);
+                    console.log("Index i: " + i + " Limit:" + this._productions.size() + " | Index j: " +  j + " Limit:" + P.get_rhs().length);
 
                     if (this.isNonTerminal(P.get_rhs()[j])) {
                         
                     	let s: IntegerSet = this.first(P.get_rhs(), j + 1);
                         let deriveEpsilon: boolean = s.has(Grammar.EPSILON);
 
-                        // console.log("S: " + s.toString());
-                        // console.log("deriveEpsilon: " + deriveEpsilon);
+                        console.log("S: " + s.toString());
+                        console.log("deriveEpsilon: " + deriveEpsilon);
 
                         if( P.get_rhs().length > j+1 ) {
                             s.delete(Grammar.EPSILON);
@@ -441,7 +442,8 @@ export class Grammar {
 
     public ffAsHTML(): string {
     	let result = "";
-
+        // console.log(this.symbols)
+        // this.firstSet.forEach((item) => console.log(item.toString()) )
 		result += 
 			"<HTML>"+
 			"<HEAD>"+
@@ -456,35 +458,52 @@ export class Grammar {
 			"<TD bgcolor=black><FONT color=white><B>FIRST</B></FONT></TD>"+
 			"<TD bgcolor=black><FONT color=white><B>FOLLOW</B></FONT></TD>"+
 			"</TR>";
-			
+		
 		for (let i = this.FIRST_NON_TERMINAL; i < this.FIRST_SEMANTIC_ACTION(); i++) {
 
         	result += "<TR align=center>";
 			
-			result += `<TD nowrap bgcolor=#F5F5F5><B> ${this.symbols[i]} </B></TD>`;
+			result += `<TD nowrap bgcolor=#F5F5F5><B> ${HTMLDialog.translateString(this.symbols[i])} </B></TD>`;
 			
 			let bfr = "  ";
 
-            for (let j = 0; j < this.firstSet[i].size; j++)
-            {
-                if (this.firstSet[i].list()[j])
-                    bfr += this.symbols[j] + ", ";
-            }
+            // console.log(`i: ${i}` )
+            // console.log(this.firstSet[i])
+            // console.log( this.firstSet[i].length())
+
+            this.firstSet[i].list().forEach( (item) => bfr += this.symbols[item] + ", " )
+
+            // for (let j = 0; j < this.firstSet[i].length(); j++)
+            // {
+            //     console.log(`i: ${i} j: ${j}`)
+            //     console.log(this.firstSet[i].list()[j])
+            //     // this.firstSet[i].list()[j]
+
+            //     //if (this.firstSet[i].list().includes(j))
+            //     if (this.firstSet[i].has(this.firstSet[i].list()[j])){
+            //         // console.log("Entrou")
+            //         bfr += this.symbols[j] + ", ";
+            //     }
+            // }
             
             bfr = bfr.slice(0, -2);
             
-            result += `<TD nowrap bgcolor=#F5F5F5>${bfr}</TD>`;
+            result += `<TD nowrap bgcolor=#F5F5F5>${HTMLDialog.translateString(bfr)}</TD>`;
 			
             bfr = "  ";
-            for (let j = 0; j < this.followSet[i].size; j++)
-            {
-                if (this.followSet[i].list()[j])
-                    bfr += this.symbols[j] + ", ";
-            }
+
+            this.followSet[i].list().forEach( (item) => bfr += this.symbols[item] + ", " )
+
+            // for (let j = 0; j < this.followSet[i].length(); j++)
+            // {
+            //     //if (this.followSet[i].list().includes(j))
+            //     if (this.followSet[i].has(j))
+            //         bfr += this.symbols[j] + ", ";
+            // }
 
             bfr = bfr.slice(0, -2);
             
-            result = `<TD nowrap bgcolor=#F5F5F5>${bfr}</TD>`;
+            result += `<TD nowrap bgcolor=#F5F5F5>${HTMLDialog.translateString(bfr)}</TD>`;
             
             result += "</TR>";
         }

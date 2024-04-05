@@ -286,6 +286,11 @@ export class IntegerSet {
     return aux.sort((a, b) => a - b)
   }
 
+  length(): number {
+    return this._elements_set.size
+  }
+
+
   entries(): IterableIterator<[number, number]> {
     return this.list().entries()
   }

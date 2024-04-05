@@ -23,7 +23,7 @@ export abstract class LRGenerator
 		this.semanticStart = g.FIRST_SEMANTIC_ACTION();
 		this.firstSementicAction = g.FIRST_SEMANTIC_ACTION();// g.SEMANTIC_ACTION_COUNT;
 		
-		//console.log("semanticStart: " +this.semanticStart+ " | firstSementicAction: " + this.firstSementicAction);
+		console.log("semanticStart: " +this.semanticStart+ " | firstSementicAction: " + this.firstSementicAction);
 
 		this.g = g.asNormalLR();
 	
@@ -305,7 +305,6 @@ export abstract class LRGenerator
 			for (let j=1; j<item.size(); j++)
 			{
 				result += "<TR>";
-				//result += "<TD bgcolor="+color+" nowrap>"+item.get(j).toString()+"</TD>";
 				result += "<TD bgcolor="+color+" nowrap>"+HTMLDialog.translateString(item.get(j).toString())+"</TD>";
 			
 				it = item.get(j);
@@ -313,8 +312,8 @@ export abstract class LRGenerator
 				if (p.get_rhs().length > it.position)
 				{			
 					let x: number = p.get_rhs()[it.position];
-					let next: List<any> = this.goTo(item, x);
-					let pos: number = l.indexOf(next);
+					let next: List<LRItem> = this.goTo(item, x);
+					let pos: number = l.indexOf(next); // TODO Aqui está o erro. Não é possivel buscar conjunto dentro de lista
 					result += "<TD bgcolor="+color+" align=right>"+pos+"</TD>";
 				}
 				else

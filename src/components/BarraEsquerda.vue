@@ -4,7 +4,7 @@ import AreaCodigo from '@/components/AreaCodigo.vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import salvador from '@/assets/scripts/saver'
-import { lexicalTable, nonTerminalsFromGrammar, syntacticTable } from '@/assets/scripts/gals-functions'
+import { lexicalTable, nonTerminalsFromGrammar, syntacticFirstFollowTable, syntacticSetTable, syntacticTable } from '@/assets/scripts/gals-functions'
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
@@ -176,7 +176,51 @@ export default defineComponent({
       } else {
         projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
-    }
+    },
+    mostrarTabelaConjuntoSintatico() {
+      const selecionado = this.store.selecionado
+      const projeto = this.store.listaProjetos[selecionado]
+
+      const html: string = syntacticSetTable(
+          projeto.regularDefinitions,
+          projeto.tokens,
+          projeto.nonTerminals,
+          projeto.grammar,
+          Options.PARSER_SLR,
+          null
+      );
+
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      } else {
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      }
+    },
+    mostrarTabelaFirstFollowSintatico() {
+      const selecionado = this.store.selecionado
+      const projeto = this.store.listaProjetos[selecionado]
+
+      const html: string = syntacticFirstFollowTable(
+          projeto.regularDefinitions,
+          projeto.tokens,
+          projeto.nonTerminals,
+          projeto.grammar,
+          Options.PARSER_SLR,
+          null
+      );
+
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      } else {
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      }
+    },
   }
 })
 </script>
@@ -235,6 +279,8 @@ export default defineComponent({
       <div v-else-if="paginaAberta == 'Documentação'">
         <button class="btn" @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
         <button class="btn" @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
+        <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
+        <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
       <div v-else-if="paginaAberta == 'Informações'">
         <div class="container__links">

@@ -44,3 +44,9 @@ npm run build
 ```sh
 npm run lint
 ```
+
+Comandos para deploy no Github Pages
+
+git add dist -f
+git commit -m "v0.XX"
+git subtree push --prefix dist origin gh-pages
