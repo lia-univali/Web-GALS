@@ -447,7 +447,7 @@ export class JavaCommonGenerator {
         const result: string[] = [];
 		if(this.lrTable  === null ) throw new SyntaticError("Tabela LR está nula.");
 		const tbl: number[][][] = this.lrTable;
-		// console.log(this.lrTable);
+		// //console.log(this.lrTable);
 		result.push("    int[][][] PARSER_TABLE =\n");
 		result.push("    {\n");
 		
@@ -829,7 +829,7 @@ export class JavaCommonGenerator {
         if(this.lrTable == null) throw new SyntaticError("Tabela LR está nula.");
         
 		const count = this.lrTable.length;
-		// console.log(count)
+		// //console.log(count)
         const result: string[] = [];
 	
 		result.push(

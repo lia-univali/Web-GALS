@@ -231,7 +231,7 @@ export class FiniteAutomataGenerator {
           }
 
           if (n.alphabet.has(c.charCodeAt(0))) {
-            //console.log("Letra Comparada: " + c)
+            ////console.log("Letra Comparada: " + c)
             //this._next[p].forEach(element    => U.add(element));
             U.addAll(this._next[p])
           }

@@ -59,7 +59,6 @@ export default defineComponent({
       }else{
         url = 'files/help.html';
       }
-      console.log(url)
       return url;
     },
     abrirArquivo() {

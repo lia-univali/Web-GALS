@@ -26,10 +26,10 @@ export function simulateLex(
   let lp: LineParser = new LineParser()
   let fa: FiniteAutomata = lp.parseFA(definitions, tokens, sensitive)
 
-  // console.log("Ok")
-  // console.log(fa)
+  // //console.log("Ok")
+  // //console.log(fa)
   // for(let a of fa.transitions){
-  //     console.log(a)
+  //     //console.log(a)
   // }
 
   // Passo 2 - Obter lista de tokens - a partir do automato finito gerado no passo 1 - método getTokens da classe InputPane - linha 113
@@ -48,7 +48,7 @@ export function simulateLex(
     //     result.add(tknzr.nextToken());
   }
 
-  // console.log(result.toArray())
+  // //console.log(result.toArray())
 
   // Passo 3 - Remover as quebras de linha da lista de tokens gerada no passo 3 - Isso acontece no método getTokens da MainWindow - linha 140
 
@@ -124,9 +124,9 @@ export function simulateLex(
     console.log(error)
   }
 
-  console.log(tokensModel)
+  //console.log(tokensModel)
 
-  // console.log('DEU')
+  // //console.log('DEU')
 
   return tokensModel
 }

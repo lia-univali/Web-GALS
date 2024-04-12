@@ -55,7 +55,6 @@ export default defineComponent({
       const projeto = this.store.listaProjetos[selecionado]
 
       
-      console.log(projeto.nonTerminals)
 
       try {
         const result = syntacticSimulation(
@@ -67,7 +66,6 @@ export default defineComponent({
           Options.PARSER_SLR,
           null
         )
-        console.log(result);
         this.resultadoSintatico = result;
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
