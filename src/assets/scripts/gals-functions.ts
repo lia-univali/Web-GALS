@@ -20,6 +20,12 @@ import { MetaException } from './gals-lib/util/MetaException'
 import { JavaCommonGenerator } from './gals-lib/generator/java/JavaCommonGenerator'
 import { JavaScannerGenerator } from './gals-lib/generator/java/JavaScannerGenerator'
 import { JavaParserGenerator } from './gals-lib/generator/java/JavaParserGenerator'
+import { CppCommomGenerator } from './gals-lib/generator/cpp/CppCommomGenerator'
+import { CppScannerGeneretor } from './gals-lib/generator/cpp/CppScannerGeneretor'
+import { CppParserGenerator } from './gals-lib/generator/cpp/CppParserGenerator'
+import { DelphiCommomGenerator } from './gals-lib/generator/delphi/DelphiCommomGenerator'
+import { DelphiScannerGenerator } from './gals-lib/generator/delphi/DelphiScannerGenerator'
+import { DelphiParserGenerator } from './gals-lib/generator/delphi/DelphiParserGenerator'
 
 enum Mode {
   LEXICAL,
@@ -810,6 +816,7 @@ export function generateCode(
 
   // Produção de codigo
   const allFiles: TreeMap<string, string> = new TreeMap();
+  alert(options.language)
   switch (options.language)
   {
     case Options.LANG_JAVA:
@@ -817,16 +824,16 @@ export function generateCode(
       allFiles.setAll( new JavaScannerGenerator().generate(fa, options) );							
       allFiles.setAll( new JavaParserGenerator().generate(g, options));
       break;
-    // case Options.LANG_CPP:
-    //   allFiles.putAll( new CppCommomGenerator().generate(fa, g, options) );
-    //   allFiles.putAll( new CppScannerGeneretor().generate(fa, options) );
-    //   allFiles.putAll( new CppParserGenerator().generate(g, options) );
-    //   break;
-    // case Options.LANG_DELPHI:
-    //   allFiles.putAll( new DelphiCommomGenerator().generate(fa, g, options) );
-    //   allFiles.putAll( new DelphiScannerGenerator().generate(fa, options) );
-    //   allFiles.putAll( new DelphiParserGenerator().generate(g, options));
-    //   break;						
+    case Options.LANG_CPP:
+      allFiles.setAll( new CppCommomGenerator().generate(fa, g, options) );
+      allFiles.setAll( new CppScannerGeneretor().generate(fa, options) );
+      allFiles.setAll( new CppParserGenerator().generate(g, options) );
+      break;
+    case Options.LANG_DELPHI:
+      allFiles.setAll( new DelphiCommomGenerator().generate(fa, g, options) );
+      allFiles.setAll( new DelphiScannerGenerator().generate(fa, options) );
+      allFiles.setAll( new DelphiParserGenerator().generate(g, options));
+      break;						
   }
 
   return allFiles;

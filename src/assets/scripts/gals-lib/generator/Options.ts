@@ -41,7 +41,7 @@ export class Options
 		let bfr = '';
 		
 		bfr +=  ("GenerateScanner = "    + this.generateScanner + "\n");
-		bfr +=  ("GenerateParser = "     + this.generateParser);
+		bfr +=  ("GenerateParser = "     + this.generateParser + "\n");
 		
 		bfr +=  ("Language = ");
 		switch (this.language)
@@ -93,51 +93,34 @@ export class Options
 		return bfr;
 	}
 
-    // TODO Escrever conversor de opções
-	// public static fromString(str: string): Options
-	// {
-	// 	let o = new Options();
+	public constructorFromString(str: string): Options
+	{
+		// eslint-disable-next-line prefer-const
+		let o = new Options();
+
+		if(str === undefined) return o;
 		
-	// 	LineNumberReader in = new LineNumberReader(new StringReader(str));
-	// 	String line = null;
-	// 	try
-	// 	{
-	// 		while ( (line = in.readLine()) != null)
-	// 		{   
-	// 			StringTokenizer tknzr = new StringTokenizer(line);
-				
-    //             if (! tknzr.hasMoreTokens())
-    //                 continue;
-                
-	// 			String name = tknzr.nextToken();
-	// 			if (!tknzr.hasMoreTokens())
-	// 				throw new XMLParsingException("Erro processando arquivo");
-	// 			tknzr.nextToken();//=
-	// 			String value = "";
-	// 			if (tknzr.hasMoreTokens())
-	// 				value = tknzr.nextToken();
-				
-	// 			o.setOption(name, value);
-	// 		}
-	// 	}
-	// 	catch (IOException e)
-	// 	{
-	// 		throw new XMLParsingException("Erro processando arquivo");
-	// 	}
-		
-	// 	return o;
-	// }
+		const lineArray = str.split("\n");
+
+		for(const line of lineArray)
+		{   
+			const [name, value] = line.split('=');
+			o.setOption(name.trim(), value.trim());
+		}
+
+		return o;
+	}
 
 	/**
 	 * @param name
 	 * @param value
 	 */
-	private setOption(name: string, value: string)
+	public setOption(name: string, value: string)
 	{
 		if (name.toUpperCase() === ("GenerateScanner").toUpperCase())
-			this.generateScanner = Boolean(value);
+			this.generateScanner = (/true/i).test(value);
 		else if (name.toUpperCase() === ("GenerateParser").toUpperCase())
-			this.generateParser = Boolean(value);
+			this.generateParser = (/true/i).test(value);
 		else if (name.toUpperCase() === ("Language").toUpperCase())
 		{
 			if (value.toUpperCase() === ("C++").toUpperCase())
@@ -158,7 +141,7 @@ export class Options
 		else if (name.toUpperCase() === ("Package").toUpperCase())
             this.pkgName = value;
 		else if (name.toUpperCase() === ("ScannerCaseSensitive").toUpperCase())
-            this.scannerCaseSensitive = Boolean(value);
+            this.scannerCaseSensitive = (/true/i).test(value);
 		else if (name.toUpperCase() == ("ScannerTable").toUpperCase())
 		{
 			if (value.toUpperCase() === ("Full").toUpperCase())

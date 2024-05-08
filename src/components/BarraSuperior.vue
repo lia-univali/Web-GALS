@@ -27,12 +27,15 @@ export default defineComponent({
       const selecionado = this.store.selecionado
       if (selecionado == -1) return
       const projeto = this.store.listaProjetos[selecionado]
+      const options: Options = projeto.optionsGals
 
-      let options = new Options();
-      options.pkgName =  "teste";
-      options.parser = Options.PARSER_SLR;
+      alert(options.toString())
+
+      //let optionsTeste = new Options();
+      //optionsTeste.pkgName =  "teste";
+      //optionsTeste.parser = Options.PARSER_SLR;
       //options.scannerTable = Options.SCANNER_TABLE_COMPACT;
-      options.input = Options.INPUT_STREAM
+      //optionsTeste.input = Options.INPUT_STREAM
       let allFiles: TreeMap<string, string> | null = null;
 
       try {

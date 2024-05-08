@@ -3,7 +3,7 @@ import { Production } from "../util/Production";
 import { Grammar } from "./parser/Grammar";
 
 
-export class Function
+export class FunctionCustom
 {
     public input: TreeMap<number, number[]> = new TreeMap();
     public lhs: number;
@@ -20,7 +20,7 @@ export class RecursiveDescendent
 	private _llTable: number[][];
 	private _symbols: string[];
 	
-	private _functions: Map<string, Function> = new Map();
+	private _functions: Map<string, FunctionCustom> = new Map();
 	
 	public constructor(grammar: Grammar) //throws NotLLException
 	{
@@ -44,7 +44,7 @@ export class RecursiveDescendent
 		return this._symbols[this._grammar.startSymbol];
 	}
 	
-	public build(): Map<string, Function>
+	public build(): Map<string, FunctionCustom>
 	{
 		const prods: Production[] = this._grammar.productions.toArray();
 		
@@ -52,7 +52,7 @@ export class RecursiveDescendent
 		{
 			const t = i+this._grammar.FIRST_NON_TERMINAL;
 			
-			const f: Function = new Function(t);			
+			const f: FunctionCustom = new FunctionCustom(t);			
 			this._functions.set(this._symbols[t], f);		
 			
 			for (let j=0; j<this._llTable[0].length; j++)

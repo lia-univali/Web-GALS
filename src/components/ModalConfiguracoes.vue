@@ -1,11 +1,16 @@
+<!-- eslint-disable no-constant-condition -->
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
+import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
   name: 'ModalConfiguracoes',
   components: {},
+  props: {
+    options: Options
+  },
   data() {
     return {
       activeTab: 'Geral',
@@ -36,6 +41,60 @@ export default defineComponent({
     },
     changeTab(tab: string){
       this.activeTab = tab;
+    },
+    enviarForms(e: Event){
+      if(e == null) return
+      let newOptions = new Options();
+      const form = e.target as HTMLFormElement;
+
+      if(form == null) return
+      
+      newOptions.setOption('GenerateScanner', (form.gerar.value === '1' || form.gerar.value === '3') ? 'true' : 'false');
+      newOptions.setOption('GenerateParser',  (form.gerar.value === '2' || form.gerar.value === '3') ? 'true' : 'false');
+      
+      newOptions.setOption('Language', form.linguagem.value)
+      newOptions.setOption('ScannerName',   form.nomeLexico.value)
+      newOptions.setOption('ParserName',    form.nomeSintatico.value)
+      newOptions.setOption('SemanticName',  form.nomeSemantico.value)
+      newOptions.setOption('Package',       form.nameNamespace.value) 
+
+      newOptions.setOption('ScannerCaseSensitive', form.sensibilidade.checked)
+      newOptions.setOption('ScannerTable', form.automato.value)
+      newOptions.setOption('Parser', form.parser.value)
+
+      this.projetos[this.selecionado].optionsGals = newOptions
+    },
+    preencherModal(){
+      
+      const form: any = this.$refs.form
+      const opcoes: Options = this.projetos[this.selecionado].optionsGals
+
+      alert(opcoes.toString())
+
+      if (opcoes.generateScanner && opcoes.generateParser)  form.gerar.value = '3'
+      else if (opcoes.generateParser)                       form.gerar.value = '2'
+      else if (opcoes.generateScanner)                      form.gerar.value = '1'
+      
+      if      (Options.LANG_CPP    == opcoes.language) form.linguagem.value = 'C++'
+      else if (Options.LANG_JAVA   == opcoes.language) form.linguagem.value = 'Java'
+      else if (Options.LANG_DELPHI == opcoes.language) form.linguagem.value = 'Delphi'
+      
+      form.nomeLexico.value    = opcoes.scannerName
+      form.nomeSintatico.value = opcoes.parserName
+      form.nomeSemantico.value = opcoes.semanticName
+      form.nameNamespace.value = opcoes.pkgName
+
+      form.sensibilidade.checked = opcoes.scannerCaseSensitive;
+
+      if      (Options.SCANNER_TABLE_FULL     == opcoes.scannerTable) form.automato.value = 'Full'
+      else if (Options.SCANNER_TABLE_COMPACT  == opcoes.scannerTable) form.automato.value = 'Compact'
+      else if (Options.SCANNER_TABLE_HARDCODE == opcoes.scannerTable) form.automato.value = 'Hardcode'
+
+      if      (Options.PARSER_LR       == opcoes.parser) form.automato.value = 'LR'
+      else if (Options.PARSER_LALR     == opcoes.parser) form.automato.value = 'LALR'
+      else if (Options.PARSER_SLR      == opcoes.parser) form.automato.value = 'SLR'
+      else if (Options.PARSER_LL       == opcoes.parser) form.automato.value = 'LL'
+      else if (Options.PARSER_REC_DESC == opcoes.parser) form.automato.value = 'RD'
     }
   }
 })
@@ -53,153 +112,156 @@ export default defineComponent({
         <button class="tablinks" @click="changeTab('Sintático')">Sintático</button>
       </div>
 
-      <div v-show="activeTab == 'Geral'" id="Geral" class="tabcontent">
-        <fieldset>
-          <legend>Gerar</legend>
-          <div>
-            <input type="radio" id="1" name="gerar" value="1" checked />
-            <label for="1">Analisador Léxico</label>
-          </div>
+      <form id="formOptions" @submit.prevent="enviarForms" ref="form">
+        
+        <div v-show="activeTab == 'Geral'" id="Geral" class="tabcontent">
+          <fieldset id="'gerar'">
+            <legend>Gerar</legend>
+            <div>
+              <input type="radio" id="1" name="gerar" value="1" checked />
+              <label for="1">Analisador Léxico</label>
+            </div>
 
-          <div>
-            <input type="radio" id="2" name="gerar" value="2" />
-            <label for="2">Analisador Sintático</label>
-          </div>
+            <div>
+              <input type="radio" id="2" name="gerar" value="2" />
+              <label for="2">Analisador Sintático</label>
+            </div>
 
-          <div>
-            <input type="radio" id="3" name="gerar" value="3" />
-            <label for="3">Analisador Léxico e Sintático</label>
-          </div>
-        </fieldset>
+            <div>
+              <input type="radio" id="3" name="gerar" value="3" />
+              <label for="3">Analisador Léxico e Sintático</label>
+            </div>
+          </fieldset>
 
-        <fieldset>
-          <legend>Linguagem</legend>
-          <div>
-            <input type="radio" id="1" name="linguagem" value="1" checked />
-            <label for="1">Java</label>
-          </div>
+          <fieldset>
+            <legend>Linguagem</legend>
+            <div>
+              <input type="radio" id="1" name="linguagem" value="Java" checked />
+              <label for="1">Java</label>
+            </div>
 
-          <div>
-            <input type="radio" id="2" name="linguagem" value="2" />
-            <label for="2">C++</label>
-          </div>
+            <div>
+              <input type="radio" id="2" name="linguagem" value="C++" />
+              <label for="2">C++</label>
+            </div>
 
-          <div>
-            <input type="radio" id="3" name="linguagem" value="3" />
-            <label for="3">Delphi</label>
-          </div>
+            <div>
+              <input type="radio" id="3" name="linguagem" value="Delphi" />
+              <label for="3">Delphi</label>
+            </div>
 
-          <div>
-            <input type="radio" id="3" name="linguagem" value="3" />
-            <label for="3">C#</label>
-          </div>
-        </fieldset>
+            <!-- <div>
+              <input type="radio" id="3" name="linguagem" value="C#" />
+              <label for="3">C#</label>
+            </div> -->
+          </fieldset>
 
-        <fieldset>
-          <legend>Classes</legend>
-          <div>
-            <label>Analisador Léxico</label>
-            <input type="input" id="1" name="linguagem" value="Lexico" checked />
-          </div>
+          <fieldset>
+            <legend>Classes</legend>
+            <div>
+              <label>Analisador Léxico</label>
+              <input type="input" id="1" name="nomeLexico" value="Lexico" checked />
+            </div>
 
-          <div>
-            <label>Analisador Sintático</label>
-            <input type="input" id="2" name="linguagem" value="Sintatico" />
-          </div>
+            <div>
+              <label>Analisador Sintático</label>
+              <input type="input" id="2" name="nomeSintatico" value="Sintatico" />
+            </div>
 
-          <div>
-            <label>Analisador Semantico</label>
-            <input type="input" id="3" name="linguagem" value="Semantico" />
-          </div>
+            <div>
+              <label>Analisador Semantico</label>
+              <input type="input" id="3" name="nomeSemantico" value="Semantico" />
+            </div>
 
-          <div>
-            <input type="checkbox" id="3" name="linguagem" v-model="namespace"/>
-            <label>Package / Namespace</label>
-            <input type="input" :disabled="!namespace" id="3" name="linguagem" value="" />
-          </div>
-        </fieldset>
+            <div>
+              <input type="checkbox" id="3" name="namespace" v-model="namespace"/>
+              <label>Package / Namespace</label>
+              <input type="input" :disabled="!namespace" id="3" name="nameNamespace" />
+            </div>
+          </fieldset>
 
-      </div>
-
-      <div v-show="activeTab == 'Léxico'" id="Léxico" class="tabcontent">
-        <fieldset>
-          <legend>Forma de Entrada</legend>
-          <div>
-            <input type="radio" id="1" name="forma__entrada" value="1" checked />
-            <label for="1">Stream</label>
-          </div>
-
-          <div>
-            <input type="radio" id="2" name="forma__entrada" value="2" />
-            <label for="2">String</label>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Implementação do Autômato</legend>
-          <div>
-            <input type="radio" id="1" name="automato" value="1" checked />
-            <label for="1">Tabela Completa</label>
-          </div>
-
-          <div>
-            <input type="radio" id="2" name="automato" value="2" />
-            <label for="2">Tabela Compactada (Só para Java)</label>
-          </div>
-
-          <div>
-            <input type="radio" id="3" name="automato" value="3" />
-            <label for="3">Específica (Código)</label>
-          </div>
-        </fieldset>
-
-        <div>
-          <input type="checkbox" id="sensibilidade" name="linguagem" />
-          <label>Diferenciar maiúscula/minúscula em casos especiais</label>
         </div>
 
-      </div>
-
-      <div v-show="activeTab == 'Sintático'" id="Sintático" class="tabcontent">
-        <fieldset>
-          <legend>Classe do Analisador Sintático</legend>
-
+        <div v-show="activeTab == 'Léxico'" id="Léxico" class="tabcontent">
           <fieldset>
-            <legend>Descendentes</legend>
-
+            <legend>Forma de Entrada</legend>
             <div>
-              <input type="radio" id="1" name="descendentes" value="1" checked />
-              <label for="1">Descendente Recursivo</label>
+              <input type="radio" id="1" name="forma__entrada" value="1" checked />
+              <label for="1">Stream</label>
             </div>
 
             <div>
-              <input type="radio" id="2" name="descendentes" value="2" checked />
-              <label for="2">LL(1)</label>
+              <input type="radio" id="2" name="forma__entrada" value="2" />
+              <label for="2">String</label>
             </div>
           </fieldset>
 
           <fieldset>
-            <legend>Ascendentes</legend>
-
+            <legend>Implementação do Autômato</legend>
             <div>
-              <input type="radio" id="1" name="ascendentes" value="1" checked />
-              <label for="1">SLR(1)</label>
+              <input type="radio" id="1" name="automato" value="Full" checked />
+              <label for="1">Tabela Completa</label>
             </div>
 
             <div>
-              <input type="radio" id="2" name="ascendentes" value="2" checked />
-              <label for="2">LALR(1)</label>
+              <input type="radio" id="2" name="automato" value="Compact" />
+              <label for="2">Tabela Compactada (Só para Java)</label>
             </div>
 
             <div>
-              <input type="radio" id="3" name="ascendentes" value="3" checked />
-              <label for="3">LR(1)</label>
+              <input type="radio" id="3" name="automato" value="Hardcode" />
+              <label for="3">Específica (Código)</label>
             </div>
           </fieldset>
 
-        </fieldset>
-      </div>
+          <div>
+            <input type="checkbox" id="sensibilidade" name="sensibilidade" />
+            <label for="sensibilidade">Diferenciar maiúscula/minúscula em casos especiais</label>
+          </div>
 
+        </div>
+
+        <div v-show="activeTab == 'Sintático'" id="Sintático" class="tabcontent">
+          <fieldset>
+            <legend>Classe do Analisador Sintático</legend>
+
+            <fieldset>
+              <legend>Descendentes</legend>
+
+              <div>
+                <input type="radio" id="1" name="parser" value="RD" checked />
+                <label for="1">Descendente Recursivo</label>
+              </div>
+
+              <div>
+                <input type="radio" id="2" name="parser" value="LL" checked />
+                <label for="2">LL(1)</label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Ascendentes</legend>
+
+              <div>
+                <input type="radio" id="3" name="parser" value="SLR" checked />
+                <label for="3">SLR(1)</label>
+              </div>
+
+              <div>
+                <input type="radio" id="4" name="parser" value="LALR" checked />
+                <label for="4">LALR(1)</label>
+              </div>
+
+              <div>
+                <input type="radio" id="5" name="parser" value="LR" checked />
+                <label for="5">LR(1)</label>
+              </div>
+            </fieldset>
+
+          </fieldset>
+        </div>
+      <button >Aplicar</button>
+    </form>
       <!-- <p v-if="selecionado != -1" style="white-space: pre-line; text-align: center;">{{ projetos[selecionado].options }}</p> -->
     </div>
   </div>

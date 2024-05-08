@@ -6,11 +6,13 @@ import { computed } from 'vue'
 import salvador from '@/assets/scripts/saver'
 import { lexicalTable, nonTerminalsFromGrammar, syntacticFirstFollowTable, syntacticSetTable, syntacticTable } from '@/assets/scripts/gals-functions'
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
+import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
 
 export default defineComponent({
   name: 'BarraEsquerda',
   components: {
-    AreaCodigo
+    AreaCodigo,
+    ModalConfiguracoes
   },
   data() {
     return {
@@ -41,11 +43,19 @@ export default defineComponent({
       this.paginaAberta = 'Projetos'
     },
     abrirOpcaoes() {
-      if (this.selecionado == -1) {
-        alert('Nenhum projeto selecionado!')
-      } else {
-        const modal = document.getElementById('modal__configuracoes')
-        if (modal != null) modal.style.display = 'flex'
+      if (this.selecionado === -1) {
+        alert('Nenhum projeto selecionado!');
+        return;
+      }
+
+      const modal = document.getElementById('modal__configuracoes');
+      const modalConfiguracoesRef = this.$refs.ModalConfiguracoesRef as any;
+
+      if(modal == undefined || modalConfiguracoesRef == undefined) return;
+
+      if (modalConfiguracoesRef && modalConfiguracoesRef.enviarForms) {
+        modalConfiguracoesRef.preencherModal();
+        modal.style.display = 'flex';
       }
     },
     abrirDocumentacao() {
@@ -88,7 +98,7 @@ export default defineComponent({
           grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
           textSimulator: '',
           consoleExit: '',
-          optionsGals: new Options()
+          optionsGals: splitResultado[1] == undefined ? new Options() : new Options().constructorFromString(splitResultado[1] == undefined ? '' : splitResultado[1]),
         }
 
         thatStore.addProject(newProject)
@@ -115,7 +125,7 @@ export default defineComponent({
         const grammar = this.projetos[this.selecionado].grammar
 
         let codigo = ''
-        codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n'
+        codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n' // TODO mudar para  objeto
         codigo +=
           '#RegularDefinitions\n' +
           (regularDefinitions == undefined ? '' : regularDefinitions) +
@@ -225,6 +235,9 @@ export default defineComponent({
 </script>
 
 <template>
+
+  <ModalConfiguracoes  ref="ModalConfiguracoesRef"/>
+
   <div class="barra__esquerda">
     <div class="selecao__botoes">
       <button

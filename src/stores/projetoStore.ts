@@ -1,4 +1,4 @@
-import type { Options } from '@/assets/scripts/gals-lib/generator/Options'
+import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import { defineStore } from 'pinia'
 
 export interface Projeto {
@@ -35,10 +35,10 @@ export const projetoStore = defineStore('projetos', {
           'grammar': '',
           'textSimulator': '',
           'consoleExit': '',
-
+          'optionsGals': new Options(),
         },
       ] as Projeto[],
-      selecionado: -1,
+      selecionado: 0,
       layout: {
         'token': 33.3333,
         'simulacao': 33.3333,
