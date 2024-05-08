@@ -65,7 +65,7 @@ export class LRConflictSolver extends ConflictSolver
 
         //TODO change to choose conflict resolver and not the first rule
         
-        console.log(this._conflictListModel[0].command)
+        ////console.log(this._conflictListModel[0].command)
         return this._conflictListModel[0].command;
 
         //return showDialog();

@@ -4,13 +4,15 @@ import AreaCodigo from '@/components/AreaCodigo.vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import salvador from '@/assets/scripts/saver'
-import { lexicalTable, nonTerminalsFromGrammar, syntacticTable } from '@/assets/scripts/gals-functions'
+import { lexicalTable, nonTerminalsFromGrammar, syntacticFirstFollowTable, syntacticSetTable, syntacticTable } from '@/assets/scripts/gals-functions'
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
+import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
 
 export default defineComponent({
   name: 'BarraEsquerda',
   components: {
-    AreaCodigo
+    AreaCodigo,
+    ModalConfiguracoes
   },
   data() {
     return {
@@ -41,19 +43,33 @@ export default defineComponent({
       this.paginaAberta = 'Projetos'
     },
     abrirOpcaoes() {
-      if (this.selecionado == -1) {
-        alert('Nenhum projeto selecionado!')
-      } else {
-        const modal = document.getElementById('modal__configuracoes')
-        if (modal != null) modal.style.display = 'flex'
+      if (this.selecionado === -1) {
+        alert('Nenhum projeto selecionado!');
+        return;
+      }
+
+      const modal = document.getElementById('modal__configuracoes');
+      const modalConfiguracoesRef = this.$refs.ModalConfiguracoesRef as any;
+
+      if(modal == undefined || modalConfiguracoesRef == undefined) return;
+
+      if (modalConfiguracoesRef && modalConfiguracoesRef.enviarForms) {
+        modalConfiguracoesRef.preencherModal();
+        modal.style.display = 'flex';
       }
     },
     abrirDocumentacao() {
       this.colapsaConteudo('Documentação')
       this.paginaAberta = 'Documentação'
     },
-    abrirDocumentacaoHTML(){
-      window.open('.\\Gals-Web\\src\\assets\\files\\help.html', '_blank');
+    getLinkDocumentacaoHTML(): string{
+      let url
+      if (process.env.NODE_ENV === 'development'){
+        url = 'Gals-Web/files/help.html';
+      }else{
+        url = 'files/help.html';
+      }
+      return url;
     },
     abrirArquivo() {
       const input: HTMLInputElement = document.getElementById('file') as HTMLInputElement
@@ -82,7 +98,7 @@ export default defineComponent({
           grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
           textSimulator: '',
           consoleExit: '',
-          optionsGals: new Options()
+          optionsGals: splitResultado[1] == undefined ? new Options() : new Options().constructorFromString(splitResultado[1] == undefined ? '' : splitResultado[1]),
         }
 
         thatStore.addProject(newProject)
@@ -109,7 +125,7 @@ export default defineComponent({
         const grammar = this.projetos[this.selecionado].grammar
 
         let codigo = ''
-        codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n'
+        codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n' // TODO mudar para  objeto
         codigo +=
           '#RegularDefinitions\n' +
           (regularDefinitions == undefined ? '' : regularDefinitions) +
@@ -169,12 +185,59 @@ export default defineComponent({
       } else {
         projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
-    }
+    },
+    mostrarTabelaConjuntoSintatico() {
+      const selecionado = this.store.selecionado
+      const projeto = this.store.listaProjetos[selecionado]
+
+      const html: string = syntacticSetTable(
+          projeto.regularDefinitions,
+          projeto.tokens,
+          projeto.nonTerminals,
+          projeto.grammar,
+          Options.PARSER_SLR,
+          null
+      );
+
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      } else {
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      }
+    },
+    mostrarTabelaFirstFollowSintatico() {
+      const selecionado = this.store.selecionado
+      const projeto = this.store.listaProjetos[selecionado]
+
+      const html: string = syntacticFirstFollowTable(
+          projeto.regularDefinitions,
+          projeto.tokens,
+          projeto.nonTerminals,
+          projeto.grammar,
+          Options.PARSER_SLR,
+          null
+      );
+
+      const newTab = window.open();
+      if (newTab) {
+        newTab.document.write(html);
+        newTab.document.close();
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      } else {
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+      }
+    },
   }
 })
 </script>
 
 <template>
+
+  <ModalConfiguracoes  ref="ModalConfiguracoesRef"/>
+
   <div class="barra__esquerda">
     <div class="selecao__botoes">
       <button
@@ -228,10 +291,12 @@ export default defineComponent({
       <div v-else-if="paginaAberta == 'Documentação'">
         <button class="btn" @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
         <button class="btn" @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
+        <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
+        <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
       <div v-else-if="paginaAberta == 'Informações'">
         <div class="container__links">
-          <a class="link" href="Gals-Web/files/help.html" target="_blank">DOCUMENTAÇÃO</a>
+          <a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a>
         </div>
       </div>
     </div>

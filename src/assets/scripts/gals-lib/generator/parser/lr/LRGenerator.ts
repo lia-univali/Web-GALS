@@ -11,127 +11,117 @@ import { Command } from "./Command";
 import { LRConflictSolver } from "./LRConflictSolver";
 import { LRItem } from "./LRItem";
 
-export abstract class LRGenerator
-{
+export abstract class LRGenerator {
 	protected g: Grammar;
 	protected itemList: List<List<LRItem>>;
 	protected semanticStart: number;
 	protected firstSementicAction: number;
 
-	constructor(g: Grammar)
-	{	
+	constructor(g: Grammar) {
 		this.semanticStart = g.FIRST_SEMANTIC_ACTION();
 		this.firstSementicAction = g.FIRST_SEMANTIC_ACTION();// g.SEMANTIC_ACTION_COUNT;
-		
-		console.log("semanticStart: " +this.semanticStart+ " | firstSementicAction: " + this.firstSementicAction);
+
+		//console.log("semanticStart: " +this.semanticStart+ " | firstSementicAction: " + this.firstSementicAction);
 
 		this.g = g.asNormalLR();
-	
+
 		this.itemList = this.computeItems();
 	}
 
-	
 
-	public getErrors(table: Command[][]): List<string>
-	{
-		let result = new List<string>();
-		
-		for (let state=0; state<table.length; state++)
-		{
-            let bs: IntegerSet = new IntegerSet();
-			for (let j = 1; j < this.g.FIRST_NON_TERMINAL; j++)
-			{
-				if (table[state][j-1].getType() != Command.ERROR)
+
+	public getErrors(table: Command[][]): List<string> {
+		const result = new List<string>();
+
+		for (let state = 0; state < table.length; state++) {
+			const bs: IntegerSet = new IntegerSet();
+			for (let j = 1; j < this.g.FIRST_NON_TERMINAL; j++) {
+				if (table[state][j - 1].getType() != Command.ERROR)
 					bs.add(j);
 			}
 			let bfr: string = "";
-			let total: number = bs.size;
-            let count: number = 0
-			for (let i of bs.list())
-			{
+			const total: number = bs.size;
+			let count: number = 0
+			for (const i of bs.list()) {
 				if (i == 1)//DOLAR
 					bfr += "fim de sentença";
 				else
 					bfr += this.g.symbols[i];
-		
+
 				if (total - count == 2)
 					bfr += " ou ";
 				else if (total - count > 2)
-				bfr += ", ";
+					bfr += ", ";
 
-                count++;
+				count++;
 			}
 			result.add(bfr.toString());
 		}
-	
-	/*
-		for (Iterator iter = itemList.iterator(); iter.hasNext();)
-		{
-			List items = (List) iter.next();
-		
-			BitSet first = new BitSet();			
-			for (Iterator i = items.iterator(); i.hasNext(); )
+
+		/*
+			for (Iterator iter = itemList.iterator(); iter.hasNext();)
 			{
-				LRItem item = (LRItem)i.next();
-				Production p = item.getProduction();
+				List items = (List) iter.next();
 			
-				first.or(g.first(p.get_rhs(), item.getPosition()));
-				if (first.get(0))
+				BitSet first = new BitSet();			
+				for (Iterator i = items.iterator(); i.hasNext(); )
 				{
-					first.clear(0);
-					if (item.getLookahead() != 0)
-						first.set(item.getLookahead());
-					else
-						first.or(g.followSet[p.get_lhs()]);
+					LRItem item = (LRItem)i.next();
+					Production p = item.getProduction();
+				
+					first.or(g.first(p.get_rhs(), item.getPosition()));
+					if (first.get(0))
+					{
+						first.clear(0);
+						if (item.getLookahead() != 0)
+							first.set(item.getLookahead());
+						else
+							first.or(g.followSet[p.get_lhs()]);
+					}
+					
 				}
 				
-			}
-			
-			StringBuffer bfr = new StringBuffer();
-			int total = first.cardinality();
-			for (int i = first.nextSetBit(0), count = 0; i>=0; i = first.nextSetBit(i+1), ++count)
-			{
-				if (i == 1)//DOLAR
-					bfr += "fim de sentença");
-				else
-					bfr += g.getSymbols()[i]);
-					
-				if (total - count == 2)
-					bfr += " ou ");
-				else if (total - count > 2)
-				bfr += ", ");
-			}
-			result.add(bfr.toString());
-		}*/
-	
+				StringBuffer bfr = new StringBuffer();
+				int total = first.cardinality();
+				for (int i = first.nextSetBit(0), count = 0; i>=0; i = first.nextSetBit(i+1), ++count)
+				{
+					if (i == 1)//DOLAR
+						bfr += "fim de sentença");
+					else
+						bfr += g.getSymbols()[i]);
+						
+					if (total - count == 2)
+						bfr += " ou ");
+					else if (total - count > 2)
+					bfr += ", ");
+				}
+				result.add(bfr.toString());
+			}*/
+
 		return result;
 	}
-		
-	public get grammar() :Grammar
-	{
+
+	public get grammar(): Grammar {
 		return this.g;
 	}
 
-	public get firstSemanticAction(): number
-	{
+	public get firstSemanticAction(): number {
 		return this.firstSementicAction;
 	}
-	
+
 	protected abstract closure(items: List<any>): List<any>;
 	protected abstract goTo(items: List<any>, s: number): List<any>;
 	protected abstract computeItems(): List<List<LRItem>>;
-	public	abstract buildTable(): Command[][];
-	
-	public buildIntTable(): number[][][]
-	{
-		let commands: Command[][] = this.buildTable();
+	public abstract buildTable(): Command[][];
 
-		let result: number[][][]  = [];
-	
-		for (let i=0; i<commands.length; i++){
+	public buildIntTable(): number[][][] {
+		const commands: Command[][] = this.buildTable();
+
+		const result: number[][][] = [];
+
+		for (let i = 0; i < commands.length; i++) {
 			result[i] = [];
-			for (let j=0; j<commands[i].length; j++)
-			{
+			for (let j = 0; j < commands[i].length; j++) {
 				result[i][j] = [];
 				result[i][j][0] = commands[i][j].getType();
 				result[i][j][1] = commands[i][j].getParameter();
@@ -140,18 +130,14 @@ export abstract class LRGenerator
 		return result;
 	}
 
-	protected resolveConflicts(table: Set<Command>[][] ): Command[][]
-	{
-		let result: Command[][] = [];
-	
-		let error: Command = Command.createError();
-		for (let i=0; i<table.length; i++)
-		{
+	protected resolveConflicts(table: Set<Command>[][]): Command[][] {
+		const result: Command[][] = [];
+
+		const error: Command = Command.createError();
+		for (let i = 0; i < table.length; i++) {
 			result[i] = [];
-			for (let j=0; j<table[0].length; j++)
-			{
-				switch (table[i][j].size)
-				{
+			for (let j = 0; j < table[0].length; j++) {
+				switch (table[i][j].size) {
 					case 0:
 						result[i][j] = error;
 						break;
@@ -164,34 +150,30 @@ export abstract class LRGenerator
 				}
 			}
 		}
-	
+
 		return result;
 	}
 
-	private solve(set: Set<Command>, state: number, input: number): Command
-	{
-		let cmds: Command[] = [];
-		let i=0;
+	private solve(set: Set<Command>, state: number, input: number): Command {
+		const cmds: Command[] = [];
+		let i = 0;
 		//for (Iterator iter = set.iterator(); iter.hasNext();)
-		for(let iter of set)
-		{
+		for (const iter of set) {
 			cmds[i] = iter; //TODO VERIFY MODIFICATION
 			i++;
 		}
-	
+
 		let equals = true;
-		for (let j = 1; j < cmds.length; j++)
-		{
-			equals = equals && cmds[j-1].equals(cmds[j]);
+		for (let j = 1; j < cmds.length; j++) {
+			equals = equals && cmds[j - 1].equals(cmds[j]);
 			if (!equals)
 				break;
 		}
-	
+
 		if (equals)
 			return cmds[0];
-		else
-		{
-			let lrConflictSolver: LRConflictSolver =  new LRConflictSolver;
+		else {
+			const lrConflictSolver: LRConflictSolver = new LRConflictSolver;
 			lrConflictSolver.setup(cmds, state);
 			return cmds[lrConflictSolver.resolve(this.g, input)];
 		}
@@ -199,139 +181,135 @@ export abstract class LRGenerator
 
 
 
-	public tableAsHTML(): string
-	{
+	public tableAsHTML(): string {
 		let result = "";
-	
-		result += 
-			"<HTML>"+
-			"<HEAD>"+
-			"<TITLE>Tabela SLR(1)</TITLE>"+
-			"</HEAD>"+
-			"<BODY><FONT face=\"Verdana, Arial, Helvetica, sans-serif\">"+
+
+		result +=
+			"<HTML>" +
+			"<HEAD>" +
+			"<TITLE>Tabela SLR(1)</TITLE>" +
+			"</HEAD>" +
+			"<BODY><FONT face=\"Verdana, Arial, Helvetica, sans-serif\">" +
 			"<TABLE border=1 cellspacing=0>";
 
-		let table: Command[][] = this.buildTable();
-	
+		const table: Command[][] = this.buildTable();
+
 		result += "<TR>";
 		result += "<TD  align=center rowspan=2 bgcolor=black nowrap><FONT color=white><B>ESTADO</B></FONT></TD>";
-		result += "<TD  align=center colspan="+(this.g.FIRST_NON_TERMINAL-1)+" bgcolor=black nowrap><FONT color=white><B>AÇÃO</B></FONT></TD>";
-		result += "<TD  align=center colspan="+(this.g.FIRST_SEMANTIC_ACTION()-this.g.FIRST_NON_TERMINAL)+" bgcolor=black nowrap><FONT color=white><B>DESVIO</B></FONT></TD>";
+		result += "<TD  align=center colspan=" + (this.g.FIRST_NON_TERMINAL - 1) + " bgcolor=black nowrap><FONT color=white><B>AÇÃO</B></FONT></TD>";
+		result += "<TD  align=center colspan=" + (this.g.FIRST_SEMANTIC_ACTION() - this.g.FIRST_NON_TERMINAL) + " bgcolor=black nowrap><FONT color=white><B>DESVIO</B></FONT></TD>";
 		result += "</TR>";
-	
+
 		result += "<TR>";
 		//result += "<TD  align=center bgcolor=black>&nbsp;</TD>");
-		for (let i=0; i<table[0].length-1; i++)
-		{					
-			result += "<TD  align=center bgcolor=black nowrap><FONT color=white><B>" + HTMLDialog.translateString(this.g.symbols[i+1]) + "</B></FONT></TD>";
+		for (let i = 0; i < table[0].length - 1; i++) {
+			result += "<TD  align=center bgcolor=black nowrap><FONT color=white><B>" + HTMLDialog.translateString(this.g.symbols[i + 1]) + "</B></FONT></TD>";
 		}
 		result += "</TR>";
-	
-		for (let i=0; i<table.length; i++)
-		{
-			let line: Command[] = table[i];
-		
+
+		for (let i = 0; i < table.length; i++) {
+			const line: Command[] = table[i];
+
 			result += "<TR>";
-		
-			result += "<TD bgcolor=black align=right nowrap><FONT color=white><B>"+i+"</B></FONT></TD>";
-		
-			for (let j=0; j<line.length-1; j++)
-			{	
-				let cmd: Command = line[j];
+
+			result += "<TD bgcolor=black align=right nowrap><FONT color=white><B>" + i + "</B></FONT></TD>";
+
+			for (let j = 0; j < line.length - 1; j++) {
+				const cmd: Command = line[j];
 				let value = "";
-			
-				if (cmd!= null)
+
+				if (cmd != null)
 					value = cmd.toString();
-			
-				let color: string = j+1<this.g.FIRST_NON_TERMINAL?"#F5F5F5":"#E6E6E6";
-				
-				result += "<TD bgcolor="+color+" align=center nowrap>"+value+"</TD>";
-			}	
-			result += "</TR>";		
+
+				const color: string = j + 1 < this.g.FIRST_NON_TERMINAL ? "#F5F5F5" : "#E6E6E6";
+
+				result += "<TD bgcolor=" + color + " align=center nowrap>" + value + "</TD>";
+			}
+			result += "</TR>";
 		}
-		
-		result += 
-			"</TABLE>"+
-			"</FONT></BODY>"+
+
+		result +=
+			"</TABLE>" +
+			"</FONT></BODY>" +
 			"</HTML>";
-		
+
 		return result.toString();
 	}
 
-	public itemsAsHTML(): string
-	{
+	public itemsAsHTML(): string {
 		let result = "";
-	
-		result += 
-			"<HTML>"+
-			"<HEAD>"+
-			"<TITLE>Itens SLR(1)</TITLE>"+
-			"</HEAD>"+
-			"<BODY><FONT face=\"Verdana, Arial, Helvetica, sans-serif\">"+
+
+		result +=
+			"<HTML>" +
+			"<HEAD>" +
+			"<TITLE>Itens SLR(1)</TITLE>" +
+			"</HEAD>" +
+			"<BODY><FONT face=\"Verdana, Arial, Helvetica, sans-serif\">" +
 			"<TABLE border=1 cellspacing=0>";
 
-		let l: List<List<LRItem>> = this.itemList;
-	
+		const l: List<List<LRItem>> = this.itemList;
+
 		result += "<TR>";
 		result += "<TD  align=center bgcolor=black><FONT color=white><B>Estado</B></FONT></TD>";
 		result += "<TD  align=center bgcolor=black><FONT color=white><B>Itens</B></FONT></TD>";
 		result += "<TD  align=center bgcolor=black><FONT color=white><B>Desvio</B></FONT></TD>";
 		result += "</TR>";
-	
-		for (let i=0; i<l.size(); i++)
-		{
-			let color: string = i%2==0?"#F5F5F5":"#E6E6E6";
-		
-		    let item: List<LRItem> = l.get(i);
-		
+
+		for (let i = 0; i < l.size(); i++) {
+			const color: string = i % 2 == 0 ? "#F5F5F5" : "#E6E6E6";
+
+			const item: List<LRItem> = l.get(i);
+
 			result += "<TR>";
-			result += "<TD bgcolor="+color+" align=right rowspan="+item.size()+">"+i+"</TD>";
+			result += "<TD bgcolor=" + color + " align=right rowspan=" + item.size() + ">" + i + "</TD>";
 			//result += "<TD bgcolor="+color+" nowrap>"+item.get(0).toString()+"</TD>";
-			result += "<TD bgcolor="+color+" nowrap>"+HTMLDialog.translateString(item.get(0).toString())+"</TD>";
-		
+			result += "<TD bgcolor=" + color + " nowrap>" + HTMLDialog.translateString(item.get(0).toString()) + "</TD>";
+
 			let it: LRItem = item.get(0);
 			let p: Production = it.production;
-			if (p.get_rhs().length > it.position)
-			{			
-				let x: number = p.get_rhs()[it.position];
-				let next: List<any> = this.goTo(item, x);
-				let pos: number = l.indexOf(next);
-				result += "<TD bgcolor="+color+" align=right>"+pos+"</TD>";
+			if (p.get_rhs().length > it.position) {
+				const x: number = p.get_rhs()[it.position];
+				const next: List<any> = this.goTo(item, x);
+				const pos: number = l.indexOf(next);
+				result += "<TD bgcolor=" + color + " align=right>" + pos + "</TD>";
 			}
 			else
-				result += "<TD bgcolor="+color+" align=right>"+"&nbsp"+"</TD>";
+				result += "<TD bgcolor=" + color + " align=right>" + "&nbsp" + "</TD>";
 			result += "</TR>";
-		
-			for (let j=1; j<item.size(); j++)
-			{
+
+			for (let j = 1; j < item.size(); j++) {
 				result += "<TR>";
-				//result += "<TD bgcolor="+color+" nowrap>"+item.get(j).toString()+"</TD>";
-				result += "<TD bgcolor="+color+" nowrap>"+HTMLDialog.translateString(item.get(j).toString())+"</TD>";
-			
+				result += "<TD bgcolor=" + color + " nowrap>" + HTMLDialog.translateString(item.get(j).toString()) + "</TD>";
+
 				it = item.get(j);
 				p = it.production;
-				if (p.get_rhs().length > it.position)
-				{			
-					let x: number = p.get_rhs()[it.position];
-					let next: List<any> = this.goTo(item, x);
-					let pos: number = l.indexOf(next);
-					result += "<TD bgcolor="+color+" align=right>"+pos+"</TD>";
+				if (p.get_rhs().length > it.position) {
+					const x: number = p.get_rhs()[it.position];
+					const next: List<LRItem> = this.goTo(item, x);
+					const pos: number = l.indexOf(next); // TODO Aqui está o erro. Não é possivel buscar conjunto dentro de lista
+					result += "<TD bgcolor=" + color + " align=right>" + pos + "</TD>";
 				}
 				else
-					result += "<TD bgcolor="+color+" align=right>"+"&nbsp"+"</TD>";
+					result += "<TD bgcolor=" + color + " align=right>" + "&nbsp" + "</TD>";
 				result += "</TR>";
 			}
-		
+
 			result += "</TR>";
 		}
-		
-	
-		
-		result += 
-			"</TABLE>"+
-			"</FONT></BODY>"+
+
+
+
+		result +=
+			"</TABLE>" +
+			"</FONT></BODY>" +
 			"</HTML>";
-		
+
 		return result.toString();
 	}
+
+	// private indexOfLRItem(: List<LRItem>): number{
+
+	// 	return -1;
+	// }
+
 }

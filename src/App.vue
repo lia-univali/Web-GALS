@@ -5,7 +5,6 @@ import AreaCodigo from './components/AreaCodigo.vue'
 import SimuladorJanela from './components/SimuladorJanela.vue'
 import BarraEsquerda from './components/BarraEsquerda.vue'
 import ModalNovoArquivo from './components/ModalNovoArquivo.vue'
-import ModalConfiguracoes from './components/ModalConfiguracoes.vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import { projetoStore } from './stores/projetoStore'
@@ -19,8 +18,7 @@ export default defineComponent({
     Pane,
     SimuladorJanela,
     BarraEsquerda,
-    ModalNovoArquivo,
-    ModalConfiguracoes
+    ModalNovoArquivo
   },
   setup() {
     const store = projetoStore()
@@ -44,7 +42,6 @@ export default defineComponent({
 
 <template>
   <ModalNovoArquivo />
-  <ModalConfiguracoes />
   <BarraSuperior />
 
   <div class="contentor__geral">

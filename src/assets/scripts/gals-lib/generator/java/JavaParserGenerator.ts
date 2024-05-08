@@ -1,6 +1,6 @@
 import { NotLLException, SyntaticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
-import { Function, RecursiveDescendent } from "../RecursiveDescendent";
+import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
 import { Grammar } from "../parser/Grammar";
 
 export class JavaParserGenerator{
@@ -416,12 +416,12 @@ export class JavaParserGenerator{
 		"    }\n"+
 		"\n");
 
-		const funcs: Map<string, Function> = rd.build();
+		const funcs: Map<string, FunctionCustom> = rd.build();
 
 		for (let symb=g.FIRST_NON_TERMINAL; symb<g.FIRST_SEMANTIC_ACTION(); symb++)
 		{
 			const name: string = rd.getSymbols(symb);
-			const f: Function | undefined = funcs.get(name);
+			const f: FunctionCustom | undefined = funcs.get(name);
 			
 			result.push(
 						"    private void "+name+"() throws AnalysisError\n"+

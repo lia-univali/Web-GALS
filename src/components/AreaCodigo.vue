@@ -22,8 +22,8 @@ export default defineComponent({
     return {
       texto: 'Area de Texto para teste',
     }
-  },components: {
-    PrismEditor 
+  }, components: {
+    PrismEditor
   },
   setup() {
     const store = projetoStore()
@@ -75,22 +75,22 @@ export default defineComponent({
     highlighterCustom(code: string) {
       return highlight(code, languages["token"] = {
         'string': {
-		pattern: /"[^\r\n"]*"|'[^\r\n']*'/
-	},
-	'definition': {
-            pattern: /<[^<>\r\n\t]+>(?=\s*::=)/,
-            alias: ['rule', 'keyword'],
-            inside: {
-              'punctuation': /^<|>$/
-            }
-          },
-          'rule': {
-            pattern: /<[^<>\r\n\t]+>/,
-            inside: {
-              'punctuation': /^<|>$/
-            }
-          },
-          'operator': /:|[|()[\]{}*+?]|\.{3}/
+          pattern: /"[^\r\n"]*"|'[^\r\n']*'/
+        },
+        'definition': {
+          pattern: /<[^<>\r\n\t]+>(?=\s*::=)/,
+          alias: ['rule', 'keyword'],
+          inside: {
+            'punctuation': /^<|>$/
+          }
+        },
+        'rule': {
+          pattern: /<[^<>\r\n\t]+>/,
+          inside: {
+            'punctuation': /^<|>$/
+          }
+        },
+        'operator': /:|[|()[\]{}*+?]|\.{3}/
 
       }, "token");
     },
@@ -109,92 +109,36 @@ export default defineComponent({
     <p class="caixa__titulo">{{ titulo }}</p>
 
     <div v-if="projetos[selecionado] == undefined" class="caixa__interna">
-        <input v-if="titulo === 'Simbolo inicial'"
-          name="textoCodigoVazio"
-          class="input__codigo"
-          :disabled="selecionado == -1"
-        />
-        <textarea v-else
-          name="textoCodigoVazio"
-          class="texto__codigo"
-          :disabled="selecionado == -1"
-        ></textarea>
+      <input v-if="titulo === 'Simbolo inicial'" name="textoCodigoVazio" class="input__codigo"
+        :disabled="selecionado == -1" />
+      <textarea v-else name="textoCodigoVazio" class="texto__codigo" :disabled="selecionado == -1"></textarea>
     </div>
     <div v-else-if="titulo == 'Definições Regulares'" class="caixa__interna">
-      <textarea
-        id="textoDefinicoesRegulares"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].regularDefinitions"
-        :disabled="selecionado == -1"
-      ></textarea>
+      <textarea id="textoDefinicoesRegulares" name="textoCodigo" rows="4" cols="50" class="texto__codigo"
+        spellcheck="false" v-model="projetos[selecionado].regularDefinitions" :disabled="selecionado == -1"></textarea>
     </div>
     <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor(0)">
-      <prism-editor
-        id="textoTokens"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].tokens"
-        :disabled="selecionado == -1"
-        :highlight="highlighterCustom"
-        :line-numbers="true"
-      />
+      <prism-editor id="textoTokens" name="textoCodigo" rows="4" cols="50" class="texto__codigo" spellcheck="false"
+        v-model="projetos[selecionado].tokens" :disabled="selecionado == -1" :highlight="highlighterCustom"
+        :line-numbers="true" />
     </div>
     <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna__input">
-      <input
-        id="textoNaoTerminais"
-        name="textoCodigo"
-        class="input__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].nonTerminals"
-        :disabled="selecionado == -1"
-      />
+      <input id="textoNaoTerminais" name="textoCodigo" class="input__codigo" spellcheck="false"
+        v-model="projetos[selecionado].nonTerminals" :disabled="selecionado == -1" />
     </div>
-    <div v-else-if="titulo == 'Gramática'" class="caixa__interna"  @click="focusEditor(2)">
-      <prism-editor 
-        id="textoGramatica"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].grammar"
-        :disabled="selecionado == -1"
-        :highlight="highlighterBNF"
-        :line-numbers="true"
-      />
+    <div v-else-if="titulo == 'Gramática'" class="caixa__interna" @click="focusEditor(2)">
+      <prism-editor id="textoGramatica" name="textoCodigo" rows="4" cols="50" class="texto__codigo" spellcheck="false"
+        v-model="projetos[selecionado].grammar" :disabled="selecionado == -1" :highlight="highlighterBNF"
+        :line-numbers="true" />
     </div>
     <div v-else-if="titulo == 'Saída'" class="caixa__interna">
-      <textarea
-        id="textoSaida"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        disabled
-        v-model="projetos[selecionado].consoleExit"
-      ></textarea>
+      <textarea id="textoSaida" name="textoCodigo" rows="4" cols="50" class="texto__codigo" spellcheck="false" disabled
+        v-model="projetos[selecionado].consoleExit"></textarea>
     </div>
     <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor(1)">
-      <prism-editor
-        id="textoSimulacao"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].textSimulator"
-        :disabled="selecionado == -1"
-        :highlight="highlighterNone"
-        :line-numbers="true"
-      />
+      <prism-editor id="textoSimulacao" name="textoCodigo" rows="4" cols="50" class="texto__codigo" spellcheck="false"
+        v-model="projetos[selecionado].textSimulator" :disabled="selecionado == -1" :highlight="highlighterNone"
+        :line-numbers="true" />
     </div>
   </div>
 </template>
@@ -205,9 +149,12 @@ export default defineComponent({
   resize: none;
   width: 99%;
   height: calc(100% - 7px);
-  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box; /* Firefox, other Gecko */
-  box-sizing: border-box; /* Opera/IE 8+ */
+  -webkit-box-sizing: border-box;
+  /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;
+  /* Firefox, other Gecko */
+  box-sizing: border-box;
+  /* Opera/IE 8+ */
 
   font-family: 'Fira Mono';
 
@@ -218,9 +165,12 @@ export default defineComponent({
   outline: none;
   resize: none;
   width: 99%;
-  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box; /* Firefox, other Gecko */
-  box-sizing: border-box; /* Opera/IE 8+ */
+  -webkit-box-sizing: border-box;
+  /* Safari/Chrome, other WebKit */
+  -moz-box-sizing: border-box;
+  /* Firefox, other Gecko */
+  box-sizing: border-box;
+  /* Opera/IE 8+ */
   text-align: center;
   font-family: 'Fira Mono';
 }
@@ -257,7 +207,7 @@ export default defineComponent({
   height: calc(100% - 21.333px);
 }
 
-.caixa__interna__input{
+.caixa__interna__input {
   margin: 0px;
   padding: 3px;
   width: 100%;
