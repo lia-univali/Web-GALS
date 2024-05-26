@@ -3,15 +3,15 @@ import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import { defineComponent } from 'vue'
 // import Prism Editor
-import { PrismEditor } from 'vue-prism-editor';
-import 'vue-prism-editor/dist/prismeditor.min.css'; // import the styles somewhere
+import { PrismEditor } from 'vue-prism-editor'
+import 'vue-prism-editor/dist/prismeditor.min.css' // import the styles somewhere
 
 // import highlighting library (you can use any library you want just return html string)
-import { highlight, languages } from 'prismjs';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-bnf';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/themes/prism.css'; // import syntax highlighting styles
+import { highlight, languages } from 'prismjs'
+import 'prismjs/components/prism-clike'
+import 'prismjs/components/prism-bnf'
+import 'prismjs/components/prism-yaml'
+import 'prismjs/themes/prism.css' // import syntax highlighting styles
 
 export default defineComponent({
   name: 'AreaCodigo',
@@ -21,8 +21,10 @@ export default defineComponent({
   data() {
     return {
       texto: 'Area de Texto para teste',
+      tabSize: 2
     }
-  }, components: {
+  },
+  components: {
     PrismEditor
   },
   setup() {
@@ -69,36 +71,106 @@ export default defineComponent({
     }
   },
   methods: {
-    highlighterBNF(code: string) {
-      return highlight(code, languages.bnf, "bnf");
+    highlighterPrismBNF(code: string) {
+      return highlight(code, languages.bnf, 'bnf') // languages.<insert language> to return html with markup
     },
-    highlighterCustom(code: string) {
-      return highlight(code, languages["token"] = {
-        'string': {
-          pattern: /"[^\r\n"]*"|'[^\r\n']*'/
-        },
-        'definition': {
-          pattern: /<[^<>\r\n\t]+>(?=\s*::=)/,
-          alias: ['rule', 'keyword'],
-          inside: {
-            'punctuation': /^<|>$/
+    highlighterGrammarGALS(code: string) {
+      return highlight(
+        code,
+        (languages['gals_bnf'] = {
+          comment: /\/\/.*/,
+          string: {
+            pattern: /"(?:\\.|[^\\"\r\n])*"/,
+            greedy: true
+          },
+          'semantic-action': {
+            pattern: /#\d+/,
+            alias: 'symbol'
+          },
+          'non-terminal': {
+            pattern: /<[^<>\r\n\t]+>/,
+            alias: ['bold', 'keyword'],
+            inside: {
+              punctuation: /^<|>$/
+            }
+          },
+          operator: /::=|\||;/,
+          epsilon: {
+            pattern: /î/,
+            alias: 'class-name'
           }
-        },
-        'rule': {
-          pattern: /<[^<>\r\n\t]+>/,
-          inside: {
-            'punctuation': /^<|>$/
+        }),
+        'gals_bnf'
+      )
+    },
+    highlighterOrignalTokensGALS(code: string) {
+      return highlight(
+        code,
+        (languages['gals'] = {
+          comment: /\/\/.*/,
+          sc_token: {
+            pattern: /\b[a-zA-Z]\w*[ \t]*(=[ \t]*[a-zA-Z]\w*[ \t]*:)/g,
+            lookbehind: true,
+            inside: {
+              important: /(:)/
+            }
+          },
+          token: {
+            pattern: /(^[a-zA-Z]\w*[ \t]*:)([^\r\n]|:)+/gm,
+            lookbehind: true,
+            alias: 'variable'
+          },
+          error: {
+            pattern: /^(?:[0-9])/m,
+            alias: 'number'
+          },
+          ignore: {
+            pattern: /^(:!?)([^\r\n]|:)+/m,
+            lookbehind: true,
+            alias: 'class-name'
+          },
+          operator: /(?:(:|!|=))/,
+          string: {
+            pattern: /"(?:\\.|[^\\"\r\n])*"/,
+            greedy: true
           }
-        },
-        'operator': /:|[|()[\]{}*+?]|\.{3}/
-
-      }, "token");
+        }),
+        'gals'
+      )
+    },
+    highlighterNewTokensGALS(code: string) {
+      return highlight(
+        code,
+        (languages['gals'] = {
+          comment: /\/\/.*/,
+          escaped: {
+            pattern: /\\.{1,3}/,
+            alias: ['constant']
+          },
+          token: {
+            pattern: /^[a-zA-Z_]\w*(?:[ \t]*):/gm,
+            alias: 'variable'
+          },
+          string: {
+            pattern: /"(?:\\.|[^\\"\r\n])*"/,
+            greedy: true
+          },
+          number: /[0-9]/,
+          operator: /[|()[\]{}*+?<>]/,
+          assign: {
+            pattern: /:|=|!/,
+            alias: ['important']
+          },
+          punctuation: /,|;|-|\//
+        }),
+        'gals'
+      )
     },
     highlighterNone(code: string) {
-      return code;
+      return code
     },
     focusEditor(id: number) {
-      (document.getElementsByClassName("prism-editor__textarea")[id] as HTMLElement).focus();
+      ;(document.getElementsByClassName('prism-editor__textarea')[id] as HTMLElement).focus()
     }
   }
 })
@@ -109,36 +181,100 @@ export default defineComponent({
     <p class="caixa__titulo">{{ titulo }}</p>
 
     <div v-if="projetos[selecionado] == undefined" class="caixa__interna">
-      <input v-if="titulo === 'Simbolo inicial'" name="textoCodigoVazio" class="input__codigo"
-        :disabled="selecionado == -1" />
-      <textarea v-else name="textoCodigoVazio" class="texto__codigo" :disabled="selecionado == -1"></textarea>
+      <input
+        v-if="titulo === 'Simbolo inicial'"
+        name="textoCodigoVazio"
+        class="input__codigo"
+        :disabled="selecionado == -1"
+      />
+      <textarea
+        v-else
+        name="textoCodigoVazio"
+        class="texto__codigo"
+        :disabled="selecionado == -1"
+      ></textarea>
     </div>
-    <div v-else-if="titulo == 'Definições Regulares'" class="caixa__interna">
-      <textarea id="textoDefinicoesRegulares" name="textoCodigo" rows="4" cols="50" class="texto__codigo"
-        spellcheck="false" v-model="projetos[selecionado].regularDefinitions" :disabled="selecionado == -1"></textarea>
+    <div
+      v-else-if="titulo == 'Definições Regulares'"
+      class="caixa__interna"
+      @click="focusEditor(0)"
+    >
+      <prism-editor
+        id="textoDefinicoesRegulares"
+        name="textoCodigo"
+        rows="4"
+        cols="50"
+        class="texto__codigo"
+        spellcheck="false"
+        v-model="projetos[selecionado].regularDefinitions"
+        :highlight="highlighterOrignalTokensGALS"
+        :disabled="selecionado == -1"
+        :line-numbers="true"
+      />
     </div>
-    <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor(0)">
-      <prism-editor id="textoTokens" name="textoCodigo" rows="4" cols="50" class="texto__codigo" spellcheck="false"
-        v-model="projetos[selecionado].tokens" :disabled="selecionado == -1" :highlight="highlighterCustom"
-        :line-numbers="true" />
+    <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor(1)">
+      <prism-editor
+        id="textoTokens"
+        name="textoCodigo"
+        rows="4"
+        cols="50"
+        class="texto__codigo"
+        spellcheck="false"
+        v-model="projetos[selecionado].tokens"
+        :disabled="selecionado == -1"
+        :highlight="highlighterOrignalTokensGALS"
+        :line-numbers="true"
+      />
     </div>
     <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna__input">
-      <input id="textoNaoTerminais" name="textoCodigo" class="input__codigo" spellcheck="false"
-        v-model="projetos[selecionado].nonTerminals" :disabled="selecionado == -1" />
+      <input
+        id="textoNaoTerminais"
+        name="textoCodigo"
+        class="input__codigo"
+        spellcheck="false"
+        v-model="projetos[selecionado].nonTerminals"
+        :disabled="selecionado == -1"
+      />
     </div>
-    <div v-else-if="titulo == 'Gramática'" class="caixa__interna" @click="focusEditor(2)">
-      <prism-editor id="textoGramatica" name="textoCodigo" rows="4" cols="50" class="texto__codigo" spellcheck="false"
-        v-model="projetos[selecionado].grammar" :disabled="selecionado == -1" :highlight="highlighterBNF"
-        :line-numbers="true" />
+    <div v-else-if="titulo == 'Gramática'" class="caixa__interna" @click="focusEditor(3)">
+      <prism-editor
+        id="textoGramatica"
+        name="textoCodigo"
+        rows="4"
+        cols="50"
+        class="texto__codigo"
+        spellcheck="false"
+        v-model="projetos[selecionado].grammar"
+        :disabled="selecionado == -1"
+        :highlight="highlighterGrammarGALS"
+        :line-numbers="true"
+      />
     </div>
     <div v-else-if="titulo == 'Saída'" class="caixa__interna">
-      <textarea id="textoSaida" name="textoCodigo" rows="4" cols="50" class="texto__codigo" spellcheck="false" disabled
-        v-model="projetos[selecionado].consoleExit"></textarea>
+      <textarea
+        id="textoSaida"
+        name="textoCodigo"
+        rows="4"
+        cols="50"
+        class="texto__codigo"
+        spellcheck="false"
+        disabled
+        v-model="projetos[selecionado].consoleExit"
+      ></textarea>
     </div>
-    <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor(1)">
-      <prism-editor id="textoSimulacao" name="textoCodigo" rows="4" cols="50" class="texto__codigo" spellcheck="false"
-        v-model="projetos[selecionado].textSimulator" :disabled="selecionado == -1" :highlight="highlighterNone"
-        :line-numbers="true" />
+    <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor(2)">
+      <prism-editor
+        id="textoSimulacao"
+        name="textoCodigo"
+        rows="4"
+        cols="50"
+        class="texto__codigo"
+        spellcheck="false"
+        v-model="projetos[selecionado].textSimulator"
+        :disabled="selecionado == -1"
+        :highlight="highlighterNone"
+        :line-numbers="true"
+      />
     </div>
   </div>
 </template>
