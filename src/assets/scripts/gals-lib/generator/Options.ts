@@ -37,56 +37,56 @@ export class Options {
   public toString(): string {
     let bfr = ''
 
-    bfr += 'GenerateScanner = ' + this.generateScanner + '\n'
-    bfr += 'GenerateParser = ' + this.generateParser + '\n'
+    bfr += 'GenerateScanner = ' + this.generateScanner
+    bfr += '\nGenerateParser = ' + this.generateParser
 
-    bfr += 'Language = '
+    bfr += '\nLanguage = '
     switch (this.language) {
       case Options.LANG_CPP:
-        bfr += 'C++' + '\n'
+        bfr += 'C++'
         break
       case Options.LANG_JAVA:
-        bfr += 'Java' + '\n'
+        bfr += 'Java'
         break
       case Options.LANG_DELPHI:
-        bfr += 'Delphi' + '\n'
+        bfr += 'Delphi'
         break
     }
 
-    bfr += 'ScannerName = ' + this.scannerName + '\n'
+    bfr += '\nScannerName = ' + this.scannerName
     if (this.generateParser) {
-      bfr += 'ParserName = ' + this.parserName + '\n'
-      bfr += 'SemanticName = ' + this.semanticName + '\n'
+      bfr += '\nParserName = ' + this.parserName
+      bfr += '\nSemanticName = ' + this.semanticName
     }
-    if (this.pkgName.length > 0) bfr += 'Package = ' + this.pkgName + '\n'
+    if (this.pkgName.length > 0) bfr += '\nPackage = ' + this.pkgName // TODO verificar se precisa manter a flag para ativar a opção
     if (this.generateScanner) {
-      bfr += 'ScannerCaseSensitive = ' + this.scannerCaseSensitive + '\n'
+      bfr += '\nScannerCaseSensitive = ' + this.scannerCaseSensitive
 
-      bfr += 'ScannerTable = '
+      bfr += '\nScannerTable = '
       switch (this.scannerTable) {
         case Options.SCANNER_TABLE_FULL:
-          bfr += 'Full' + '\n'
+          bfr += 'Full'
           break
         case Options.SCANNER_TABLE_COMPACT:
-          bfr += 'Compact' + '\n'
+          bfr += 'Compact'
           break
         case Options.SCANNER_TABLE_HARDCODE:
-          bfr += 'Hardcode' + '\n'
+          bfr += 'Hardcode'
           break
       }
 
-      bfr += 'Input = '
+      bfr += '\nInput = '
       switch (this.input) {
         case Options.INPUT_STREAM:
-          bfr += 'Stream' + '\n'
+          bfr += 'Stream'
           break
         case Options.INPUT_STRING:
-          bfr += 'String' + '\n'
+          bfr += 'String'
           break
       }
     }
     if (this.generateParser) {
-      bfr += 'Parser = '
+      bfr += '\nParser = '
       switch (this.parser) {
         case Options.PARSER_LR:
           bfr += 'LR'

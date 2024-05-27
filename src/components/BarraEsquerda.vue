@@ -48,7 +48,7 @@ export default defineComponent({
       this.colapsaConteudo('Projetos')
       this.paginaAberta = 'Projetos'
     },
-    abrirOpcaoes() {
+    abrirOpcoes() {
       if (this.selecionado === -1) {
         alert('Nenhum projeto selecionado!')
         return
@@ -136,23 +136,25 @@ export default defineComponent({
         alert('Nenhum projeto selecionado!')
       } else {
         const options = this.projetos[this.selecionado].options
+        const objOptions = this.projetos[this.selecionado].optionsGals
         const regularDefinitions = this.projetos[this.selecionado].regularDefinitions
         const tokens = this.projetos[this.selecionado].tokens
         const nonTerminals = this.projetos[this.selecionado].nonTerminals
         const grammar = this.projetos[this.selecionado].grammar
 
         let codigo = ''
-        codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n' // TODO mudar para  objeto
+        //codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n' // TODO mudar para  objeto
+        codigo += '#Options\n' + (options == undefined ? '' : objOptions.toString()) + '\n' // <orientador> Tentativa de mudança
         codigo +=
           '#RegularDefinitions\n' +
           (regularDefinitions == undefined ? '' : regularDefinitions) +
-          '\n\n'
-        codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n\n'
+          '\n'
+        codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n'
         codigo +=
           '#NonTerminals\n' +
           (nonTerminals == undefined ? '' : nonTerminalsFromGrammar(nonTerminals, grammar)) +
-          '\n\n'
-        codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar) + '\n\n'
+          '\n'
+        codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar)
 
         salvador.download(codigo, this.projetos[this.selecionado].fileName, '.gals')
       }
@@ -272,7 +274,7 @@ export default defineComponent({
         @click="abrirDocumentacao"
         v-bind:class="paginaAberta == 'Documentação' ? 'selecionado' : 'nao_selecionado'"
       ></button>
-      <button class="botao opcao" @click="abrirOpcaoes"></button>
+      <button class="botao opcao" @click="abrirOpcoes"></button>
       <button
         class="botao informacoes"
         @click="abrirInformacoes"

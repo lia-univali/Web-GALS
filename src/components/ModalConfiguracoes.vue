@@ -83,6 +83,7 @@ export default defineComponent({
       newOptions.setOption('Parser', form.parser.value)
 
       this.projetos[this.selecionado].optionsGals = newOptions
+      this.projetos[this.selecionado].options = newOptions.toString()
     },
     preencherModal() {
       const form: any = this.$refs.form
