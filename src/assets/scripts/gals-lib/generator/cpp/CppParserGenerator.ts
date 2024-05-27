@@ -59,7 +59,7 @@ export class CppParserGenerator
 			"class "+classname+"\n"+
 			"{\n"+
 			"public:\n"+
-			"    void executeAction(int action, const Token *token) throw (SemanticError );\n"+
+			"    void executeAction(int action, const Token *token)\n"+ // throw (SemanticError );\n"+ // Verificar throw
 			"};\n"+
 			"\n"+
 			this.closeNamespace(options)+
@@ -77,7 +77,7 @@ export class CppParserGenerator
 			"#include <iostream>\n"+
 			"\n"+
 			this.openNamespace(options)+
-			"void "+classname+"::executeAction(int action, const Token *token) throw (SemanticError )\n"+
+			"void "+classname+"::executeAction(int action, const Token *token)\n"+ //throw (SemanticError )\n"+
 			"{\n"+
 			"    std::cout << \"Ação: \" << action << \", Token: \"  << token->getId() \n"+
 			"              << \", Lexema: \" << token->getLexeme() << std::endl;\n"+
@@ -133,7 +133,7 @@ export class CppParserGenerator
 			"        if (currentToken != 0)  delete currentToken;\n"+
 			"    }\n"+
 			"\n"+			
-			"    void parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser) throw (AnalysisError);\n"+
+			"    void parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser);\n"+ // throw (AnalysisError)
 			"\n"+
 			"private:\n"+
 			(descendant ? "" :
@@ -144,7 +144,7 @@ export class CppParserGenerator
 			"    "+semanticName+" *semanticAnalyser;\n"+
 			"\n"+
 			( descendant ? recDescFuncs :
-			"    bool step() throw (AnalysisError);\n"+
+			"    bool step()\n"+// throw (AnalysisError);\n"+
 			(type == Options.PARSER_LL ?
 			"    bool pushProduction(int topStack, int tokenInput);\n"+
 			"\n"+
@@ -187,7 +187,7 @@ export class CppParserGenerator
 			"#include \""+parserName+".h\"\n"+			
 			"\n"+
 			this.openNamespace(options)+
-			"void "+parserName+"::parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser) throw (AnalysisError)\n"+
+			"void "+parserName+"::parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser);\n"+// throw (AnalysisError)\n"+
 			"{\n"+
 			"    this->scanner = scanner;\n"+
 			"    this->semanticAnalyser = semanticAnalyser;\n"+
@@ -243,7 +243,7 @@ export class CppParserGenerator
 
 			bfr += (
 						"\n"+
-						"void "+parserName+"::"+name+"() throw (AnalysisError)\n"+
+						"void "+parserName+"::"+name+"()\n"+ // throw (AnalysisError)\n"+
 						"{\n"+
 						"    switch (currentToken->getId())\n"+
 						"    {\n" );
@@ -330,7 +330,7 @@ export class CppParserGenerator
 		return "#include \""+parserName+".h\"\n"+			
 			"\n"+
 			this.openNamespace(options)+
-			"void "+parserName+"::parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser) throw (AnalysisError)\n"+
+			"void "+parserName+"::parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser);\n"+// throw (AnalysisError)\n"+
 			"{\n"+
 			"    this->scanner = scanner;\n"+
 			"    this->semanticAnalyser = semanticAnalyser;\n"+
@@ -354,7 +354,7 @@ export class CppParserGenerator
 			"        ;\n"+
 			"}\n"+
 			"\n"+
-			"bool "+parserName+"::step() throw (AnalysisError)\n"+
+			"bool "+parserName+"::step()\n"+ // throw (AnalysisError)\n"+
 			"{\n"+
 			"    if (currentToken == 0) //Fim de Sentenca\n"+
 			"    {\n"+
@@ -439,7 +439,7 @@ export class CppParserGenerator
 		return "#include \""+parserName+".h\"\n"+			
 			"\n"+
 			this.openNamespace(options)+
-			"void "+parserName+"::parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser) throw (AnalysisError)\n"+
+			"void "+parserName+"::parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser)\n"+// throw (AnalysisError)\n"+
 			"{\n"+
 			"    this->scanner = scanner;\n"+
 			"    this->semanticAnalyser = semanticAnalyser;\n"+
@@ -462,7 +462,7 @@ export class CppParserGenerator
 			"        ;\n"+
 			"}\n"+
 			"\n"+
-			"bool "+parserName+"::step() throw (AnalysisError)\n"+
+			"bool "+parserName+"::step()\n"+// throw (AnalysisError)\n"+
 			"{\n"+
 			"    if (currentToken == 0) //Fim de Sentensa\n"+
 			"    {\n"+

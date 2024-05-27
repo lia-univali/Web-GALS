@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { projetoStore, type Projeto } from '@/stores/projetoStore'
+import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
   name: 'ModalNovoArquivo',
@@ -31,7 +32,8 @@ export default defineComponent({
           nonTerminals: '',
           grammar: '',
           textSimulator: '',
-          consoleExit: ''
+          consoleExit: '',
+          optionsGals: new Options()
         } as Projeto
 
         this.store.addProject(newProject)

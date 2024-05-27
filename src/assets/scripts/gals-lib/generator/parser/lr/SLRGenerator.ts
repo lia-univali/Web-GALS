@@ -90,7 +90,7 @@ export class SLRGenerator extends LRGenerator
     	c.add(this.closure(s));
     	
     	let repeat = true;
-    	let teste = 0;    	
+    	//let teste = 0;
     	while (repeat)
     	{
     		start:
@@ -116,7 +116,7 @@ export class SLRGenerator extends LRGenerator
 	    					const gt: List<LRItem> = this.goTo(items, p.get_rhs()[m.position]);
 							////console.log("gt: " + gt.toString());
 		    				//if (gt.size() != 0 && ! c.contains(gt))
-							teste++;
+							//teste++;
 							// //console.log("gt.size(): " + gt.size() +" | containsList: " + this.containsList(c, gt));
 							if (gt.size() != 0 && ! this.containsList(c, gt))
 		    				{

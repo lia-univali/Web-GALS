@@ -109,8 +109,8 @@ export abstract class LRGenerator {
 		return this.firstSementicAction;
 	}
 
-	protected abstract closure(items: List<any>): List<any>;
-	protected abstract goTo(items: List<any>, s: number): List<any>;
+	protected abstract closure(items: List<LRItem>): List<LRItem>;
+	protected abstract goTo(items: List<LRItem>, s: number): List<LRItem>;
 	protected abstract computeItems(): List<List<LRItem>>;
 	public abstract buildTable(): Command[][];
 

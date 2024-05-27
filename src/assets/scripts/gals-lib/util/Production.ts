@@ -34,7 +34,7 @@ export class Production {
    
     set_rhs(index: number, element: number): number
     {
-		let oldValue = this.rhs[index];
+		const oldValue = this.rhs[index];
 		this.rhs[index] = element;
 		return oldValue;
     }

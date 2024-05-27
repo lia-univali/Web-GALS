@@ -2,6 +2,8 @@ import { Options } from "../../Options";
 import { Grammar } from "../Grammar";
 import { LRGenerator } from "./LRGenerator";
 import { SLRGenerator } from "./SLRGenerator";
+import { LRCanonicGenerator } from '@/assets/scripts/gals-lib/generator/parser/lr/LRCanonicGenerator'
+import { LALRGenerator } from '@/assets/scripts/gals-lib/generator/parser/lr/LALRGenerator'
 
 /**
  * @author Gesser
@@ -15,9 +17,9 @@ export class LRGeneratorFactory
 	{
 		switch (lrParserOption)
 		{
-			case Options.PARSER_SLR: return new SLRGenerator(g); // Focar nesse
-			//case Options.PARSER_LR: return new LRCanonicGenerator(g);
-			//case Options.PARSER_LALR : return new LALRGenerator(g);
+			case Options.PARSER_SLR: return new SLRGenerator(g);
+			case Options.PARSER_LR: return new LRCanonicGenerator(g);
+			case Options.PARSER_LALR : return new LALRGenerator(g);
 			default: return null;
 		}
 	}

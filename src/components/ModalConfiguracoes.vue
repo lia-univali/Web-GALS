@@ -84,6 +84,7 @@ export default defineComponent({
 
       this.projetos[this.selecionado].optionsGals = newOptions
       this.projetos[this.selecionado].options = newOptions.toString()
+      this.fecharModal();
     },
     preencherModal() {
       const form: any = this.$refs.form
@@ -343,7 +344,7 @@ h2 {
   background-color: #dedede;
   padding: 10px;
   width: 30vw;
-  height: 64vh;
+  height: 74vh;
 
   position: fixed;
   z-index: 99999;
@@ -359,6 +360,27 @@ h2 {
 
   overflow: auto;
 }
+
+
+@media (max-width: 1100px) {
+  .modal__configuracoes {
+    width: 80vw;
+    height: 80vh;
+    border-radius: 10px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal__configuracoes {
+    width: 90vw;
+    height: 90vh;
+    border-radius: 5px;
+    padding: 20px;
+  }
+}
+
+
 .modal__configuracoes__inner {
   background-color: inherit;
   padding: 1%;

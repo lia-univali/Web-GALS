@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { List, Stack, TreeNode } from "../DataStructures";
 import { SyntaticError } from "../analyser/SystemErros";
 import { Token } from "../analyser/Token";
@@ -29,7 +30,7 @@ export class LRParserSimulator
 	{
 		this.table = parser.buildTable();
 		this.semanticStart = parser.firstSemanticAction;
-		let pl: List<Production> = parser.grammar.productions;
+		const pl: List<Production> = parser.grammar.productions;
 		this.productions = []; //int[pl.size()][2];
 		
 		this.symbols = parser.grammar.symbols;
@@ -59,7 +60,7 @@ export class LRParserSimulator
 		{
 			while ( ! this.step() ); //faz nada
             
-            let node = this.nodeStack.pop();
+            const node = this.nodeStack.pop();
             if(node === undefined) throw new SyntaticError("Node is Null");
 			root.add(node);
 		}
@@ -67,7 +68,7 @@ export class LRParserSimulator
 		{
 
 			for (let i=0; i< this.nodeStack.size(); i++){
-                let node = this.nodeStack.get(i);
+                const node = this.nodeStack.get(i);
                 if(node === undefined) throw new SyntaticError("Node is Null");
                 root.add(node);
             }
@@ -80,7 +81,7 @@ export class LRParserSimulator
 	
 	private step(): boolean //throws SyntaticError, SemanticError, LexicalError
 	{
-		let state = this.stack.peek();
+		const state = this.stack.peek();
 		
 		if (this.currentToken == null)
 		{
@@ -91,11 +92,11 @@ export class LRParserSimulator
 			this.currentToken = new Token(LRParserSimulator.DOLLAR, "$", pos);
 		}
 		
-    	let token = this.currentToken.id;
+    	const token = this.currentToken.id;
 		
         if(state === undefined) throw new SyntaticError("State is undefined");
 
-		let cmd: Command = this.table[state][token-1];
+		const cmd: Command = this.table[state][token-1];
 		
 		switch (cmd.getType())
 		{
@@ -108,23 +109,23 @@ export class LRParserSimulator
 				return false;
 
 			case Command.REDUCE:				
-				let prod = this.productions[cmd.getParameter()];
+				const prod = this.productions[cmd.getParameter()];
 
-				let tmp: Stack<TreeNode<string>> = new Stack();
+				const tmp: Stack<TreeNode<string>> = new Stack();
 
 				for (let i = 0; i < prod[1]; i++) {
 					this.stack.pop();
-					let node = this.nodeStack.pop();
+					const node = this.nodeStack.pop();
 					if(node === undefined) throw new SyntaticError("Node is Null");
 					tmp.push(node);
 				}
-				let oldState = this.stack.peek();
+				const oldState = this.stack.peek();
 				if(oldState === undefined) throw new SyntaticError("Old State is Null");
 				this.stack.push(this.table[oldState][prod[0] - 1].getParameter());
 		
-				let node = new TreeNode(this.symbols[prod[0]]);
+				const node = new TreeNode(this.symbols[prod[0]]);
 				while (tmp.size() > 0) {
-					let pivot = tmp.pop();
+					const pivot = tmp.pop();
 					if(pivot === undefined) throw new SyntaticError("Pivot is Null");
 					node.add(pivot);
 				}
