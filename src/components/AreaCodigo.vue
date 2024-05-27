@@ -118,7 +118,7 @@ export default defineComponent({
           token: {
             pattern: /(^[a-zA-Z]\w*[ \t]*:)([^\r\n]|:)+/gm,
             lookbehind: true,
-            alias: 'variable'
+            alias: 'regex'
           },
           error: {
             pattern: /^(?:[0-9])/m,
@@ -229,10 +229,12 @@ export default defineComponent({
     <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna__input">
       <input
         id="textoNaoTerminais"
+        type="text"
         name="textoCodigo"
         class="input__codigo"
         spellcheck="false"
         v-model="projetos[selecionado].nonTerminals"
+        pattern="<[a-zA-Z_0-9]+>"
         :disabled="selecionado == -1"
       />
     </div>
@@ -360,5 +362,13 @@ export default defineComponent({
   text-align: center;
   margin: 0px;
   padding: 0px;
+}
+
+#textoNaoTerminais:valid {
+  color: #07a;
+}
+
+#textoNaoTerminais:invalid {
+  color: #ff0000;
 }
 </style>
