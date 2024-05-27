@@ -30,8 +30,9 @@ export default defineComponent({
     return {
       layout
     }
-  }, methods: {
-    resizeLayout(event: any){
+  },
+  methods: {
+    resizeLayout(event: any) {
       this.layout.token = event[0].size
       this.layout.simulacao = event[1].size
       this.layout.saidaSimulacao = event[2].size
@@ -52,8 +53,12 @@ export default defineComponent({
 
     <div class="contentor__centro">
       <div class="contentor__centro__superior">
-        <splitpanes horizontal id="splitpanesHorizontal" @resize="layout.gramatica = $event[1].size">
-          <pane :size=" 100 - layout.gramatica">
+        <splitpanes
+          horizontal
+          id="splitpanesHorizontal"
+          @resize="layout.gramatica = $event[1].size"
+        >
+          <pane :size="100 - layout.gramatica">
             <splitpanes vertival @resize="resizeLayout($event)">
               <pane :size="layout.token">
                 <AreaCodigo titulo="Tokens" />
@@ -105,15 +110,15 @@ body {
 
 .contentor__geral {
   display: flex;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 76px);
   margin: 0px;
   padding: 10px;
   gap: 10px;
 }
 
 .contentor__esquerda {
-  flex-grow: 1;
-  flex-shrink: 0;
+  /* flex-grow: 1; */
+  /* flex-shrink: 0; */
   display: flex;
   flex-direction: column;
 
@@ -122,7 +127,7 @@ body {
 }
 
 .contentor__centro {
-  width: 100%;
+  width: calc(100% - 302px);
   height: 100%;
   flex-grow: 1;
   display: flex;

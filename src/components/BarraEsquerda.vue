@@ -4,7 +4,13 @@ import AreaCodigo from '@/components/AreaCodigo.vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import salvador from '@/assets/scripts/saver'
-import { lexicalTable, nonTerminalsFromGrammar, syntacticFirstFollowTable, syntacticSetTable, syntacticTable } from '@/assets/scripts/gals-functions'
+import {
+  lexicalTable,
+  nonTerminalsFromGrammar,
+  syntacticFirstFollowTable,
+  syntacticSetTable,
+  syntacticTable
+} from '@/assets/scripts/gals-functions'
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
 
@@ -42,34 +48,34 @@ export default defineComponent({
       this.colapsaConteudo('Projetos')
       this.paginaAberta = 'Projetos'
     },
-    abrirOpcaoes() {
+    abrirOpcoes() {
       if (this.selecionado === -1) {
-        alert('Nenhum projeto selecionado!');
-        return;
+        alert('Nenhum projeto selecionado!')
+        return
       }
 
-      const modal = document.getElementById('modal__configuracoes');
-      const modalConfiguracoesRef = this.$refs.ModalConfiguracoesRef as any;
+      const modal = document.getElementById('modal__configuracoes')
+      const modalConfiguracoesRef = this.$refs.ModalConfiguracoesRef as any
 
-      if(modal == undefined || modalConfiguracoesRef == undefined) return;
+      if (modal == undefined || modalConfiguracoesRef == undefined) return
 
       if (modalConfiguracoesRef && modalConfiguracoesRef.enviarForms) {
-        modalConfiguracoesRef.preencherModal();
-        modal.style.display = 'flex';
+        modalConfiguracoesRef.preencherModal()
+        modal.style.display = 'flex'
       }
     },
     abrirDocumentacao() {
       this.colapsaConteudo('Documentação')
       this.paginaAberta = 'Documentação'
     },
-    getLinkDocumentacaoHTML(): string{
+    getLinkDocumentacaoHTML(): string {
       let url
-      if (process.env.NODE_ENV === 'development'){
-        url = 'Gals-Web/files/help.html';
-      }else{
-        url = 'files/help.html';
+      if (process.env.NODE_ENV === 'development') {
+        url = 'Gals-Web/files/help.html'
+      } else {
+        url = 'files/help.html'
       }
-      return url;
+      return url
     },
     abrirArquivo() {
       const input: HTMLInputElement = document.getElementById('file') as HTMLInputElement
@@ -94,11 +100,22 @@ export default defineComponent({
           options: splitResultado[1] == undefined ? '' : splitResultado[1],
           regularDefinitions: splitResultado[2] == undefined ? '' : splitResultado[2],
           tokens: splitResultado[3] == undefined ? '' : splitResultado[3],
-          nonTerminals: splitResultado[4] == undefined ? '' : splitResultado[4].split("\n").filter(str => !str.startsWith('//'))[0].trim(),
+          nonTerminals:
+            splitResultado[4] == undefined
+              ? ''
+              : splitResultado[4]
+                  .split('\n')
+                  .filter((str) => !str.startsWith('//'))[0]
+                  .trim(),
           grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
           textSimulator: '',
           consoleExit: '',
-          optionsGals: splitResultado[1] == undefined ? new Options() : new Options().constructorFromString(splitResultado[1] == undefined ? '' : splitResultado[1]),
+          optionsGals:
+            splitResultado[1] == undefined
+              ? new Options()
+              : new Options().constructorFromString(
+                  splitResultado[1] == undefined ? '' : splitResultado[1]
+                )
         }
 
         thatStore.addProject(newProject)
@@ -119,20 +136,25 @@ export default defineComponent({
         alert('Nenhum projeto selecionado!')
       } else {
         const options = this.projetos[this.selecionado].options
+        const objOptions = this.projetos[this.selecionado].optionsGals
         const regularDefinitions = this.projetos[this.selecionado].regularDefinitions
         const tokens = this.projetos[this.selecionado].tokens
         const nonTerminals = this.projetos[this.selecionado].nonTerminals
         const grammar = this.projetos[this.selecionado].grammar
 
         let codigo = ''
-        codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n' // TODO mudar para  objeto
+        //codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n' // TODO mudar para  objeto
+        codigo += '#Options\n' + (options == undefined ? '' : objOptions.toString()) + '\n' // <orientador> Tentativa de mudança
         codigo +=
           '#RegularDefinitions\n' +
           (regularDefinitions == undefined ? '' : regularDefinitions) +
-          '\n\n'
-        codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n\n'
-        codigo += '#NonTerminals\n' + (nonTerminals == undefined ? '' : nonTerminalsFromGrammar(nonTerminals, grammar)) + '\n\n'
-        codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar) + '\n\n'
+          '\n'
+        codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n'
+        codigo +=
+          '#NonTerminals\n' +
+          (nonTerminals == undefined ? '' : nonTerminalsFromGrammar(nonTerminals, grammar)) +
+          '\n'
+        codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar)
 
         salvador.download(codigo, this.projetos[this.selecionado].fileName, '.gals')
       }
@@ -150,15 +172,12 @@ export default defineComponent({
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const html: string = lexicalTable(
-        projeto.regularDefinitions,
-        projeto.tokens
-      );
+      const html: string = lexicalTable(projeto.regularDefinitions, projeto.tokens)
 
-      const newTab = window.open();
+      const newTab = window.open()
       if (newTab) {
-        newTab.document.write(html);
-        newTab.document.close();
+        newTab.document.write(html)
+        newTab.document.close()
         projeto.consoleExit = 'Tabela criada com Sucesso!'
       } else {
         projeto.consoleExit = 'Tabela criada com Sucesso!'
@@ -169,18 +188,18 @@ export default defineComponent({
       const projeto = this.store.listaProjetos[selecionado]
 
       const html: string = syntacticTable(
-          projeto.regularDefinitions,
-          projeto.tokens,
-          projeto.nonTerminals,
-          projeto.grammar,
-          Options.PARSER_SLR,
-          null
-      );
+        projeto.regularDefinitions,
+        projeto.tokens,
+        projeto.nonTerminals,
+        projeto.grammar,
+        Options.PARSER_SLR,
+        null
+      )
 
-      const newTab = window.open();
+      const newTab = window.open()
       if (newTab) {
-        newTab.document.write(html);
-        newTab.document.close();
+        newTab.document.write(html)
+        newTab.document.close()
         projeto.consoleExit = 'Tabela criada com Sucesso!'
       } else {
         projeto.consoleExit = 'Tabela criada com Sucesso!'
@@ -191,18 +210,18 @@ export default defineComponent({
       const projeto = this.store.listaProjetos[selecionado]
 
       const html: string = syntacticSetTable(
-          projeto.regularDefinitions,
-          projeto.tokens,
-          projeto.nonTerminals,
-          projeto.grammar,
-          Options.PARSER_SLR,
-          null
-      );
+        projeto.regularDefinitions,
+        projeto.tokens,
+        projeto.nonTerminals,
+        projeto.grammar,
+        Options.PARSER_SLR,
+        null
+      )
 
-      const newTab = window.open();
+      const newTab = window.open()
       if (newTab) {
-        newTab.document.write(html);
-        newTab.document.close();
+        newTab.document.write(html)
+        newTab.document.close()
         projeto.consoleExit = 'Tabela criada com Sucesso!'
       } else {
         projeto.consoleExit = 'Tabela criada com Sucesso!'
@@ -213,30 +232,29 @@ export default defineComponent({
       const projeto = this.store.listaProjetos[selecionado]
 
       const html: string = syntacticFirstFollowTable(
-          projeto.regularDefinitions,
-          projeto.tokens,
-          projeto.nonTerminals,
-          projeto.grammar,
-          Options.PARSER_SLR,
-          null
-      );
+        projeto.regularDefinitions,
+        projeto.tokens,
+        projeto.nonTerminals,
+        projeto.grammar,
+        Options.PARSER_SLR,
+        null
+      )
 
-      const newTab = window.open();
+      const newTab = window.open()
       if (newTab) {
-        newTab.document.write(html);
-        newTab.document.close();
+        newTab.document.write(html)
+        newTab.document.close()
         projeto.consoleExit = 'Tabela criada com Sucesso!'
       } else {
         projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
-    },
+    }
   }
 })
 </script>
 
 <template>
-
-  <ModalConfiguracoes  ref="ModalConfiguracoesRef"/>
+  <ModalConfiguracoes ref="ModalConfiguracoesRef" />
 
   <div class="barra__esquerda">
     <div class="selecao__botoes">
@@ -256,7 +274,7 @@ export default defineComponent({
         @click="abrirDocumentacao"
         v-bind:class="paginaAberta == 'Documentação' ? 'selecionado' : 'nao_selecionado'"
       ></button>
-      <button class="botao opcao" @click="abrirOpcaoes"></button>
+      <button class="botao opcao" @click="abrirOpcoes"></button>
       <button
         class="botao informacoes"
         @click="abrirInformacoes"
@@ -268,9 +286,13 @@ export default defineComponent({
       <h2>{{ paginaAberta }}</h2>
 
       <div v-if="paginaAberta == 'Projetos'" class="abaProjetos">
-        <div class="lista__projetos" >
+        <div class="lista__projetos">
           <div v-for="projeto in projetos" :key="projeto.id" class="projeto__acaoes">
-            <button @click="store.changeSelected(projeto.id)" class="botao__mudar__projeto" v-bind:class="selecionado == projeto.id ? 'selecionado__projeto' : ''">
+            <button
+              @click="store.changeSelected(projeto.id)"
+              class="botao__mudar__projeto"
+              v-bind:class="selecionado == projeto.id ? 'selecionado__projeto' : ''"
+            >
               {{ projeto.fileName }}
             </button>
             <button @click="store.deleteProject(projeto.id)" class="botao__excluir__projeto">
@@ -304,22 +326,21 @@ export default defineComponent({
 </template>
 
 <style scoped>
-
 .container__links {
   display: flex;
-  justify-content: center; 
-  align-items: center; 
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
   gap: 20px;
 }
 
-.link{
+.link {
   font-family: 'IBM Plex Sans';
   text-align: center;
   font-weight: 600;
 }
 
-.btn{
+.btn {
   font-family: Roboto, sans-serif;
   font-weight: 400;
   font-size: 14px;
@@ -331,28 +352,28 @@ export default defineComponent({
   border: solid #cccccc 1px;
   box-shadow: none;
   border-radius: 5px;
-  transition : 90ms;
+  transition: 90ms;
   transform: translateY(0);
   display: flex;
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  width: 100% ;
-  justify-content: center
+  width: 100%;
+  justify-content: center;
 }
 
-.btn:hover{
-  transition : 90ms;
+.btn:hover {
+  transition: 90ms;
   padding: 10px 31px;
-  transform : translateY(-0px);
+  transform: translateY(-0px);
   background-color: #fff;
   color: #1b9100;
   border: solid 1px #328c22;
 }
 
-.codigo__definicao__regulares{
+.codigo__definicao__regulares {
   margin: 0;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   padding: 0;
   height: calc(100% - 228px);
 }
@@ -363,11 +384,11 @@ export default defineComponent({
 }
 
 .lista__projetos {
-  width: 100%;
-  height: 30%;
+  /* width: 100%; */
+  /* height: 30%; */
   max-height: 170px;
   min-height: 170px;
-  border:2px solid #ECF0F1;
+  border: 2px solid #ecf0f1;
   border-radius: 3px;
   overflow: auto;
 }
@@ -387,8 +408,8 @@ h2 {
 
 .conteudo {
   margin: 0px;
-  padding: 5%;
-  width: 340px;
+  padding: 3%;
+  width: 240px;
   border-radius: 5px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
@@ -402,10 +423,13 @@ h2 {
 
 .barra__esquerda {
   display: flex;
+  flex-direction: row;
   background-color: white;
   border-radius: 5px;
-  flex-grow: 2;
+  flex-grow: 1;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  align-items: stretch;
+  min-width: max-content;
 }
 
 .selecao__botoes {
