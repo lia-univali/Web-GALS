@@ -10,13 +10,13 @@ import TreeBrowser from '@/components/TreeBrowser.vue'
 export default defineComponent({
   name: 'SimuladorJanela',
   components: {
-   TreeBrowser
+    TreeBrowser
   },
   data() {
     return {
       resultadoLexico: new Map<Token, string>(),
       resultadoSintatico: new TreeNode<string>(),
-      tipoSimulacao: "Lexico",
+      tipoSimulacao: 'Lexico'
     }
   },
   setup() {
@@ -28,33 +28,31 @@ export default defineComponent({
   },
   methods: {
     simularLexico() {
-      this.tipoSimulacao = "Lexico";
-      const selecionado = this.store.selecionado;
+      this.tipoSimulacao = 'Lexico'
+      const selecionado = this.store.selecionado
 
-      if (selecionado == -1) return;
+      if (selecionado == -1) return
 
-      const projeto = this.store.listaProjetos[selecionado];
+      const projeto = this.store.listaProjetos[selecionado]
       try {
         this.resultadoLexico = lexicalSimulation(
           projeto.textSimulator,
           projeto.regularDefinitions,
           projeto.tokens
-        );
+        )
 
-        projeto.consoleExit = 'Simulação Concluida';
+        projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
-        console.log(error as Object);
-        projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message;
+        console.log(error as Object)
+        projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
     },
     simularSintatico() {
-      this.tipoSimulacao = "Sintático";
+      this.tipoSimulacao = 'Sintático'
       const selecionado = this.store.selecionado
       if (selecionado == -1) return
 
       const projeto = this.store.listaProjetos[selecionado]
-
-      
 
       try {
         const result = syntacticSimulation(
@@ -66,7 +64,7 @@ export default defineComponent({
           Options.PARSER_SLR,
           null
         )
-        this.resultadoSintatico = result;
+        this.resultadoSintatico = result
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
         console.log(error as Object)
@@ -101,11 +99,9 @@ export default defineComponent({
         </table>
       </div>
       <div class="saida__simulacao" v-if="tipoSimulacao === 'Sintático'">
-          <div>
-            <TreeBrowser
-            :node="resultadoSintatico.toJSON()"
-            />
-          </div>
+        <div>
+          <TreeBrowser :node="resultadoSintatico.toJSON()" />
+        </div>
       </div>
       <div class="container__botao__simular">
         <button class="botao__simular" @click="simularLexico">Simular Lexico</button>
@@ -134,7 +130,7 @@ table {
   font-weight: 400;
   font-style: normal;
   border-collapse: collapse;
-  width: calc(100% - 1px);
+  width: 100%;
   border-radius: 15px;
 }
 
@@ -204,7 +200,8 @@ tr:hover {
   background-color: white;
   border-radius: 5px;
 
-  flex-grow: 2;
+  flex-grow: 1;
+  overflow: auto;
 }
 .container__botao__simular {
   border-top: 1px solid;
@@ -213,6 +210,8 @@ tr:hover {
   margin: 0px;
   padding: 0px;
   display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   justify-content: center;
 }
 .botao__tipo__simulacao {

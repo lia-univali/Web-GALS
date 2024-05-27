@@ -1,9 +1,9 @@
 <script lang="ts">
-import { generateCode } from '@/assets/scripts/gals-functions';
-import { Options } from '@/assets/scripts/gals-lib/generator/Options';
-import { projetoStore } from '@/stores/projetoStore';
-import JSZip from 'jszip';
-import type TreeMap from 'ts-treemap';
+import { generateCode } from '@/assets/scripts/gals-functions'
+import { Options } from '@/assets/scripts/gals-lib/generator/Options'
+import { projetoStore } from '@/stores/projetoStore'
+import JSZip from 'jszip'
+import type TreeMap from 'ts-treemap'
 import { computed, defineComponent } from 'vue'
 
 export default defineComponent({
@@ -23,7 +23,6 @@ export default defineComponent({
   },
   methods: {
     gerarCodigo() {
-
       const selecionado = this.store.selecionado
       if (selecionado == -1) return
       const projeto = this.store.listaProjetos[selecionado]
@@ -36,10 +35,10 @@ export default defineComponent({
       //optionsTeste.parser = Options.PARSER_SLR;
       //options.scannerTable = Options.SCANNER_TABLE_COMPACT;
       //optionsTeste.input = Options.INPUT_STREAM
-      let allFiles: TreeMap<string, string> | null = null;
+      let allFiles: TreeMap<string, string> | null = null
 
       try {
-        allFiles= generateCode(          
+        allFiles = generateCode(
           projeto.regularDefinitions,
           projeto.tokens,
           projeto.nonTerminals,
@@ -47,69 +46,68 @@ export default defineComponent({
           options
         )
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
 
-      if(allFiles == null) return;
+      if (allFiles == null) return
 
       try {
-        const zip = new JSZip();
+        const zip = new JSZip()
 
         for (const [fileName, content] of allFiles.entries()) {
-          zip.file(fileName, content);
+          zip.file(fileName, content)
         }
 
         zip.generateAsync({ type: 'blob' }).then((content) => {
-          const link = document.createElement('a');
-          const url = URL.createObjectURL(content);
-          link.href = url;
-          link.download = 'generatedFiles.zip';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        });
+          const link = document.createElement('a')
+          const url = URL.createObjectURL(content)
+          link.href = url
+          link.download = 'generatedFiles.zip'
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+        })
 
-        alert('Arquivos Gerados!');
+        alert('Arquivos Gerados!')
       } catch (error) {
-        console.error(error);
-        alert('Ocorreu um erro!');
+        console.error(error)
+        alert('Ocorreu um erro!')
       }
-    }, 
-    mudaLayout(perfil: number) {
-      switch(perfil){
-        case 0: // Léxico
-            this.layout.token           = 33.33333
-            this.layout.simulacao       = 33.33333
-            this.layout.saidaSimulacao  = 33.33333
-            
-            this.layout.gramatica       = 0
-          break;
-        case 1: // Sintático
-            this.layout.token           = 0
-            this.layout.simulacao       = 50
-            this.layout.saidaSimulacao  = 50
-            
-            this.layout.gramatica       = 50
-          break;
-        case 2: //Léxico e Sintático
-            this.layout.token           = 33.33333
-            this.layout.simulacao       = 33.33333
-            this.layout.saidaSimulacao  = 33.33333
-            
-            this.layout.gramatica       = 50
-          break;
-        case 3: //Simulador
-            this.layout.token           = 0
-            this.layout.simulacao       = 50
-            this.layout.saidaSimulacao  = 50
-            
-            this.layout.gramatica       = 0
-          break;
-      }
-
     },
-  },
+    mudaLayout(perfil: number) {
+      switch (perfil) {
+        case 0: // Léxico
+          this.layout.token = 33.33333
+          this.layout.simulacao = 33.33333
+          this.layout.saidaSimulacao = 33.33333
+
+          this.layout.gramatica = 0
+          break
+        case 1: // Sintático
+          this.layout.token = 0
+          this.layout.simulacao = 50
+          this.layout.saidaSimulacao = 50
+
+          this.layout.gramatica = 50
+          break
+        case 2: //Léxico e Sintático
+          this.layout.token = 33.33333
+          this.layout.simulacao = 33.33333
+          this.layout.saidaSimulacao = 33.33333
+
+          this.layout.gramatica = 50
+          break
+        case 3: //Simulador
+          this.layout.token = 0
+          this.layout.simulacao = 50
+          this.layout.saidaSimulacao = 50
+
+          this.layout.gramatica = 0
+          break
+      }
+    }
+  }
 })
 </script>
 
@@ -119,16 +117,15 @@ export default defineComponent({
 
     <button class="botao__gerar__codigo" @click="gerarCodigo">Gerar Código</button>
 
-  <div class="dropdown">
-    <button class="dropbtn">Layout</button>
-    <div class="dropdown-content">
-      <a @click="mudaLayout(0)">Léxico</a>
-      <a @click="mudaLayout(1)">Sintático</a>
-      <a @click="mudaLayout(2)">Léxico e Sintático</a>
-      <a @click="mudaLayout(3)">Simulador</a>
+    <div class="dropdown">
+      <button class="dropbtn">Layout</button>
+      <div class="dropdown-content">
+        <a @click="mudaLayout(0)">Léxico</a>
+        <a @click="mudaLayout(1)">Sintático</a>
+        <a @click="mudaLayout(2)">Léxico e Sintático</a>
+        <a @click="mudaLayout(3)">Simulador</a>
+      </div>
     </div>
-  </div>
-
   </div>
 </template>
 
@@ -195,8 +192,8 @@ export default defineComponent({
 
 .barra__superior {
   background-color: white;
-  width: 100wh;
-  height: 50px;
+  width: auto;
+  height: 48px;
   display: flex;
   flex-shrink: 0;
   margin: 0px;
@@ -209,7 +206,7 @@ export default defineComponent({
 /* Dropdown Button */
 .dropbtn {
   font-family: 'IBM Plex Sans';
-  background-color:#f2f2f2;;
+  background-color: #f2f2f2;
   color: rgb(129, 129, 129);
   padding: 14px;
   font-size: 16px;
@@ -229,7 +226,7 @@ export default defineComponent({
   position: absolute;
   background-color: #f1f1f1;
   min-width: 170px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   right: 0;
   text-align: left;
@@ -245,11 +242,17 @@ export default defineComponent({
 }
 
 /* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #ddd;}
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
 
 /* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {display: block;}
+.dropdown:hover .dropdown-content {
+  display: block;
+}
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .dropbtn {background-color: #9ed15c;}
+.dropdown:hover .dropbtn {
+  background-color: #9ed15c;
+}
 </style>

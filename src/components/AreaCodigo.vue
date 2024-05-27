@@ -283,7 +283,7 @@ export default defineComponent({
 .texto__codigo {
   outline: none;
   resize: none;
-  width: 99%;
+  width: 100%;
   height: calc(100% - 7px);
   -webkit-box-sizing: border-box;
   /* Safari/Chrome, other WebKit */
@@ -300,7 +300,7 @@ export default defineComponent({
 .input__codigo {
   outline: none;
   resize: none;
-  width: 99%;
+  width: 100%;
   -webkit-box-sizing: border-box;
   /* Safari/Chrome, other WebKit */
   -moz-box-sizing: border-box;
@@ -326,8 +326,8 @@ export default defineComponent({
 }
 
 .caixa__input {
-  margin: 0px;
-  padding: 0px;
+  /*  margin: 0px; */
+  /* padding: 0px; */
   width: 100%;
 
   border-radius: 5px;
@@ -339,7 +339,7 @@ export default defineComponent({
 .caixa__interna {
   margin: 0px;
   padding: 3px;
-  width: 100%;
+  /* width: 100%; */
   height: calc(100% - 21.333px);
 }
 

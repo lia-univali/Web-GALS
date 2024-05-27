@@ -21,3 +21,10 @@
   src: url(../fonts/FiraMono-Medium.ttf);
   font-weight: 600;
 }
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-width: 720px;
+  min-height: 600px;
+}
