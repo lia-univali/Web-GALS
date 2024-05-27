@@ -59,6 +59,10 @@ export class List<T> {
     this.items[i] = value;
   }
 
+  setItems(items: Array<T>){
+    this.items = items;
+  }
+
   add(value: T): void {
     this.items.push(value)
   }
@@ -72,7 +76,7 @@ export class List<T> {
   }
 
   remove(value: T): boolean {
-    let index = this.items.indexOf(value)
+    const index = this.items.indexOf(value)
 
     if (index == -1) return false
 
@@ -82,7 +86,7 @@ export class List<T> {
   }
 
   removeByIndex(index: number): T {
-    let item = this.items[index];
+    const item = this.items[index];
     this.items.splice(index, 1);
     return item
   }
@@ -194,7 +198,7 @@ export class IntegerSet {
     let operation = this._elements
     let cardinality = 0
     while (operation > 0) {
-      let mask = operation & 1
+      const mask = operation & 1
       if (mask == 1) {
         cardinality++
       }
@@ -209,7 +213,7 @@ export class IntegerSet {
 
   public add(i: number): boolean {
     this._elements_set.add(i)
-    let added = !this.getBit(i)
+    const added = !this.getBit(i)
     this.setBit(i)
     return added;
   }
@@ -217,7 +221,7 @@ export class IntegerSet {
   public first(): number {
     let operation = this._elements
     for (let i = 0; i < 256; i++) {
-      let mask = operation & 1
+      const mask = operation & 1
       if (mask == 1) {
         return i
       }
@@ -238,7 +242,7 @@ export class IntegerSet {
 
   public delete(i: number): boolean {
     this._elements_set.delete(i)
-    let removed = this.getBit(i)
+    const removed = this.getBit(i)
     this.clearBit(i)
     return removed
   }
@@ -249,7 +253,7 @@ export class IntegerSet {
   }
 
   public addAll(is: IntegerSet): boolean {
-    let cardinality = this.size
+    const cardinality = this.size
     this._elements = this._elements | is._elements
 
     is._elements_set.forEach((element) => this._elements_set.add(element))
@@ -258,7 +262,7 @@ export class IntegerSet {
   }
 
   public addAllArray(is: Array<number>): boolean { // TODO: Validar
-    let cardinality = this.size
+    const cardinality = this.size
     // this._elements = this._elements | is._elements
 
     is.forEach((element) => this.add(element))
@@ -267,7 +271,7 @@ export class IntegerSet {
   }
 
   public retainAll(is: IntegerSet): boolean {
-    let cardinality = this.size
+    const cardinality = this.size
     this._elements = this._elements & is._elements
     return cardinality != this.size
   }
@@ -282,7 +286,7 @@ export class IntegerSet {
 
   list(): Array<number> {
     // let aux = [...this._elements_set]
-    let aux = Array.from(this._elements_set)
+    const aux = Array.from(this._elements_set)
     return aux.sort((a, b) => a - b)
   }
 
@@ -304,8 +308,8 @@ export class IntegerSet {
   }
 
   equals(otherSet: IntegerSet): boolean {
-    let otherList = otherSet.list();
-    let list = this.list();
+    const otherList = otherSet.list();
+    const list = this.list();
 
     if (list.length !== otherList.length) return false;
     

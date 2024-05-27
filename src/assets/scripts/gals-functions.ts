@@ -26,6 +26,8 @@ import { CppParserGenerator } from './gals-lib/generator/cpp/CppParserGenerator'
 import { DelphiCommomGenerator } from './gals-lib/generator/delphi/DelphiCommomGenerator'
 import { DelphiScannerGenerator } from './gals-lib/generator/delphi/DelphiScannerGenerator'
 import { DelphiParserGenerator } from './gals-lib/generator/delphi/DelphiParserGenerator'
+import { LL1ParserSimulator } from '@/assets/scripts/gals-lib/simulator/LL1ParserSimulator'
+import { LLParser } from '@/assets/scripts/gals-lib/generator/parser/ll/LLParser'
 
 enum Mode {
   LEXICAL,
@@ -289,14 +291,15 @@ export function syntacticSimulation(
   if(g === undefined) throw new SyntaticError("Grammar is Undefined");
   
   let lrSim: LRParserSimulator | null = null;
-  const ll1Sim: null = null; // LL1ParserSimulator | null = null;
+  let ll1Sim: LL1ParserSimulator | null = null;
   let parserResult: LRGenerator | null = null;
+  let parserResultLL: LLParser | null = null;
 
   switch (parser)
   {
     case Options.PARSER_REC_DESC:
     case Options.PARSER_LL:
-      simulateLL(fa, g,  terminals, faSim, sensitive);
+      [ll1Sim, faSim, parserResultLL] = simulateLL(fa, g,  terminals, faSim, sensitive);
       break;
     case Options.PARSER_SLR:
     case Options.PARSER_LALR:
@@ -326,8 +329,8 @@ export function syntacticSimulation(
   faSim.setInput(input);
   
   if (ll1Sim != null)
-  {		
-    //ll1Sim.parse(faSim, root);
+  {
+    root = ll1Sim.parse(faSim, root);
   }		
   else if (lrSim != null)
   {
@@ -561,25 +564,31 @@ export function syntacticSetTable(
   if(g === undefined) throw new SyntaticError("Grammar is Undefined");
   
   let lrSim: LRParserSimulator | null = null;
-  const ll1Sim: null = null; // LL1ParserSimulator | null = null;
-  let parserResult: LRGenerator | null = null;
+  let ll1Sim: LL1ParserSimulator | null = null;
+  let parserResultLR: LRGenerator | null = null;
+  let parserResultLL: LLParser | null = null;
 
   switch (parser)
   {
     case Options.PARSER_REC_DESC:
     case Options.PARSER_LL:
-      simulateLL(fa, g,  terminals, faSim, sensitive);
+      [ll1Sim, faSim, parserResultLL] = simulateLL(fa, g,  terminals, faSim, sensitive);
       break;
     case Options.PARSER_SLR:
     case Options.PARSER_LALR:
     case Options.PARSER_LR:
-      [lrSim, faSim, parserResult] = simulateSLR(fa, g,  terminals, faSim, sensitive);
+      [lrSim, faSim, parserResultLR] = simulateSLR(fa, g,  terminals, faSim, sensitive);
       break;  
   }
 
-  if(parserResult === null) throw new SyntaticError("Erro na criação do Parser Sintático");
+  if(parserResultLR === null && parserResultLL === null) throw new SyntaticError("Erro na criação do Parser Sintático");
 
-  return parserResult.itemsAsHTML();
+  if(parserResultLR != null)
+    return parserResultLR.itemsAsHTML();
+  if(parserResultLL != null)
+    return parserResultLL.tableAsHTML();
+
+  return 'ERROR'
 }
 
 export function syntacticFirstFollowTable(
@@ -722,12 +731,12 @@ export function generateCode(
   grammar: string, 
   options:Options): TreeMap<string, string> {
 
-    try {
-      tokens = parseDefsOnTokens(definitions, tokens)
-      definitions = '' 
-    } catch (error) {
-      throw new LexicalError("Definições com problemas - Verificar Definições");
-    }
+  try {
+    tokens = parseDefsOnTokens(definitions, tokens)
+    definitions = ''
+  } catch (error) {
+    throw new LexicalError("Definições com problemas - Verificar Definições");
+  }
 
   // Pega não terminais direto do grammar
   const lines = grammar.split('\n');
@@ -874,33 +883,29 @@ function simulateLL(
   g: Grammar, 
   tokenNameList: Array<string>, 
   faSim: BasicScanner | null, sensitive: boolean
-  )
-{	
-  // lex.setEnabled(fa != null);
-  // synt.setEnabled(g != null);
-  
-  // this.tokenNameList = tokenNameList;
-  
-  // let faSim: BasicScanner | null;
+  ): [LL1ParserSimulator, BasicScanner, LLParser]
+{
+    if (fa != null)
+    {
+      faSim = new FiniteAutomataSimulator(fa, sensitive);
+    }
+    else
+    {
+      faSim = new FiniteAutomataSimulator(generateTokenListAutomata(tokenNameList, sensitive), sensitive);
+    }
 
-  if (fa != null)
-  {
-    faSim = new FiniteAutomataSimulator(fa, sensitive);
+    let llSim;
+    let parser: LLParser | null;
+    if (g != null)
+    {
+      parser = new LLParser(g);
+      if(parser === null) throw new SyntaticError("Parser is Null");
+      llSim = new LL1ParserSimulator(parser);
+      // //console.log(parser.tableAsHTML());
+    }else throw new SyntaticError("Grammar is Null");
+
+    return [llSim, faSim, parser];
   }
-  else
-  {
-    faSim = new FiniteAutomataSimulator(generateTokenListAutomata(tokenNameList, sensitive), sensitive);
-  }
-    
-  if (g != null)
-  {
-    // let ll1: LLParser = new LLParser(g);
-    // this.ll1Sim = new LL1ParserSimulator(ll1);
-    // lrSim = null;
-  }
-  
-  // show();
-}
 
 function simulateSLR(fa: FiniteAutomata, g: Grammar, tokenNameList: Array<string>, faSim: BasicScanner | null, sensitive: boolean)
 : [LRParserSimulator, BasicScanner, LRGenerator]

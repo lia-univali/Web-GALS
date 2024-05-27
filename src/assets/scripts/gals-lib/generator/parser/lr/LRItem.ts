@@ -59,7 +59,7 @@ export class LRItem //implements Comparable
 		
 		for (let i=0; i<this._production.get_rhs().length && i<this._position; i++)
 		{
-			let s: number = this._production.get_rhs()[i];
+			const s: number = this._production.get_rhs()[i];
 			if (this._g.isSemanticAction(s))
 				bfr += "#"  + (s-this._g.FIRST_SEMANTIC_ACTION()) + " ";
 			else
@@ -70,7 +70,7 @@ export class LRItem //implements Comparable
 		
 		for (let i=this._position; i<this._production.get_rhs().length; i++)
 		{
-			let s = this._production.get_rhs()[i];
+			const s = this._production.get_rhs()[i];
 			if (this._g.isSemanticAction(s))
 				bfr += ("#" + (s-this._g.FIRST_SEMANTIC_ACTION()) + " " );
 			else

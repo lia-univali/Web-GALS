@@ -35,10 +35,10 @@ export class Grammar {
      */
     constructor(terminals: string[], nonTerminals: string[], productions: List<Production>, startSymbol: number) { 
 
-        let terminalsCopy       = cloneDeep(terminals);
-        let nonTerminalsCopy    = cloneDeep(nonTerminals);
-        let productionsCopy     = cloneDeep(productions);
-        let startSymbolCopy     = cloneDeep(startSymbol);
+        const terminalsCopy       = cloneDeep(terminals);
+        const nonTerminalsCopy    = cloneDeep(nonTerminals);
+        const productionsCopy     = cloneDeep(productions);
+        const startSymbolCopy     = cloneDeep(startSymbol);
         
         this.setSymbols(terminalsCopy, nonTerminalsCopy, startSymbolCopy);
         this.setProductions(productionsCopy);
@@ -128,13 +128,13 @@ export class Grammar {
 		if (this.normalLR)
 			return this;
 			
-		let terminals: string[] = this.terminals;
-		let newSymbols: number =  2 + this.SEMANTIC_ACTION_COUNT;
+		const terminals: string[] = this.terminals;
+		const newSymbols: number =  2 + this.SEMANTIC_ACTION_COUNT;
 
         const nonTerminalOld: string[] = this.nonTerminals;
         const nonTerminalNew: string[] = cloneDeep([...nonTerminalOld, ...new Array(newSymbols)]);
 
-		let productioList: List<Production> = new List<Production>();
+		const productioList: List<Production> = new List<Production>();
 		
         this._productions.toArray().forEach( i => productioList.add(i))
 
@@ -144,10 +144,10 @@ export class Grammar {
 		}
 
 		nonTerminalNew[nonTerminalNew.length - 1] = "<-START->";
-        let production: Production =  new Production(null, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1,  [this.startSymbol]);       
+        const production: Production =  new Production(null, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1,  [this.startSymbol]);       
 		productioList.add(production);
 
-		let grammar: Grammar = new Grammar(terminals, nonTerminalNew, productioList, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1);
+		const grammar: Grammar = new Grammar(terminals, nonTerminalNew, productioList, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1);
 		
 		grammar.normalLR = true;
 		
@@ -167,7 +167,7 @@ export class Grammar {
         
         if(rhs === undefined) return new Production(this, lhs, []);
         
-        let p: Production = new Production(this, lhs, rhs);
+        const p: Production = new Production(this, lhs, rhs);
         for (let i = 0; i < this._productions.size(); i++)
             if (this._productions.get(i).equals( p ))
                 return null;
@@ -190,11 +190,11 @@ export class Grammar {
      * @return BitSet indicando os symbolos que derivam Epsilon
      */
     private markEpsilon(): IntegerSet {
-        let result: IntegerSet = new IntegerSet();
+        const result: IntegerSet = new IntegerSet();
 
         for (let i = 0; i < this._productions.size(); i++)
         {
-            let production: Production = this._productions.get(i);
+            const production: Production = this._productions.get(i);
             if (this.isEpsilon(production.get_rhs()))
                 result.add(production.get_lhs());
         }
@@ -207,7 +207,7 @@ export class Grammar {
             let derivesEpsilon: boolean;
             for (let i = 0; i < this._productions.size(); i++)
             {
-                let P = this._productions.get(i);
+                const P = this._productions.get(i);
                 derivesEpsilon = true;
                 for (let j = 0; j < P.get_rhs().length; j++)
                 {
@@ -236,7 +236,7 @@ export class Grammar {
         
         if(start === undefined) start = 0;
 
-		let result: IntegerSet = new IntegerSet();
+		const result: IntegerSet = new IntegerSet();
 
         //console.log("x: " + x + " | start: " +  start);
 		
@@ -249,7 +249,7 @@ export class Grammar {
             //console.log("EPSILON");
         }
 		else {
-			let k: number = x.length;
+			const k: number = x.length;
 			while (this.isSemanticAction(x[start]))
 				start++;
 				
@@ -288,7 +288,7 @@ export class Grammar {
      * Calcula os conjuntos FIRST de todos os símbolos de Gramática
      */
     private fillFirstSet() {
-        let derivesEpsilon: IntegerSet = this.markEpsilon();
+        const derivesEpsilon: IntegerSet = this.markEpsilon();
         this.firstSet =  new Array<IntegerSet>();
         for (let i = 0; i < this._symbols.length; i++) {
             this.firstSet[i] = new IntegerSet();
@@ -310,7 +310,7 @@ export class Grammar {
             for (let A = this.FIRST_NON_TERMINAL; A < this.FIRST_SEMANTIC_ACTION(); A++) {
                 let exists: boolean = false;
                 for (let i = 0; i < this._productions.size(); i++) {
-                    let P: Production = this._productions.get(i);
+                    const P: Production = this._productions.get(i);
                     if (P.get_lhs() == A && !this.isEpsilon(P.get_rhs()) && P.firstSymbol() == a) {
                         exists = true;
                         break;
@@ -338,9 +338,9 @@ export class Grammar {
             // }
 
             for (let i = 0; i < this._productions.size(); i++) {
-                let P = this._productions.get(i);
-                let old = cloneDeep(this.firstSet[P.get_lhs()]);
-                let testeFirst = this.first(P.get_rhs());
+                const P = this._productions.get(i);
+                const old = cloneDeep(this.firstSet[P.get_lhs()]);
+                const testeFirst = this.first(P.get_rhs());
                 //console.log(`Index: ${i} | fist: ${testeFirst.toString()}`);
                 this.firstSet[P.get_lhs()].addAll(testeFirst);
                 if (!changed){
@@ -376,7 +376,7 @@ export class Grammar {
             changes = false;
             for (let i = 0; i <this._productions.size(); i++)
             {
-                let P: Production = this._productions.get(i);
+                const P: Production = this._productions.get(i);
                 for (let j = 0 ; j < P.get_rhs().length; j++)
                 {
 
@@ -384,22 +384,22 @@ export class Grammar {
 
                     if (this.isNonTerminal(P.get_rhs()[j])) {
                         
-                    	let s: IntegerSet = this.first(P.get_rhs(), j + 1);
-                        let deriveEpsilon: boolean = s.has(Grammar.EPSILON);
+                    	const s: IntegerSet = this.first(P.get_rhs(), j + 1);
+                        const deriveEpsilon: boolean = s.has(Grammar.EPSILON);
 
                         //console.log("S: " + s.toString());
                         //console.log("deriveEpsilon: " + deriveEpsilon);
 
                         if( P.get_rhs().length > j+1 ) {
                             s.delete(Grammar.EPSILON);
-                            let old: IntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                            const old: IntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
                             this.followSet[P.get_rhs()[j]].addAll(s);
                             if (!changes && !this.followSet[P.get_rhs()[j]].equals(old))
                                 changes = true;
                         }
 
                         if (deriveEpsilon) {
-                        	let old: IntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                        	const old: IntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
                             this.followSet[P.get_rhs()[j]].addAll(this.followSet[P.get_lhs()]);
                             if (!changes && !this.followSet[P.get_rhs()[j]].equals(old))
                                 changes = true;
@@ -522,7 +522,7 @@ export class Grammar {
      * @throws EmptyGrammarException se o símbolo inicial for removido
      */
     public removeImproductiveSymbols() { //TODO: throws EmptyGrammarException
-    	let SP: IntegerSet = this.getProductiveSymbols();
+    	const SP: IntegerSet = this.getProductiveSymbols();
         this.updateSymbols(SP);
     }
 
@@ -571,7 +571,7 @@ export class Grammar {
      * @return BitSet indicando essas produções
      */
     public productionsFor(symbol: number): IntegerSet {       
-    	let result: IntegerSet = new IntegerSet();
+    	const result: IntegerSet = new IntegerSet();
         for (let i = 0; i < this.productions.size(); i++)
         {
             if (this.productions.get(i).get_lhs() == symbol)
@@ -587,23 +587,23 @@ export class Grammar {
      * @return lista de produçoes sem recursão indireta
      */
     private transformToFindRecursion(prods: List<Production>): List<Production> {
-        let prodList: List<Production> = new List<Production>();
+        const prodList: List<Production> = new List<Production>();
         prods.toArray().forEach( i => prodList.add(i));
         for (let i = this.FIRST_NON_TERMINAL; i < this.FIRST_SEMANTIC_ACTION(); i++ ) {
             for (let j = this.FIRST_NON_TERMINAL ; j < i ; j++) {
                 for (let it = 0; it < prodList.size(); it++) {
-                    let P: Production = prodList.get(it);
+                    const P: Production = prodList.get(it);
                     if (P.get_lhs() == i && P.firstSymbol() == j) {  
                         prodList.toArray().splice(it,1);
                         it--;
-                        let actions: number[] = [];
+                        const actions: number[] = [];
                         for (let k = 0; k < P.get_rhs().length && this.isSemanticAction(P.get_rhs()[k]); k++)
 							actions.push(P.get_rhs()[k]);
 							
                         for (let it2 = 0; it2 < prodList.size(); it2++) {
-                            let P2: Production = prodList.get(it2);
+                            const P2: Production = prodList.get(it2);
                             if (P2.get_lhs() == j) {
-                                let rhs: number[] = new Array<number>(P2.get_rhs().length + P.get_rhs().length - 1);
+                                const rhs: number[] = new Array<number>(P2.get_rhs().length + P.get_rhs().length - 1);
                                 let k = 0;
                                 for ( ; k<actions.length; k++)
                                 	rhs[k] = actions[k];
@@ -614,7 +614,7 @@ export class Grammar {
                                 for ( k = actions.length + 1; k<P.get_rhs().length; k++)
                                     rhs[k + m] = P.get_rhs()[k];
                                 
-                                let newProduction = this.createProduction(P.get_lhs(), rhs);
+                                const newProduction = this.createProduction(P.get_lhs(), rhs);
                                 if (newProduction != null)
                                     prodList.add(newProduction);
                             }
@@ -644,13 +644,13 @@ export class Grammar {
     private removeDirectRecursion() {
         for (let i = this.FIRST_NON_TERMINAL ; i < this.FIRST_SEMANTIC_ACTION() ; i++) {
             let recursive = this.productionsFor(i);
-            let prods = this.productionsFor(i);
+            const prods = this.productionsFor(i);
             let newSymbol = -1;
 
-            let recursiveArray = recursive.list();
+            const recursiveArray = recursive.list();
 
             for (let i = 0; i < recursiveArray.length ; i++) {
-                let x = recursiveArray[i];
+                const x = recursiveArray[i];
                 if (this._productions.get(x).get_lhs() != this._productions.get(x).firstSymbol())
                     recursiveArray.splice(i, 1);
             }
@@ -660,8 +660,8 @@ export class Grammar {
 
             if (recursive.size > 0) {
                 newSymbol = this.createSymbol(this.addTail(this._symbols[i]));
-                for (let x of prods) {
-                    let P: Production = this._productions.get(x);
+                for (const x of prods) {
+                    const P: Production = this._productions.get(x);
                     if (recursive.list()[x])
                     {
                         P.get_rhs().splice(0,1);
@@ -675,7 +675,7 @@ export class Grammar {
                 }
             }
             if (newSymbol != -1){
-                let producton = this.createProduction(newSymbol)
+                const producton = this.createProduction(newSymbol)
                 if(producton != null)
                     this.productions.add(producton);
             }
@@ -687,8 +687,8 @@ export class Grammar {
 
 	private createSymbol(s: string): number {
 		
-        for(let p of this._productions){
-			let rhs: number[] = p.get_rhs();
+        for(const p of this._productions){
+			const rhs: number[] = p.get_rhs();
 			for (let j=0; j<rhs.length; j++)
 				if (this.isSemanticAction(rhs[j]))
 					rhs.push(j, rhs[j] + 1);
@@ -712,13 +712,13 @@ export class Grammar {
 		if (a == b)
 			return true;
 		
-		let src: IntegerSet = new IntegerSet();
+		const src: IntegerSet = new IntegerSet();
 		
 		src.add(b);
 		
 		for (let i=this.FIRST_NON_TERMINAL; i<this.FIRST_SEMANTIC_ACTION(); i++)
 		{
-			for (let cur of src)	
+			for (const cur of src)	
 			{
 				if (this.derivesDirectly(i, cur) && !src.list()[i])
 				{
@@ -741,10 +741,10 @@ export class Grammar {
 	 */	
 	private derivesDirectly(a: number, b: number): boolean {		
 		
-        let derivesEpsilon = this.markEpsilon();
+        const derivesEpsilon = this.markEpsilon();
 					
 		for (let i = 0 ; i < this._productions.size(); i++) {
-			let p: Production = this._productions.get(i);
+			const p: Production = this._productions.get(i);
 			
 			if (p.get_lhs() == a) {
 				if (p.get_rhs().length == 1) {
@@ -752,7 +752,7 @@ export class Grammar {
 						return true;
 				}
 				else {
-					let rhs: number[] = p.get_rhs();
+					const rhs: number[] = p.get_rhs();
 					
 					for (let j = 0 ; j < rhs.length ; j++)
 					{
@@ -782,15 +782,15 @@ export class Grammar {
      * Estas produções são aquelas da forma A ::= X, onde X é um não-terminal.
      */
     public removeUnitaryProductions() {
-		let prods = new List<Production>();
+		const prods = new List<Production>();
         // as produções que NÃO são ciclos são adicionadas a prods
         for (let i = 0; i < this._productions.size(); i++) {
-            let p: Production = this._productions.get(i);
+            const p: Production = this._productions.get(i);
             if (p.get_rhs().length != 1 || p.get_rhs()[0] != p.get_lhs())
                 prods.add(p);
         }
         
-        let N: IntegerSet[] = [];
+        const N: IntegerSet[] = [];
         
         for (let i = this.FIRST_NON_TERMINAL; i < N.length; i++) {
         	N[i] = new IntegerSet();
@@ -802,11 +802,11 @@ export class Grammar {
         this._productions = new List<Production>();
         
         for (let i = 0 ;  i < prods.size() ; i++) {
-        	let p: Production = prods.get(i);
+        	const p: Production = prods.get(i);
         	if (p.get_rhs().length != 1 || !this.isNonTerminal(p.get_rhs()[0])) {
         		for (let j = this.FIRST_NON_TERMINAL ; j < N.length ; j++) {
         			if (N[j].list()[p.get_lhs()]) {
-        				let np = this.createProduction(j,p.get_rhs());
+        				const np = this.createProduction(j,p.get_rhs());
         				if (np != null)
 	        				this._productions.add(np);
         			}
@@ -822,11 +822,11 @@ export class Grammar {
      * Remove as Epsilon-Produções da Gramática
      */
     public removeEpsilon() {   
-		let E = this.markEpsilon();		
-        let prods = new List<Production>();
+		const E = this.markEpsilon();		
+        const prods = new List<Production>();
         	   
         for (let i = 0 ; i < this._productions.size() ; i++) {
-        	let p: Production = this._productions.get(i);
+        	const p: Production = this._productions.get(i);
         	if ( ! this.isEpsilon( p.get_rhs() ) )
         	{
         		let derivesEpsilon = true;
@@ -844,7 +844,7 @@ export class Grammar {
         
         for (let it = 0; it < prods.size(); it++) {
 
-            let p: Production = prods.get(it);   
+            const p: Production = prods.get(it);   
 
             if (! this.isEpsilon( p.get_rhs() ))//?INUTIL?
             {
@@ -856,7 +856,7 @@ export class Grammar {
                             break;
                     }
                     if (i < p.get_rhs().length) {
-                    	let pNew: Production | null = this.derivationAt(p, i);
+                    	const pNew: Production | null = this.derivationAt(p, i);
                     	if (pNew != null && !prods.contains(pNew))
                     		prods.add(pNew);
                         i++;
@@ -874,7 +874,7 @@ export class Grammar {
         //    int newPos = symbols.length-1;
           //  symbols[newPos] = newSymbol;
             
-            let newPos = this.createSymbol(this.addTail(this._symbols[this._startSymbol]));
+            const newPos = this.createSymbol(this.addTail(this._symbols[this._startSymbol]));
 
             let production = this.createProduction(newPos, new Array<number>(this._startSymbol))
             if(production != null) prods.add(production);
@@ -902,7 +902,7 @@ export class Grammar {
     			break;
     		}
     	} 
-    	let rhs = new Array<number>;
+    	const rhs = new Array<number>;
     	//int[] rhs = new int[p.get_rhs().length-1];
         for (let k=0; k < index; k++)
             rhs.push(p.get_rhs()[k]);
@@ -933,14 +933,14 @@ export class Grammar {
     public sort() {    	
     	for (let i = this.FIRST_NON_TERMINAL; i < this.FIRST_SEMANTIC_ACTION(); i++)
     	{
-    		let s: string = this._symbols[i].substring(0, this._symbols[i].length - 1 ) + "_T>";
+    		const s: string = this._symbols[i].substring(0, this._symbols[i].length - 1 ) + "_T>";
     		let j = i + 1;
     		for ( ; j < this.FIRST_SEMANTIC_ACTION(); j++)
     			if (this._symbols[j] == s )
     				break;
     		if (j < this.FIRST_SEMANTIC_ACTION()) //achou
     		{
-    			let to = i + 1, 
+    			const to = i + 1, 
     			from = j;
     			    
     			if (to != from)
@@ -952,7 +952,7 @@ export class Grammar {
 
     	this.moveSymbol(this._startSymbol, this.FIRST_NON_TERMINAL);
     	
-        let sortedProductions = this._productions.toArray().sort(Production.compareTo); // TODO validar
+        const sortedProductions = this._productions.toArray().sort(Production.compareTo); // TODO validar
 
     	this._productions.clear();
 
@@ -960,7 +960,7 @@ export class Grammar {
     }
     
 	private moveSymbol(from: number, to: number) {
-		let s: string = this._symbols[from];
+		const s: string = this._symbols[from];
 		for (let k = from ; k > to ; k--)
 			this._symbols[k] = this._symbols[k-1];
 		this._symbols[to] = s;
@@ -970,13 +970,13 @@ export class Grammar {
 		else if (this._startSymbol >= to && this._startSymbol < from)
 			this._startSymbol++;
 		
-		for (let p of this._productions) {
+		for (const p of this._productions) {
 			
 			if (p.get_lhs() == from)
 				p.set_lhs(to);
 			else if (p.get_lhs() >= to && p.get_lhs() < from)
 				p.set_lhs(p.get_lhs() + 1);
-			let rhs: number[] = p.get_rhs();
+			const rhs: number[] = p.get_rhs();
 			for (let k=0; k < rhs.length; k++)
 			{
 				if (rhs[k] == from)
@@ -1001,7 +1001,7 @@ export class Grammar {
      * Verifica se esta gramática possui recursão à esquerda
      */
     public hasLeftRecursion(): boolean {
-        let prods: List<Production> = this.transformToFindRecursion(this._productions);
+        const prods: List<Production> = this.transformToFindRecursion(this._productions);
         
 		for (let i = 0; i < prods.size(); i++)
         {
@@ -1015,7 +1015,7 @@ export class Grammar {
     }
     
     public getLeftRecursiveSimbol(): number {
-        let prods: List<Production> = this.transformToFindRecursion(this._productions);
+        const prods: List<Production> = this.transformToFindRecursion(this._productions);
     
         for (let i = 0; i < prods.size(); i++)
         {
@@ -1033,18 +1033,18 @@ export class Grammar {
      * @return um BitSet contendo produçoes não fatoradas
      */
     public getNonFactoratedProductions(): IntegerSet {
-    	let result = new IntegerSet();
+    	const result = new IntegerSet();
         
         for (let i=0; i< this._productions.size(); i++)
         {
-            let p1: Production = this._productions.get(i);
+            const p1: Production = this._productions.get(i);
             for (let j=i+1; j< this.productions.size(); j++)
             {
-                let p2: Production = this._productions.get(j);
+                const p2: Production = this._productions.get(j);
 
                 if (p1.get_lhs() == p2.get_lhs())
                 {
-                	let first: IntegerSet = this.first(p1.get_rhs());
+                	const first: IntegerSet = this.first(p1.get_rhs());
                     first.retainAll(this.first(p2.get_rhs()));
                     if (! first.isEmpty())
                     {
@@ -1066,14 +1066,14 @@ export class Grammar {
     public isFactored(): boolean {
         for (let i=0; i< this._productions.size(); i++)
         {
-            let P1: Production = this._productions.get(i);
+            const P1: Production = this._productions.get(i);
             for (let j=i+1; j< this._productions.size(); j++)
             {
-                let P2: Production = this.productions.get(j);
+                const P2: Production = this.productions.get(j);
 
                 if (P1.get_lhs() == P2.get_lhs())
                 {
-                	let first = this.first(P1.get_rhs());
+                	const first = this.first(P1.get_rhs());
                     first.retainAll(this.first(P2.get_rhs()));
                     if (! first.isEmpty())
                         return false;
@@ -1088,12 +1088,12 @@ export class Grammar {
      */
     public passThirdCondition(): boolean
     {
-    	let derivesEpsilon: IntegerSet = this.markEpsilon();
+    	const derivesEpsilon: IntegerSet = this.markEpsilon();
         for (let i=this.FIRST_NON_TERMINAL; i<this.FIRST_SEMANTIC_ACTION(); i++)
         {
             if (derivesEpsilon.has(i))
             {
-            	let first = new IntegerSet(this.firstSet[i]);
+            	const first = new IntegerSet(this.firstSet[i]);
                 first.retainAll(this.followSet[i]);
                 if (! first.isEmpty())
                     return false;
@@ -1108,7 +1108,7 @@ export class Grammar {
      */
     private getProductiveSymbols(): IntegerSet
     {
-    	let SP = new IntegerSet();
+    	const SP = new IntegerSet();
         for (let i = Grammar.FIRST_TERMINAL; i< this.FIRST_NON_TERMINAL; i++)
             SP.add(i);
 
@@ -1121,14 +1121,14 @@ export class Grammar {
         do
         {
             change = false;
-            let Q = new IntegerSet();
+            const Q = new IntegerSet();
             for (let i=this.FIRST_NON_TERMINAL; i<this.FIRST_SEMANTIC_ACTION(); i++)
             {
                 if (! SP.has(i))
                 {
                     for (let j=0; j< this._productions.size(); j++)
                     {
-                        let P = this._productions.get(j);
+                        const P = this._productions.get(j);
                         if (P.get_lhs() == i)
                         {
                             let pass = true;
@@ -1155,7 +1155,7 @@ export class Grammar {
      */
     protected removeUnreachableSymbols() //TODO: throws EmptyGrammarException
     {
-    	let SA: IntegerSet = this.getReachableSymbols();
+    	const SA: IntegerSet = this.getReachableSymbols();
 
         this.updateSymbols(SA);
     }
@@ -1168,20 +1168,20 @@ export class Grammar {
      */
     private getReachableSymbols(): IntegerSet
     {
-    	let SA = new IntegerSet();
+    	const SA = new IntegerSet();
         SA.add(this._startSymbol);
         let change: boolean;
         do
         {
             change = false;
-            let M = new IntegerSet();
+            const M = new IntegerSet();
             for (let i=0; i<this._symbols.length; i++)
             {
                 if (! SA.has(i))
                 {
                     for (let j=0; j< this.productions.size(); j++)
                     {
-                        let P: Production = this._productions.get(j);
+                        const P: Production = this._productions.get(j);
                         if (SA.has(P.get_lhs()))
                         {
                             for (let k=0; k<P.get_rhs().length; k++)
@@ -1205,7 +1205,7 @@ export class Grammar {
 
 	public uselessSymbolsHTML(): string
 	{
-		let clone: Grammar = this.clone();
+		const clone: Grammar = this.clone();
 		
 		try
 		{
@@ -1215,9 +1215,9 @@ export class Grammar {
 		{
 		}
 		
-		let cs: string[]  = clone.symbols;
+		const cs: string[]  = clone.symbols;
 		
-		let s = new IntegerSet();
+		const s = new IntegerSet();
 		
 		
 		for (let i=2; i<this._symbols.length; i++)
@@ -1309,11 +1309,11 @@ export class Grammar {
     private factorateLeft(symb: number): boolean
     {
     	let result = false;
-        let prods = this.productionsFor(symb);
+        const prods = this.productionsFor(symb);
 
         let conflict = new IntegerSet();
 
-        let confictSymbol = this.conflict(prods, conflict);
+        const confictSymbol = this.conflict(prods, conflict);
 
         if (! conflict.isEmpty())
         {
@@ -1322,10 +1322,10 @@ export class Grammar {
 			//transforma as producoes para revelar os conflito indiretos
             for (let i=0; i< this._productions.size(); i++)
             {
-                let p: Production = this._productions.get(i);
+                const p: Production = this._productions.get(i);
                 if (p.get_lhs() == symb && this.first(p.get_rhs()).list()[confictSymbol] && p.firstSymbol() != confictSymbol)
                 {
-                    let np: List<Production> = this.leftMostDerive(p);
+                    const np: List<Production> = this.leftMostDerive(p);
                     this._productions.toArray().splice(i,1); // TODO validar comportamento
                     np.toArray().forEach(pivot => this._productions.add(pivot));
                     i--;           
@@ -1337,32 +1337,32 @@ export class Grammar {
             conflict = new IntegerSet();
             for (let i=0; i< this._productions.size(); i++)
             {
-                let p: Production = this._productions.get(i);
+                const p: Production = this._productions.get(i);
                 if (p.get_lhs() == symb && p.firstSymbol() == confictSymbol)
                 {
                     conflict.add(i);
                 }
             }
 
-            let newIndex: number = this.createSymbol(this.addTail(this._symbols[symb]));
+            const newIndex: number = this.createSymbol(this.addTail(this._symbols[symb]));
 
-            let prefix: number[] = this.extractPrefix(conflict);
+            const prefix: number[] = this.extractPrefix(conflict);
 
             //for (BitSetIterator it = new BitSetIterator(conflict); it.hasNext(); )
-            for(let it of conflict.list())
+            for(const it of conflict.list())
             {
-                let p: Production = this._productions.get(it);
+                const p: Production = this._productions.get(it);
                 p.set_lhs(newIndex);
                 if (p.get_rhs().length > prefix.length)
                     p.get_rhs().splice(0, prefix.length);
                 else // p.rhs.length == prefix.length
                     p.clear_rhs();
             }
-            let rhs = new Array<number>();
+            const rhs = new Array<number>();
             rhs.push(...prefix);
             rhs.push(newIndex);
 
-            let production = this.createProduction(symb, rhs);
+            const production = this.createProduction(symb, rhs);
             if(production != null) this._productions.add(production);
             
             this.fillFirstSet();
@@ -1383,17 +1383,17 @@ export class Grammar {
             return new List<Production>();
         else
         {
-            let newProds = new List<Production>();
-            let symb: number = p.firstSymbol();
-            let actions = new Array<number>();
+            const newProds = new List<Production>();
+            const symb: number = p.firstSymbol();
+            const actions = new Array<number>();
             for (let i=0; i<p.get_rhs().length && this.isSemanticAction(p.get_rhs()[i]); i++)
             	actions.push(p.get_rhs()[i]);
 
             //for (BitSetIterator it = new BitSetIterator(productionsFor(symb)); it.hasNext(); )
-            for(let it of this.productionsFor(symb).list())
+            for(const it of this.productionsFor(symb).list())
             {
-                let p1: Production = this.productions.get(it);
-                let rhs = new Array<number>();
+                const p1: Production = this.productions.get(it);
+                const rhs = new Array<number>();
                 for (let i=0 ; i < actions.length ; i++)
                 	rhs.push(actions[i]);
                 for (let i = 0 ; i < p1.get_rhs().length ; i++)
@@ -1401,7 +1401,7 @@ export class Grammar {
                 for (let i = actions.length + 1 ; i<p.get_rhs().length; i++)
                 	rhs.push(p.get_rhs()[i]);
                 
-                let n: Production | null = this.createProduction(p.get_lhs(), rhs);
+                const n: Production | null = this.createProduction(p.get_lhs(), rhs);
                 if (n != null && ! newProds.contains(n))
  	               newProds.add(n);
             }
@@ -1420,20 +1420,20 @@ export class Grammar {
 	
     private extractPrefix(prods: IntegerSet): number[]
     {
-    	let prefix = new Array<number>();
+    	const prefix = new Array<number>();
         let repeat: boolean;
         let index = 0;
 
         do {
             repeat = true;
             let it: number = 0; // prods ite
-            let pro: Production = this._productions.get(it);
+            const pro: Production = this._productions.get(it);
             if (pro.get_rhs().length > index)
             {
-                let s = pro.get_rhs()[index];
+                const s = pro.get_rhs()[index];
                 for ( ; it > prods.size; it++)
                 {
-                    let p: Production = this.productions.get(it);
+                    const p: Production = this.productions.get(it);
                     if (p.get_rhs().length <= index || p.get_rhs()[index] != s)
                         repeat = false;
                 }
@@ -1462,7 +1462,7 @@ export class Grammar {
      */
     private conflict(prods: IntegerSet, result: IntegerSet): number
     {
-    	let symbs = new Array<number>(this._symbols.length);
+    	const symbs = new Array<number>(this._symbols.length);
         //BitSet epsilon = markEpsilon();
 
         for (let i = 0; i < symbs.length; i++)
@@ -1471,11 +1471,11 @@ export class Grammar {
         }
 
         //for (BitSetIterator it = new BitSetIterator(prods); it.hasNext(); )
-        for (let it of prods)
+        for (const it of prods)
         {
-            let p: Production = this._productions.get(it);
+            const p: Production = this._productions.get(it);
             //for (BitSetIterator i=new BitSetIterator(first(p.get_rhs())); i.hasNext(); )
-            for(let i of this.first(p.get_rhs()))
+            for(const i of this.first(p.get_rhs()))
                 symbs[i]++;
         }
 
@@ -1497,7 +1497,7 @@ export class Grammar {
         if (max > 1)
         {
             //for (BitSetIterator it = new BitSetIterator(prods); it.hasNext(); )
-            for(let pos of prods)
+            for(const pos of prods)
             {
                 if (this.first(this._productions.get(pos).get_rhs()).list()[indexMax])
                     result.add(pos);
@@ -1518,7 +1518,7 @@ export class Grammar {
 
         for (let i = 0; i < this.productions.size(); i++)
         {
-            let P: Production = this._productions.get(i);
+            const P: Production = this._productions.get(i);
             if (!(this._symbols[P.get_lhs()] == lhs))
             {
             	if (! first)
@@ -1547,12 +1547,12 @@ export class Grammar {
 	                bfr += " ";
 	                if (this.isSemanticAction(P.get_rhs()[j]))
 	                {
-	                	let action = P.get_rhs()[j] - this.FIRST_SEMANTIC_ACTION();
+	                	const action = P.get_rhs()[j] - this.FIRST_SEMANTIC_ACTION();
 	                	bfr += "#" + action;
 	                }	
 	                else
 	                {
-	                	let s: string = this._symbols[P.get_rhs()[j]];
+	                	const s: string = this._symbols[P.get_rhs()[j]];
 	                	bfr += s;
 	                }
 	            }
@@ -1568,18 +1568,18 @@ export class Grammar {
     public clone(): Grammar{
     	try
 		{
-			let g: Grammar = structuredClone(this);
+			const g: Grammar = structuredClone(this);
 			
-			let T: string[] = new Array<string>(this.FIRST_NON_TERMINAL-2);
-			let N: string[] = new Array<string>(this.FIRST_SEMANTIC_ACTION() - this.FIRST_NON_TERMINAL);
+			const T: string[] = new Array<string>(this.FIRST_NON_TERMINAL-2);
+			const N: string[] = new Array<string>(this.FIRST_SEMANTIC_ACTION() - this.FIRST_NON_TERMINAL);
 			for (let i = 0; i < T.length; i++)
 			     T[i] = (this._symbols[i+2]).toString();
 			for (let i = 0; i < N.length; i++)
 			     N[i] = (this._symbols[i+this.FIRST_NON_TERMINAL]).toString();
-			let P = new List<Production>();
+			const P = new List<Production>();
 			for (let i = 0; i < this._productions.size(); i++)
 			{
-			    let rhs = new Array<number>(this._productions.get(i).get_rhs().length);
+			    const rhs = new Array<number>(this._productions.get(i).get_rhs().length);
 			    for (let j=0; j<rhs.length; j++)
 			        rhs[j] = this._productions.get(i).get_rhs()[j];
 			    P.add( new Production(null, this._productions.get(i).get_lhs(),rhs));
@@ -1615,7 +1615,7 @@ export class Grammar {
 
     	for (let i = 0 ; i <  this._productions.size(); i++)
 		{
-			let p: Production = this.productions.get(i);
+			const p: Production = this.productions.get(i);
 			
 			if (p.get_lhs() == s)
 			{

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-labels */
 import { SemanticError } from '../analyser/SystemErros'
 import { IntegerSet, List } from '../DataStructures'
 import { HTMLDialog } from '../HTMLDialog'
@@ -50,7 +51,7 @@ export class FiniteAutomata {
     this._specialCases = specialCases
     this._tokenNames = tokenNames
 
-    for (let ctx of context) {
+    for (const ctx of context) {
       if (ctx[0] == 1) {
         this._hasContext = true
         break
@@ -65,10 +66,10 @@ export class FiniteAutomata {
   private checkSpecialCases(sensitive: boolean) {
     // throws SemanticError
 
-    let sim: FiniteAutomataSimulator = new FiniteAutomataSimulator(this, sensitive)
+    const sim: FiniteAutomataSimulator = new FiniteAutomataSimulator(this, sensitive)
 
     for (let i = 0; i < this._specialCasesIndexes.length; i++) {
-      let index: number[] = this._specialCasesIndexes[i]
+      const index: number[] = this._specialCasesIndexes[i]
 
       for (let j = index[0]; j < index[1]; j++) {
         if (sim.analyse(this._specialCases[j].key) != i)
@@ -86,7 +87,7 @@ export class FiniteAutomata {
   }
 
   public nextState(c: string, state: number): number {
-    let inState: number | undefined = this._transitions.get(state).get(c)
+    const inState: number | undefined = this._transitions.get(state).get(c)
 
     if (inState == undefined) return -1
     else return inState
@@ -101,7 +102,7 @@ export class FiniteAutomata {
   //TODO Representation methods go here
 
   private finalStatesFromState(state: number): Set<number> {
-    let visited: Set<number> = new Set<number>()
+    const visited: Set<number> = new Set<number>()
 
     visited.add(state)
 
@@ -110,11 +111,11 @@ export class FiniteAutomata {
     //TODO Testar os breaks
     loop: while (changed) {
       changed = false
-      for (let st of visited) {
-        for (let v of this._alphabet.list()) {
-          let c: string = String.fromCodePoint(v)
+      for (const st of visited) {
+        for (const v of this._alphabet.list()) {
+          const c: string = String.fromCodePoint(v)
 
-          let next: number = this.nextState(c, st)
+          const next: number = this.nextState(c, st)
 
           if (next != -1 && !visited.has(next)) {
             visited.add(next)
@@ -130,10 +131,10 @@ export class FiniteAutomata {
       }
     }
 
-    let result: Set<number> = new Set<number>()
+    const result: Set<number> = new Set<number>()
 
-    for (let i of visited) {
-      let token = this.tokenForState(i)
+    for (const i of visited) {
+      const token = this.tokenForState(i)
 
       if (token >= 0) result.add(i)
     }
@@ -142,12 +143,12 @@ export class FiniteAutomata {
   }
 
   private tokensFromState(state: number): Set<number> {
-    let visited: Set<number> = this.finalStatesFromState(state)
+    const visited: Set<number> = this.finalStatesFromState(state)
 
-    let result: Set<number> = new Set<number>()
+    const result: Set<number> = new Set<number>()
 
-    for (let i of visited) {
-      let token: number = this.tokenForState(i)
+    for (const i of visited) {
+      const token: number = this.tokenForState(i)
 
       if (token >= 0) result.add(token)
     }
@@ -172,11 +173,11 @@ export class FiniteAutomata {
     for (let i = 1; i < this._transitions.size(); i++) {
       if (this.tokenForState(i) >= 0) this._errors[i] = ''
       else {
-        let tokens: Set<number> = this.tokensFromState(i)
+        const tokens: Set<number> = this.tokensFromState(i)
 
         let bfr: string = 'Erro identificando '
 
-        for (let t of tokens) {
+        for (const t of tokens) {
           if (t > 0) bfr += this._tokenNames.get(t - 2)
           else bfr += '<ignorar>'
 
@@ -209,7 +210,7 @@ export class FiniteAutomata {
   }
 
   public getError(i: number): string {
-    let error: string | undefined = this._errors[i]
+    const error: string | undefined = this._errors[i]
 
     if (error != undefined) return error
     else throw Error('Sem erros')
@@ -236,7 +237,7 @@ export class FiniteAutomata {
 		let result = "";
 		for (let i=0; i < str.length; i++)
 		{
-			let c = str.charAt(i);
+			const c = str.charAt(i);
       
 			switch (c)
 			{
@@ -280,8 +281,8 @@ export class FiniteAutomata {
         "</TR>"+
         "<TR align=center>";
       
-    for(let x of this._alphabet.list()){
-      let c: string = this.escapeSpecialCharacters(String.fromCodePoint(x));
+    for(const x of this._alphabet.list()){
+      const c: string = this.escapeSpecialCharacters(String.fromCodePoint(x));
 			result += "<TD bgcolor=#99FF66 nowrap><B>"+ c +"</B></TD>";
     }
 
@@ -291,7 +292,7 @@ export class FiniteAutomata {
       result += "<TR align=center>"+
               "<TD bgcolor=#99FF66><B>"+it+"</B></TD>";
 
-      let t = this._finals[it];
+      const t = this._finals[it];
       let clr: string | null = null;
       
       if (t > 0)
@@ -320,11 +321,11 @@ export class FiniteAutomata {
         result+="<TD bgcolor="+clr+">?</TD>";
       }
         
-      let x: Map<string, number> = this._transitions.get(it);
+      const x: Map<string, number> = this._transitions.get(it);
 
-      for(let i of this._alphabet.list()){
+      for(const i of this._alphabet.list()){
         result += "<TD width=40 bgcolor=#F5F5F5>";
-        let integ = x.get( String.fromCodePoint(i));
+        const integ = x.get( String.fromCodePoint(i));
         
         if (integ != undefined && integ >= 0)
           result+=integ;

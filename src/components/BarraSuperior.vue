@@ -23,10 +23,21 @@ export default defineComponent({
   },
   methods: {
     gerarCodigo() {
+
       const selecionado = this.store.selecionado
       if (selecionado == -1) return
       const projeto = this.store.listaProjetos[selecionado]
       const options: Options = projeto.optionsGals
+      let linguagemString = '';
+
+      options.input = Options.INPUT_STRING
+
+      switch (options.language)
+      {
+        case Options.LANG_CPP:		linguagemString =  ("C++"); break;
+        case Options.LANG_JAVA:	  linguagemString =  ("Java"); break;
+        case Options.LANG_DELPHI:	linguagemString =  ("Delphi"); break;
+      }
 
       alert(options.toString())
 
@@ -61,13 +72,13 @@ export default defineComponent({
         zip.generateAsync({ type: 'blob' }).then((content) => {
           const link = document.createElement('a')
           const url = URL.createObjectURL(content)
-          link.href = url
-          link.download = 'generatedFiles.zip'
+          link.href = url;
+          link.download = projeto.fileName.slice(0, -5) + " - " + linguagemString + '.zip'
           document.body.appendChild(link)
           link.click()
           document.body.removeChild(link)
           URL.revokeObjectURL(url)
-        })
+        });
 
         alert('Arquivos Gerados!')
       } catch (error) {

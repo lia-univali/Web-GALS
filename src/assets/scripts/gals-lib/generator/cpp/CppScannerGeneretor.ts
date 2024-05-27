@@ -183,7 +183,7 @@ export class CppScannerGeneretor
 			"    setPosition(0);\n"+
 			"}\n"+
 			"\n"+
-			"Token *"+classname+"::nextToken() throw (LexicalError)\n"+
+			"Token *"+classname+"::nextToken()\n"+ //  throw (LexicalError)\n"+
 			"{\n"+
 			"    if ( ! hasInput() )\n"+
 			"        return 0;\n"+
@@ -390,7 +390,7 @@ export class CppScannerGeneretor
 		result += (this.openNamespace(options));
 		
 		const funcs = 
-			"Token *"+classname+"::nextToken() throw (LexicalError)\n"+
+			"Token *"+classname+"::nextToken()\n"+ // throw (LexicalError)\n"+
 			"{\n"+
 			"    return 0;\n"+
 			"}\n"+
