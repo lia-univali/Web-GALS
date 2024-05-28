@@ -13,7 +13,6 @@ import {
 } from '@/assets/scripts/gals-functions'
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
-import DetectFileEncodingAndLanguage, { type FileInfo } from 'detect-file-encoding-and-language'
 
 export default defineComponent({
   name: 'BarraEsquerda',
@@ -89,47 +88,51 @@ export default defineComponent({
       const thatStore = this.store
       const reader = new FileReader()
 
-      DetectFileEncodingAndLanguage(file).then((fileInfo) => {
+      import('detect-file-encoding-and-language').then(({ default: DetectFileEncodingAndLanguage }) => {
+        DetectFileEncodingAndLanguage(file).then((fileInfo) => {
 
-        if(fileInfo.encoding == null) {
-          reader.readAsText(file, 'ISO-8859-4')
-        } else{
-          reader.readAsText(file, fileInfo.encoding.toString())
-        }
-
-        reader.onload = function () {
-          const splitResultado: string[] = (reader.result as string).split(
-            /#Options\n|\n#RegularDefinitions\n|\n#Tokens\n|\n#NonTerminals\n|\n#Grammar\n/
-          )
-          const newProject = {
-            id: thatStore.totalProjetos,
-            fileName: file.name,
-            options: splitResultado[1] == undefined ? '' : splitResultado[1],
-            regularDefinitions: splitResultado[2] == undefined ? '' : splitResultado[2],
-            tokens: splitResultado[3] == undefined ? '' : splitResultado[3],
-            nonTerminals:
-              splitResultado[4] == undefined
-                ? ''
-                : splitResultado[4]
-                    .split('\n')
-                    .filter((str) => !str.startsWith('//'))[0]
-                    .trim(),
-            grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
-            textSimulator: '',
-            consoleExit: '',
-            optionsGals:
-              splitResultado[1] == undefined
-                ? new Options()
-                : new Options().constructorFromString(
-                    splitResultado[1] == undefined ? '' : splitResultado[1]
-                  )
+          if(fileInfo.encoding == null) {
+            reader.readAsText(file, 'ISO-8859-4')
+          } else{
+            reader.readAsText(file, fileInfo.encoding.toString())
           }
 
-          thatStore.addProject(newProject)
-          thatStore.selectLastProject()
-        }
+          reader.onload = function () {
+            const splitResultado: string[] = (reader.result as string).split(
+              /#Options\n|\n#RegularDefinitions\n|\n#Tokens\n|\n#NonTerminals\n|\n#Grammar\n/
+            )
+            const newProject = {
+              id: thatStore.totalProjetos,
+              fileName: file.name,
+              options: splitResultado[1] == undefined ? '' : splitResultado[1],
+              regularDefinitions: splitResultado[2] == undefined ? '' : splitResultado[2],
+              tokens: splitResultado[3] == undefined ? '' : splitResultado[3],
+              nonTerminals:
+                splitResultado[4] == undefined
+                  ? ''
+                  : splitResultado[4]
+                      .split('\n')
+                      .filter((str) => !str.startsWith('//'))[0]
+                      .trim(),
+              grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
+              textSimulator: '',
+              consoleExit: '',
+              optionsGals:
+                splitResultado[1] == undefined
+                  ? new Options()
+                  : new Options().constructorFromString(
+                      splitResultado[1] == undefined ? '' : splitResultado[1]
+                    )
+            }
 
-        input.value = ''
+            thatStore.addProject(newProject)
+            thatStore.selectLastProject()
+          }
+
+          input.value = ''
+        });
+      }).catch(error => {
+        console.error('Error importing DetectFileEncodingAndLanguage:', error);
       });
     },
     abrirModalNovoArquivo() {
