@@ -84,7 +84,7 @@ export default defineComponent({
 
       this.projetos[this.selecionado].optionsGals = newOptions
       this.projetos[this.selecionado].options = newOptions.toString()
-      this.fecharModal();
+      this.fecharModal()
     },
     preencherModal() {
       const form: any = this.$refs.form
@@ -115,11 +115,11 @@ export default defineComponent({
       else if (Options.SCANNER_TABLE_HARDCODE == opcoes.scannerTable)
         form.automato.value = 'Hardcode'
 
-      if (Options.PARSER_LR == opcoes.parser) form.automato.value = 'LR'
-      else if (Options.PARSER_LALR == opcoes.parser) form.automato.value = 'LALR'
-      else if (Options.PARSER_SLR == opcoes.parser) form.automato.value = 'SLR'
-      else if (Options.PARSER_LL == opcoes.parser) form.automato.value = 'LL'
-      else if (Options.PARSER_REC_DESC == opcoes.parser) form.automato.value = 'RD'
+      if (Options.PARSER_LR == opcoes.parser) form.parser.value = 'LR'
+      else if (Options.PARSER_LALR == opcoes.parser) form.parser.value = 'LALR'
+      else if (Options.PARSER_SLR == opcoes.parser) form.parser.value = 'SLR'
+      else if (Options.PARSER_LL == opcoes.parser) form.parser.value = 'LL'
+      else if (Options.PARSER_REC_DESC == opcoes.parser) form.parser.value = 'RD'
     }
   }
 })
@@ -217,21 +217,16 @@ export default defineComponent({
               </tr>
               <tr>
                 <td>
-                  <input
+                  <!-- <input
                     type="checkbox"
                     id="arquivoNamespace"
                     name="namespace"
                     v-model="namespace"
-                  />
+                  /> -->
                   <label for="arquivoNamespace">Package / Namespace</label>
                 </td>
                 <td>
-                  <input
-                    type="input"
-                    :disabled="!namespace"
-                    id="arquivoNamespace"
-                    name="nameNamespace"
-                  />
+                  <input type="input" id="arquivoNamespace" name="nameNamespace" value="" />
                 </td>
               </tr>
             </table>
@@ -290,12 +285,12 @@ export default defineComponent({
               <legend>Descendentes</legend>
 
               <div>
-                <input type="radio" id="sintaticoLLRec" name="parser" value="RD" checked />
+                <input type="radio" id="sintaticoLLRec" name="parser" value="RD" />
                 <label for="sintaticoLLRec">Descendente Recursivo</label>
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLLPred" name="parser" value="LL" checked />
+                <input type="radio" id="sintaticoLLPred" name="parser" value="LL" />
                 <label for="sintaticoLLPred">LL(1)</label>
               </div>
             </fieldset>
@@ -304,17 +299,17 @@ export default defineComponent({
               <legend>Ascendentes</legend>
 
               <div>
-                <input type="radio" id="sintaticoSLR" name="parser" value="SLR" checked />
+                <input type="radio" id="sintaticoSLR" name="parser" value="SLR" />
                 <label for="sintaticoSLR">SLR(1)</label>
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLALR" name="parser" value="LALR" checked />
+                <input type="radio" id="sintaticoLALR" name="parser" value="LALR" />
                 <label for="sintaticoLALR">LALR(1)</label>
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" checked />
+                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" />
                 <label for="sintaticoLRCanonico">LR(1)</label>
               </div>
             </fieldset>
@@ -343,7 +338,7 @@ h2 {
   border-radius: 20px;
   background-color: #dedede;
   padding: 10px;
-  width: 30vw;
+  width: 40vw;
   height: 74vh;
 
   position: fixed;
@@ -360,7 +355,6 @@ h2 {
 
   overflow: auto;
 }
-
 
 @media (max-width: 1100px) {
   .modal__configuracoes {
@@ -379,7 +373,6 @@ h2 {
     padding: 20px;
   }
 }
-
 
 .modal__configuracoes__inner {
   background-color: inherit;
