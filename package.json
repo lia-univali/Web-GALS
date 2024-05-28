@@ -14,6 +14,7 @@
   "dependencies": {
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/prismjs": "^1.26.3",
+    "detect-file-encoding-and-language": "^2.4.0",
     "hashmap": "^2.4.0",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
