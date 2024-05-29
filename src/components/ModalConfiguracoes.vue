@@ -132,7 +132,7 @@ export default defineComponent({
       <span id="close" v-on:click="fecharModal"></span>
 
       <div class="tab">
-        <button class="tablinks" @click="changeTab('Geral')">Geral</button>
+        <button class="tablinks active" @click="changeTab('Geral')">Geral</button>
         <button class="tablinks" @click="changeTab('Léxico')">Léxico</button>
         <button class="tablinks" @click="changeTab('Sintático')">Sintático</button>
       </div>
