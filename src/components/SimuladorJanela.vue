@@ -61,7 +61,7 @@ export default defineComponent({
           projeto.tokens,
           projeto.nonTerminals,
           projeto.grammar,
-          Options.PARSER_SLR,
+          projeto.optionsGals.parser,
           null
         )
         this.resultadoSintatico = result

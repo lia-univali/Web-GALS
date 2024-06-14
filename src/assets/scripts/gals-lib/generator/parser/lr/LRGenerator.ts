@@ -286,7 +286,7 @@ export abstract class LRGenerator {
 				if (p.get_rhs().length > it.position) {
 					const x: number = p.get_rhs()[it.position];
 					const next: List<LRItem> = this.goTo(item, x);
-					const pos: number = l.indexOf(next); // TODO Aqui está o erro. Não é possivel buscar conjunto dentro de lista
+					const pos: number = this.getIndexFromList(l, next) //l.indexOf(next); // TODO Aqui está o erro. Não é possivel buscar conjunto dentro de lista
 					result += "<TD bgcolor=" + color + " align=right>" + pos + "</TD>";
 				}
 				else
@@ -305,6 +305,26 @@ export abstract class LRGenerator {
 			"</HTML>";
 
 		return result.toString();
+	}
+
+
+	private getIndexFromList(list: List<List<LRItem>>, item:  List<LRItem>): number
+	{
+		const listArray = list.toArray();
+
+		for(let i = 0; i < listArray.length; i++){
+			const pivot = listArray[i];
+
+			const item1String = pivot.toString();
+			const item2String = item.toString();
+
+
+			if(item1String === item2String){
+				return i;
+			}
+		}
+		console.log(item);
+		return -1;
 	}
 
 	// private indexOfLRItem(: List<LRItem>): number{

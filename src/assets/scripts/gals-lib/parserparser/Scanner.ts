@@ -92,7 +92,7 @@ export class Scanner implements BasicScanner
 	}
 
 	private isLetter(char: string): boolean {
-		return /^[a-zA-Z]$/.test(char);
+		return /^[a-zA-Zî]+$/.test(char);
 	}
 	  
 

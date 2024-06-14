@@ -141,6 +141,11 @@ export default defineComponent({
 </template>
 
 <style scoped>
+
+a:hover {
+  cursor:pointer;
+}
+
 .logo {
   font-family: 'Lexend';
   font-weight: 700;
