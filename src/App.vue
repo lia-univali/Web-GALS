@@ -87,7 +87,9 @@ export default defineComponent({
 body {
   margin: 0px;
   padding: 0px;
+  height: 100%;
   background-color: #aeaeae;
+  overflow: hidden;
 }
 
 ::-webkit-scrollbar {

@@ -282,6 +282,7 @@ export default defineComponent({
 </template>
 
 <style scoped>
+
 .texto__codigo {
   outline: none;
   resize: none;
@@ -294,7 +295,7 @@ export default defineComponent({
   box-sizing: border-box;
   /* Opera/IE 8+ */
 
-  font-family: 'Fira Mono';
+  font-family: 'Ubuntu Mono';
 
   white-space: pre !important;
 }
@@ -310,7 +311,7 @@ export default defineComponent({
   box-sizing: border-box;
   /* Opera/IE 8+ */
   text-align: center;
-  font-family: 'Fira Mono';
+  font-family: 'Ubuntu Mono';
 }
 
 .caixa {
@@ -325,6 +326,10 @@ export default defineComponent({
   flex-grow: 1;
 
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
+}
+
+.caixa__interna:hover {
+  cursor:text;
 }
 
 .caixa__input {

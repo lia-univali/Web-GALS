@@ -4,6 +4,7 @@ import AreaCodigo from '@/components/AreaCodigo.vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import salvador from '@/assets/scripts/saver'
+
 import {
   lexicalTable,
   nonTerminalsFromGrammar,
@@ -206,6 +207,8 @@ export default defineComponent({
         Options.PARSER_SLR,
         null
       )
+
+      salvador.download(html, this.projetos[this.selecionado].fileName, '.html')
 
       const newTab = window.open()
       if (newTab) {
