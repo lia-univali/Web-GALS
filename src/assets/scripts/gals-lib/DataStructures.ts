@@ -273,6 +273,13 @@ export class IntegerSet {
   public retainAll(is: IntegerSet): boolean {
     const cardinality = this.size
     this._elements = this._elements & is._elements
+
+    for (const bit of this._elements_set) {
+      if (!is._elements_set.has(bit)) {
+        this._elements_set.delete(bit);
+      }
+    }
+
     return cardinality != this.size
   }
 
