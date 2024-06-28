@@ -16,76 +16,76 @@ import { LLConflictSolver } from "./LLConflictSolver";
 
 
 export class LLParser
-{	
+{
 	private g: Grammar | undefined;
 
-    constructor(g: Grammar) //throws NotLLException
-    {
-    	if (! g.isFactored())
-    		throw new NotLLException("Gramática não Fatorada");
-    	if (g.hasLeftRecursion())
+	constructor(g: Grammar) //throws NotLLException
+	{
+		if (! g.isFactored())
+			throw new NotLLException("Gramática não Fatorada");
+		if (g.hasLeftRecursion())
 			throw new NotLLException("Gramática possui Recursão à Esquerda");
-    	
-    	this.g = g;    	
-    }
-    
-    public getGrammar(): Grammar| undefined
-    {
-    	return this.g;
-    }
 
-    /**
-     * @param p produção para se calcular o conjunto predict
-     *
-     * @return BitSet contendo os tokens do lookahead de p
-     */
-    private lookahead(p: Production): IntegerSet
-    {
+		this.g = g;
+	}
+
+	public getGrammar(): Grammar| undefined
+	{
+		return this.g;
+	}
+
+	/**
+	 * @param p produção para se calcular o conjunto predict
+	 *
+	 * @return BitSet contendo os tokens do lookahead de p
+	 */
+	private lookahead(p: Production): IntegerSet
+	{
 		if(this.g == null) throw new SyntaticError("Gramatica é nula");
-        // let result: IntegerSet = this.g.first(p.get_rhs());
-        // if (result.get(Grammar.EPSILON))
-        // {
-        //     result.clear(Grammar.EPSILON);
-        //     result.orBit(this.g.followSet[p.get_lhs()]);
-        // }
-        const result: IntegerSet = this.g.first(p.get_rhs());
-        if (result.contains(0)) {
-            result.delete(0);
-            result.addAll(this.g.followSet[p.get_lhs()]);
-        }
-        return result;
-    }
+		// let result: IntegerSet = this.g.first(p.get_rhs());
+		// if (result.get(Grammar.EPSILON))
+		// {
+		//     result.clear(Grammar.EPSILON);
+		//     result.orBit(this.g.followSet[p.get_lhs()]);
+		// }
+		const result: IntegerSet = this.g.first(p.get_rhs());
+		if (result.contains(0)) {
+			result.delete(0);
+			result.addAll(this.g.followSet[p.get_lhs()]);
+		}
+		return result;
+	}
 
-    public generateTable(): number[][]
-    {
+	public generateTable(): number[][]
+	{
 		if(this.g == null) throw new SyntaticError("Gramatica é nula");
 
-    	const symbols: string[] = this.g.symbols;
-        const table: IntegerSet[][] = [];
+		const symbols: string[] = this.g.symbols;
+		const table: IntegerSet[][] = [];
 
-        for (let i = 0; i < (symbols.length - this.g.FIRST_NON_TERMINAL); i++){
-            table[i] = [];
-            for (let j = 0; j < this.g.FIRST_NON_TERMINAL-1; j++)
-                table[i][j] = new IntegerSet();
-        }
+		for (let i = 0; i < (symbols.length - this.g.FIRST_NON_TERMINAL); i++){
+			table[i] = [];
+			for (let j = 0; j < this.g.FIRST_NON_TERMINAL-1; j++)
+				table[i][j] = new IntegerSet();
+		}
 
-        for (let i=0; i< this.g.productions.size(); i++)
-        {
-            const p: Production = this.g.productions.get(i);
-            const pred: IntegerSet = this.lookahead(p);
-            for (let j = 1; j < this.g.FIRST_NON_TERMINAL ; j++)
-            {
-            	if (pred.contains(j))
-            	{
-                	table[p.get_lhs()- this.g.FIRST_NON_TERMINAL][j-1].add(i);
-            	}
-            }
-        }
+		for (let i=0; i< this.g.productions.size(); i++)
+		{
+			const p: Production = this.g.productions.get(i);
+			const pred: IntegerSet = this.lookahead(p);
+			for (let j = 1; j < this.g.FIRST_NON_TERMINAL ; j++)
+			{
+				if (pred.contains(j))
+				{
+					table[p.get_lhs()- this.g.FIRST_NON_TERMINAL][j-1].add(i);
+				}
+			}
+		}
 
 		const conflict: LLConflictSolver = new LLConflictSolver();
 
 		return this.resolveConflicts(table, conflict);
-    }
+	}
 
 	private resolveConflicts(table: IntegerSet[][], cs: LLConflictSolver): number[][]
 	{
@@ -93,29 +93,30 @@ export class LLParser
 		if(this.g == null) throw new SyntaticError("Gramatica é nula");
 
 		const result: number[][]  = [] //new int[table.length][table[0].length];
-		
 
-		for (let i=0; i<table.length; i++)
+
+		for (let i=0; i<table.length; i++){
+			result[i] = [];
 			for (let j=0; j<table[i].length; j++)
-            {
-                switch (table[i][j].size)
-                {
-                    case 0:
-                        result[i][j] = -1;
-                        break;        
-                    case 1:
-                        result[i][j] = table[i][j].first();
-                        break;
-                    default:
+			{
+				switch (table[i][j].size)
+				{
+					case 0:
+						result[i][j] = -1;
+						break;
+					case 1:
+						result[i][j] = table[i][j].first();
+						break;
+					default:
 						cs.setup(table[i][j], i);
-                        result[i][j] = cs.resolve(this.g, j);
-                        break;
-                }
-            }
-			
+						result[i][j] = cs.resolve(this.g, j);
+						break;
+				}
+			}
+		}
 		return result;
-	}    
-	
+	}
+
 	public tableAsHTML(): string
 	{
 
@@ -131,60 +132,60 @@ export class LLParser
 			"</HEAD>"+
 			"<BODY><FONT face=\"Verdana, Arial, Helvetica, sans-serif\">"+
 			"<TABLE border=1 cellspacing=0>");
-			
+
 		result +=(
 			"<TR align=center>"+
 			"<TD bgcolor=black><FONT color=white><B>&nbsp;</B></FONT></TD>"+
 			"<TD bgcolor=black><FONT color=white><B>$</B></FONT></TD>");
-		
+
 		for (let i=Grammar.FIRST_TERMINAL; i<this.g.FIRST_NON_TERMINAL; i++)
 		{
 			result +=("<TD nowrap bgcolor=black><FONT color=white><B>"+HTMLDialog.translateString(this.g.symbols[i])+"</B></FONT></TD>");
 		}
-		
+
 		result +=(
 			"</TR>");
-		
+
 		for (let i=0; i<tbl.length; i++)
 		{
 			result +=(
 				"<TR align=center>"+
 				"<TD nowrap bgcolor=black><FONT color=white><B>"+HTMLDialog.translateString(this.g.symbols[i+this.g.FIRST_NON_TERMINAL])+"</B></FONT></TD>");
-			
+
 			for (let j=0; j<tbl[i].length; j++)
 			{
 				const val = tbl[i][j];
-				
-				if (val >= 0)					
+
+				if (val >= 0)
 					result +=("<TD width=40 bgcolor=#F5F5F5>"+val+"</TD>");
 				else
 					result +=("<TD width=40 bgcolor=#F5F5F5>-</TD>");
 			}
-				
+
 			result +=(
 				"</TR>");
 		}
-		
+
 		result +=("</TABLE>");
-			
-		result +=(			
+
+		result +=(
 			"<BR></FONT><CODE><TABLE border=0>");
-			
+
 		for (let i=0;i<this.g.productions.size(); i++)
 		{
 			result +=("<TR>");
-			
+
 			result +=("<TD align=right nowrap>"+i+"&nbsp;-&nbsp;</TD>");
 			result +=("<TD>"+HTMLDialog.translateString(this.g.productions.get(i).toString())+"</TD>");
-			
+
 			result +=("</TR>");
 		}
-			
+
 		result +=(
 			"</TABLE></CODE>"+
 			"</BODY>"+
 			"</HTML>");
-				
+
 		return result.toString();
-	}	
+	}
 }
