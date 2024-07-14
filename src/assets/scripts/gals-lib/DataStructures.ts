@@ -47,7 +47,7 @@ export class List<T> {
   private items: Array<T>
 
   constructor(initialCapacity?: number) {
-    if (initialCapacity != undefined) this.items = new Array<T>(5)
+    if (initialCapacity != undefined) this.items = new Array<T>(initialCapacity)
     else this.items = new Array<T>()
   }
 
@@ -124,7 +124,8 @@ export class List<T> {
     //   result += "]";
     //   return result;
     // }else
-      return `[${this.items.toString().split(',').join(', ')}]`
+    //  return `[${this.items.toString().split(',').join(', ')}]` // Original
+      return `[${this.items.toString()}]` // Simplificado
   }
 
   toJSON() {
