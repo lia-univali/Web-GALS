@@ -136,6 +136,204 @@ export class List<T> {
   }
 }
 
+export class OrderedIntegerSet {
+  private _elements: Array<number>;
+
+  [Symbol.toStringTag]: string = "OrderedIntegerSet";
+
+  public constructor(data?: OrderedIntegerSet | number) {
+    if (data === undefined) {
+      this._elements = [];
+    } else {
+      if (data instanceof OrderedIntegerSet) {
+        //        this._elements = data._elements.slice(); // Shallow Copy - apenas "number", então funciona como deep copy neste caso
+        this._elements = [...data._elements]; // Spread operator - idem slice()
+      } else {
+        this._elements = [data];
+      }
+    }
+  }
+
+  public static fromArray(data: Array<number>): OrderedIntegerSet {
+    const newObj = new OrderedIntegerSet();
+    newObj.addAllArray(data);
+    return newObj;
+  }
+
+  public clone(): OrderedIntegerSet {
+    return new OrderedIntegerSet(this);
+  }
+
+  public get size(): number {
+    return this._elements.length;
+  }
+
+  public isEmpty(): boolean {
+    return this._elements.length === 0;
+  }
+
+  public add(data: number): boolean {
+    // Operação de inserção ordenada
+    for (let i = 0; i < this._elements.length; i++) {
+      if (this._elements[i] == data) {
+        // Se o elemento já existe, não insere
+        return false; // Inserção não ocorreu
+      }
+
+      if (this._elements[i] > data) {
+        // Se a posição verificada tiver um número maior, insere nesta posição
+        this._elements.splice(i, 0, data);
+        return true; // Inserção realizada
+      }
+    }
+
+    // Se passar por todas as posições e não encontrar nenhum valor maior
+    this._elements.push(data); // Insere no final
+    return true; // Inserção realizada
+  }
+
+  public first(): number {
+    if (this._elements.length == 0) {
+      return -1; // Não possui 1°
+    }
+
+    return this._elements[0]; // Retorna o primeiro elemento
+  }
+
+  public contains(data: number): boolean {
+    return this._elements.includes(data);
+  }
+
+  public has(data: number): boolean {
+    // Idem contains. TODO: Padronizar e usar apenas 1, contains ou has
+    return this._elements.includes(data);
+  }
+
+  public delete(data: number): boolean {
+    for (let i = 0; i < this._elements.length; i++) {
+      if (this._elements[i] === data) {
+        this._elements.splice(i, 1);
+        return true;
+      }
+    }
+
+    return false; // Elemento não removido, pois não estava no set
+  }
+
+  public clear(): void {
+    this._elements.length = 0; // VERIFICAR, pode ser feito: "this._elements.splice(0, this._elements.length);"
+  }
+
+  public addAll(data: OrderedIntegerSet): boolean {
+    let sizeBefore: number = this._elements.length;
+    if (this._elements[this._elements.length - 1] < data._elements[0]) {
+      this._elements.push(...data._elements);
+      return sizeBefore != this._elements.length;
+    }
+
+    // Estratégia de MERGE do MergeSort, mas respeitando a regra de conjunto: não permitir duplicatas
+    let i: number = 0;
+    let x: number = 0;
+    let newArray = [];
+    while (i < this._elements.length || x < data._elements.length) {
+      if (i == this._elements.length) {
+        while (x < data._elements.length) {
+          newArray.push(data._elements[x++]);
+        }
+        break;
+      }
+      if (x == data._elements.length) {
+        while (i < this._elements.length) {
+          newArray.push(this._elements[i++]);
+        }
+        break;
+      }
+
+      if (this._elements[i] == data._elements[x]) {
+        newArray.push(this._elements[i]);
+        i++;
+        x++;
+      } else {
+        if (this._elements[i] < data._elements[x]) {
+          newArray.push(this._elements[i++]);
+        } else {
+          newArray.push(data._elements[x++]);
+        }
+      }
+    }
+    this._elements = newArray;
+    return sizeBefore != this._elements.length;
+  }
+
+  public addAllArray(data: Array<number>): boolean {
+    const sizeBefore: number = this._elements.length;
+    data.forEach((element) => this.add(element));
+    return sizeBefore != this._elements.length;
+  }
+
+  // retainAll é a operação de "intersecção" de conjuntos - não usada!
+  public intersection(
+    data: OrderedIntegerSet,
+    inplace: boolean = true
+  ): boolean | OrderedIntegerSet {
+    const sizeBefore: number = this._elements.length;
+    const newArray: Array<number> = [];
+    for (const element of data._elements) {
+      if (this.contains(element)) {
+        newArray.push(element);
+      }
+    }
+    if (inplace) {
+      this._elements = newArray;
+      return sizeBefore != this._elements.length;
+    }
+    return OrderedIntegerSet.fromArray(newArray);
+  }
+
+  list(): Array<number> {
+    return this._elements;
+  }
+
+  length(): number {
+    return this._elements.length;
+  }
+
+  entries(): IterableIterator<[number, number]> {
+    return this._elements.entries();
+  }
+
+  keys(): IterableIterator<number> {
+    return this._elements.keys();
+  }
+
+  values(): IterableIterator<number> {
+    return this._elements.values();
+  }
+
+  equals(otherSet: OrderedIntegerSet): boolean {
+    const otherList = otherSet._elements;
+    const list = this._elements;
+
+    if (list.length !== otherList.length) return false;
+
+    return list.every((value, index) => value === otherList[index]);
+  }
+
+  [Symbol.iterator](): IterableIterator<number> {
+    return this._elements.values();
+  }
+
+  // Mantida igual
+  toJSON() {
+    return { values: this._elements };
+  }
+
+  // Simplificada
+  toString(): string {
+    return `(${this._elements.toString()})`;
+  }
+}
+
 export class IntegerSet {
   private _elements_set: Set<number>
   private _elements: number; // TODO: Passar para Bigint
