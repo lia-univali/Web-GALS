@@ -38,10 +38,11 @@ export class LRItem //implements Comparable
 	{
 		try
 		{
-			return obj.production 	== this._production && 
-				   obj.position 	== this._position 	&& 
-				   this._lookahead 	== obj.lookahead 	&& 
-				   obj._g 			== this._g;
+			//return obj.production 	== this._production
+			return obj.production.equals(this._production)
+				   && obj.position   	== this._position 	
+				   && this._lookahead == obj.lookahead 
+//					 	&& obj._g 			== this._g;
 		}
 		catch (e)
 		{

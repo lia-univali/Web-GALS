@@ -12,24 +12,21 @@ export class SLRGenerator extends LRGenerator
 		super(g);
 	}
 	
-	protected closure(items: List<LRItem>): List<LRItem>
-    {
+	protected closure(items: List<LRItem>): List<LRItem> {
     	const result = new List<LRItem>();
-    	items.toArray().forEach(i => result.add(i));
+    	//items.toArray().forEach(i => result.add(i));
+			result.setItems(items.toArray());
 
-    	for (let i=0; i<result.size(); i++)
-    	{
+    	for (let i=0; i<result.size(); i++) {
     		const it: LRItem = result.get(i);
     		
     		const p: Production = it.production;
     		if (it.position < p.get_rhs().length)
     		{
 	    		const s: number = p.get_rhs()[it.position];
-	    		if (this.g.isNonTerminal(s))
-	    		{
+	    		if (this.g.isNonTerminal(s)) {
 	    			const bs: OrderedIntegerSet = this.g.productionsFor(s);
-	    			for (const iter of bs.list())
-	    			{
+	    			for (const iter of bs.list()) {
 		    			const n = new LRItem(this.g.productions.get(iter), 0);
 
 		    			if ( ! this.contains(result, n) )
@@ -52,27 +49,22 @@ export class SLRGenerator extends LRGenerator
 		return false;
 	}
     
-	protected goTo(items: List<LRItem>, s: number): List<LRItem>
-    {
+	protected goTo(items: List<LRItem>, s: number): List<LRItem> {
     	const result: List<LRItem> = new List<LRItem>();
     	
-    	for (const i of items.toArray())
-		{
-			const item: LRItem = i;
-			const p: Production = item.production;
-			
-			if (item.position < p.get_rhs().length)
-			{
-				const symb = p.get_rhs()[item.position];
+    	for (const item of items.toArray()) {
+				const p: Production = item.production;
 				
-				if (symb == s)
-				{
-					result.add(new LRItem(item.production, item.position+1));
+				if (item.position < p.get_rhs().length) {
+					const symb = p.get_rhs()[item.position];
+					
+					if (symb == s) {
+						result.add(new LRItem(item.production, item.position+1));
+					}
 				}
 			}
-		}
 		
-		return this.closure(result);
+			return this.closure(result);
     }
     
     /**
@@ -81,60 +73,55 @@ export class SLRGenerator extends LRGenerator
      */
 	protected computeItems(): List<List<LRItem>>
     {
-		// //console.log("_____________Compute Items SLR___________");
-    	const s: List<LRItem> = new List();
-    	const sp: OrderedIntegerSet = this.g.productionsFor(this.g.startSymbol);
-    	const f: number =  sp.list()[0];//new BitSetIterator(sp).nextInt();
-    	s.add(new LRItem(this.g.productions.get(f), 0));
-    	const c: List<List<LRItem>> = new List();
-    	c.add(this.closure(s));
-    	
-    	let repeat = true;
-    	//let teste = 0;
-    	while (repeat)
-    	{
-    		start:
-			{
-	    		repeat = false;
-	    	
-				////console.log("Teste Start ___________________");
-				
-	    		for (const items of c.toArray())
-	    		{
-	    			// let items: List<LRItem> = it.get(0);
-	    			
-	    			for (let i=0; i<items.size(); i++)
-	    			{
-	    				const m: LRItem = items.get(i);
-	    				// //console.log("i: " + i + " item size: " + items.size());
-	    				const p: Production = m.production;
-	    				if (p.get_rhs().length > m.position)
-	    				{
-							// //console.log(p.get_rhs().length +" > " + m.position);
-							////console.log("indice: " + teste++);
-							////console.log("items: " + items.toString() + "  |  p.get_rhs: " + p.get_rhs()[m.position]);
-	    					const gt: List<LRItem> = this.goTo(items, p.get_rhs()[m.position]);
-							////console.log("gt: " + gt.toString());
-		    				//if (gt.size() != 0 && ! c.contains(gt))
-							//teste++;
-							// //console.log("gt.size(): " + gt.size() +" | containsList: " + this.containsList(c, gt));
-							if (gt.size() != 0 && ! this.containsList(c, gt))
-		    				{
-		    					c.add(gt);
-		    					repeat = true;
-								////console.log("Final Saida Start ___________________")
-		    					break start;
-		    				}
-	    				}
-	    			}
-	    		}
-			}
-			//if(teste == 10) break;
-    	}
+      // //console.log("_____________Compute Items SLR___________");
+      const s: List<LRItem> = new List()
+      const sp: OrderedIntegerSet = this.g.productionsFor(this.g.startSymbol)
+      //const f: number =  sp.list()[0];//new BitSetIterator(sp).nextInt();
+      const f: number = sp.first(); //new BitSetIterator(sp).nextInt();
+      s.add(new LRItem(this.g.productions.get(f), 0))
+      const c: List<List<LRItem>> = new List()
+      c.add(this.closure(s))
 
-		// //console.log("teste: " + teste);
+      let repeat = true
+      //let teste = 0;
+      while (repeat) {
+        start: {
+          repeat = false
 
-    	return c;
+          ////console.log("Teste Start ___________________");
+
+          for (const items of c.toArray()) {
+            // let items: List<LRItem> = it.get(0);
+
+            for (let i = 0; i < items.size(); i++) {
+              const m: LRItem = items.get(i)
+              // //console.log("i: " + i + " item size: " + items.size());
+              const p: Production = m.production
+              if (p.get_rhs().length > m.position) {
+                // //console.log(p.get_rhs().length +" > " + m.position);
+                ////console.log("indice: " + teste++);
+                ////console.log("items: " + items.toString() + "  |  p.get_rhs: " + p.get_rhs()[m.position]);
+                const gt: List<LRItem> = this.goTo(items, p.get_rhs()[m.position])
+                ////console.log("gt: " + gt.toString());
+                //if (gt.size() != 0 && ! c.contains(gt))
+                //teste++;
+                // //console.log("gt.size(): " + gt.size() +" | containsList: " + this.containsList(c, gt));
+                if (gt.size() != 0 && !this.containsList(c, gt)) {
+                  c.add(gt)
+                  repeat = true
+                  ////console.log("Final Saida Start ___________________")
+                  break start
+                }
+              }
+            }
+          }
+        }
+        //if(teste == 10) break;
+      }
+
+      // //console.log("teste: " + teste);
+
+      return c
     }
 
 

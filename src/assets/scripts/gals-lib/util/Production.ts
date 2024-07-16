@@ -88,8 +88,8 @@ export class Production {
         return bfr.join('');
     }
 
-    equals(obj: any): boolean {
-        const p: Production = obj;
+    equals(p: any): boolean {
+        
         if (this.lhs !== p.lhs) {
             return false;
         } else if (this.rhs.length !== p.rhs.length) {
