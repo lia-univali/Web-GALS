@@ -142,14 +142,35 @@ export class SLRGenerator extends LRGenerator
 	{
 
 		// TODO Revisar comparador
+		const itemArray = item.toArray();
 		for(const pivot of list){
       // Com String - implementação inicial
+			/*
       const item1String = pivot.toString()
       const item2String = item.toString()
       if (item1String === item2String) {
         return true
       }
-			
+			*/
+      // Ajustada - melhorar desempenho
+			const pivotArray = pivot.toArray()
+			if(pivotArray.length !== itemArray.length) {
+				continue;
+			}
+
+			let contained = true;
+
+			for(let i = 0; i < pivotArray.length; i++) {
+				const pivotItem : LRItem = pivotArray[i];
+				const it : LRItem = itemArray[i];
+				if( !pivotItem.equals(it) ) {
+					contained = false;
+					break;
+				}
+			}
+
+			if(contained) return true;
+
     }
 
 		return false;
@@ -265,21 +286,38 @@ export class SLRGenerator extends LRGenerator
 
 	private indexOfListLRItem(list: List<List<LRItem>>, item: List<LRItem>): number
 	{
+    // TODO Revisar comparador
+    const itemArray = item.toArray()
+    for (let i = 0; i < list.size(); i++) {
+      // Com String - implementação inicial
+      /*
+      const item1String = pivot.toString()
+      const item2String = item.toString()
+      if (item1String === item2String) {
+        return true
+      }
+			*/
+      // Ajustada - melhorar desempenho
+      const pivotArray = list.get(i).toArray();
+      if (pivotArray.length !== itemArray.length) {
+        continue;
+      }
 
-		// TODO Revisar comparador
-		let index = 0;
-		for(const pivot of list){
+      let contained = true
 
-			const item1String = pivot.toString();
-			const item2String = item.toString();
+      for (let x = 0; x < pivotArray.length; x++) {
+        const pivotItem: LRItem = pivotArray[x]
+        const it: LRItem = itemArray[x]
+        if (!pivotItem.equals(it)) {
+          contained = false
+          break
+        }
+      }
 
-			if(item1String === item2String){
-				return index;
-			}
-			index++;
-		}
+      if (contained) return i;
+    }
 
-		return -1;
-	}
+    return -1
+  }
 
 }
