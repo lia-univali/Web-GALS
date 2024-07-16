@@ -1,7 +1,7 @@
 import { OrderedIntegerSet, List } from "../../DataStructures";
 import { HTMLDialog } from "../../HTMLDialog";
 import { Production } from "../../util/Production";
-import { cloneDeep } from "lodash";
+//import { cloneDeep } from "lodash";
 // import { List<Production> } from "../../util/ProfuctionList";
 
 export class Grammar {
@@ -35,11 +35,16 @@ export class Grammar {
      */
     constructor(terminals: string[], nonTerminals: string[], productions: List<Production>, startSymbol: number) { 
 
-        const terminalsCopy       = cloneDeep(terminals);
-        const nonTerminalsCopy    = cloneDeep(nonTerminals);
-        const productionsCopy     = cloneDeep(productions);
-        const startSymbolCopy     = cloneDeep(startSymbol);
-        
+        //const terminalsCopy       = cloneDeep(terminals);
+        const terminalsCopy        = [...terminals]
+        //const nonTerminalsCopy    = cloneDeep(nonTerminals);
+        const nonTerminalsCopy    = [...nonTerminals]
+        //const productionsCopy     = cloneDeep(productions);
+        const productionsCopy     = new List<Production>();
+        productions.toArray().forEach( x => productionsCopy.add(x.clone()) )
+        //const startSymbolCopy     = cloneDeep(startSymbol);
+        const startSymbolCopy     = startSymbol
+
         this.setSymbols(terminalsCopy, nonTerminalsCopy, startSymbolCopy);
         this.setProductions(productionsCopy);
         this.fillFirstSet();
@@ -113,11 +118,13 @@ export class Grammar {
     }
 
     get terminals(): string[] {
-        return cloneDeep(this.symbols.slice(2, this.FIRST_NON_TERMINAL));
+        //return cloneDeep(this.symbols.slice(2, this.FIRST_NON_TERMINAL));
+        return this.symbols.slice(2, this.FIRST_NON_TERMINAL)
     }
 	
     get nonTerminals(): string[] {
-        return cloneDeep(this.symbols.slice(this.FIRST_NON_TERMINAL, this.FIRST_SEMANTIC_ACTION()));
+        //return cloneDeep(this.symbols.slice(this.FIRST_NON_TERMINAL, this.FIRST_SEMANTIC_ACTION()));
+        return this.symbols.slice(this.FIRST_NON_TERMINAL, this.FIRST_SEMANTIC_ACTION())
     }
 
     get startSymbol(): number {
@@ -132,22 +139,26 @@ export class Grammar {
 		const newSymbols: number =  2 + this.SEMANTIC_ACTION_COUNT;
 
         const nonTerminalOld: string[] = this.nonTerminals;
-        const nonTerminalNew: string[] = cloneDeep([...nonTerminalOld, ...new Array(newSymbols)]);
+        //const nonTerminalNew: string[] = cloneDeep([...nonTerminalOld, ...new Array(newSymbols)]);
+        const nonTerminalNew: string[] = [...nonTerminalOld, ...new Array(newSymbols)]
 
-		const productioList: List<Production> = new List<Production>();
-		
-        this._productions.toArray().forEach( i => productioList.add(i))
+//		const productionList: List<Production> = new List<Production>();
+//        this._productions.toArray().forEach( i => productionList.add(i))
+
+        const productionList: List<Production> = new List<Production>(0)
+        //productionList.addAll(this._productions); // addAll com problema.
+        productionList.setItems(this._productions.toArray());
 
 		for (let i = 0 ; i < this.SEMANTIC_ACTION_COUNT + 1; i++) {
 			nonTerminalNew[nonTerminalOld.length+i] = "<#"+i+">";
-            productioList.add(new Production(null, this.FIRST_SEMANTIC_ACTION() + i, []));// TODO: Validar tipo de entrada
+            productionList.add(new Production(null, this.FIRST_SEMANTIC_ACTION() + i, []));// TODO: Validar tipo de entrada
 		}
 
 		nonTerminalNew[nonTerminalNew.length - 1] = "<-START->";
         const production: Production =  new Production(null, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1,  [this.startSymbol]);       
-		productioList.add(production);
+		productionList.add(production);
 
-		const grammar: Grammar = new Grammar(terminals, nonTerminalNew, productioList, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1);
+		const grammar: Grammar = new Grammar(terminals, nonTerminalNew, productionList, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1);
 		
 		grammar.normalLR = true;
 		
@@ -255,7 +266,8 @@ export class Grammar {
 				
             //console.log("k: " + k + " | start: " + start);
 
-			let f: OrderedIntegerSet = cloneDeep(this.first(x[start]));
+			//let f: OrderedIntegerSet = cloneDeep(this.first(x[start]));
+            let f: OrderedIntegerSet = this.first( x[start] ).clone()
             f.delete(Grammar.EPSILON);
 
             //console.log("f: " + f.toString());
@@ -268,7 +280,8 @@ export class Grammar {
             while (i < k-1 && this.first(x[i]).has(Grammar.EPSILON))
             {
                 i++;
-                f =  cloneDeep(this.first(x[i]));
+                //f =  cloneDeep(this.first(x[i]));
+                f = this.first(x[i]).clone();
                 f.delete(Grammar.EPSILON);
                 result.addAll(f);
 
@@ -339,7 +352,8 @@ export class Grammar {
 
             for (let i = 0; i < this._productions.size(); i++) {
                 const P = this._productions.get(i);
-                const old = cloneDeep(this.firstSet[P.get_lhs()]);
+                //const old = cloneDeep(this.firstSet[P.get_lhs()]);
+                const old = this.firstSet[P.get_lhs()].clone();
                 const testeFirst = this.first(P.get_rhs());
                 //console.log(`Index: ${i} | fist: ${testeFirst.toString()}`);
                 this.firstSet[P.get_lhs()].addAll(testeFirst);
@@ -392,14 +406,16 @@ export class Grammar {
 
                         if( P.get_rhs().length > j+1 ) {
                             s.delete(Grammar.EPSILON);
-                            const old: OrderedIntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                            //const old: OrderedIntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                            const old: OrderedIntegerSet = this.followSet[P.get_rhs()[j]].clone();
                             this.followSet[P.get_rhs()[j]].addAll(s);
                             if (!changes && !this.followSet[P.get_rhs()[j]].equals(old))
                                 changes = true;
                         }
 
                         if (deriveEpsilon) {
-                        	const old: OrderedIntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                        	//const old: OrderedIntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                            const old: OrderedIntegerSet = this.followSet[P.get_rhs()[j]].clone();
                             this.followSet[P.get_rhs()[j]].addAll(this.followSet[P.get_lhs()]);
                             if (!changes && !this.followSet[P.get_rhs()[j]].equals(old))
                                 changes = true;

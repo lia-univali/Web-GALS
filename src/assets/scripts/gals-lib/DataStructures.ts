@@ -66,9 +66,9 @@ export class List<T> {
   add(value: T): void {
     this.items.push(value)
   }
-
+  // Verificar, parece não estar OK
   addAll(list: List<T>): void {
-    this.items.concat(list.toArray());
+    this.items.concat(list.items);
   }
 
   get(index: number): T {

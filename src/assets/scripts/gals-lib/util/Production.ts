@@ -14,7 +14,12 @@ export class Production {
     	this.grammar = g;
         this.lhs = lhs;
         this.rhs = rhs === undefined? [] : rhs;
-    }    
+    }
+
+
+    clone() : Production {
+        return new Production(null,this.lhs, [...this.rhs] )
+    }
 
     get_lhs(): number {
         return this.lhs;
