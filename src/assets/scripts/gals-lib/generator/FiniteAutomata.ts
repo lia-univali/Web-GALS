@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-labels */
 import { SemanticError } from '../analyser/SystemErros'
-import { IntegerSet, List } from '../DataStructures'
+import { OrderedIntegerSet, List } from '../DataStructures'
 import { HTMLDialog } from '../HTMLDialog'
 import { FiniteAutomataSimulator } from '../simulator/FiniteAutomataSimulator'
 
@@ -26,7 +26,7 @@ export class FiniteAutomata {
   private _transitions: List<Map<string, number>>
   private _finals: number[]
   private _context: number[][]
-  private _alphabet: IntegerSet
+  private _alphabet: OrderedIntegerSet
   private _tokenNames: List<string>
   private _errors: string[] = []
   private _hasContext: boolean = false
@@ -34,7 +34,7 @@ export class FiniteAutomata {
   private _specialCases: KeyValuePar[]
 
   constructor(
-    alphabet: IntegerSet,
+    alphabet: OrderedIntegerSet,
     transitions: List<Map<string, number>>,
     finals: number[],
     specialCasesIndexes: number[][],

@@ -3,7 +3,7 @@
  * @author Gesser
  */
 
-import { IntegerSet, List } from "../../../DataStructures";
+import { OrderedIntegerSet, List } from "../../../DataStructures";
 import { HTMLDialog } from "../../../HTMLDialog";
 import { Production } from "../../../util/Production";
 import { Grammar } from "../Grammar";
@@ -34,7 +34,7 @@ export abstract class LRGenerator {
 		const result = new List<string>();
 
 		for (let state = 0; state < table.length; state++) {
-			const bs: IntegerSet = new IntegerSet();
+			const bs: OrderedIntegerSet = new OrderedIntegerSet();
 			for (let j = 1; j < this.g.FIRST_NON_TERMINAL; j++) {
 				if (table[state][j - 1].getType() != Command.ERROR)
 					bs.add(j);

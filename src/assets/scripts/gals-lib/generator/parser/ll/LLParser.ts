@@ -1,4 +1,4 @@
-import { IntegerSet } from "../../../DataStructures";
+import { OrderedIntegerSet } from "../../../DataStructures";
 import { HTMLDialog } from "../../../HTMLDialog";
 import { NotLLException, SyntaticError } from "../../../analyser/SystemErros";
 import { Production } from "../../../util/Production";
@@ -39,16 +39,16 @@ export class LLParser
 	 *
 	 * @return BitSet contendo os tokens do lookahead de p
 	 */
-	private lookahead(p: Production): IntegerSet
+	private lookahead(p: Production): OrderedIntegerSet
 	{
 		if(this.g == null) throw new SyntaticError("Gramatica é nula");
-		// let result: IntegerSet = this.g.first(p.get_rhs());
+		// let result: OrderedIntegerSet = this.g.first(p.get_rhs());
 		// if (result.get(Grammar.EPSILON))
 		// {
 		//     result.clear(Grammar.EPSILON);
 		//     result.orBit(this.g.followSet[p.get_lhs()]);
 		// }
-		const result: IntegerSet = this.g.first(p.get_rhs());
+		const result: OrderedIntegerSet = this.g.first(p.get_rhs());
 		if (result.contains(0)) {
 			result.delete(0);
 			result.addAll(this.g.followSet[p.get_lhs()]);
@@ -61,18 +61,18 @@ export class LLParser
 		if(this.g == null) throw new SyntaticError("Gramatica é nula");
 
 		const symbols: string[] = this.g.symbols;
-		const table: IntegerSet[][] = [];
+		const table: OrderedIntegerSet[][] = [];
 
 		for (let i = 0; i < (symbols.length - this.g.FIRST_NON_TERMINAL); i++){
 			table[i] = [];
 			for (let j = 0; j < this.g.FIRST_NON_TERMINAL-1; j++)
-				table[i][j] = new IntegerSet();
+				table[i][j] = new OrderedIntegerSet();
 		}
 
 		for (let i=0; i< this.g.productions.size(); i++)
 		{
 			const p: Production = this.g.productions.get(i);
-			const pred: IntegerSet = this.lookahead(p);
+			const pred: OrderedIntegerSet = this.lookahead(p);
 			for (let j = 1; j < this.g.FIRST_NON_TERMINAL ; j++)
 			{
 				if (pred.contains(j))
@@ -87,7 +87,7 @@ export class LLParser
 		return this.resolveConflicts(table, conflict);
 	}
 
-	private resolveConflicts(table: IntegerSet[][], cs: LLConflictSolver): number[][]
+	private resolveConflicts(table: OrderedIntegerSet[][], cs: LLConflictSolver): number[][]
 	{
 
 		if(this.g == null) throw new SyntaticError("Gramatica é nula");

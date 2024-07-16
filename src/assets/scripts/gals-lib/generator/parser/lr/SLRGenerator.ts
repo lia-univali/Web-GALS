@@ -1,4 +1,4 @@
-import { IntegerSet, List } from "../../../DataStructures";
+import { OrderedIntegerSet, List } from "../../../DataStructures";
 import { Production } from "../../../util/Production";
 import { Grammar } from "../Grammar";
 import { Command } from "./Command";
@@ -27,7 +27,7 @@ export class SLRGenerator extends LRGenerator
 	    		const s: number = p.get_rhs()[it.position];
 	    		if (this.g.isNonTerminal(s))
 	    		{
-	    			const bs: IntegerSet = this.g.productionsFor(s);
+	    			const bs: OrderedIntegerSet = this.g.productionsFor(s);
 	    			for (const iter of bs.list())
 	    			{
 		    			const n = new LRItem(this.g.productions.get(iter), 0);
@@ -83,7 +83,7 @@ export class SLRGenerator extends LRGenerator
     {
 		// //console.log("_____________Compute Items SLR___________");
     	const s: List<LRItem> = new List();
-    	const sp: IntegerSet = this.g.productionsFor(this.g.startSymbol);
+    	const sp: OrderedIntegerSet = this.g.productionsFor(this.g.startSymbol);
     	const f: number =  sp.list()[0];//new BitSetIterator(sp).nextInt();
     	s.add(new LRItem(this.g.productions.get(f), 0));
     	const c: List<List<LRItem>> = new List();
@@ -142,16 +142,15 @@ export class SLRGenerator extends LRGenerator
 	{
 
 		// TODO Revisar comparador
-
 		for(const pivot of list){
-
-			const item1String = pivot.toString();
-			const item2String = item.toString();
-
-			if(item1String === item2String){
-				return true;
-			}
-		}
+      // Com String - implementação inicial
+      const item1String = pivot.toString()
+      const item2String = item.toString()
+      if (item1String === item2String) {
+        return true
+      }
+			
+    }
 
 		return false;
 	}
@@ -233,7 +232,7 @@ export class SLRGenerator extends LRGenerator
     				}
     				else
     				{
-						const follow: IntegerSet = this.g.followSet[lhs];
+						const follow: OrderedIntegerSet = this.g.followSet[lhs];
 	    				for (const a of follow.list() )
 	    				{
 	    					let cmd: Command;

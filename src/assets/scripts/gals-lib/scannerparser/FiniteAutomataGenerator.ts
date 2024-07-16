@@ -1,6 +1,6 @@
 import { SemanticError, LexicalError, SyntaticError } from '../analyser/SystemErros'
 import { Node, MetaData } from './Node'
-import { IntegerSet, List } from '../DataStructures'
+import { OrderedIntegerSet, List } from '../DataStructures'
 import { FiniteAutomata, KeyValuePar } from '../generator/FiniteAutomata'
 import { CHAR, CLOSURE, CLOSURE_OB, OPTIONAL, UNION } from './Constants'
 import TreeMap from 'ts-treemap'
@@ -23,14 +23,14 @@ export class FiniteAutomataGenerator {
   >()
   private _root: Node | null = null
   //private _alphabet : Set<number> = new Set<number>;
-  private _alphabet: IntegerSet = new IntegerSet()
+  private _alphabet: OrderedIntegerSet = new OrderedIntegerSet()
   private _lastPosition: number = -1
   private _tokenList: List<string> = new List<string>()
   private _sensitive: boolean = true
   private _contextCount: number = 0
 
-  private _next: IntegerSet[] = [new IntegerSet()]
-  //private _next : IntegerSet = new IntegerSet;
+  private _next: OrderedIntegerSet[] = [new OrderedIntegerSet()]
+  //private _next : OrderedIntegerSet = new OrderedIntegerSet;
   private _nodes: Node[] = []
 
   constructor(scannerCaseSensitive: boolean) {
@@ -168,7 +168,7 @@ export class FiniteAutomataGenerator {
   public generateAutomata(): FiniteAutomata | null {
     // TODO throws SemanticError
 
-    let states: List<IntegerSet> = new List<IntegerSet>()
+    let states: List<OrderedIntegerSet> = new List<OrderedIntegerSet>()
 
     let context: Map<number, number> = new TreeMap<number, number>()
 
@@ -197,7 +197,7 @@ export class FiniteAutomataGenerator {
         let c: string = String.fromCharCode(x)
 
         //let U: Set<number> = new Set<number>;
-        let U: IntegerSet = new IntegerSet()
+        let U: OrderedIntegerSet = new OrderedIntegerSet()
 
         for (let p of T) {
           let n: Node = this._nodes[p]
@@ -265,7 +265,7 @@ export class FiniteAutomataGenerator {
   }
 
   public makeAtomata(
-    states: List<IntegerSet>,
+    states: List<OrderedIntegerSet>,
     trans: Map<number, Map<string, number>>,
     finals: Map<number, number>,
     back: Map<number, boolean>,
@@ -360,7 +360,7 @@ export class FiniteAutomataGenerator {
     )
   }
 
-  private getPositionStates(states: List<IntegerSet>, setParam: IntegerSet): number {
+  private getPositionStates(states: List<OrderedIntegerSet>, setParam: OrderedIntegerSet): number {
     let pos = 0
     for (let set of states) {
       let setOrdered: Array<number> = set.list()
@@ -431,7 +431,7 @@ export class FiniteAutomataGenerator {
     this._nodes = new Array(this._lastPosition + 1)
 
     for (let i = 0; i < this._lastPosition + 1; i++) {
-      this._next[i] = new IntegerSet()
+      this._next[i] = new OrderedIntegerSet()
     }
 
     this.computeNextNode(this._root)
