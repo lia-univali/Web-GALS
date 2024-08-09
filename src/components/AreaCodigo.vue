@@ -170,7 +170,7 @@ export default defineComponent({
       return code
     },
     focusEditor(id: number) {
-      ;(document.getElementsByClassName('prism-editor__textarea')[id] as HTMLElement).focus()
+      ;(document.getElementsByClassName('prism-editor__textarea')[id] as HTMLElement)?.focus()
     }
   }
 })

@@ -1,4 +1,4 @@
-import { IntegerSet } from '../DataStructures'
+import { OrderedIntegerSet } from '../DataStructures'
 import { CHAR, CLOSURE, CLOSURE_OB, OPTIONAL, UNION } from './Constants'
 
 export class MetaData {
@@ -6,9 +6,9 @@ export class MetaData {
 
   public nullable: boolean = false
 
-  public first: IntegerSet = new IntegerSet()
+  public first: OrderedIntegerSet = new OrderedIntegerSet()
 
-  public last: IntegerSet = new IntegerSet()
+  public last: OrderedIntegerSet = new OrderedIntegerSet()
 }
 
 /* 
@@ -28,7 +28,7 @@ export class Node {
   private _context: number = -1
   private _end: number = -1
 
-  private _alphabet: IntegerSet = new IntegerSet()
+  private _alphabet: OrderedIntegerSet = new OrderedIntegerSet()
 
   private _metaData: MetaData = new MetaData() // TODO
 
@@ -261,7 +261,7 @@ export class Node {
     // TODO add Try catch as the source code
 
     let newNode: Node = structuredClone(this)
-    newNode.alphabet = new IntegerSet(this._alphabet)
+    newNode.alphabet = new OrderedIntegerSet(this._alphabet)
     newNode.metaData = new MetaData()
     newNode.backtrack = true
     newNode.context = -1
@@ -333,10 +333,10 @@ export class Node {
     this._end = value
   }
 
-  public get alphabet(): IntegerSet {
+  public get alphabet(): OrderedIntegerSet {
     return this._alphabet
   }
-  public set alphabet(value: IntegerSet) {
+  public set alphabet(value: OrderedIntegerSet) {
     this._alphabet = value
   }
 

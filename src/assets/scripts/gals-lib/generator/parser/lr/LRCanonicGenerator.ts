@@ -2,7 +2,7 @@ import { LRGenerator } from '@/assets/scripts/gals-lib/generator/parser/lr/LRGen
 import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 import { LRItem } from '@/assets/scripts/gals-lib/generator/parser/lr/LRItem'
 import { Production } from '@/assets/scripts/gals-lib/util/Production'
-import { IntegerSet, List } from '@/assets/scripts/gals-lib/DataStructures'
+import { OrderedIntegerSet, List } from '@/assets/scripts/gals-lib/DataStructures'
 import { Command } from '@/assets/scripts/gals-lib/generator/parser/lr/Command'
 
 
@@ -31,7 +31,7 @@ export class LRCanonicGenerator extends LRGenerator
             const B: number = p.get_rhs()[item.position];
             if (this.g.isNonTerminal(B))
             {
-              const prods: IntegerSet = this.g.productionsFor(B);
+              const prods: OrderedIntegerSet = this.g.productionsFor(B);
               for (const bsi of prods.list()){
                 const p2: Production = this.g.productions.get(bsi);
                 const tmp: number[] = [];
@@ -39,7 +39,7 @@ export class LRCanonicGenerator extends LRGenerator
                   tmp.push(p.get_rhs()[i]);
                 }
                 tmp.push(item.lookahead);
-                const first: IntegerSet = this.g.first(tmp);
+                const first: OrderedIntegerSet = this.g.first(tmp);
                 for (const bsi2 of first.list()) {
                   const ni: LRItem = new LRItem(p2, 0, bsi2);
                   if (!this.contains(itemsArray, ni))
@@ -89,7 +89,7 @@ export class LRCanonicGenerator extends LRGenerator
   protected computeItems(): List<List<LRItem>>
   {
     const s: List<LRItem> = new List();
-    const sp: IntegerSet = this.g.productionsFor(this.g.startSymbol);
+    const sp: OrderedIntegerSet = this.g.productionsFor(this.g.startSymbol);
     const f: number =  sp.list()[0]; // int f = new BitSetIterator(sp).nextInt();
 
     s.add(new LRItem(this.g.productions.get(f), 0, Grammar.DOLLAR));

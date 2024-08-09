@@ -1,7 +1,7 @@
-import { IntegerSet, List } from "../../DataStructures";
+import { OrderedIntegerSet, List } from "../../DataStructures";
 import { HTMLDialog } from "../../HTMLDialog";
 import { Production } from "../../util/Production";
-import { cloneDeep } from "lodash";
+//import { cloneDeep } from "lodash";
 // import { List<Production> } from "../../util/ProfuctionList";
 
 export class Grammar {
@@ -18,8 +18,8 @@ export class Grammar {
     public SEMANTIC_ACTION_COUNT: number = 0;
     protected _startSymbol: number = 0;
 
-    public firstSet: IntegerSet[] = []; // TODO: Estava como BitSet. Validar comportamento
-    public followSet: IntegerSet[] = [];
+    public firstSet: OrderedIntegerSet[] = []; // TODO: Estava como BitSet. Validar comportamento
+    public followSet: OrderedIntegerSet[] = [];
 
     private normalLR: boolean = false;
 
@@ -35,11 +35,16 @@ export class Grammar {
      */
     constructor(terminals: string[], nonTerminals: string[], productions: List<Production>, startSymbol: number) { 
 
-        const terminalsCopy       = cloneDeep(terminals);
-        const nonTerminalsCopy    = cloneDeep(nonTerminals);
-        const productionsCopy     = cloneDeep(productions);
-        const startSymbolCopy     = cloneDeep(startSymbol);
-        
+        //const terminalsCopy       = cloneDeep(terminals);
+        const terminalsCopy        = [...terminals]
+        //const nonTerminalsCopy    = cloneDeep(nonTerminals);
+        const nonTerminalsCopy    = [...nonTerminals]
+        //const productionsCopy     = cloneDeep(productions);
+        const productionsCopy     = new List<Production>();
+        productions.toArray().forEach( x => productionsCopy.add(x.clone()) )
+        //const startSymbolCopy     = cloneDeep(startSymbol);
+        const startSymbolCopy     = startSymbol
+
         this.setSymbols(terminalsCopy, nonTerminalsCopy, startSymbolCopy);
         this.setProductions(productionsCopy);
         this.fillFirstSet();
@@ -113,11 +118,13 @@ export class Grammar {
     }
 
     get terminals(): string[] {
-        return cloneDeep(this.symbols.slice(2, this.FIRST_NON_TERMINAL));
+        //return cloneDeep(this.symbols.slice(2, this.FIRST_NON_TERMINAL));
+        return this.symbols.slice(2, this.FIRST_NON_TERMINAL)
     }
 	
     get nonTerminals(): string[] {
-        return cloneDeep(this.symbols.slice(this.FIRST_NON_TERMINAL, this.FIRST_SEMANTIC_ACTION()));
+        //return cloneDeep(this.symbols.slice(this.FIRST_NON_TERMINAL, this.FIRST_SEMANTIC_ACTION()));
+        return this.symbols.slice(this.FIRST_NON_TERMINAL, this.FIRST_SEMANTIC_ACTION())
     }
 
     get startSymbol(): number {
@@ -132,22 +139,26 @@ export class Grammar {
 		const newSymbols: number =  2 + this.SEMANTIC_ACTION_COUNT;
 
         const nonTerminalOld: string[] = this.nonTerminals;
-        const nonTerminalNew: string[] = cloneDeep([...nonTerminalOld, ...new Array(newSymbols)]);
+        //const nonTerminalNew: string[] = cloneDeep([...nonTerminalOld, ...new Array(newSymbols)]);
+        const nonTerminalNew: string[] = [...nonTerminalOld, ...new Array(newSymbols)]
 
-		const productioList: List<Production> = new List<Production>();
-		
-        this._productions.toArray().forEach( i => productioList.add(i))
+//		const productionList: List<Production> = new List<Production>();
+//        this._productions.toArray().forEach( i => productionList.add(i))
+
+        const productionList: List<Production> = new List<Production>(0)
+        //productionList.addAll(this._productions); // addAll com problema.
+        productionList.setItems(this._productions.toArray());
 
 		for (let i = 0 ; i < this.SEMANTIC_ACTION_COUNT + 1; i++) {
 			nonTerminalNew[nonTerminalOld.length+i] = "<#"+i+">";
-            productioList.add(new Production(null, this.FIRST_SEMANTIC_ACTION() + i, []));// TODO: Validar tipo de entrada
+            productionList.add(new Production(null, this.FIRST_SEMANTIC_ACTION() + i, []));// TODO: Validar tipo de entrada
 		}
 
 		nonTerminalNew[nonTerminalNew.length - 1] = "<-START->";
         const production: Production =  new Production(null, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1,  [this.startSymbol]);       
-		productioList.add(production);
+		productionList.add(production);
 
-		const grammar: Grammar = new Grammar(terminals, nonTerminalNew, productioList, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1);
+		const grammar: Grammar = new Grammar(terminals, nonTerminalNew, productionList, this.FIRST_SEMANTIC_ACTION() + newSymbols - 1);
 		
 		grammar.normalLR = true;
 		
@@ -189,8 +200,8 @@ export class Grammar {
 	/**
      * @return BitSet indicando os symbolos que derivam Epsilon
      */
-    private markEpsilon(): IntegerSet {
-        const result: IntegerSet = new IntegerSet();
+    private markEpsilon(): OrderedIntegerSet {
+        const result: OrderedIntegerSet = new OrderedIntegerSet();
 
         for (let i = 0; i < this._productions.size(); i++)
         {
@@ -223,9 +234,9 @@ export class Grammar {
         return result;
     }
 
-    private static EMPTY_SET: IntegerSet = new IntegerSet(Grammar.EPSILON);
+    private static EMPTY_SET: OrderedIntegerSet = new OrderedIntegerSet(Grammar.EPSILON);
 	
-    public first(x: number[] | number, start?: number): IntegerSet {
+    public first(x: number[] | number, start?: number): OrderedIntegerSet {
 
         if(!Array.isArray(x)){
             if (this.isSemanticAction(x))
@@ -236,7 +247,7 @@ export class Grammar {
         
         if(start === undefined) start = 0;
 
-		const result: IntegerSet = new IntegerSet();
+		const result: OrderedIntegerSet = new OrderedIntegerSet();
 
         //console.log("x: " + x + " | start: " +  start);
 		
@@ -255,7 +266,8 @@ export class Grammar {
 				
             //console.log("k: " + k + " | start: " + start);
 
-			let f: IntegerSet = cloneDeep(this.first(x[start]));
+			//let f: OrderedIntegerSet = cloneDeep(this.first(x[start]));
+            let f: OrderedIntegerSet = this.first( x[start] ).clone()
             f.delete(Grammar.EPSILON);
 
             //console.log("f: " + f.toString());
@@ -268,7 +280,8 @@ export class Grammar {
             while (i < k-1 && this.first(x[i]).has(Grammar.EPSILON))
             {
                 i++;
-                f =  cloneDeep(this.first(x[i]));
+                //f =  cloneDeep(this.first(x[i]));
+                f = this.first(x[i]).clone();
                 f.delete(Grammar.EPSILON);
                 result.addAll(f);
 
@@ -288,10 +301,10 @@ export class Grammar {
      * Calcula os conjuntos FIRST de todos os símbolos de Gramática
      */
     private fillFirstSet() {
-        const derivesEpsilon: IntegerSet = this.markEpsilon();
-        this.firstSet =  new Array<IntegerSet>();
+        const derivesEpsilon: OrderedIntegerSet = this.markEpsilon();
+        this.firstSet =  new Array<OrderedIntegerSet>();
         for (let i = 0; i < this._symbols.length; i++) {
-            this.firstSet[i] = new IntegerSet();
+            this.firstSet[i] = new OrderedIntegerSet();
         }
 
         //console.log("Tamnaho: " + this.firstSet.length);
@@ -329,7 +342,7 @@ export class Grammar {
             // for (let i = 0; i < this._productions.size(); i++)
             // {
             //     let P: Production = this._productions.get(i);
-            //     let old: IntegerSet =  cloneDeep(this.firstSet[P.get_lhs()]);
+            //     let old: OrderedIntegerSet =  cloneDeep(this.firstSet[P.get_lhs()]);
             //     let testeFirst = this.first(P.get_rhs());
             //     //console.log("Index: " + i + " | fist: " + testeFirst.toString())
             //     this.firstSet[P.get_lhs()].addAll(testeFirst);
@@ -339,7 +352,8 @@ export class Grammar {
 
             for (let i = 0; i < this._productions.size(); i++) {
                 const P = this._productions.get(i);
-                const old = cloneDeep(this.firstSet[P.get_lhs()]);
+                //const old = cloneDeep(this.firstSet[P.get_lhs()]);
+                const old = this.firstSet[P.get_lhs()].clone();
                 const testeFirst = this.first(P.get_rhs());
                 //console.log(`Index: ${i} | fist: ${testeFirst.toString()}`);
                 this.firstSet[P.get_lhs()].addAll(testeFirst);
@@ -361,10 +375,10 @@ export class Grammar {
      */
     private fillFollowSet() {
         //console.log("_________________START followSet_____________________")
-        this.followSet = new Array<IntegerSet>();
+        this.followSet = new Array<OrderedIntegerSet>();
 
         for (let i = 0; i < this._symbols.length; i++) {
-            this.followSet[i] = new IntegerSet();
+            this.followSet[i] = new OrderedIntegerSet();
         }
 
         this.followSet[this._startSymbol].add(Grammar.DOLLAR); // TODO Validar comportamento FIRST_SEMANTIC_ACTION
@@ -384,7 +398,7 @@ export class Grammar {
 
                     if (this.isNonTerminal(P.get_rhs()[j])) {
                         
-                    	const s: IntegerSet = this.first(P.get_rhs(), j + 1);
+                    	const s: OrderedIntegerSet = this.first(P.get_rhs(), j + 1);
                         const deriveEpsilon: boolean = s.has(Grammar.EPSILON);
 
                         //console.log("S: " + s.toString());
@@ -392,14 +406,16 @@ export class Grammar {
 
                         if( P.get_rhs().length > j+1 ) {
                             s.delete(Grammar.EPSILON);
-                            const old: IntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                            //const old: OrderedIntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                            const old: OrderedIntegerSet = this.followSet[P.get_rhs()[j]].clone();
                             this.followSet[P.get_rhs()[j]].addAll(s);
                             if (!changes && !this.followSet[P.get_rhs()[j]].equals(old))
                                 changes = true;
                         }
 
                         if (deriveEpsilon) {
-                        	const old: IntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                        	//const old: OrderedIntegerSet = cloneDeep(this.followSet[P.get_rhs()[j]]);
+                            const old: OrderedIntegerSet = this.followSet[P.get_rhs()[j]].clone();
                             this.followSet[P.get_rhs()[j]].addAll(this.followSet[P.get_lhs()]);
                             if (!changes && !this.followSet[P.get_rhs()[j]].equals(old))
                                 changes = true;
@@ -522,7 +538,7 @@ export class Grammar {
      * @throws EmptyGrammarException se o símbolo inicial for removido
      */
     public removeImproductiveSymbols() { //TODO: throws EmptyGrammarException
-    	const SP: IntegerSet = this.getProductiveSymbols();
+    	const SP: OrderedIntegerSet = this.getProductiveSymbols();
         this.updateSymbols(SP);
     }
 
@@ -570,8 +586,8 @@ export class Grammar {
      * Calcula as produções cujo lado esquerdo é <code>symbol</code>
      * @return BitSet indicando essas produções
      */
-    public productionsFor(symbol: number): IntegerSet {       
-    	const result: IntegerSet = new IntegerSet();
+    public productionsFor(symbol: number): OrderedIntegerSet {       
+    	const result: OrderedIntegerSet = new OrderedIntegerSet();
         for (let i = 0; i < this.productions.size(); i++)
         {
             if (this.productions.get(i).get_lhs() == symbol)
@@ -655,7 +671,7 @@ export class Grammar {
                     recursiveArray.splice(i, 1);
             }
 
-            recursive = new IntegerSet();
+            recursive = new OrderedIntegerSet();
             recursive.addAllArray(recursiveArray);
 
             if (recursive.size > 0) {
@@ -712,7 +728,7 @@ export class Grammar {
 		if (a == b)
 			return true;
 		
-		const src: IntegerSet = new IntegerSet();
+		const src: OrderedIntegerSet = new OrderedIntegerSet();
 		
 		src.add(b);
 		
@@ -790,10 +806,10 @@ export class Grammar {
                 prods.add(p);
         }
         
-        const N: IntegerSet[] = [];
+        const N: OrderedIntegerSet[] = [];
         
         for (let i = this.FIRST_NON_TERMINAL; i < N.length; i++) {
-        	N[i] = new IntegerSet();
+        	N[i] = new OrderedIntegerSet();
         	for (let j = this.FIRST_NON_TERMINAL; j < this.FIRST_SEMANTIC_ACTION(); j++)
         		if (this.derives(i, j))
         			N[i].add(j);
@@ -1032,8 +1048,8 @@ export class Grammar {
      * 
      * @return um BitSet contendo produçoes não fatoradas
      */
-    public getNonFactoratedProductions(): IntegerSet {
-    	const result = new IntegerSet();
+    public getNonFactoratedProductions(): OrderedIntegerSet {
+    	const result = new OrderedIntegerSet();
         
         for (let i=0; i< this._productions.size(); i++)
         {
@@ -1044,8 +1060,9 @@ export class Grammar {
 
                 if (p1.get_lhs() == p2.get_lhs())
                 {
-                	const first: IntegerSet = this.first(p1.get_rhs());
-                    first.retainAll(this.first(p2.get_rhs()));
+                	const first: OrderedIntegerSet = this.first(p1.get_rhs());
+                    //first.retainAll(this.first(p2.get_rhs()));
+                    first.intersection(this.first(p2.get_rhs()))
                     if (! first.isEmpty())
                     {
                         result.add(i);
@@ -1074,7 +1091,8 @@ export class Grammar {
                 if (P1.get_lhs() == P2.get_lhs())
                 {
                 	const first = this.first(P1.get_rhs());
-                    first.retainAll(this.first(P2.get_rhs()));
+                    //first.retainAll(this.first(P2.get_rhs()));
+                    first.intersection(this.first(P2.get_rhs()))
                     if (! first.isEmpty())
                         return false;
                 }
@@ -1088,13 +1106,14 @@ export class Grammar {
      */
     public passThirdCondition(): boolean
     {
-    	const derivesEpsilon: IntegerSet = this.markEpsilon();
+    	const derivesEpsilon: OrderedIntegerSet = this.markEpsilon();
         for (let i=this.FIRST_NON_TERMINAL; i<this.FIRST_SEMANTIC_ACTION(); i++)
         {
             if (derivesEpsilon.has(i))
             {
-            	const first = new IntegerSet(this.firstSet[i]);
-                first.retainAll(this.followSet[i]);
+            	const first = new OrderedIntegerSet(this.firstSet[i]);
+                //first.retainAll(this.followSet[i]);
+                first.intersection(this.followSet[i])
                 if (! first.isEmpty())
                     return false;
             }
@@ -1106,9 +1125,9 @@ export class Grammar {
      * Calcula os estados produtivos
      * @return conjunto dos estados produtivos
      */
-    private getProductiveSymbols(): IntegerSet
+    private getProductiveSymbols(): OrderedIntegerSet
     {
-    	const SP = new IntegerSet();
+    	const SP = new OrderedIntegerSet();
         for (let i = Grammar.FIRST_TERMINAL; i< this.FIRST_NON_TERMINAL; i++)
             SP.add(i);
 
@@ -1121,7 +1140,7 @@ export class Grammar {
         do
         {
             change = false;
-            const Q = new IntegerSet();
+            const Q = new OrderedIntegerSet();
             for (let i=this.FIRST_NON_TERMINAL; i<this.FIRST_SEMANTIC_ACTION(); i++)
             {
                 if (! SP.has(i))
@@ -1155,7 +1174,7 @@ export class Grammar {
      */
     protected removeUnreachableSymbols() //TODO: throws EmptyGrammarException
     {
-    	const SA: IntegerSet = this.getReachableSymbols();
+    	const SA: OrderedIntegerSet = this.getReachableSymbols();
 
         this.updateSymbols(SA);
     }
@@ -1166,15 +1185,15 @@ export class Grammar {
      *
      * @return BitSet indicando os symbolos alcansáveis
      */
-    private getReachableSymbols(): IntegerSet
+    private getReachableSymbols(): OrderedIntegerSet
     {
-    	const SA = new IntegerSet();
+    	const SA = new OrderedIntegerSet();
         SA.add(this._startSymbol);
         let change: boolean;
         do
         {
             change = false;
-            const M = new IntegerSet();
+            const M = new OrderedIntegerSet();
             for (let i=0; i<this._symbols.length; i++)
             {
                 if (! SA.has(i))
@@ -1217,7 +1236,7 @@ export class Grammar {
 		
 		const cs: string[]  = clone.symbols;
 		
-		const s = new IntegerSet();
+		const s = new OrderedIntegerSet();
 		
 		
 		for (let i=2; i<this._symbols.length; i++)
@@ -1268,7 +1287,7 @@ export class Grammar {
      *
      * @return representação do BitSet
      */
-    public setToStr(b: IntegerSet): String
+    public setToStr(b: OrderedIntegerSet): String
     {
     	let bfr = "{ ";
         for (let j = 0; j < b.size; j++)
@@ -1311,7 +1330,7 @@ export class Grammar {
     	let result = false;
         const prods = this.productionsFor(symb);
 
-        let conflict = new IntegerSet();
+        let conflict = new OrderedIntegerSet();
 
         const confictSymbol = this.conflict(prods, conflict);
 
@@ -1334,7 +1353,7 @@ export class Grammar {
                 }
             }
 
-            conflict = new IntegerSet();
+            conflict = new OrderedIntegerSet();
             for (let i=0; i< this._productions.size(); i++)
             {
                 const p: Production = this._productions.get(i);
@@ -1418,7 +1437,7 @@ export class Grammar {
 	 * 
 	 */
 	
-    private extractPrefix(prods: IntegerSet): number[]
+    private extractPrefix(prods: OrderedIntegerSet): number[]
     {
     	const prefix = new Array<number>();
         let repeat: boolean;
@@ -1460,7 +1479,7 @@ export class Grammar {
      *
      * @return produções conflitantes
      */
-    private conflict(prods: IntegerSet, result: IntegerSet): number
+    private conflict(prods: OrderedIntegerSet, result: OrderedIntegerSet): number
     {
     	const symbs = new Array<number>(this._symbols.length);
         //BitSet epsilon = markEpsilon();
@@ -1643,7 +1662,7 @@ export class Grammar {
      * @paramam keep conjunto dos símbolos a serem mantidos
      * @throws EmptyGrammarException se o símbolo inicial for removido
      */
-    private updateSymbols(keep: IntegerSet) //throws EmptyGrammarException
+    private updateSymbols(keep: OrderedIntegerSet) //throws EmptyGrammarException
     {
         keep.add(Grammar.EPSILON);
         keep.add(Grammar.DOLLAR);

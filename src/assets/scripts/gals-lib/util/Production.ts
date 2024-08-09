@@ -14,7 +14,12 @@ export class Production {
     	this.grammar = g;
         this.lhs = lhs;
         this.rhs = rhs === undefined? [] : rhs;
-    }    
+    }
+
+
+    clone() : Production {
+        return new Production(null,this.lhs, [...this.rhs] )
+    }
 
     get_lhs(): number {
         return this.lhs;
@@ -83,8 +88,8 @@ export class Production {
         return bfr.join('');
     }
 
-    equals(obj: any): boolean {
-        const p: Production = obj;
+    equals(p: any): boolean {
+        
         if (this.lhs !== p.lhs) {
             return false;
         } else if (this.rhs.length !== p.rhs.length) {
