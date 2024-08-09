@@ -1061,7 +1061,8 @@ export class Grammar {
                 if (p1.get_lhs() == p2.get_lhs())
                 {
                 	const first: OrderedIntegerSet = this.first(p1.get_rhs());
-                    first.retainAll(this.first(p2.get_rhs()));
+                    //first.retainAll(this.first(p2.get_rhs()));
+                    first.intersection(this.first(p2.get_rhs()))
                     if (! first.isEmpty())
                     {
                         result.add(i);
@@ -1090,7 +1091,8 @@ export class Grammar {
                 if (P1.get_lhs() == P2.get_lhs())
                 {
                 	const first = this.first(P1.get_rhs());
-                    first.retainAll(this.first(P2.get_rhs()));
+                    //first.retainAll(this.first(P2.get_rhs()));
+                    first.intersection(this.first(P2.get_rhs()))
                     if (! first.isEmpty())
                         return false;
                 }
@@ -1110,7 +1112,8 @@ export class Grammar {
             if (derivesEpsilon.has(i))
             {
             	const first = new OrderedIntegerSet(this.firstSet[i]);
-                first.retainAll(this.followSet[i]);
+                //first.retainAll(this.followSet[i]);
+                first.intersection(this.followSet[i])
                 if (! first.isEmpty())
                     return false;
             }
