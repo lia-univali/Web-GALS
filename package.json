@@ -1,6 +1,23 @@
 {
   "name": "web-gals",
   "version": "0.0.0",
+  "description": "Versão Web do GALS - Gerador de Analisadores Léxico e Sintáticos",
+  "author": "Daniel Akira Nakamura Gullich <daniel.gullich@edu.univali.br> (https://github.com/Dangaki)",
+  "contributors": [
+    "Eduardo Alves da Silva <eas@univali.br> (https://github.com/edualvss)"
+  ],
+  "homepage": "https://lia-univali.github.io/Web-GALS/",
+  "license": "GPL-3.0-only",
+  "keywords": [
+    "GALS",
+    "léxico",
+    "sintático",
+    "compilador",
+    "scanner",
+    "parser",
+    "compiler"
+  ],
+  "repository": "github:lia-univali/Web-GALS",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -8,16 +25,14 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@types/lodash.clonedeep": "^4.5.9",
     "@types/prismjs": "^1.26.3",
     "detect-file-encoding-and-language": "^2.4.0",
     "hashmap": "^2.4.0",
     "jszip": "^3.10.1",
-    "lodash": "^4.17.21",
     "pinia": "^2.1.3",
     "prismjs": "^1.29.0",
     "splitpanes": "^3.1.5",
@@ -26,21 +41,20 @@
     "vue-prism-editor": "^2.0.0-alpha.2"
   },
   "devDependencies": {
-    "@rushstack/eslint-patch": "^1.2.0",
+    "@eslint/js": "^9.9.0",
+    "typescript-eslint":"^8.1.0",
+    "@eslint/compat":"^1.1.1",
     "@tsconfig/node18": "^2.0.1",
     "@types/hashmap": "^2.3.1",
-    "@types/jszip": "^3.4.1",
     "@types/node": "^18.16.17",
     "@vitejs/plugin-vue": "^4.4.0",
-    "@vue/eslint-config-prettier": "^7.1.0",
-    "@vue/eslint-config-typescript": "^11.0.3",
     "@vue/tsconfig": "^0.4.0",
-    "eslint": "^8.39.0",
-    "eslint-plugin-vue": "^9.11.0",
+    "eslint": "^9.9.0",
+    "eslint-plugin-vue": "^9.27.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.8.8",
-    "typescript": "~5.0.4",
-    "vite": "^4.3.9",
-    "vue-tsc": "^1.6.5"
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4",
+    "vite": "^4.5.3",
+    "vue-tsc": "^2.0.29"
   }
 }
