@@ -1,6 +1,8 @@
 # WEB GALS
 
-O projeto utiliza Vue 3 in Vite.
+Develop with Vue 3 and Vite.
+
+Ready-to-use: [Web GALS](https://lia-univali.github.io/Web-GALS/)
 
 ## Project Setup
 
@@ -26,7 +28,7 @@ npm run build
 npm run lint
 ```
 
-## Comandos para deploy no Github Pages
+## Deploy on Github Pages
 
 ```sh
 npm run build
