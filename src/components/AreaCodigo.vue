@@ -169,8 +169,8 @@ export default defineComponent({
     highlighterNone(code: string) {
       return code
     },
-    focusEditor(id: number) {
-      ;(document.getElementsByClassName('prism-editor__textarea')[id] as HTMLElement)?.focus()
+    focusEditor(id: string) {
+      (document.getElementById(id)?.getElementsByClassName('prism-editor__textarea')[0] as HTMLElement)?.focus();
     }
   }
 })
@@ -197,7 +197,7 @@ export default defineComponent({
     <div
       v-else-if="titulo == 'Definições Regulares'"
       class="caixa__interna"
-      @click="focusEditor(0)"
+      @click="focusEditor('textoDefinicoesRegulares')"
     >
       <prism-editor
         id="textoDefinicoesRegulares"
@@ -212,7 +212,7 @@ export default defineComponent({
         :line-numbers="true"
       />
     </div>
-    <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor(1)">
+    <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor('textoTokens')">
       <prism-editor
         id="textoTokens"
         name="textoCodigo"
@@ -238,7 +238,7 @@ export default defineComponent({
         :disabled="selecionado == -1"
       />
     </div>
-    <div v-else-if="titulo == 'Gramática'" class="caixa__interna" @click="focusEditor(3)">
+    <div v-else-if="titulo == 'Gramática'" class="caixa__interna" @click="focusEditor('textoGramatica')">
       <prism-editor
         id="textoGramatica"
         name="textoCodigo"
@@ -264,7 +264,7 @@ export default defineComponent({
         v-model="projetos[selecionado].consoleExit"
       ></textarea>
     </div>
-    <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor(2)">
+    <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor('textoSimulacao')">
       <prism-editor
         id="textoSimulacao"
         name="textoCodigo"
