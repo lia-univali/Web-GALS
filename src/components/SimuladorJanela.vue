@@ -3,7 +3,6 @@ import { defineComponent } from 'vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { Token } from '@/assets/scripts/gals-lib/analyser/Token'
 import { lexicalSimulation, syntacticSimulation } from '@/assets/scripts/gals-functions'
-import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import { TreeNode } from '@/assets/scripts/gals-lib/DataStructures'
 import TreeBrowser from '@/components/TreeBrowser.vue'
 
@@ -70,6 +69,11 @@ export default defineComponent({
         console.log(error as Object)
         projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
+    },
+    tokenSelect(lexeme:string, position:number) {
+      const inputSimulacaotextArea = document.getElementById('textoSimulacao')?.getElementsByTagName('textarea')[0];
+      inputSimulacaotextArea?.setSelectionRange(position, position+lexeme.length);
+      inputSimulacaotextArea?.focus()
     }
   }
 })
@@ -90,7 +94,7 @@ export default defineComponent({
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(valor, chave) in resultadoLexico" :key="chave">
+            <tr v-for="(valor, chave) in resultadoLexico" :key="chave" v-on:click="tokenSelect(valor[0].lexeme,valor[0].position)">
               <td>{{ valor[1] }}</td>
               <td>{{ valor[0].lexeme }}</td>
               <td>{{ valor[0].position }}</td>
