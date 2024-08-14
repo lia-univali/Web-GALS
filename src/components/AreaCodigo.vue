@@ -21,7 +21,8 @@ export default defineComponent({
   data() {
     return {
       texto: 'Area de Texto para teste',
-      tabSize: 2
+      tabSize: 2,
+      
     }
   },
   components: {
@@ -226,7 +227,7 @@ export default defineComponent({
         :line-numbers="true"
       />
     </div>
-    <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna__input">
+    <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna">
       <input
         id="textoNaoTerminais"
         type="text"
@@ -295,13 +296,15 @@ export default defineComponent({
   box-sizing: border-box;
   /* Opera/IE 8+ */
 
-  font-family: 'Ubuntu Mono';
+  /* font-family: 'Ubuntu Mono'; */
+  /* font-family: "Lucida Console", Courier, monospace; */
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
 
   white-space: pre !important;
 }
 
 .input__codigo {
-  outline: none;
+  outline: auto;
   resize: none;
   width: 100%;
   -webkit-box-sizing: border-box;
@@ -311,7 +314,9 @@ export default defineComponent({
   box-sizing: border-box;
   /* Opera/IE 8+ */
   text-align: center;
-  font-family: 'Ubuntu Mono';
+  /* font-family: 'Ubuntu Mono'; */
+  /* font-family: "Lucida Console", Courier, monospace; */
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
 }
 
 .caixa {
@@ -347,17 +352,14 @@ export default defineComponent({
   margin: 0px;
   padding: 3px;
   /* width: 100%; */
+  /* font-family: "Lucida Console", Courier, monospace; */
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
   height: calc(100% - 21.333px);
 }
 
-.caixa__interna__input {
-  margin: 0px;
-  padding: 3px;
-  width: 100%;
-}
-
 .caixa__titulo {
-  font-family: 'IBM Plex Sans';
+   font-family: 'IBM Plex Sans'; 
+  /* font-family: "Lucida Console", Courier, monospace; */
   font-weight: 600;
   color: #424242;
 
