@@ -172,8 +172,8 @@ export default defineComponent({
       }
     },
     abrirInformacoes() {
-      this.colapsaConteudo('WEB G.A.L.S')
-      this.paginaAberta = 'WEB G.A.L.S'
+      this.colapsaConteudo('Informações')
+      this.paginaAberta = 'Informações'
     },
     colapsaConteudo(pagina: string) {
       if (this.paginaAberta == pagina)
@@ -292,7 +292,7 @@ export default defineComponent({
       <button
         class="botao informacoes"
         @click="abrirInformacoes"
-        v-bind:class="paginaAberta == 'WEB G.A.L.S' ? 'selecionado' : 'nao_selecionado'"
+        v-bind:class="paginaAberta == 'Informações' ? 'selecionado' : 'nao_selecionado'"
       ></button>
     </div>
 
@@ -330,7 +330,7 @@ export default defineComponent({
         <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
         <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
-      <div class="container__info" v-else-if="paginaAberta == 'WEB G.A.L.S'">
+      <div class="container__info" v-else-if="paginaAberta == 'Informações'">
         <p>Versão on-line do <br /> <b>G</b>erador de <b>A</b>nalisadores <b>L</b>éxicos e <b>S</b>intáticos.</p>
         <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
         <p>Projeto Acadêmico iniciado na UFSC - Universidade Federal de Santa Catarina e continuado na Univali - Universidade do Vale do Itajaí</p>
