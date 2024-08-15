@@ -172,8 +172,8 @@ export default defineComponent({
       }
     },
     abrirInformacoes() {
-      this.colapsaConteudo('Informações')
-      this.paginaAberta = 'Informações'
+      this.colapsaConteudo('WEB G.A.L.S')
+      this.paginaAberta = 'WEB G.A.L.S'
     },
     colapsaConteudo(pagina: string) {
       if (this.paginaAberta == pagina)
@@ -292,7 +292,7 @@ export default defineComponent({
       <button
         class="botao informacoes"
         @click="abrirInformacoes"
-        v-bind:class="paginaAberta == 'Informações' ? 'selecionado' : 'nao_selecionado'"
+        v-bind:class="paginaAberta == 'WEB G.A.L.S' ? 'selecionado' : 'nao_selecionado'"
       ></button>
     </div>
 
@@ -330,22 +330,56 @@ export default defineComponent({
         <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
         <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
-      <div v-else-if="paginaAberta == 'Informações'">
-        <div class="container__links">
-          <a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a>
+      <div class="container__info" v-else-if="paginaAberta == 'WEB G.A.L.S'">
+        <p>Versão on-line do <br /> <b>G</b>erador de <b>A</b>nalisadores <b>L</b>éxicos e <b>S</b>intáticos.</p>
+        <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
+        <p>Projeto Acadêmico iniciado na UFSC - Universidade Federal de Santa Catarina e continuado na Univali - Universidade do Vale do Itajaí</p>
+        <div class="container__developers">
+          <h4>Versão Original - Desktop <br />(v. 2003.10.03)</h4>
+          <p>
+            <em>Desenvolvedor</em><br />
+            <a href="https://github.com/cegesser/gals" target="_blank">Carlos Eduardo Gesser</a>
+          </p>
+          <p>
+            <em>Orientador</em> <br /> 
+            <a href="https://www.inf.ufsc.br/~olinto.furtado/" target="_blank">Prof. Olinto José V. Furtado</a>
+          </p>
+          <p>
+            <em>Mantida em:</em><a href="https://gals.sourceforge.net/" target="_blank">SOURCEFORGE</a>
+          </p>
+          
         </div>
+
+        <div class="container__developers">
+          <h4>Versão Web<br />(v. 2024.11.10)</h4>
+          <p>
+            <em>Desenvolvedor</em><br />
+            <a href="https://github.com/Dangaki" target="_blank">Daniel Akira Nakamura Gullich</a>
+          </p>
+          <p>
+            <em>Orientador</em> <br /> 
+            <a href="https://linktr.ee/prof.edu" target="_blank">Prof. Eduardo Alves da Silva</a>
+          </p>
+          <p>
+            <em>Mantida em:</em><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
+          </p>
+          
+        </div>
+
+        
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.container__links {
-  display: flex;
+.container__info {
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  gap: 20px;
+  gap: 10px;
+
+  overflow-y: auto;
+  max-height: 80vh;
 }
 
 .link {
@@ -420,6 +454,28 @@ h2 {
   color: #424242;
 }
 
+h3 {
+  font-family: 'IBM Plex Sans';
+  text-align: center;
+  font-weight: 400;
+  font-size: x-large;
+  color: #424242;
+}
+
+h4 {
+  font-family: 'IBM Plex Sans';
+}
+
+p {
+  font-family: 'IBM Plex Sans';
+  text-align: center;
+}
+
+.container__developers p {
+  font-family: 'IBM Plex Sans';
+  text-align: justify;
+}
+
 .conteudo {
   margin: 0px;
   padding: 3%;
@@ -432,7 +488,6 @@ h2 {
 
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
 }
 
 .barra__esquerda {

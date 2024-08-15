@@ -113,6 +113,7 @@ body {
 .contentor__geral {
   display: flex;
   height: calc(100vh - 76px);
+  min-height: 450px;
   margin: 0px;
   padding: 10px;
   gap: 10px;
@@ -122,7 +123,7 @@ body {
   /* flex-grow: 1; */
   /* flex-shrink: 0; */
   display: flex;
-  flex-direction: column;
+  
 
   margin: 0px;
   padding: 0px;
