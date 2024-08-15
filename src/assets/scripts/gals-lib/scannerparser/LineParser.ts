@@ -1,4 +1,4 @@
-import { SemanticError, LexicalError, SyntaticError } from '../analyser/SystemErros'
+import { LexicalError, SyntaticError } from '../analyser/SystemErros'
 import { MetaException } from '../util/MetaException'
 import { LineScanner } from './LineScanner'
 import { FiniteAutomataGenerator } from './FiniteAutomataGenerator'
@@ -28,7 +28,7 @@ export class LineParser {
     this.parseTokens(tokens)
 
     try {
-      let fa: FiniteAutomata | null = this.gen.generateAutomata()
+      const fa: FiniteAutomata | null = this.gen.generateAutomata()
 
       if (fa == null) throw new AnalysisError('Automato gerado é nulo')
 
@@ -44,10 +44,10 @@ export class LineParser {
 
     if (this.gen == null) return
 
-    let tknzr: string[] = str.split(/(\n)/g)
+    const tknzr: string[] = str.split(/(\n)/g)
     let lineCount: number = 0
 
-    for (let line of tknzr) {
+    for (const line of tknzr) {
       if (line == '\n') {
         lineCount++
 
@@ -61,7 +61,7 @@ export class LineParser {
 
         this.pos = 0
         if (t != null && t.id == LineScanner.ID) {
-          let id: string = t.lexeme
+          const id: string = t.lexeme
 
           this.pos = t.position + id.length
 
@@ -72,14 +72,14 @@ export class LineParser {
             t = this.nextToken()
 
             if (t != null && t.id == LineScanner.RE) {
-              let re: string = t.lexeme
+              const re: string = t.lexeme
 
               try {
-                let tokenParsed: Node | undefined = this.parseRE(re)
+                const tokenParsed: Node | undefined = this.parseRE(re)
                 if (tokenParsed == undefined) return
                 this.gen.addDefinition(id, tokenParsed)
               } catch (e) {
-                let analysisError = e as AnalysisError
+                const analysisError = e as AnalysisError
                 analysisError.position = analysisError.position + this.pos
                 throw analysisError
               }
@@ -171,9 +171,9 @@ export class LineParser {
     let lineCount: number = 0
     //StringTokenizer tknzr = new StringTokenizer(string, "\n", true);
     //let tknzr: string[] =  tokenInput.split(/(\n)/g);
-    let tknzr: string[] = tokenInput.split(/(\n)/g)
+    const tknzr: string[] = tokenInput.split(/(\n)/g)
 
-    for (let line of tknzr) {
+    for (const line of tknzr) {
       if (line === '\n') {
         lineCount++
 
@@ -183,7 +183,7 @@ export class LineParser {
       this.scanner.text = line
 
       try {
-        let t: Token | null = this.nextToken()
+        const t: Token | null = this.nextToken()
 
         this.pos = 0
 
@@ -213,24 +213,24 @@ export class LineParser {
   private parseIgnore() {
     // throws AnalysisError
 
-    let t: Token | null = this.nextToken()
+    const t: Token | null = this.nextToken()
 
     if (t != null && t.id == LineScanner.RE) {
-      let re: string = t.lexeme
+      const re: string = t.lexeme
 
       try {
         if (this.gen == null)
           throw new AnalysisError('Gerador de Autômatos Finitos não inicializado!')
 
         if (re.charAt(0) == '!') {
-          let node: Node | undefined = this.parseRE(re.substring(1))
+          const node: Node | undefined = this.parseRE(re.substring(1))
           if (node != undefined) this.gen.addIgnore(node, false)
         } else {
-          let node: Node | undefined = this.parseRE(re)
+          const node: Node | undefined = this.parseRE(re)
           if (node != undefined) this.gen.addIgnore(node, true)
         }
       } catch (e) {
-        let analysisError = e as AnalysisError
+        const analysisError = e as AnalysisError
 
         analysisError.position = analysisError.position + t.position
 
@@ -245,20 +245,20 @@ export class LineParser {
 
     if (t == null) return
 
-    let id: string = t.lexeme
+    const id: string = t.lexeme
 
     t = this.nextToken()
 
     if (t == null) {
       try {
         if (this.gen == null) return
-        let node: Node | undefined = this.parseRE(id)
+        const node: Node | undefined = this.parseRE(id)
         if (node == undefined) return
 
         this.gen.addExpression(id, node, true)
       } catch (e) {
-        let analysisError = e as AnalysisError
-        analysisError.position = analysisError.position //+ t.position); // TODO NULL DONT HAVE POSITION
+        const analysisError = e as AnalysisError
+        //analysisError.position = analysisError.position //+ t.position); // TODO NULL DONT HAVE POSITION
         throw analysisError
       }
     } else {
@@ -281,26 +281,26 @@ export class LineParser {
   private parseIdEnd(id: string) {
     // throws AnalysisError
 
-    let t: Token | null = this.nextToken()
+    const t: Token | null = this.nextToken()
 
     if (t == null || t.id != LineScanner.RE) {
       throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
     }
 
-    let re: string = t.lexeme
+    const re: string = t.lexeme
 
     try {
       if (this.gen == null) return
 
       if (re.charAt(0) == '!') {
-        let node: Node | undefined = this.parseRE(re.substring(1))
+        const node: Node | undefined = this.parseRE(re.substring(1))
         if (node != undefined) this.gen.addExpression(id, node, false)
       } else {
-        let node: Node | undefined = this.parseRE(re)
+        const node: Node | undefined = this.parseRE(re)
         if (node != undefined) this.gen.addExpression(id, node, true)
       }
     } catch (e) {
-      let analysisError = e as AnalysisError
+      const analysisError = e as AnalysisError
       analysisError.position = analysisError.position + t.position
       throw analysisError
     }
@@ -312,7 +312,7 @@ export class LineParser {
     let t: Token | null = this.nextToken()
 
     if (t != null && t.id == LineScanner.ID) {
-      let id2: string = t.lexeme
+      const id2: string = t.lexeme
 
       this.pos = t.position + id.length
 
@@ -332,7 +332,7 @@ export class LineParser {
             if (this.gen == null) return
             this.gen.addSpecialCase(id, id2, re)
           } catch (e) {
-            let analysisError = e as AnalysisError
+            const analysisError = e as AnalysisError
             analysisError.position = analysisError.position + t.position
             throw analysisError
           }
@@ -360,7 +360,7 @@ export class LineParser {
   private parseRE(re: string): Node | undefined {
     //  throws AnalysisError
 
-    let parser: REParser = new REParser()
+    const parser: REParser = new REParser()
 
     if (this.gen != null) return parser.parse(re, this.gen)
     else return undefined

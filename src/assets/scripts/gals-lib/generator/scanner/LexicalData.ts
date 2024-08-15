@@ -1,6 +1,6 @@
-import HashMap from 'hashmap'
+//import HashMap from 'hashmap'
 import { List } from '../../DataStructures'
-import { Token } from '../../analyser/Token'
+//import { Token } from '../../analyser/Token'
 import { FiniteAutomata } from '../FiniteAutomata'
 import { REParser } from '../../scannerparser/REParser'
 import { FiniteAutomataGenerator } from '../../scannerparser/FiniteAutomataGenerator'
@@ -57,11 +57,11 @@ export class LexicalData {
   }
 
   public clear() {
-    this._definitions.clear
-    this._tokens.clear
-    this._specialCases.clear
-    this._expressionFor.clear
-    this._specialCasesValues.clear
+    this._definitions.clear()
+    this._tokens.clear()
+    this._specialCases.clear()
+    this._expressionFor.clear()
+    this._specialCasesValues.clear()
   }
 
   public expressionFor(token: string) {
@@ -99,17 +99,17 @@ export class LexicalData {
   }
 
   public getFA(scannerCaseSensitive: boolean): FiniteAutomata {
-    let parser: REParser = new REParser()
-    let gen: FiniteAutomataGenerator = new FiniteAutomataGenerator(scannerCaseSensitive)
+    const parser: REParser = new REParser()
+    const gen: FiniteAutomataGenerator = new FiniteAutomataGenerator(scannerCaseSensitive)
 
     let i: number = -1
 
     try {
       for (i = 0; i < this._definitions.size(); i++) {
-        let expression: string | undefined = this.expressionFor(this._definitions.get(i))
+        const expression: string | undefined = this.expressionFor(this._definitions.get(i))
         if (expression == undefined) throw new AnalysisError('Expressão de Definições vazia.')
 
-        let n: Node | undefined = parser.parse(expression, gen)
+        const n: Node | undefined = parser.parse(expression, gen)
         if (n == undefined) throw new AnalysisError('Erro no Parse do Automata Finito.')
 
         gen.addDefinition(this._definitions.get(i), n)
@@ -120,10 +120,10 @@ export class LexicalData {
 
     try {
       for (i = 0; i < this._tokens.size(); i++) {
-        let expression: string | undefined = this.expressionFor(this._tokens.get(i))
+        const expression: string | undefined = this.expressionFor(this._tokens.get(i))
         if (expression == undefined) throw new AnalysisError('Expressão de Token vazia.')
 
-        let n: Node | undefined = parser.parse(expression, gen)
+        const n: Node | undefined = parser.parse(expression, gen)
         if (n == undefined) throw new AnalysisError('Erro no Parse do Automata Finito.')
 
         gen.addExpression(this._tokens.get(i), n, true)
@@ -134,9 +134,9 @@ export class LexicalData {
 
     try {
       for (i = 0; i < this._specialCases.size(); i++) {
-        let t: string = this._specialCases.get(i)
+        const t: string = this._specialCases.get(i)
 
-        let v: SpecialCaseValue | undefined = this._specialCasesValues.get(t)
+        const v: SpecialCaseValue | undefined = this._specialCasesValues.get(t)
         if (v == undefined) throw new AnalysisError('Valor do Caso Especial vazio.')
 
         gen.addSpecialCase(t, v.base, v.lexeme)
@@ -147,7 +147,7 @@ export class LexicalData {
 
     try {
       if (this._ignore.length > 0) {
-        let n: Node | undefined = parser.parse(this._ignore, gen)
+        const n: Node | undefined = parser.parse(this._ignore, gen)
         if (n == undefined) throw new AnalysisError('Nó ignorado vazio.')
 
         gen.addIgnore(n, true)
@@ -157,7 +157,7 @@ export class LexicalData {
     }
 
     try {
-      let fa: FiniteAutomata | null = gen.generateAutomata()
+      const fa: FiniteAutomata | null = gen.generateAutomata()
       if (fa == null) throw new AnalysisError('Erro ao criar Autômato Finito.')
 
       return fa

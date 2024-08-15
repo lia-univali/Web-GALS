@@ -1,11 +1,10 @@
-import { SemanticError, LexicalError, SyntaticError } from '../analyser/SystemErros'
+import { SemanticError} from '../analyser/SystemErros'
 import { Node, MetaData } from './Node'
 import { OrderedIntegerSet, List } from '../DataStructures'
 import { FiniteAutomata, KeyValuePar } from '../generator/FiniteAutomata'
 import { CHAR, CLOSURE, CLOSURE_OB, OPTIONAL, UNION } from './Constants'
 import TreeMap from 'ts-treemap'
 import HashMap from 'hashmap'
-//import cloneDeep from 'lodash.clonedeep'
 
 /* 
     Modifications:
@@ -71,9 +70,9 @@ export class FiniteAutomataGenerator {
       this._tokenList.add(id)
     }
 
-    let pos: number = this._tokenList.indexOf(id)
+    const pos: number = this._tokenList.indexOf(id)
 
-    let end: Node = Node.createEndNode(pos + 2, backtrack)
+    const end: Node = Node.createEndNode(pos + 2, backtrack)
 
     root = Node.createConcatNode(root, end)
 
@@ -120,7 +119,7 @@ export class FiniteAutomataGenerator {
   public addIgnore(root: Node, backtrack: boolean) {
     this._alphabet.addAll(root.alphabet)
 
-    let end: Node = Node.createEndNode(0, backtrack)
+    const end: Node = Node.createEndNode(0, backtrack)
     root = Node.createConcatNode(root, end)
 
     if (this._root == null) {
@@ -141,13 +140,13 @@ export class FiniteAutomataGenerator {
       throw new SemanticError("Token '" + base + "' não definido")
     }
 
-    let b: number = this._tokenList.indexOf(base) + 2
+    const b: number = this._tokenList.indexOf(base) + 2
 
     if (this._tokenList.contains(id)) {
       throw new SemanticError("Token '" + id + "' já definido")
     }
 
-    let i: number = this._tokenList.size() + 2 //TODO verify changes
+    const i: number = this._tokenList.size() + 2 //TODO verify changes
 
     let s: Map<string, number> | undefined = this._specialCases.get(b)
 
@@ -168,17 +167,17 @@ export class FiniteAutomataGenerator {
   public generateAutomata(): FiniteAutomata | null {
     // TODO throws SemanticError
 
-    let states: List<OrderedIntegerSet> = new List<OrderedIntegerSet>()
+    const states: List<OrderedIntegerSet> = new List<OrderedIntegerSet>()
 
-    let context: Map<number, number> = new TreeMap<number, number>()
+    const context: Map<number, number> = new TreeMap<number, number>()
 
-    let ctxMap: Map<number, number> = new TreeMap<number, number>()
+    const ctxMap: Map<number, number> = new TreeMap<number, number>()
 
-    let trans: Map<number, Map<string, number>> = new TreeMap<number, Map<string, number>>()
+    const trans: Map<number, Map<string, number>> = new TreeMap<number, Map<string, number>>()
 
-    let finals: Map<number, number> = new TreeMap<number, number>()
+    const finals: Map<number, number> = new TreeMap<number, number>()
 
-    let back: Map<number, boolean> = new TreeMap<number, boolean>()
+    const back: Map<number, boolean> = new TreeMap<number, boolean>()
 
     if (this._root == null) {
       throw new SemanticError(
@@ -191,19 +190,19 @@ export class FiniteAutomataGenerator {
     states.add(this._root.metaData.first)
 
     for (let i = 0; i < states.size(); i++) {
-      let T = states.get(i)
+      const T = states.get(i)
 
-      for (let x of this._alphabet) {
-        let c: string = String.fromCharCode(x)
+      for (const x of this._alphabet) {
+        const c: string = String.fromCharCode(x)
 
         //let U: Set<number> = new Set<number>;
-        let U: OrderedIntegerSet = new OrderedIntegerSet()
+        const U: OrderedIntegerSet = new OrderedIntegerSet()
 
-        for (let p of T) {
-          let n: Node = this._nodes[p]
+        for (const p of T) {
+          const n: Node = this._nodes[p]
 
           if (n.end >= 0) {
-            let intern: number = i
+            const intern: number = i
 
             if (!finals.has(intern)) {
               finals.set(intern, n.end)
@@ -211,7 +210,7 @@ export class FiniteAutomataGenerator {
 
               if (n.context > 0) {
                 if (!context.has(intern)) {
-                  let resut: number | undefined = ctxMap.get(n.context)
+                  const resut: number | undefined = ctxMap.get(n.context)
 
                   //TODO DEBUG: Comportamento
                   if (resut != undefined) {
@@ -249,10 +248,10 @@ export class FiniteAutomataGenerator {
           }
         }
 
-        let I: number = i //integer.valueOf(i);
+        const I: number = i //integer.valueOf(i);
         if (!trans.has(I)) trans.set(I, new TreeMap<string, number>())
         if (pos != -1) {
-          let transPivot = trans.get(I)
+          const transPivot = trans.get(I)
 
           if (transPivot == null) return null
 
@@ -273,28 +272,28 @@ export class FiniteAutomataGenerator {
   ): FiniteAutomata {
     //throws SemanticError
 
-    let transitions: List<Map<string, number>> = new List()
+    const transitions: List<Map<string, number>> = new List()
 
-    for (let t of trans) {
+    for (const t of trans) {
       transitions.add(t[1])
     }
 
-    let fin: number[] = new Array()
+    const fin: number[] = []
     fin.length = states.size() // similar int[] fin = new int[states.size()];
 
     for (let i = 0; i < fin.length; i++) {
       // verify if length does the same
-      let expr: number | undefined = finals.get(i)
+      const expr: number | undefined = finals.get(i)
 
       if (expr != undefined) fin[i] = expr
       else fin[i] = -1
     }
 
     for (let i = 0; i < fin.length; i++) {
-      let b: boolean | undefined = back.get(i)
+      const b: boolean | undefined = back.get(i)
 
       if (b != undefined && b == false) {
-        let pre: Set<number> = this.computPrecedersOf(i, transitions)
+        const pre: Set<number> = this.computPrecedersOf(i, transitions)
 
         pre.forEach((state) => {
           if (fin[state] < 0) fin[state] = -2
@@ -302,16 +301,16 @@ export class FiniteAutomataGenerator {
       }
     }
 
-    let scList: Array<KeyValuePar> = [];
+    const scList: Array<KeyValuePar> = [];
 
     //TODO Verify What it does
     //let scIndexes: number[][] =  Array.from({length: (this._tokenList.size() + 2)}, () => Array.from({length: 10}));
-    let scIndexes: number[][] = Array(this._tokenList.size() + 2).fill(undefined)
+    const scIndexes: number[][] = Array(this._tokenList.size() + 2).fill(undefined)
 
     for (let i = 0; i < scIndexes.length; i++) {
-      let m: Map<string, number> | undefined = this._specialCases.get(i)
+      const m: Map<string, number> | undefined = this._specialCases.get(i)
 
-      let start: number = scList.length
+      const start: number = scList.length
 
       if (m != undefined) {
 
@@ -323,19 +322,19 @@ export class FiniteAutomataGenerator {
       }
 
       
-      let end: number = scList.length
+      const end: number = scList.length
 
       scIndexes[i] = [start, end]
     }
 
-    let sc: KeyValuePar[] = new Array()
+    let sc: KeyValuePar[] = []
 
     const clone = Object.assign({}, scList)
     sc = Object.setPrototypeOf(clone, KeyValuePar.prototype)
 
     //sc = cloneDeep(scList.toArray())//this one is the older clone
 
-    let cont: number[][] = Array.from({ length: states.size() }, () => Array.from({ length: 2 }))
+    const cont: number[][] = Array.from({ length: states.size() }, () => Array.from({ length: 2 }))
 
     for (let i = 0; i < cont.length; i++) {
       cont[i][0] = 0
@@ -362,11 +361,11 @@ export class FiniteAutomataGenerator {
 
   private getPositionStates(states: List<OrderedIntegerSet>, setParam: OrderedIntegerSet): number {
     let pos = 0
-    for (let set of states) {
-      let setOrdered: Array<number> = set.list()
-      let setParamOrdered: Array<number> = setParam.list()
+    for (const set of states) {
+      const setOrdered: Array<number> = set.list()
+      const setParamOrdered: Array<number> = setParam.list()
 
-      let equal: boolean =
+      const equal: boolean =
         setOrdered.length === setParamOrdered.length &&
         setOrdered.every((element, index) => element === setParamOrdered[index])
 
@@ -381,7 +380,7 @@ export class FiniteAutomataGenerator {
   }
 
   private computPrecedersOf(state: number, transitions: List<Map<string, number>>): Set<number> {
-    let result: Set<number> = new Set<number>()
+    const result: Set<number> = new Set<number>()
 
     result.add(state)
 
@@ -449,7 +448,7 @@ export class FiniteAutomataGenerator {
         leftNode = root.left
 
         if (leftNode != null) {
-          for (let i of leftNode.metaData.last) {
+          for (const i of leftNode.metaData.last) {
             //leftNode.metaData.first.forEach(item => this._next[i].add(item));
 
             if (root.right == null) throw new Error('Node direita vazio')
@@ -476,7 +475,7 @@ export class FiniteAutomataGenerator {
 
         if (root.left == null) throw new Error('Node direita vazio')
 
-        for (let i of root.left.metaData.last) {
+        for (const i of root.left.metaData.last) {
           this._next[i].addAll(root.left.metaData.first)
         }
 
@@ -505,11 +504,11 @@ export class FiniteAutomataGenerator {
       this.computeMetaData(root.right)
     }
 
-    let n: MetaData = root.metaData
+    const n: MetaData = root.metaData
 
-    let l: Node | null = root.left
+    const l: Node | null = root.left
 
-    let r: Node | null = root.right
+    const r: Node | null = root.right
 
     switch (root.id) {
       case CHAR:

@@ -69,12 +69,13 @@ export function lexicalSimulation(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
+    console.warn(error);
     throw new LexicalError("Definições com problemas - Verificar Definições");
   }
 
 
   const sensitive: boolean = true
-  const erroLog: ErrorLog = ErrorLog.Instance
+  //const erroLog: ErrorLog = ErrorLog.Instance
 
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
   const lp: LineParser = new LineParser()
@@ -116,7 +117,7 @@ export function lexicalSimulation(
     } catch (
       error //MetaException
       ) {
-      console.log(error)
+      console.warn(error)
       return null
     }
   }
@@ -159,7 +160,7 @@ export function lexicalSimulation(
 
     tokensModel.set(dummy, 'ERRO LÉXICO')
 
-    console.log(error)
+    console.warn(error)
   }
 
   // //console.log(tokensModel)
@@ -178,6 +179,7 @@ export function lexicalTable(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
+    console.warn(error);
     throw new LexicalError("Definições com problemas - Verificar Definições");
   }
 
@@ -202,6 +204,7 @@ export function syntacticSimulation(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
+    console.warn(error)
     throw new LexicalError("Definições com problemas - Verificar Definições");
   }
 
@@ -235,7 +238,7 @@ export function syntacticSimulation(
 
   const mode: number = Mode.BOTH
   const sensitive: boolean = true
-  const erroLog: ErrorLog = ErrorLog.Instance
+  //const erroLog: ErrorLog = ErrorLog.Instance
 
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
@@ -353,6 +356,7 @@ export function syntacticTable(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
+    console.warn(error);
     throw new LexicalError("Definições com problemas - Verificar Definições");
   }
 
@@ -386,7 +390,7 @@ export function syntacticTable(
 
   const mode: number = Mode.BOTH
   const sensitive: boolean = true
-  const erroLog: ErrorLog = ErrorLog.Instance
+  //const erroLog: ErrorLog = ErrorLog.Instance
 
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
@@ -478,6 +482,7 @@ export function syntacticSetTable(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
+    console.warn(error);
     throw new LexicalError("Definições com problemas - Verificar Definições");
   }
 
@@ -511,7 +516,7 @@ export function syntacticSetTable(
 
   const mode: number = Mode.BOTH
   const sensitive: boolean = true
-  const erroLog: ErrorLog = ErrorLog.Instance
+  //const erroLog: ErrorLog = ErrorLog.Instance
 
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
@@ -606,6 +611,7 @@ export function syntacticFirstFollowTable(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
+    console.warn(error);
     throw new LexicalError("Definições com problemas - Verificar Definições");
   }
 
@@ -639,7 +645,7 @@ export function syntacticFirstFollowTable(
 
   const mode: number = Mode.BOTH
   const sensitive: boolean = true
-  const erroLog: ErrorLog = ErrorLog.Instance
+  //const erroLog: ErrorLog = ErrorLog.Instance
 
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
@@ -738,6 +744,7 @@ export function generateCode(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
+    console.warn(error);
     throw new LexicalError("Definições com problemas - Verificar Definições");
   }
 
@@ -771,7 +778,7 @@ export function generateCode(
 
   const mode: number = Mode.BOTH
   const sensitive: boolean = true
-  const erroLog: ErrorLog = ErrorLog.Instance
+  //const erroLog: ErrorLog = ErrorLog.Instance
 
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109

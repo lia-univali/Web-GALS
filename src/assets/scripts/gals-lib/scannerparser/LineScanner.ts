@@ -48,8 +48,8 @@ export class LineScanner {
       return this.parseRE()
     } else {
       while (this.hasMoreChars()) {
-        let start: number = this._pos
-        let c: string | null = this.nextChar()
+        const start: number = this._pos
+        const c: string | null = this.nextChar()
 
         if (c == null) return null // TODO (added extra)
 
@@ -59,6 +59,7 @@ export class LineScanner {
             this._specialCaseMode = false
             this._regularMode = false
           case ' ':
+          case '\s':
             continue
           case '\t':
             continue
@@ -82,11 +83,11 @@ export class LineScanner {
   }
 
   private parseRE(): Token | null {
-    let start: number = this._pos
+    const start: number = this._pos
     this._regularMode = false
 
     while (this.hasMoreChars()) {
-      let c: string | null = this.nextChar()
+      const c: string | null = this.nextChar()
 
       if (c == null) return null // TODO (Added Extra)
 
@@ -104,15 +105,15 @@ export class LineScanner {
         }
       }
     }
-    let tok: string = this._text.substring(start, this._pos)
+    const tok: string = this._text.substring(start, this._pos)
     return new Token(LineScanner.RE, tok, start)
   }
 
   private getString(): Token {
-    let start: number = this._pos - 1
+    const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
-      let c: string | null = this.nextChar()
+      const c: string | null = this.nextChar()
 
       if (c == '\n') break
       else if (c == '"') {
@@ -128,10 +129,10 @@ export class LineScanner {
   }
 
   private getId(): Token | null {
-    let start: number = this._pos - 1
+    const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
-      let c: string | null = this.nextChar()
+      const c: string | null = this.nextChar()
 
       if (c == null) return null // TODO (Added Extra)
 
@@ -145,7 +146,7 @@ export class LineScanner {
   }
 
   private getError(): Token | null {
-    let start: number = this._pos - 1
+    const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
       if (' \t\n\r'.indexOf(this.nextChar()) == -1) {
@@ -158,7 +159,7 @@ export class LineScanner {
   }
 
   private getComment(): Token {
-    let start: number = this._pos - 1
+    const start: number = this._pos - 1
 
     if (this.hasMoreChars()) {
       if (this.nextChar() == '/') {

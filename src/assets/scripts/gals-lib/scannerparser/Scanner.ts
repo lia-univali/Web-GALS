@@ -65,11 +65,9 @@ export class Scanner implements BasicScanner {
       }
       switch (c) {
         case ' ':
-
+        case '\s':
         case '\n':
-
         case '\r':
-
         case '\t':
           continue
 
@@ -142,11 +140,11 @@ export class Scanner implements BasicScanner {
 
 	 * */
   private getSpecialChar(): string | null {
-    let start = this._pos
+    const start = this._pos
 
     if (!this.hasMoreChars) throw new LexicalError('Era esperado um Caracter Especial', start)
 
-    let c: string | null = this.nextChar()
+    const c: string | null = this.nextChar()
 
     if (c == null) return null
 
@@ -232,14 +230,14 @@ export class Scanner implements BasicScanner {
   private getCharByCode(c: string): string | null {
     //c eh um digito de certeza
 
-    let start: number = this._pos - 1
+    const start: number = this._pos - 1
 
-    let char: string | null = this.nextChar()
+    const char: string | null = this.nextChar()
 
     if (char == null) return null
 
     if (this.hasMoreChars() && this.isNumber(char)) {
-      let char: string | null = this.nextChar()
+      const char: string | null = this.nextChar()
 
       if (char == null) return null
 
@@ -251,9 +249,9 @@ export class Scanner implements BasicScanner {
       this._pos--
     }
 
-    let n: string = this._in.substring(start, this._pos)
+    const n: string = this._in.substring(start, this._pos)
 
-    let value: number = n.charCodeAt(0)
+    const value: number = n.charCodeAt(0)
 
     if (value > 255) throw new LexicalError('Valor decimal inválido (>255)', start)
 
@@ -267,7 +265,7 @@ export class Scanner implements BasicScanner {
 
   private processesDefinition(): Token | null {
     let tok: string = ''
-    let start: number = this._pos
+    const start: number = this._pos
 
     let c: string | null = '{'
 

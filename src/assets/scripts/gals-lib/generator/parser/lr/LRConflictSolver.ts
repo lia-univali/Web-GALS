@@ -24,7 +24,7 @@ export class LRConflictSolver extends ConflictSolver
         super()
         this._conflict  = (conflict === undefined? [] : conflict);
         this._state     = (state === undefined? -1 : state);
-        this._conflictListModel = new Array();
+        this._conflictListModel = new Array<ConflictModel>();
     }
 
     resolve(g: Grammar, input: number): number{
@@ -173,7 +173,7 @@ export class LRConflictSolver extends ConflictSolver
             button.onclick = () => {
                 dialog.close();
                 document.body.removeChild(dialog);
-               option.command;
+               //option.command;
             };
             dialog.appendChild(button);
             dialog.appendChild(document.createElement('br'));

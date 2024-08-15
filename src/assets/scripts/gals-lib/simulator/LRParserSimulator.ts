@@ -22,7 +22,7 @@ export class LRParserSimulator
 	private symbols: string[] ;
 	private nodeStack: Stack<TreeNode<string>> = new Stack();
 	
-	private errors: List<any>;
+	private errors: List<string>;
 	
 	public static DOLLAR = 1;
 	

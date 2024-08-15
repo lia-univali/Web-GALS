@@ -393,7 +393,7 @@ export class CppCommomGenerator
 		return result.toString();
 	}
 
-	private context(fa: FiniteAutomata): Object
+	private context(fa: FiniteAutomata): string
 	{
 		if (! fa.hasContext())
 			return "";
@@ -621,24 +621,24 @@ export class CppCommomGenerator
 		
 		let bfr = "";
 		
-		bfr + ("int PARSER_TABLE["+table.length+"]["+table[0].length+"] =\n");
-		bfr + ("{\n");
+		bfr += ("int PARSER_TABLE["+table.length+"]["+table[0].length+"] =\n");
+		bfr += ("{\n");
 		
 		for (let i=0; i< table.length; i++)
 		{
-			bfr + ("    {");
+			bfr += ("    {");
 			for (let j=0; j<table[i].length; j++)
 			{
-				bfr + (" ");
+				bfr += (" ");
 				for (let k = table[i][j].length; k<max; k++)
-					bfr + (" ");
-				bfr + (table[i][j]) + (",");
+					bfr += (" ");
+				bfr += (table[i][j]) + (",");
 			}
-			bfr= bfr.slice(0, -1);
-	 		bfr + (" },\n");
+			bfr = bfr.slice(0, -1);
+	 		bfr += (" },\n");
 		}	
 		bfr= bfr.slice(0, -2);
-		bfr + ("\n};\n\n");
+		bfr += ("\n};\n\n");
 		
 		return bfr.toString();
 	}
@@ -675,31 +675,31 @@ export class CppCommomGenerator
 		
 		let bfr = "";
 		
-		bfr + ("int PRODUCTIONS["+pl.length+"]["+(longest+1)+"] = \n");
-		bfr + ("{\n");
+		bfr += ("int PRODUCTIONS["+pl.length+"]["+(longest+1)+"] = \n");
+		bfr += ("{\n");
 		
 		for (let i=0; i< productions.length; i++)
 		{
-			bfr + ("    {");
+			bfr += ("    {");
 			for (let j=0; j<productions[i].length; j++)
 			{
-				bfr + (" ");
+				bfr += (" ");
 				for (let k = productions[i][j].length; k<max; k++)
-					bfr + (" ");
-				bfr + (productions[i][j]) + (",");
+					bfr += (" ");
+				bfr += (productions[i][j]) + (",");
 			}
 			for (let j=productions[i].length; j<=longest; j++)
 			{
-				bfr + (" ");
+				bfr += (" ");
 				for (let k = 1; k<max; k++)
-					bfr + (" ");
-				bfr + ("0") + (",");
+					bfr += (" ");
+				bfr += ("0") + (",");
 			}
 			bfr= bfr.slice(0, -1);
-	 		bfr + (" },\n");
+	 		bfr += (" },\n");
 		}	
 		bfr= bfr.slice(0, -2);
-		bfr + ("\n};\n\n");
+		bfr += ("\n};\n\n");
 		
 		return bfr.toString();
 	}

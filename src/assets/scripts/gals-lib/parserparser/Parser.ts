@@ -20,12 +20,12 @@ export class Parser
 			
 	public parse(t: List<string>, nt: List<string>, prods: string): Grammar // throws MetaException
 	{
-		let map: TreeMap<string, number> = new TreeMap();
+		const map: TreeMap<string, number> = new TreeMap();
         map.set(Grammar.EPSILON_STR, 0);
         
         let pos = 2;
 
-        let scanner: Scanner = new Scanner();
+        const scanner: Scanner = new Scanner();
 
 		let lineCount = 0;
 		
@@ -35,7 +35,7 @@ export class Parser
 		{			
 	        for (let i=0; i<t.size(); i++)
 	        {
-	        	let line: string = t.get(i);
+	        	const line: string = t.get(i);
 	        	if (line == "\n")
 	        	{
 	        		lineCount++;
@@ -55,7 +55,7 @@ export class Parser
 	        	{
 	        		if (token.id != Constants.TERM)
 	        			throw new SemanticError("Era esperada a declaração de um terminal", token.position);
-	        		let str: string = token.lexeme;
+	        		const str: string = token.lexeme;
 	        		
 					if (s.has(str))
 						throw new SemanticError("Terminal repetido : "+str, token.position);
@@ -87,7 +87,7 @@ export class Parser
         {
 	        for (let i=0; i<nt.size(); i++)
 	        {
-	        	let line: string = nt.get(i);
+	        	const line: string = nt.get(i);
 				if (line == "\n")
 				{
 					lineCount++;
@@ -106,7 +106,7 @@ export class Parser
 	        	{
 	        		if (token.id != Constants.NON_TERM)
 	        			throw new SemanticError("Era esperada a declaração de um não-terminal", token.position);
-					let str: string = token.lexeme;
+					const str: string = token.lexeme;
 					
 					if (s.has(str))
 						throw new SemanticError("Não-terminal repetido : "+str, token.position);
@@ -139,9 +139,9 @@ export class Parser
 			throw new MetaException(MetaException.Mode.GRAMMAR, -1, e as AnalysisError);
 		}
 		
-		let prodList = this.semanticAnalyser.getPoductions();
+		const prodList = this.semanticAnalyser.getPoductions();
 		
-		let start = 2 + t.size();
+		const start = 2 + t.size();
         return new Grammar(t.toArray(), nt.toArray(), prodList, start);
 	}
 	
@@ -161,7 +161,7 @@ export class Parser
 	
 	public step(): boolean // throws LexicalError, SyntaticError, SemanticError
 	{			
-		let x = this.stack.pop();
+		const x = this.stack.pop();
         if(x === undefined) return false;
 		let a: number;
 		
@@ -194,10 +194,10 @@ export class Parser
 		}
 		else if (this.isNonTerminal(x))
 		{
-			let p: number = Constants.TABLE[ x - Constants.FIRST_NON_TERMINAL][a-1];
+			const p: number = Constants.TABLE[ x - Constants.FIRST_NON_TERMINAL][a-1];
 			if (p >= 0 )
 			{
-				let production = Constants.PRODUCTIONS[p];
+				const production = Constants.PRODUCTIONS[p];
 				if(production === undefined) throw new SyntaticError("Produção não definida");
 				//empilha a produção em ordem reversa
 				for (let i = production.length - 1; i>=0; i--)

@@ -1232,6 +1232,7 @@ export class Grammar {
 		}
 		catch (e)
 		{
+            console.warn(e);
 		}
 		
 		const cs: string[]  = clone.symbols;
@@ -1287,7 +1288,7 @@ export class Grammar {
      *
      * @return representação do BitSet
      */
-    public setToStr(b: OrderedIntegerSet): String
+    public setToStr(b: OrderedIntegerSet): string
     {
     	let bfr = "{ ";
         for (let j = 0; j < b.size; j++)
@@ -1613,6 +1614,7 @@ export class Grammar {
 		}
 		catch (e)
 		{
+            console.warn(e);
 			throw new Error("Internal Error");
 		}
     }

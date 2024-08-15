@@ -269,7 +269,7 @@ export abstract class LRGenerator {
 			let p: Production = it.production;
 			if (p.get_rhs().length > it.position) {
 				const x: number = p.get_rhs()[it.position];
-				const next: List<any> = this.goTo(item, x);
+				const next: List<LRItem> = this.goTo(item, x);
 				const pos: number = l.indexOf(next);
 				result += "<TD bgcolor=" + color + " align=right>" + pos + "</TD>";
 			}

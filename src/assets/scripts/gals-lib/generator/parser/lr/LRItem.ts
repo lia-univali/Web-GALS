@@ -46,6 +46,7 @@ export class LRItem //implements Comparable
 		}
 		catch (e)
 		{
+			console.warn(e);
 			return false;
 		}
 	}
