@@ -423,12 +423,16 @@ export default defineComponent({
   margin: 0;
   margin-bottom: 6px;
   padding: 0;
-  height: calc(100% - 228px);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 3;
 }
 .abaProjetos {
-  /* overflow: auto;
-  overflow-x: hidden; */
+  /* overflow: auto; */
+  /* overflow-x: hidden; */
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .lista__projetos {
@@ -473,13 +477,14 @@ p {
 
 .container__developers p {
   font-family: 'IBM Plex Sans';
-  text-align: justify;
+  text-align: left;
 }
 
 .conteudo {
   margin: 0px;
   padding: 3%;
   width: 240px;
+  box-sizing: border-box;
   border-radius: 5px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
