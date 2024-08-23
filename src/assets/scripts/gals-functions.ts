@@ -44,9 +44,23 @@ function parseDefsOnTokens(def: string, tok: string): string{
 
   for (let line of tknzr) {
     line = line.trim();
-
     const termo = line.split(':').filter(Boolean);
-    defTermo.set('{'+termo[0].trim()+'}', termo[1].trim());
+
+    // Reuso de uma Definição Regular em outra Definição
+    let defExpression : string = termo[1].trim()
+    const existentDefs = defExpression.match(/{[a-zA-Z_][a-zA-Z0-9_]*}/g)
+    if(existentDefs !== null) {
+      for(const exDef of existentDefs) {
+        if( !defTermo.has(exDef) ) {
+          throw new LexicalError(`Definições Regulares: A definição ${exDef} usada em '${line}' não existe.`);
+        } else {
+          // @ts-ignore: Object is possibly 'null'.
+          defExpression = defExpression.replace(exDef, defTermo.get(exDef))
+        }
+      }
+    }
+    
+    defTermo.set('{' + termo[0].trim() + '}', defExpression)
   }
 
 
