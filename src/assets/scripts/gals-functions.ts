@@ -84,7 +84,7 @@ export function lexicalSimulation(
     definitions = ''
   } catch (error) {
     console.warn(error);
-    throw new LexicalError("Definições com problemas - Verificar Definições");
+    throw new LexicalError((error as LexicalError).message);
   }
 
 
@@ -194,7 +194,7 @@ export function lexicalTable(
     definitions = ''
   } catch (error) {
     console.warn(error);
-    throw new LexicalError("Definições com problemas - Verificar Definições");
+    throw new LexicalError((error as LexicalError).message)
   }
 
   const sensitive: boolean = true
@@ -219,7 +219,7 @@ export function syntacticSimulation(
     definitions = ''
   } catch (error) {
     console.warn(error)
-    throw new LexicalError("Definições com problemas - Verificar Definições");
+    throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar
@@ -371,7 +371,7 @@ export function syntacticTable(
     definitions = ''
   } catch (error) {
     console.warn(error);
-    throw new LexicalError("Definições com problemas - Verificar Definições");
+    throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar
@@ -497,7 +497,7 @@ export function syntacticSetTable(
     definitions = ''
   } catch (error) {
     console.warn(error);
-    throw new LexicalError("Definições com problemas - Verificar Definições");
+    throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar
@@ -626,7 +626,7 @@ export function syntacticFirstFollowTable(
     definitions = ''
   } catch (error) {
     console.warn(error);
-    throw new LexicalError("Definições com problemas - Verificar Definições");
+    throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar
@@ -759,7 +759,7 @@ export function generateCode(
     definitions = ''
   } catch (error) {
     console.warn(error);
-    throw new LexicalError("Definições com problemas - Verificar Definições");
+    throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar

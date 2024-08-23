@@ -37,7 +37,7 @@ export class LineScanner {
   }
 
   public nextToken(): Token | null {
-    if (!this.hasMoreChars) return null
+    if (!this.hasMoreChars()) return null
 
     if (this._regularMode) {
       if (this._specialCaseMode) {
@@ -60,7 +60,6 @@ export class LineScanner {
             this._regularMode = false
           case ' ':
           case '\s':
-            continue
           case '\t':
             continue
           case ':':

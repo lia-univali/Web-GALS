@@ -186,7 +186,6 @@ export class LineParser {
         const t: Token | null = this.nextToken()
 
         this.pos = 0
-
         if (t != null) {
           this.pos = t.position + t.lexeme.length
 
@@ -201,10 +200,11 @@ export class LineParser {
               break
 
             default:
-              throw new SyntaticError('Era esperado um identificador', 0)
+              throw new LexicalError('Era esperado um identificador', 0)
           }
         }
       } catch (e) {
+        console.warn("No parseTokens",e)
         throw new MetaException(MetaException.Mode.TOKEN, lineCount, e as AnalysisError)
       }
     }
@@ -236,7 +236,7 @@ export class LineParser {
 
         throw analysisError
       }
-    } else throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
+    } else throw new LexicalError('Era esperado uma Expressão Regular', this.pos)
   }
 
   //TODO Weird
@@ -273,7 +273,7 @@ export class LineParser {
           break
         default:
           this.pos = t.position
-          throw new SyntaticError("Era esperado ':' ou '='", this.pos)
+          throw new LexicalError("Era esperado ':' ou '='", this.pos)
       }
     }
   }
@@ -284,11 +284,10 @@ export class LineParser {
     const t: Token | null = this.nextToken()
 
     if (t == null || t.id != LineScanner.RE) {
-      throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
+      throw new LexicalError('Era esperado uma Expressão Regular', this.pos)
     }
 
     const re: string = t.lexeme
-
     try {
       if (this.gen == null) return
 
@@ -297,7 +296,10 @@ export class LineParser {
         if (node != undefined) this.gen.addExpression(id, node, false)
       } else {
         const node: Node | undefined = this.parseRE(re)
-        if (node != undefined) this.gen.addExpression(id, node, true)
+        if (node != undefined) 
+          this.gen.addExpression(id, node, true)
+        else
+          throw new LexicalError(`Definição Regular "${re}" indefinida no Token '${id}'`, this.pos)
       }
     } catch (e) {
       const analysisError = e as AnalysisError
