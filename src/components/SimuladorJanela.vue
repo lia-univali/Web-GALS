@@ -33,6 +33,10 @@ export default defineComponent({
       if (selecionado == -1) return
 
       const projeto = this.store.listaProjetos[selecionado]
+      if(!projeto.textSimulator) {
+        projeto.consoleExit = 'A entrada do simulador está vazia!'
+        return;
+      }
       try {
         this.resultadoLexico = lexicalSimulation(
           projeto.textSimulator,
@@ -42,7 +46,7 @@ export default defineComponent({
 
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
-        console.log(error as Object)
+        console.log(error)
         projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
     },
@@ -53,6 +57,10 @@ export default defineComponent({
 
       const projeto = this.store.listaProjetos[selecionado]
 
+      if(!projeto.textSimulator) {
+        projeto.consoleExit = 'A entrada do simulador está vazia!'
+        return;
+      }
       try {
         const result = syntacticSimulation(
           projeto.textSimulator,
@@ -66,8 +74,8 @@ export default defineComponent({
         this.resultadoSintatico = result
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
-        console.log(error as Object)
-        projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
+        console.log(error)
+        projeto.consoleExit = 'Erro Léxico/Sintático: ' + (error as Error).message
       }
     },
     tokenSelect(lexeme:string, position:number) {
