@@ -59,7 +59,7 @@ export class LineScanner {
             this._specialCaseMode = false
             this._regularMode = false
           case ' ':
-          case '\s':
+          //case '\s':
           case '\t':
             continue
           case ':':
@@ -104,6 +104,7 @@ export class LineScanner {
         }
       }
     }
+
     const tok: string = this._text.substring(start, this._pos)
     return new Token(LineScanner.RE, tok, start)
   }

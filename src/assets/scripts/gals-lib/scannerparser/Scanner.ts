@@ -65,7 +65,7 @@ export class Scanner implements BasicScanner {
       }
       switch (c) {
         case ' ':
-        case '\s':
+        //case '\s':
         case '\n':
         case '\r':
         case '\t':
