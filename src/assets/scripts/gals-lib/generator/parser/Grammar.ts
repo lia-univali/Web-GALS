@@ -79,7 +79,6 @@ export class Grammar {
     private setProductions(productions: List<Production>) {
         
         productions.toArray().forEach(p => this._productions.add(p));
-        
         let max = 0;
         for (let i = 0 ; i < this._productions.size(); i++) {
         	this._productions.get(i).setGrammar(this);
@@ -88,6 +87,7 @@ export class Grammar {
         			max = this._productions.get(i).get_rhs()[j];
         }
         this.SEMANTIC_ACTION_COUNT = max - this.FIRST_SEMANTIC_ACTION();
+        if (this.SEMANTIC_ACTION_COUNT < 0) this.SEMANTIC_ACTION_COUNT = 0 // CHECK: Correção não testada
     }
 
     /**
