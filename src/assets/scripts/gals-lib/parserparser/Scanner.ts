@@ -15,8 +15,8 @@ export class Scanner implements BasicScanner
 	{
 		if(str == undefined){
 			this.input = "";
-			this.pos = -1;
-			this.endPosition =-1;
+			this.pos = 0;
+			this.endPosition = 0;
 		}
 		else{
 			this.input = str;
@@ -92,7 +92,12 @@ export class Scanner implements BasicScanner
 	}
 
 	private isLetter(char: string): boolean {
-		return /^[a-zA-Zî]+$/.test(char);
+		//return /^[a-zA-Zî]+$/.test(char); // Não é compatível com o Java -> Character.isLetter()
+      return (
+        char.toLowerCase() != char.toUpperCase() ||
+        char.charCodeAt(0) == 170 ||
+        char.charCodeAt(0) == 186
+      )
 	}
 	  
 
@@ -215,7 +220,8 @@ export class Scanner implements BasicScanner
 	}
 
 	private isLetterOrDigit(char: string): boolean {
-		return /^[a-zA-Z0-9]$/.test(char);
+
+		return this.isLetter(char) || /^[0-9]$/.test(char);
 	}
 
 	private analyseNonTerminal(): Token //throws LexicalError

@@ -297,9 +297,12 @@ export class Scanner implements BasicScanner {
     else return null
   }
 
-  private isLetterOrDigit(c: string): boolean {
-    // TODO Verify if is correct
-    return c.toLowerCase() != c.toUpperCase() || this.isNumber(c)
+  private isLetterOrDigit(char: string): boolean {
+    return (
+      char.toLowerCase() != char.toUpperCase() ||
+      char.charCodeAt(0) == 170 ||
+      char.charCodeAt(0) == 186
+    )
   }
 
   private isNumber(str: string): boolean {

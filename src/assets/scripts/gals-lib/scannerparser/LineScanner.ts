@@ -176,20 +176,20 @@ export class LineScanner {
     return new Token(LineScanner.ERROR, this._text.substring(start, this._pos), start)
   }
 
-  //TODO Verify if compatible with java functions
-
-  private isLetter(c: string): boolean {
-    // TODO Verify if is correct
-    return c.toLowerCase() != c.toUpperCase()
+  private isLetter(char: string): boolean {
+    return (
+      char.toLowerCase() != char.toUpperCase() 
+        || char.charCodeAt(0) == 170
+        || char.charCodeAt(0) == 186
+    )
+    //return c.toLowerCase() != c.toUpperCase() // Não é 1-1 com o Java
   }
 
   private isLetterOrDigit(c: string): boolean {
-    // TODO Verify if is correct
-    return c.toLowerCase() != c.toUpperCase() || this.isNumber(c)
+    return this.isLetter(c) || this.isNumber(c)
   }
 
   private isNumber(str: string): boolean {
-    // TODO Verify if is correct
     if (typeof str !== 'string') {
       return false
     }
