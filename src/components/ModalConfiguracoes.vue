@@ -90,7 +90,7 @@ export default defineComponent({
       const form: any = this.$refs.form
       const opcoes: Options = this.projetos[this.selecionado].optionsGals
 
-      alert(opcoes.toString())
+      //alert(opcoes.toString())
 
       if (opcoes.generateScanner && opcoes.generateParser) form.gerar.value = '3'
       else if (opcoes.generateParser) form.gerar.value = '2'

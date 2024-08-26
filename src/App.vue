@@ -76,7 +76,7 @@ export default defineComponent({
           </pane>
         </splitpanes>
       </div>
-      <div class="contentor__centro__inferior">
+      <div hidden class="contentor__centro__inferior">
         <AreaCodigo titulo="Saída" />
       </div>
     </div>
@@ -175,5 +175,9 @@ body {
   background-color: #a8d19b;
   border-radius: 3px;
   transition: 0.3s;
+}
+
+.v-toast {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
 }
 </style>

@@ -169,6 +169,7 @@ export default defineComponent({
         codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar)
 
         salvador.download(codigo, this.projetos[this.selecionado].fileName, '.gals')
+        this.$toast.success('Projeto salvo!')
       }
     },
     abrirInformacoes() {
@@ -190,10 +191,9 @@ export default defineComponent({
       if (newTab) {
         newTab.document.write(html)
         newTab.document.close()
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-      } else {
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
+      projeto.consoleExit = 'Tabela criada com Sucesso!'
+      this.$toast.info("Tabela Léxica criada com Sucesso!")
     },
     mostrarTabelaSintatico() {
       const selecionado = this.store.selecionado
@@ -208,16 +208,15 @@ export default defineComponent({
         null
       )
 
-      salvador.download(html, this.projetos[this.selecionado].fileName, '.html')
+      //salvador.download(html, this.projetos[this.selecionado].fileName, '.html')
 
       const newTab = window.open()
       if (newTab) {
         newTab.document.write(html)
         newTab.document.close()
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-      } else {
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
+      projeto.consoleExit = 'Tabela criada com Sucesso!'
+      this.$toast.info("Tabela Sintática criada com Sucesso!")
     },
     mostrarTabelaConjuntoSintatico() {
       const selecionado = this.store.selecionado
@@ -235,11 +234,10 @@ export default defineComponent({
       const newTab = window.open()
       if (newTab) {
         newTab.document.write(html)
-        newTab.document.close()
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-      } else {
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
+        newTab.document.close()       
       }
+      projeto.consoleExit = 'Tabela criada com Sucesso!'
+      this.$toast.info('Tabela do Conjunto de Itens criada com sucesso.')
     },
     mostrarTabelaFirstFollowSintatico() {
       const selecionado = this.store.selecionado
@@ -258,10 +256,9 @@ export default defineComponent({
       if (newTab) {
         newTab.document.write(html)
         newTab.document.close()
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-      } else {
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
+      projeto.consoleExit = 'Tabela criada com Sucesso!'
+      this.$toast.info("Tabela First Follow criada com sucesso!")
     }
   }
 })
@@ -483,7 +480,7 @@ p {
 .conteudo {
   margin: 0px;
   padding: 3%;
-  width: 240px;
+  width: 302px;
   box-sizing: border-box;
   border-radius: 5px;
   border-top-left-radius: 0;

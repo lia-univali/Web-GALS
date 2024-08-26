@@ -35,6 +35,7 @@ export default defineComponent({
       const projeto = this.store.listaProjetos[selecionado]
       if(!projeto.textSimulator) {
         projeto.consoleExit = 'A entrada do simulador está vazia!'
+        this.$toast.warning("A entrada do simulador está vazia.");
         return;
       }
       try {
@@ -44,9 +45,12 @@ export default defineComponent({
           projeto.tokens
         )
 
-        projeto.consoleExit = 'Simulação Concluida'
+        this.$toast.default("Simulação Léxica Concluída");
+
+        projeto.consoleExit = 'Simulação Léxica Concluida'
       } catch (error) {
-        console.log(error)
+        console.warn(error)
+        this.$toast.error("Erro Léxico: "+(error as Error).message)
         projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
     },
@@ -59,6 +63,7 @@ export default defineComponent({
 
       if(!projeto.textSimulator) {
         projeto.consoleExit = 'A entrada do simulador está vazia!'
+        this.$toast.warning("A entrada do simulador está vazia.");
         return;
       }
       try {
@@ -72,9 +77,13 @@ export default defineComponent({
           null
         )
         this.resultadoSintatico = result
+
+        this.$toast.default("Simulação Sintática Concluída")
+        
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
         console.log(error)
+        this.$toast.error("Erro Léxico/Sintático: "+ (error as Error).message);
         projeto.consoleExit = 'Erro Léxico/Sintático: ' + (error as Error).message
       }
     },
