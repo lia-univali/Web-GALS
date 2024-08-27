@@ -270,7 +270,7 @@ export abstract class LRGenerator {
 			if (p.get_rhs().length > it.position) {
 				const x: number = p.get_rhs()[it.position];
 				const next: List<LRItem> = this.goTo(item, x);
-				const pos: number = l.indexOf(next);
+				const pos: number = this.getIndexFromList(l, next);
 				result += "<TD bgcolor=" + color + " align=right>" + pos + "</TD>";
 			}
 			else
@@ -286,7 +286,7 @@ export abstract class LRGenerator {
 				if (p.get_rhs().length > it.position) {
 					const x: number = p.get_rhs()[it.position];
 					const next: List<LRItem> = this.goTo(item, x);
-					const pos: number = this.getIndexFromList(l, next) //l.indexOf(next); // TODO Aqui está o erro. Não é possivel buscar conjunto dentro de lista
+					const pos: number = this.getIndexFromList(l, next);
 					result += "<TD bgcolor=" + color + " align=right>" + pos + "</TD>";
 				}
 				else
@@ -296,8 +296,6 @@ export abstract class LRGenerator {
 
 			result += "</TR>";
 		}
-
-
 
 		result +=
 			"</TABLE>" +
@@ -310,20 +308,32 @@ export abstract class LRGenerator {
 
 	private getIndexFromList(list: List<List<LRItem>>, item:  List<LRItem>): number
 	{
-		const listArray = list.toArray();
+		const listArray : List<LRItem>[] = list.toArray();
+
+		const itemArray : LRItem[] = item.toArray()
 
 		for(let i = 0; i < listArray.length; i++){
 			const pivot = listArray[i];
-
-			const item1String = pivot.toString();
-			const item2String = item.toString();
-
-
-			if(item1String === item2String){
-				return i;
+			
+			if (pivot.size() !== item.size()) {
+				continue
 			}
+			
+			const pivotArray = pivot.toArray()
+			let contained = true
+
+			for (let x = 0; x < pivotArray.length; x++) {
+				const pivotItem: LRItem = pivotArray[x]
+				const it: LRItem = itemArray[x]
+				if (!pivotItem.equals(it)) {
+					contained = false
+					break
+				}
+			}
+
+			if (contained) return i
 		}
-		console.log(item);
+
 		return -1;
 	}
 
