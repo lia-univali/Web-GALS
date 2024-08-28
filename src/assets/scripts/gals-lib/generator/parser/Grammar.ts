@@ -87,7 +87,7 @@ export class Grammar {
         			max = this._productions.get(i).get_rhs()[j];
         }
         this.SEMANTIC_ACTION_COUNT = max - this.FIRST_SEMANTIC_ACTION();
-        if (this.SEMANTIC_ACTION_COUNT < 0) this.SEMANTIC_ACTION_COUNT = 0 // CHECK: Correção não testada
+        if (this.SEMANTIC_ACTION_COUNT < 0) this.SEMANTIC_ACTION_COUNT = -1
     }
 
     /**
