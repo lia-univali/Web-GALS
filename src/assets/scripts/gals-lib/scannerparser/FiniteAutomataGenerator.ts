@@ -248,10 +248,12 @@ export class FiniteAutomataGenerator {
           }
         }
 
-        const I: number = i //integer.valueOf(i);
-        if (!trans.has(I)) trans.set(I, new TreeMap<string, number>())
+        if (!trans.has(i)) {
+          trans.set(i, new Map<string, number>())
+          //trans.set(i, new TreeMap<string, number>())
+        }
         if (pos != -1) {
-          const transPivot = trans.get(I)
+          const transPivot = trans.get(i)
 
           if (transPivot == null) return null
 
