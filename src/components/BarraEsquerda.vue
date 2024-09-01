@@ -204,7 +204,7 @@ export default defineComponent({
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
-        Options.PARSER_SLR,
+        projeto.optionsGals.parser,
         null
       )
 
@@ -227,7 +227,7 @@ export default defineComponent({
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
-        Options.PARSER_SLR,
+        projeto.optionsGals.parser,
         null
       )
 
@@ -248,7 +248,7 @@ export default defineComponent({
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
-        Options.PARSER_SLR,
+        projeto.optionsGals.parser,
         null
       )
 
@@ -324,7 +324,9 @@ export default defineComponent({
       <div v-else-if="paginaAberta == 'Documentação'">
         <button class="btn" @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
         <button class="btn" @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
-        <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
+        <div v-if="(projetos[selecionado].optionsGals.parser != 3 && projetos[selecionado].optionsGals.parser != 4)">
+          <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
+        </div>
         <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
       <div class="container__info" v-else-if="paginaAberta == 'Informações'">

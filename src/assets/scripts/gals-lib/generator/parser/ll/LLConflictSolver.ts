@@ -1,7 +1,7 @@
 import { List, OrderedIntegerSet } from '../../../DataStructures'
 import { ConflictSolver } from "../ConflictSolver";
 import { Grammar } from "../Grammar";
-import type { Production } from '@/assets/scripts/gals-lib/util/Production'
+import { Production } from "../../../util/Production";
 
 export class LLConflictSolver extends ConflictSolver{
 

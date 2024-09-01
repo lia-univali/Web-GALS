@@ -376,7 +376,7 @@ export class JavaCommonGenerator {
 			case Options.PARSER_SLR:
 			case Options.PARSER_LALR:
 			case Options.PARSER_LR:
-				return this.genLRSyntTables(g, Options.PARSER_SLR); // TODO: Change value based on config file
+				return this.genLRSyntTables(g, options.parser);
 			default:
 				return null;
 		}
