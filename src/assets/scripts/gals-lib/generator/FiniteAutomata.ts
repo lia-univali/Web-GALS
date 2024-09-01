@@ -283,7 +283,7 @@ export class FiniteAutomata {
       
     for(const x of this._alphabet.list()){
       const c: string = this.escapeSpecialCharacters(String.fromCodePoint(x));
-			result += "<TD bgcolor=#99FF66 nowrap><B>"+ c +"</B></TD>";
+      result += "<TD bgcolor=#99FF66 nowrap><B>"+ this.translateChar(c) +"</B></TD>";
     }
 
     result += "</TR>";
@@ -358,4 +358,30 @@ export class FiniteAutomata {
     .replace(/\r/g, '\\r')
     .replace(/\s/g, "' '")
   }
+  
+  private translateChar(c : string): string {
+    switch (c){
+      case '\n' : return "\\n";
+      case '\r' : return "\\r";
+      case '\t' : return "\\t";
+      case '\b' : return "\\b";
+      case ' ' : return "' '";
+
+      case '"' : return "&quot;";
+      case '&' : return "&amp;";
+      case '<' : return "&lt;";
+      case '>' : return "&gt;";
+
+      default:
+
+        { const charCode = c.charCodeAt(0);
+
+        if ((charCode >= 32 && charCode <= 126) || (charCode >= 161 && charCode <= 255)) {
+          return c;
+        } else {
+          return charCode.toString();
+        } }
+    }
+  }
+  
 }
