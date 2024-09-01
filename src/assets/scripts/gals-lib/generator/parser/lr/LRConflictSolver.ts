@@ -122,7 +122,7 @@ export class LRConflictSolver extends ConflictSolver
         //     alert(`Comando escolhido: ${chosenCommand}`);
         // });
 
-        alert("Teste: " + resultNumber + "  teste:" + this._conflict.length )
+        //alert("Teste: " + resultNumber + "  teste:" + this._conflict.length )
         ////console.log(this._conflictListModel[0].command)
         //return this._conflictListModel[0].command;
         return this._conflictListModel[resultNumber].command
