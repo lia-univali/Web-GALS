@@ -81,7 +81,13 @@ export class LRConflictSolver extends ConflictSolver
         //     console.log('Thing was not saved to the database.');
         //   }
 
-        let result = prompt(header, '1')
+        let result: string | null = null
+
+        try {
+            result = prompt(header, '1')
+        } catch {
+            console.log('Prompt não encontrado')
+        }
 
         if(result == null)
             result = '1' 
