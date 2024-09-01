@@ -2,9 +2,8 @@ import { Options } from "../../Options";
 import { Grammar } from "../Grammar";
 import { LRGenerator } from "./LRGenerator";
 import { SLRGenerator } from "./SLRGenerator";
-import { LRCanonicGenerator } from '@/assets/scripts/gals-lib/generator/parser/lr/LRCanonicGenerator'
-import { LALRGenerator } from '@/assets/scripts/gals-lib/generator/parser/lr/LALRGenerator'
-
+import { LRCanonicGenerator } from './../lr/LRCanonicGenerator'
+import { LALRGenerator } from './../lr/LALRGenerator'
 /**
  * @author Gesser
  */

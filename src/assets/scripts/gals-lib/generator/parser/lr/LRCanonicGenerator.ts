@@ -1,9 +1,9 @@
-import { LRGenerator } from '@/assets/scripts/gals-lib/generator/parser/lr/LRGenerator'
-import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
-import { LRItem } from '@/assets/scripts/gals-lib/generator/parser/lr/LRItem'
-import { Production } from '@/assets/scripts/gals-lib/util/Production'
-import { OrderedIntegerSet, List } from '@/assets/scripts/gals-lib/DataStructures'
-import { Command } from '@/assets/scripts/gals-lib/generator/parser/lr/Command'
+import { LRGenerator } from '../../../generator/parser/lr/LRGenerator'
+import { Grammar } from '../../../generator/parser/Grammar'
+import { LRItem } from '../../../generator/parser/lr/LRItem'
+import { Production } from '../../../util/Production'
+import { OrderedIntegerSet, List } from '../../../DataStructures'
+import { Command } from './../lr/Command'
 
 
 export class LRCanonicGenerator extends LRGenerator

@@ -1,7 +1,7 @@
-import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
-import { LRItem } from '@/assets/scripts/gals-lib/generator/parser/lr/LRItem'
-import { List } from '@/assets/scripts/gals-lib/DataStructures'
-import { LRCanonicGenerator } from '@/assets/scripts/gals-lib/generator/parser/lr/LRCanonicGenerator'
+import { Grammar } from '../../../generator/parser/Grammar'
+import { LRItem } from '../lr/LRItem'
+import { List } from '../../../DataStructures'
+import { LRCanonicGenerator } from '../../parser/lr/LRCanonicGenerator'
 
 
 export class LALRGenerator extends LRCanonicGenerator
