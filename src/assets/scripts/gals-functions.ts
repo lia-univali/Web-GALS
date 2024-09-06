@@ -838,7 +838,7 @@ export function generateCode(
 
   // Produção de codigo
   const allFiles: TreeMap<string, string> = new TreeMap();
-  alert(options.language)
+  //alert(options.language)
   switch (options.language)
   {
     case Options.LANG_JAVA:

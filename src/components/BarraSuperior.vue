@@ -39,7 +39,7 @@ export default defineComponent({
         case Options.LANG_DELPHI:	linguagemString =  ("Delphi"); break;
       }
 
-      alert(options.toString())
+      //alert(options.toString())
 
       //let optionsTeste = new Options();
       //optionsTeste.pkgName =  "teste";
@@ -58,6 +58,7 @@ export default defineComponent({
         )
       } catch (error) {
         console.log(error)
+        this.$toast.error((error as Error).message)
       }
 
       if (allFiles == null) return
@@ -80,10 +81,10 @@ export default defineComponent({
           URL.revokeObjectURL(url)
         });
 
-        alert('Arquivos Gerados!')
+        this.$toast.success('Arquivos Gerados!')
       } catch (error) {
         console.error(error)
-        alert('Ocorreu um erro!')
+        this.$toast.error((error as Error).message)
       }
     },
     mudaLayout(perfil: number) {

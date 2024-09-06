@@ -51,7 +51,7 @@ export default defineComponent({
     },
     abrirOpcoes() {
       if (this.selecionado === -1) {
-        alert('Nenhum projeto selecionado!')
+        this.$toast.info('Nenhum projeto selecionado!')
         return
       }
 
@@ -132,6 +132,7 @@ export default defineComponent({
 
           input.value = ''
         });
+        this.$toast.info('Arquivo carregado!')
       }).catch(error => {
         console.error('Error importing DetectFileEncodingAndLanguage:', error);
       });
@@ -145,7 +146,7 @@ export default defineComponent({
     },
     salvarArquivo() {
       if (this.selecionado == -1) {
-        alert('Nenhum projeto selecionado!')
+        this.$toast.error('Nenhum projeto selecionado!')
       } else {
         const options = this.projetos[this.selecionado].options
         const objOptions = this.projetos[this.selecionado].optionsGals
