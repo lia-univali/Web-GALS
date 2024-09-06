@@ -372,15 +372,15 @@ export class FiniteAutomata {
       case '<' : return "&lt;";
       case '>' : return "&gt;";
 
-      default:
-
-        { const charCode = c.charCodeAt(0);
+      default:{
+        const charCode = c.charCodeAt(0)
 
         if ((charCode >= 32 && charCode <= 126) || (charCode >= 161 && charCode <= 255)) {
           return c;
         } else {
           return charCode.toString();
-        } }
+        }
+      }
     }
   }
   

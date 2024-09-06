@@ -49,9 +49,7 @@ export class LineScanner {
     } else {
       while (this.hasMoreChars()) {
         const start: number = this._pos
-        const c: string | null = this.nextChar()
-
-        if (c == null) return null // TODO (added extra)
+        const c: string = this.nextChar()
 
         switch (c) {
           case '\n':
@@ -81,14 +79,12 @@ export class LineScanner {
     }
   }
 
-  private parseRE(): Token | null {
+  private parseRE(): Token {
     const start: number = this._pos
     this._regularMode = false
 
     while (this.hasMoreChars()) {
-      const c: string | null = this.nextChar()
-
-      if (c == null) return null // TODO (Added Extra)
+      const c: string = this.nextChar()
 
       if (c == '\n') {
         this._pos--
@@ -113,7 +109,7 @@ export class LineScanner {
     const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
-      const c: string | null = this.nextChar()
+      const c: string = this.nextChar()
 
       if (c == '\n') break
       else if (c == '"') {
@@ -128,13 +124,11 @@ export class LineScanner {
     return new Token(LineScanner.ERROR, this.text.substring(start, this._pos), start)
   }
 
-  private getId(): Token | null {
+  private getId(): Token {
     const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
-      const c: string | null = this.nextChar()
-
-      if (c == null) return null // TODO (Added Extra)
+      const c: string = this.nextChar()
 
       if (!this.isLetterOrDigit(c) && c != '_') {
         this._pos--
@@ -145,7 +139,7 @@ export class LineScanner {
     return new Token(LineScanner.ID, this._text.substring(start, this._pos), start)
   }
 
-  private getError(): Token | null {
+  private getError(): Token {
     const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
