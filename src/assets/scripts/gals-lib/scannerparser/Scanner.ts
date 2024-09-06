@@ -47,7 +47,7 @@ export class Scanner implements BasicScanner {
     while (this.hasMoreChars()) {
       start = this._pos
 
-      let c: string | null = this.nextChar()
+      let c: string = this.nextChar();
 
       if (this._quote) {
         if (c == '"') {
@@ -65,7 +65,6 @@ export class Scanner implements BasicScanner {
       }
       switch (c) {
         case ' ':
-        //case '\s':
         case '\n':
         case '\r':
         case '\t':
@@ -75,47 +74,21 @@ export class Scanner implements BasicScanner {
           this._quote = true
           continue
 
-        case '|':
-          return this.createToken(UNION, '|')
+        case '|': return this.createToken(UNION, '|');
+        case '*': return this.createToken(CLOSURE, '*');
+        case '+': return this.createToken(CLOSURE_OB, '+');
+        case '?': return this.createToken(OPTIONAL, '?');
+        case '(': return this.createToken(PARENTHESIS_OPEN, '(');
+        case ')': return this.createToken(PARENTHESIS_CLOSE, ')');
+        case '[': return this.createToken(BRACKETS_OPEN, '[');
+        case ']': return this.createToken(BRACKETS_CLOSE, ']');
+        case '^': return this.createToken(COMPLEMENT, '^');
+        case '.': return this.createToken(ALL, '.');
+        case '-': return this.createToken(INTERVAL, '-');
+        case '\\':return this.processesAdvChar(); // Escaped char to process
+        case '{': return this.processesDefinition();
 
-        case '*':
-          return this.createToken(CLOSURE, '*')
-
-        case '+':
-          return this.createToken(CLOSURE_OB, '+')
-
-        case '?':
-          return this.createToken(OPTIONAL, '?')
-
-        case '(':
-          return this.createToken(PARENTHESIS_OPEN, '(')
-
-        case ')':
-          return this.createToken(PARENTHESIS_CLOSE, ')')
-
-        case '[':
-          return this.createToken(BRACKETS_OPEN, '[')
-
-        case ']':
-          return this.createToken(BRACKETS_CLOSE, ']')
-
-        case '^':
-          return this.createToken(COMPLEMENT, '^')
-
-        case '.':
-          return this.createToken(ALL, '.')
-
-        case '-':
-          return this.createToken(INTERVAL, '-')
-
-        case '\\':
-          return this.processesAdvChar()
-
-        case '{':
-          return this.processesDefinition()
-
-        default:
-          return this.createToken(CHAR, '' + c)
+        default: return this.createToken(CHAR, '' + c); // Normal char
       }
     }
 
@@ -144,82 +117,34 @@ export class Scanner implements BasicScanner {
 
     if (!this.hasMoreChars) throw new LexicalError('Era esperado um Caracter Especial', start)
 
-    const c: string | null = this.nextChar()
-
-    if (c == null) return null
+    const c: string = this.nextChar()
 
     switch (c) {
-      case 'b':
-        return '\b' //BACKSPACE
+      case 'b': return '\b'; // BACKSPACE
+      case 'n': return '\n'; // LINE FEED
+      case 'f': return '\f'; // FORM FEED
+      case 'r': return '\r'; // CARRIAGE RETURN
+      case 'e': return String.fromCharCode(27); // SCAPE
+      case 't': return '\t'; // TAB
+      case '\t':return '\t'; // TAB
+      case 's': return ' ';  // SPACE
 
-      case 'n':
-        return '\n' //LINE FEED
-
-      case 'f':
-        return '\f' //FORM FEED
-
-      case 'r':
-        return '\r' //CARRIAGE RETURN
-
-      case 'e':
-        return String.fromCharCode(27) //SCAPE TODO VERIFICAR
-
-      case 't':
-        return '\t' //TAB
-
-      case '\t':
-        return '\t' //TAB
-
-      case 's':
-        return ' ' //SPACE
-
-      case ' ':
-        return ' ' //SPACE
-
-      case '"':
-        return '"'
-
-      case '\\':
-        return '\\'
-
-      case '|':
-        return '|'
-
-      case '*':
-        return '*'
-
-      case '+':
-        return '+'
-
-      case '?':
-        return '?'
-
-      case '(':
-        return '('
-
-      case ')':
-        return ')'
-
-      case '{':
-        return '{'
-
-      case '}':
-        return '}'
-
-      case '[':
-        return '['
-
-      case ']':
-        return ']'
-
-      case '.':
-        return '.'
-
-      case '^':
-        return '^'
-
-      case '-':
-        return '-'
+      case ' ': return ' '; // SPACE
+      case '"': return '"'; // DOUBLE QUOTE
+      case '\\':return '\\';// BACKSLASH
+      case '|': return '|'; // PIPE
+      case '*': return '*'; // ASTERISK
+      case '+': return '+'; // PLUS
+      case '?': return '?'; // QUESTION MARK
+      case '(': return '('; // OPEN PARENTHESES | OPEN ROUND BRACKETS
+      case ')': return ')'; // CLOSE PARENTHESES | CLOSE ROUND BRACKETS
+      case '{': return '{'; // OPEN CURLY BRACKET
+      case '}': return '}'; // CLOSE CURLY BRACKET
+      case '[': return '['; // OPEN SQUARE BRACKET
+      case ']': return ']'; // CLOSE SQUARE BRACKET
+      case '.': return '.'; // DOT | PERIOD
+      case '^': return '^'; // CARET
+      case '-': return '-'; // EN DASH | HYPHEN
 
       default:
         if (this.isNumber(c)) return this.getCharByCode(c)
@@ -228,33 +153,22 @@ export class Scanner implements BasicScanner {
   }
 
   private getCharByCode(c: string): string | null {
-    //c eh um digito de certeza
+    // 'c' eh um digito de certeza
 
     const start: number = this._pos - 1
 
-    const char: string | null = this.nextChar()
-
-    if (char == null) return null
-
-    if (this.hasMoreChars() && this.isNumber(char)) {
-      const char: string | null = this.nextChar()
-
-      if (char == null) return null
-
-      if (this.hasMoreChars() && !this.isNumber(char)) {
-        //3o char
+    if (this.hasMoreChars() && this.isNumber(this.nextChar())) { // 2o char
+      if (this.hasMoreChars() && !this.isNumber(this.nextChar())) { //3o char
         this._pos--
       }
-    } else {
-      this._pos--
     }
+    //else { // REVIEW: Bug de parse code ASCII (exemplo: \97) - TESTAR
+    //  this._pos--
+    //}
 
     const n: string = this._in.substring(start, this._pos)
-
-    const value: number = n.charCodeAt(0)
-
+    const value : number = parseInt(n,10)
     if (value > 255) throw new LexicalError('Valor decimal inválido (>255)', start)
-
     return String.fromCharCode(value)
   }
 
@@ -289,19 +203,20 @@ export class Scanner implements BasicScanner {
   }
 
   private hasMoreChars(): boolean {
-    return this._pos < this._in.length
+    return this._pos < this._in.length;
   }
 
-  private nextChar(): string | null {
+  private nextChar(): string {
     if (this.hasMoreChars()) return this._in.charAt(this._pos++)
-    else return null
+    else return String.fromCharCode(-1);
   }
 
   private isLetterOrDigit(char: string): boolean {
     return (
       char.toLowerCase() != char.toUpperCase() ||
       char.charCodeAt(0) == 170 ||
-      char.charCodeAt(0) == 186
+      char.charCodeAt(0) == 186 ||
+      this.isNumber(char)
     )
   }
 
