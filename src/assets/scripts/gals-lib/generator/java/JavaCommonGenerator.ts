@@ -5,6 +5,7 @@ import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
 import { Options } from "../Options";
 import { Grammar } from "../parser/Grammar";
+import { LLParser } from "../parser/ll/LLParser";
 import { Command } from "../parser/lr/Command";
 import { LRGeneratorFactory } from "../parser/lr/LRGeneratorFactory";
 
@@ -506,7 +507,7 @@ export class JavaCommonGenerator {
 	    	
 	    	result.push("\n");
 	    	
-	    	//result.push(this.emitLLTable(new LLParser(g)));
+	    	result.push(this.emitLLTable(new LLParser(g)));
 				
 			result.push("\n");
 			
@@ -514,7 +515,7 @@ export class JavaCommonGenerator {
 				
 			result.push("\n");
 				
-			//result.push(this.emitErrorTableLL(g));
+			result.push(this.emitErrorTableLL(g));
 			
 			return result.join("");
 		}
@@ -780,48 +781,48 @@ export class JavaCommonGenerator {
 		return result.join("");
 	}
 
-    // private emitLLTable(g: LLParser): string
-	// {
-	//     let tbl: number[][] = g.generateTable();
-    //     let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
+    private emitLLTable(g: LLParser): string
+	{
+	    const tbl: number[][] = g.generateTable();
+        const table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
 
-	// 	let max = 0;
-	// 	for (let i = 0; i < table.length; i++)
-	// 	{
-	// 		for (let j = 0; j < table[i].length; j++)
-	// 		{
-	// 			let tmp: string = tbl[i][j].toString();
-	// 			table[i][j] = tmp;
-	// 			if (tmp.length > max)
-	// 				max = tmp.length;
-	// 		}
-	// 	}
+		let max = 0;
+		for (let i = 0; i < table.length; i++)
+		{
+			for (let j = 0; j < table[i].length; j++)
+			{
+				const tmp: string = tbl[i][j].toString();
+				table[i][j] = tmp;
+				if (tmp.length > max)
+					max = tmp.length;
+			}
+		}
 		
-    //     const result: string[] = [];
+        const result: string[] = [];
 		
-	// 	result.push("    int[][] PARSER_TABLE =\n");
-	// 	result.push("    {\n");
+		result.push("    int[][] PARSER_TABLE =\n");
+		result.push("    {\n");
 		
-	// 	for (let i=0; i< table.length; i++)
-	// 	{
-	// 		result.push("        {");
-	// 		for (let j=0; j<table[i].length; j++)
-	// 		{
-	// 			result.push(" ");
-	// 			for (let k = table[i][j].length; k<max; k++){
-	// 				result.push(" ");
-    //             }
-	// 			result.push(table[i][j]);
-    //             result.push(",");
-	// 		}
-    //         result.pop();
-    //         result.push(" },\n");
-	// 	}	
-	// 	result.pop();
-	// 	result.push("\n    };\n");
+		for (let i=0; i< table.length; i++)
+		{
+			result.push("        {");
+			for (let j=0; j<table[i].length; j++)
+			{
+				result.push(" ");
+				for (let k = table[i][j].length; k<max; k++){
+					result.push(" ");
+                }
+				result.push(table[i][j]);
+                result.push(",");
+			}
+            result.pop();
+            result.push(" },\n");
+		}
+		result.pop();
+		result.push("\n    };\n");
 		
-	// 	return result.join("");
-	// }
+		return result.join("");
+	}
 
 	private emitErrorTableLR(): string
 	{
