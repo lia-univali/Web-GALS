@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { Token } from '@/assets/scripts/gals-lib/analyser/Token'
 import { lexicalSimulation, syntacticSimulation } from '@/assets/scripts/gals-functions'
@@ -21,9 +21,16 @@ export default defineComponent({
   setup() {
     const store = projetoStore()
 
+    const toggleNecessarioRecriar = () => {
+      store.changeNecessarioRecriar();
+    };
+
     return {
-      store
+      store,
+      isChecked: store.necessarioRecriar,
+      toggleCheckbox: store.changeNecessarioRecriar,
     }
+
   },
   methods: {
     simularLexico() {
@@ -128,12 +135,21 @@ export default defineComponent({
         <button class="botao__simular" @click="simularLexico">Simular Lexico</button>
         <button class="botao__simular" @click="simularSintatico">Simular Sintático</button>
       </div>
+      <div class="container__botao__simular">
+        <span class="material-icons customizado"  title="Reconstruir Gramática" style="font-size: 22px;">restart_alt</span>
+        <label class="switch">
+          <input type="checkbox" title="Reconstruir Gramática" v-model="isChecked" @change="store.setNecessarioRecriar" />
+          <span title="Reconstruir Gramática" class="slider round"></span>
+        </label>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .caixa__titulo {
+  display: flex;
+
   font-family: 'IBM Plex Sans';
   font-weight: 600;
   color: #424242;
@@ -234,6 +250,8 @@ tr:hover {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
+
+  align-items: center;
 }
 .botao__tipo__simulacao {
   font-family: 'IBM Plex Sans';
@@ -323,4 +341,74 @@ tr:hover {
   box-shadow: 0 1px #666;
   transform: translateY(1px);
 }
+
+
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+  margin: 5px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 17px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.material-icons.customizado{
+  cursor: default;
+}
+
 </style>

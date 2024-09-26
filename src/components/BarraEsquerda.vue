@@ -144,6 +144,13 @@ export default defineComponent({
       const input = document.getElementById('nomeProjeto') as HTMLInputElement
       if (input != null) input.value = ''
     },
+    abrirModalEditarArquivo() {
+      const formulario = document.getElementById('modal__arquivo__editar')
+      if (formulario != null) formulario.style.display = 'flex'
+
+      const input = document.getElementById('nomeProjetoEditar') as HTMLInputElement
+      if (input != null) input.value = ''
+    },
     salvarArquivo() {
       if (this.selecionado == -1) {
         this.$toast.error('Nenhum projeto selecionado!')
@@ -307,15 +314,18 @@ export default defineComponent({
             >
               {{ projeto.fileName }}
             </button>
-            <button @click="store.deleteProject(projeto.id)" class="botao__excluir__projeto">
-              X
-            </button>
+            <div class="botao__conjunto__projeto" >
+              <span @click="abrirModalEditarArquivo" class="material-icons customizado"  title="Editar Projeto" style="font-size: 14px;">edit_square</span>
+              <button @click="store.deleteProject(projeto.id)" class="botao__excluir__projeto" title="Excluir Projeto">
+                X
+              </button>
+            </div>
           </div>
         </div>
         <div class="codigo__definicao__regulares">
           <AreaCodigo titulo="Definições Regulares" />
         </div>
-        <AreaCodigo titulo="Simbolo inicial" />
+        <!--<AreaCodigo titulo="Simbolo inicial" /> -->
       </div>
       <div v-else-if="paginaAberta == 'Opções'">
         <div v-if="store.totalProjetos > 0">
@@ -424,9 +434,7 @@ export default defineComponent({
   margin: 0;
   margin-bottom: 6px;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 3;
+  height: calc(100% - 250px);
 }
 .abaProjetos {
   /* overflow: auto; */
@@ -618,10 +626,25 @@ input[type='file'] {
   text-align: center;
   font-weight: 600;
   color: #a40000;
-
   background: none;
   border: none;
   margin: 0;
+  padding: 0;
+  cursor: pointer;
+
+  align-items: center;
+}
+
+.botao__editar__projeto {
+  font-family: 'IBM Plex Sans';
+  text-align: center;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.93);
+
+  background: none;
+  border: none;
+  margin: 0px;
+  margin-left: 20px;
   padding: 0;
   cursor: pointer;
 }
@@ -640,5 +663,17 @@ input[type='file'] {
   border-left: 3px solid #ffffff;
   border-right: 3px solid #ffffff;
 }
+
+.material-icons.customizado{
+  margin-left: 30px;
+  cursor: pointer;
+}
+
+.botao__conjunto__projeto{
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
 </style>
 @/assets/scripts/salvador@/assets/scripts/saver

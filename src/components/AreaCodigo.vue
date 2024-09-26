@@ -179,7 +179,23 @@ export default defineComponent({
 
 <template>
   <div :class="[titulo === 'Simbolo inicial' ? 'caixa__input' : 'caixa']">
-    <p class="caixa__titulo">{{ titulo }}</p>
+    <div class="caixa__titulo">
+      <p class="caixa__titulo">{{ titulo }}</p>
+      <div v-if="titulo == 'Gramática'" class="caixa__input">
+        <label> Simbolo inicial </label>
+                <input @change="store.setNecessarioRecriar"
+                  id="textoNaoTerminais"
+                  type="text"
+                  name="textoCodigo"
+                  class="input__codigo"
+                  spellcheck="false"
+                  v-model="projetos[selecionado].nonTerminals"
+                  pattern="<[a-zA-Z_0-9]+>"
+                  :disabled="selecionado == -1"
+                />
+      </div>
+    </div>
+
 
     <div v-if="projetos[selecionado] == undefined" class="caixa__interna">
       <input
@@ -252,18 +268,6 @@ export default defineComponent({
         :highlight="highlighterGrammarGALS"
         :line-numbers="true"
       />
-    </div>
-    <div v-else-if="titulo == 'Saída'" class="caixa__interna">
-      <textarea
-        id="textoSaida"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        disabled
-        v-model="projetos[selecionado].consoleExit"
-      ></textarea>
     </div>
     <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor('textoSimulacao')">
       <prism-editor
@@ -341,7 +345,9 @@ export default defineComponent({
   /*  margin: 0px; */
   /* padding: 0px; */
   width: 100%;
-
+  display: flex;
+  text-wrap: nowrap;
+  flex-direction: row;
   border-radius: 5px;
   background-color: white;
 

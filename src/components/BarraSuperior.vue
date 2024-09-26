@@ -225,7 +225,7 @@ a:hover {
   font-family: 'IBM Plex Sans';
   background-color: #f2f2f2;
   color: rgb(129, 129, 129);
-  padding: 14px;
+  padding: 13px;
   font-size: 16px;
   border: none;
   text-align: right;

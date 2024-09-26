@@ -44,7 +44,8 @@ export const projetoStore = defineStore('projetos', {
         'simulacao': 33.3333,
         'saidaSimulacao': 33.3333,
         'gramatica': 50,
-      } as Layout
+      } as Layout,
+      necessarioRecriar: true
     }
   },
   getters: {
@@ -72,6 +73,13 @@ export const projetoStore = defineStore('projetos', {
     },
     selectLastProject() {
       this.selecionado = this.listaProjetos.length - 1; 
+    },
+    changeNecessarioRecriar(): void{
+      this.necessarioRecriar = !this.necessarioRecriar
+    },
+    setNecessarioRecriar(): void{
+      alert("teste")
+      this.necessarioRecriar = true
     }
   }
 })
