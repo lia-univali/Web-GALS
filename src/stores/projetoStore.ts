@@ -1,5 +1,6 @@
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import { defineStore } from 'pinia'
+import { nonTerminalsFromGrammar } from '@/assets/scripts/gals-functions'
 
 export interface Projeto {
   id: number
@@ -20,6 +21,9 @@ export interface Layout {
   saidaSimulacao: number,
   gramatica: number,
 }
+
+let linhaProjetoAntigo: string = '';
+let linhaProjetoNovo: string = '';
 
 export const projetoStore = defineStore('projetos', {
   state: () => {
@@ -54,6 +58,7 @@ export const projetoStore = defineStore('projetos', {
   actions: {
     changeSelected(newSelected: number) {
       this.selecionado = newSelected
+      this.necessarioRecriar  = true
     },
     deleteProject(id: number) {
       const selecionadoAntigo = this.selecionado
@@ -77,9 +82,38 @@ export const projetoStore = defineStore('projetos', {
     changeNecessarioRecriar(): void{
       this.necessarioRecriar = !this.necessarioRecriar
     },
-    setNecessarioRecriar(): void{
-      alert("teste")
-      this.necessarioRecriar = true
+    setNecessarioRecriar(valor: boolean): void {
+      this.necessarioRecriar = valor;
+    },
+    verificaNecessarioRecriar(): void{
+      const options = this.listaProjetos[this.selecionado].options
+      const objOptions = this.listaProjetos[this.selecionado].optionsGals
+      const regularDefinitions = this.listaProjetos[this.selecionado].regularDefinitions
+      const tokens = this.listaProjetos[this.selecionado].tokens
+      const nonTerminals = this.listaProjetos[this.selecionado].nonTerminals
+      const grammar = this.listaProjetos[this.selecionado].grammar
+
+      let codigo = ''
+      codigo += '#Options\n' + (options == undefined ? '' : objOptions.toString()) + '\n'
+      codigo +=
+        '#RegularDefinitions\n' +
+        (regularDefinitions == undefined ? '' : regularDefinitions) +
+        '\n'
+      codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n'
+      codigo +=
+        '#NonTerminals\n' +
+        (nonTerminals == undefined ? '' : nonTerminalsFromGrammar(nonTerminals, grammar)) +
+        '\n'
+      codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar)
+
+      linhaProjetoNovo = codigo
+
+      if(linhaProjetoNovo === linhaProjetoAntigo)
+        this.necessarioRecriar = false
+      else{
+        this.necessarioRecriar = true
+        linhaProjetoAntigo = linhaProjetoNovo
+      }
     }
   }
 })

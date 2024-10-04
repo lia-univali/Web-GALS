@@ -183,7 +183,7 @@ export default defineComponent({
       <p class="caixa__titulo">{{ titulo }}</p>
       <div v-if="titulo == 'Gramática'" class="caixa__input">
         <label> Simbolo inicial </label>
-                <input @change="store.setNecessarioRecriar"
+                <input @change="store.verificaNecessarioRecriar"
                   id="textoNaoTerminais"
                   type="text"
                   name="textoCodigo"
@@ -217,6 +217,7 @@ export default defineComponent({
       @click="focusEditor('textoDefinicoesRegulares')"
     >
       <prism-editor
+        @change="store.verificaNecessarioRecriar"
         id="textoDefinicoesRegulares"
         name="textoCodigo"
         rows="4"
@@ -231,6 +232,7 @@ export default defineComponent({
     </div>
     <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor('textoTokens')">
       <prism-editor
+        @change="store.verificaNecessarioRecriar"
         id="textoTokens"
         name="textoCodigo"
         rows="4"
@@ -245,6 +247,7 @@ export default defineComponent({
     </div>
     <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna">
       <input
+        @change="store.verificaNecessarioRecriar"
         id="textoNaoTerminais"
         type="text"
         name="textoCodigo"
@@ -257,6 +260,7 @@ export default defineComponent({
     </div>
     <div v-else-if="titulo == 'Gramática'" class="caixa__interna" @click="focusEditor('textoGramatica')">
       <prism-editor
+        @change="store.verificaNecessarioRecriar"
         id="textoGramatica"
         name="textoCodigo"
         rows="4"

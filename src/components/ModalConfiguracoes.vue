@@ -85,6 +85,7 @@ export default defineComponent({
       this.projetos[this.selecionado].optionsGals = newOptions
       this.projetos[this.selecionado].options = newOptions.toString()
       this.fecharModal()
+      this.store.necessarioRecriar = true
       this.$toast.info('Configurações Aplicadas!')
     },
     preencherModal() {

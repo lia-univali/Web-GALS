@@ -25,10 +25,14 @@ export default defineComponent({
       store.changeNecessarioRecriar();
     };
 
+    const necessarioRecriar = computed({
+      get: () => store.necessarioRecriar,
+      set: (value: boolean) => store.setNecessarioRecriar(value),
+    });
+
     return {
       store,
-      isChecked: store.necessarioRecriar,
-      toggleCheckbox: store.changeNecessarioRecriar,
+      necessarioRecriar
     }
 
   },
@@ -138,7 +142,7 @@ export default defineComponent({
       <div class="container__botao__simular">
         <span class="material-icons customizado"  title="Reconstruir Gramática" style="font-size: 22px;">restart_alt</span>
         <label class="switch">
-          <input type="checkbox" title="Reconstruir Gramática" v-model="isChecked" @change="store.setNecessarioRecriar" />
+          <input type="checkbox" title="Reconstruir Gramática" v-model="necessarioRecriar"/>-
           <span title="Reconstruir Gramática" class="slider round"></span>
         </label>
       </div>
