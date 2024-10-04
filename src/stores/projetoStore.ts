@@ -1,6 +1,7 @@
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import { defineStore } from 'pinia'
 import { nonTerminalsFromGrammar } from '@/assets/scripts/gals-functions'
+import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
 export interface Projeto {
   id: number
@@ -49,7 +50,8 @@ export const projetoStore = defineStore('projetos', {
         'saidaSimulacao': 33.3333,
         'gramatica': 50,
       } as Layout,
-      necessarioRecriar: true
+      necessarioRecriar: true,
+      gramatica: undefined as Grammar | undefined
     }
   },
   getters: {

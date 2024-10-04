@@ -130,41 +130,53 @@ export class LRCanonicGenerator extends LRGenerator
     return c;
   }
 
-  private contains(list: LRItem[], item: LRItem): boolean
-  {
+	protected contains(list: Array<LRItem>, item: LRItem): boolean
+	{
+		for(const pivot of list){
+			if(item.equals(pivot))
+				return true;
+		}
 
-    // TODO Revisar comparador
+		return false;
+	}
 
-    for(const pivot of list){
+	protected containsList(list: List<List<LRItem>>, item: List<LRItem>): boolean
+	{
 
-      const item1String = pivot.toString();
-      const item2String = item.toString();
-
-      if(item1String === item2String){
-        return true;
+		// TODO Revisar comparador
+		const itemArray = item.toArray();
+		for(const pivot of list){
+      // Com String - implementação inicial
+			/*
+      const item1String = pivot.toString()
+      const item2String = item.toString()
+      if (item1String === item2String) {
+        return true
       }
+			*/
+      // Ajustada - melhorar desempenho
+			const pivotArray = pivot.toArray()
+			if(pivotArray.length !== itemArray.length) {
+				continue;
+			}
+
+			let contained = true;
+
+			for(let i = 0; i < pivotArray.length; i++) {
+				const pivotItem : LRItem = pivotArray[i];
+				const it : LRItem = itemArray[i];
+				if( !pivotItem.equals(it) ) {
+					contained = false;
+					break;
+				}
+			}
+
+			if(contained) return true;
+
     }
 
-    return false;
-  }
-
-  private containsList(list: List<List<LRItem>>, item: List<LRItem>): boolean
-  {
-
-    // TODO Revisar comparador
-
-    for(const pivot of list){
-
-      const item1String = pivot.toString();
-      const item2String = item.toString();
-
-      if(item1String === item2String){
-        return true;
-      }
-    }
-
-    return false;
-  }
+		return false;
+	}
 
 
   /* (non-Javadoc)
@@ -204,12 +216,12 @@ export class LRCanonicGenerator extends LRGenerator
 
           if (this.g.isTerminal(s))
           {
-            const cmd = Command.createShift(this.indexOfListLRItem(this.itemList, next));
+            const cmd = Command.createShift(this.getIndexFromList(this.itemList, next));
             result[i][s-1].set( cmd.hashCode(), cmd);
           }
           else //nonTerminal
           {
-            const cmd = Command.createGoTo((this.indexOfListLRItem(this.itemList, next)))
+            const cmd = Command.createGoTo((this.getIndexFromList(this.itemList, next)))
             result[i][s-1].set( cmd.hashCode(), cmd);
           }
         }
@@ -240,25 +252,6 @@ export class LRCanonicGenerator extends LRGenerator
     const resultSet: Set<Command>[][] = result.map(	row => row.map(map => new Set(map.values())));
 
     return this.resolveConflicts(resultSet);
-  }
-
-  private indexOfListLRItem(list: List<List<LRItem>>, item: List<LRItem>): number
-  {
-
-    // TODO Revisar comparador
-    let index = 0;
-    for(const pivot of list){
-
-      const item1String = pivot.toString();
-      const item2String = item.toString();
-
-      if(item1String === item2String){
-        return index;
-      }
-      index++;
-    }
-
-    return -1;
   }
 
 }

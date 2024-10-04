@@ -295,7 +295,7 @@ export class CppCommomGenerator
 			default: //SLR, LALR, LR
 			{
 
-                const generator = LRGeneratorFactory.createGenerator(g, options.parser); // TODO Change based on Options
+                const generator = LRGeneratorFactory.createGenerator(g, Options.PARSER_SLR); // TODO Change based on Options
 
                 if(generator == null) throw new SyntaticError("Gerador de Tabela é nulo.");
 

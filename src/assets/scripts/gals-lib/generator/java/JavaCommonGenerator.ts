@@ -783,15 +783,15 @@ export class JavaCommonGenerator {
 
     private emitLLTable(g: LLParser): string
 	{
-	    const tbl: number[][] = g.generateTable();
-        const table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
+	    let tbl: number[][] = g.generateTable();
+        let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
 
 		let max = 0;
 		for (let i = 0; i < table.length; i++)
 		{
 			for (let j = 0; j < table[i].length; j++)
 			{
-				const tmp: string = tbl[i][j].toString();
+				let tmp: string = tbl[i][j].toString();
 				table[i][j] = tmp;
 				if (tmp.length > max)
 					max = tmp.length;
@@ -817,7 +817,7 @@ export class JavaCommonGenerator {
 			}
             result.pop();
             result.push(" },\n");
-		}
+		}	
 		result.pop();
 		result.push("\n    };\n");
 		

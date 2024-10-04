@@ -14,6 +14,7 @@ import {
 } from '@/assets/scripts/gals-functions'
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
+import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
 export default defineComponent({
   name: 'BarraEsquerda',
@@ -207,16 +208,18 @@ export default defineComponent({
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const html: string = syntacticTable(
+      const [html, gramatica] = syntacticTable(
         projeto.regularDefinitions,
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
         projeto.optionsGals.parser,
-        null
+        this.store.necessarioRecriar,
+        undefined,
+        this.store.gramatica as Grammar | undefined
       )
 
-      //salvador.download(html, this.projetos[this.selecionado].fileName, '.html')
+      this.store.gramatica = gramatica;
 
       const newTab = window.open()
       if (newTab) {
@@ -230,14 +233,18 @@ export default defineComponent({
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const html: string = syntacticSetTable(
+      const [html, gramatica] = syntacticSetTable(
         projeto.regularDefinitions,
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
         projeto.optionsGals.parser,
-        null
+        this.store.necessarioRecriar,
+        undefined,
+        this.store.gramatica as Grammar | undefined
       )
+
+      this.store.gramatica = gramatica;
 
       const newTab = window.open()
       if (newTab) {
@@ -251,14 +258,18 @@ export default defineComponent({
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const html: string = syntacticFirstFollowTable(
+      const [html, gramatica] = syntacticFirstFollowTable(
         projeto.regularDefinitions,
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
         projeto.optionsGals.parser,
-        null
+        this.store.necessarioRecriar,
+        undefined,
+        this.store.gramatica as Grammar | undefined
       )
+
+      this.store.gramatica = gramatica;
 
       const newTab = window.open()
       if (newTab) {

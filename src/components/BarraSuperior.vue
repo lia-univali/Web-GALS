@@ -5,6 +5,7 @@ import { projetoStore } from '@/stores/projetoStore'
 import JSZip from 'jszip'
 import type TreeMap from 'ts-treemap'
 import { computed, defineComponent } from 'vue'
+import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
 export default defineComponent({
   name: 'BarraSuperior',
@@ -47,15 +48,22 @@ export default defineComponent({
       //options.scannerTable = Options.SCANNER_TABLE_COMPACT;
       //optionsTeste.input = Options.INPUT_STREAM
       let allFiles: TreeMap<string, string> | null = null
+      let gramatica: Grammar
 
       try {
-        allFiles = generateCode(
+        [allFiles, gramatica] = generateCode(
           projeto.regularDefinitions,
           projeto.tokens,
           projeto.nonTerminals,
           projeto.grammar,
-          options
+          options,
+          this.store.necessarioRecriar,
+          undefined,
+          this.store.gramatica as Grammar | undefined
         )
+
+        this.store.gramatica = gramatica;
+
       } catch (error) {
         console.log(error)
         this.$toast.error((error as Error).message)

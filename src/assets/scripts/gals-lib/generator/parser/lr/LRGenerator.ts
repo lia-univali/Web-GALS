@@ -306,7 +306,7 @@ export abstract class LRGenerator {
 	}
 
 
-	private getIndexFromList(list: List<List<LRItem>>, item:  List<LRItem>): number
+	protected getIndexFromList(list: List<List<LRItem>>, item:  List<LRItem>): number
 	{
 		const listArray : List<LRItem>[] = list.toArray();
 

@@ -5,6 +5,7 @@ import { Token } from '@/assets/scripts/gals-lib/analyser/Token'
 import { lexicalSimulation, syntacticSimulation } from '@/assets/scripts/gals-functions'
 import { TreeNode } from '@/assets/scripts/gals-lib/DataStructures'
 import TreeBrowser from '@/components/TreeBrowser.vue'
+import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
 export default defineComponent({
   name: 'SimuladorJanela',
@@ -85,9 +86,15 @@ export default defineComponent({
           projeto.nonTerminals,
           projeto.grammar,
           projeto.optionsGals.parser,
-          null
+          this.store.necessarioRecriar,
+          undefined,
+          undefined,
+          this.store.gramatica as Grammar | undefined
         )
-        this.resultadoSintatico = result
+        let [resultadoSintatico,  novaGramatica] = result
+
+        this.resultadoSintatico = resultadoSintatico
+        this.store.gramatica = novaGramatica;
 
         this.$toast.default("Simulação Sintática Concluída")
         

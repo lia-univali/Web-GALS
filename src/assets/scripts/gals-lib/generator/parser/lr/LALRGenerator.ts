@@ -2,6 +2,7 @@ import { Grammar } from '../../../generator/parser/Grammar'
 import { LRItem } from '../lr/LRItem'
 import { List } from '../../../DataStructures'
 import { LRCanonicGenerator } from '../../parser/lr/LRCanonicGenerator'
+import { Production } from '../../../util/Production';
 
 
 export class LALRGenerator extends LRCanonicGenerator
@@ -16,19 +17,40 @@ export class LALRGenerator extends LRCanonicGenerator
 
   private core( state: LRItem[]): Set<LRItem>
   {
-    const result = new Set<LRItem>();
+    const result = new Array<LRItem>();
 
     for (let i = 0; i < state.length; i++)
     {
       const item = state[i];
       const x = new LRItem(item.production, item.position);
 
-      if (![...result].some(existingItem => existingItem.toString() === x.toString())) { // TODO Observar comportamento
-        result.add(x);
+      // if (![...result].some(existingItem => existingItem.toString() === x.toString())) { // TODO Observar comportamento
+      //   result.add(x);
+      // }
+
+      if(!this.contains(result, x)){
+        result.push(x);
       }
+      
     }
-    return result;
+
+    result.sort((a: LRItem, b: LRItem) => {
+      let cmp: number = Production.compareTo(a.production, b.production); //TODO VERIFY
+      if (cmp != 0)
+        return cmp;
+      else
+      {
+        cmp = a.position - b.position;
+        if (cmp != 0)
+          return cmp;
+        else
+          return a.lookahead - b.lookahead;
+      }
+    });
+
+    return new Set(result);
   }
+
 
   protected computeItems(): List<List<LRItem>>
   {
