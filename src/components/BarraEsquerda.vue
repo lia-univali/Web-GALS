@@ -442,22 +442,19 @@ export default defineComponent({
 }
 
 .codigo__definicao__regulares {
-  margin: 0;
-  margin-bottom: 6px;
-  padding: 0;
-  height: calc(100% - 250px);
-}
-.abaProjetos {
-  /* overflow: auto; */
-  /* overflow-x: hidden; */
-  height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.abaProjetos {
+  max-height: calc(100% - 72px - 172px);
+  height: 100%;
 }
 
 .lista__projetos {
-  /* width: 100%; */
-  /* height: 30%; */
   max-height: 170px;
   min-height: 170px;
   border: 2px solid #ecf0f1;
@@ -504,6 +501,7 @@ p {
   margin: 0px;
   padding: 3%;
   width: 302px;
+  height: 100%;
   box-sizing: border-box;
   border-radius: 5px;
   border-top-left-radius: 0;

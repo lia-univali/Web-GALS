@@ -336,8 +336,6 @@ export default defineComponent({
   border-radius: 5px;
   background-color: white;
 
-  flex-grow: 1;
-
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
 }
 
@@ -361,10 +359,8 @@ export default defineComponent({
 .caixa__interna {
   margin: 0px;
   padding: 3px;
-  /* width: 100%; */
-  /* font-family: "Lucida Console", Courier, monospace; */
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
-  height: calc(100% - 21.333px);
+  height: calc(100% - 42px);
 }
 
 .caixa__titulo {
@@ -387,5 +383,9 @@ export default defineComponent({
 
 #textoNaoTerminais:invalid {
   color: #ff0000;
+}
+
+#textoDefinicoesRegulares {
+  height: 100%;
 }
 </style>
