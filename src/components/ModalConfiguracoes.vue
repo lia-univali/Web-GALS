@@ -306,12 +306,12 @@ export default defineComponent({
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLALR" name="parser" value="LALR" />
+                <input type="radio" id="sintaticoLALR" name="parser" value="LALR" disabled/>
                 <label for="sintaticoLALR">LALR(1)</label>
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" />
+                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" disabled />
                 <label for="sintaticoLRCanonico">LR(1)</label>
               </div>
             </fieldset>
