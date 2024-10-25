@@ -258,7 +258,7 @@ export default defineComponent({
         :disabled="selecionado == -1"
       />
     </div>
-    <div v-else-if="titulo == 'Gramática'" class="caixa__interna" @click="focusEditor('textoGramatica')">
+    <div v-else-if="titulo == 'Gramática'" class="caixa__interna__gramatica" @click="focusEditor('textoGramatica')">
       <prism-editor
         @change="store.verificaNecessarioRecriar"
         id="textoGramatica"
@@ -344,9 +344,9 @@ export default defineComponent({
 }
 
 .caixa__input {
-  /*  margin: 0px; */
-  /* padding: 0px; */
-  width: 100%;
+  margin: 0px;
+  padding: 6px;
+  width: calc(100% - 12px);
   display: flex;
   text-wrap: nowrap;
   flex-direction: row;
@@ -360,7 +360,14 @@ export default defineComponent({
   margin: 0px;
   padding: 3px;
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
-  height: calc(100% - 42px);
+  height: calc(100% - 28px);
+}
+
+.caixa__interna__gramatica {
+  margin: 0px;
+  padding: 3px;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
+  height: calc(100% - 54px);
 }
 
 .caixa__titulo {
@@ -384,6 +391,11 @@ export default defineComponent({
 #textoNaoTerminais:invalid {
   color: #ff0000;
 }
+
+#textoNaoTerminais {
+  margin-left: 10px !important;
+}
+
 
 #textoDefinicoesRegulares {
   height: 100%;

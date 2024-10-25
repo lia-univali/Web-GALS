@@ -159,7 +159,7 @@ export default defineComponent({
 
 <style scoped>
 .caixa__titulo {
-  display: flex;
+  text-align: center;
 
   font-family: 'IBM Plex Sans';
   font-weight: 600;
@@ -168,7 +168,6 @@ export default defineComponent({
   border-bottom: 1px solid;
   border-color: #b1b1b1;
 
-  text-align: center;
   margin: 0px;
   padding: 0px;
 }
