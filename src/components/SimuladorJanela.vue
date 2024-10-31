@@ -6,6 +6,8 @@ import { lexicalSimulation, syntacticSimulation } from '@/assets/scripts/gals-fu
 import { TreeNode } from '@/assets/scripts/gals-lib/DataStructures'
 import TreeBrowser from '@/components/TreeBrowser.vue'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
+import { LRParserSimulator } from '@/assets/scripts/gals-lib/simulator/LRParserSimulator'
+import { LL1ParserSimulator } from '@/assets/scripts/gals-lib/simulator/LL1ParserSimulator'
 
 export default defineComponent({
   name: 'SimuladorJanela',
@@ -89,21 +91,28 @@ export default defineComponent({
           this.store.necessarioRecriar,
           undefined,
           undefined,
-          this.store.gramatica as Grammar | undefined
+          this.store.gramatica as Grammar | undefined,
+          this.store.lrSim as LRParserSimulator | undefined,
+          this.store.ll1Sim as LL1ParserSimulator | undefined
         )
-        let [resultadoSintatico,  novaGramatica] = result
+        let [resultadoSintatico,  novaGramatica, novoLRSim, novoLL1Sim] = result
 
         this.resultadoSintatico = resultadoSintatico
         this.store.gramatica = novaGramatica;
+        this.store.lrSim = novoLRSim;
+        this.store.ll1Sim = novoLL1Sim;
 
         this.$toast.default("Simulação Sintática Concluída")
         
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
         console.log(error)
-        this.$toast.error("Erro Léxico/Sintático: "+ (error as Error).message);
+        this.$toast.error("Erro Léxico/Sintático: "+ this.translateHTMLTags((error as Error).message));
         projeto.consoleExit = 'Erro Léxico/Sintático: ' + (error as Error).message
       }
+    },
+    translateHTMLTags(line: string): string{
+      return line.replace('<', '&lt').replace('>', '&gt');
     },
     tokenSelect(lexeme:string, position:number) {
       const inputSimulacaotextArea = document.getElementById('textoSimulacao')?.getElementsByTagName('textarea')[0];

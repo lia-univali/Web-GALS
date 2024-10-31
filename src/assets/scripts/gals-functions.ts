@@ -217,8 +217,10 @@ export function syntacticSimulation(
   needRebuildGram: boolean,
   faSim?: BasicScanner,
   fa?: FiniteAutomata,
-  g?: Grammar
-): [TreeNode<string>, Grammar] {
+  g?: Grammar,
+  lrSim?: LRParserSimulator,
+  ll1Sim?: LL1ParserSimulator
+): [TreeNode<string>, Grammar, LRParserSimulator | undefined, LL1ParserSimulator | undefined] {
 
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
@@ -266,6 +268,12 @@ export function syntacticSimulation(
     fa = lp.parseFA(definitions, tokens, sensitive)
   }
 
+  // Feito para quando não é necessario reaparecer dialogo de conflito
+  if(needRebuildGram) {
+    lrSim = undefined
+    ll1Sim = undefined
+  }
+
   // Passo 3 - Pega grammatica da MainWindow.java getGrammar
   if (needRebuildGram || g == undefined){
     needRebuildGram = false;
@@ -308,21 +316,23 @@ export function syntacticSimulation(
 
   if(g === undefined) throw new SyntaticError("Grammar is Undefined");
 
-  let lrSim: LRParserSimulator | null = null;
-  let ll1Sim: LL1ParserSimulator | null = null;
+  //let lrSim: LRParserSimulator | null = null;
+  //let ll1Sim: LL1ParserSimulator | null = null;
   let parserResult: LRGenerator | null = null;
   let parserResultLL: LLParser | null = null;
+
+  console.log('Teste 1')
 
   switch (parser)
   {
     case Options.PARSER_REC_DESC:
     case Options.PARSER_LL:
-      [ll1Sim, faSim, parserResultLL] = simulateLL(fa, g,  terminals, faSim, sensitive);
+      [ll1Sim, faSim, parserResultLL] = simulateLL(fa, g,  terminals, faSim, sensitive, ll1Sim);
       break;
     case Options.PARSER_SLR:
     case Options.PARSER_LALR:
     case Options.PARSER_LR:
-      [lrSim, faSim, parserResult] = simulateLR(fa, g,  terminals, faSim, sensitive, parser);
+      [lrSim, faSim, parserResult] = simulateLR(fa, g,  terminals, faSim, sensitive, parser, lrSim);
       break;
   }
 
@@ -346,16 +356,16 @@ export function syntacticSimulation(
 
   faSim.setInput(input);
 
-  if (ll1Sim != null)
+  if (ll1Sim != undefined)
   {
     root = ll1Sim.parse(faSim, root);
   }
-  else if (lrSim != null)
+  else if (lrSim != undefined)
   {
     root = lrSim.parse(faSim, root);
   }
 
-  return [root, g] ;
+  return [root, g, lrSim, ll1Sim] ;
 }
 
 export function syntacticTable(
@@ -884,7 +894,8 @@ function simulateLL(
   g: Grammar,
   tokenNameList: Array<string>,
   faSim: BasicScanner | undefined, 
-  sensitive: boolean
+  sensitive: boolean,
+  llSim: LL1ParserSimulator | undefined
 ): [LL1ParserSimulator, BasicScanner, LLParser]
 {
   if (fa != undefined)
@@ -896,20 +907,30 @@ function simulateLL(
     faSim = new FiniteAutomataSimulator(generateTokenListAutomata(tokenNameList, sensitive), sensitive);
   }
 
-  let llSim;
+  // let llSim;
   let parser: LLParser | null;
   if (g != null)
   {
+
     parser = new LLParser(g);
+
     if(parser === null) throw new SyntaticError("Parser is Null");
-    llSim = new LL1ParserSimulator(parser);
-    // //console.log(parser.tableAsHTML());
+
+    if(llSim === undefined) llSim = new LL1ParserSimulator(parser);
+
   }else throw new SyntaticError("Grammar is Null");
 
   return [llSim, faSim, parser];
 }
 
-function simulateLR(fa: FiniteAutomata, g: Grammar, tokenNameList: Array<string>, faSim: BasicScanner | undefined, sensitive: boolean, parserEnum: number)
+function simulateLR(
+  fa: FiniteAutomata,
+  g: Grammar,
+  tokenNameList: Array<string>,
+  faSim: BasicScanner | undefined,
+  sensitive: boolean,
+  parserEnum: number,
+  lrSim: LRParserSimulator | undefined)
   : [LRParserSimulator, BasicScanner, LRGenerator]
 {
   // //console.log("___________________________simulateSLR___________________________");
@@ -927,13 +948,13 @@ function simulateLR(fa: FiniteAutomata, g: Grammar, tokenNameList: Array<string>
     faSim = new FiniteAutomataSimulator(generateTokenListAutomata(tokenNameList, sensitive), sensitive);
   }
 
-  let lrSim;
+  //let lrSim;
   let parser: LRGenerator | null;
   if (g != null)
   {
     parser = LRGeneratorFactory.createGenerator(g, parserEnum);
     if(parser === null) throw new SyntaticError("Parser is Null");
-    lrSim = new LRParserSimulator(parser);
+    if(lrSim === undefined) lrSim = new LRParserSimulator(parser);
     // //console.log(parser.tableAsHTML());
   }else throw new SyntaticError("Grammar is Null");
 
