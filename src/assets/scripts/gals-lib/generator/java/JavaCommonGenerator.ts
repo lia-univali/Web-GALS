@@ -272,7 +272,7 @@ export class JavaCommonGenerator {
 
         result.push(table);
 			
-		result.push("}");
+				result.push("}");
       
         return result.join('\n');//TODO verificar comportamento
     }
@@ -389,7 +389,7 @@ export class JavaCommonGenerator {
 
         if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
-		this.lrTable = generator.buildIntTable();
+				this.lrTable = generator.buildIntTable();
 
         const result: string[] = [];
 
@@ -445,7 +445,7 @@ export class JavaCommonGenerator {
     
 	private emitLRTable(g: Grammar): string
 	{
-        const result: string[] = [];
+    const result: string[] = [];
 		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 		const tbl: number[][][] = this.lrTable;
 		// //console.log(this.lrTable);
@@ -473,7 +473,7 @@ export class JavaCommonGenerator {
 					result.push(" ");
 
 				result.push(str);
-                result.push("},");
+        result.push("},");
 			}
 
 			result.pop();

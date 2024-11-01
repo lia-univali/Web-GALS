@@ -453,7 +453,7 @@ export class JavaParserGenerator{
 					}
 				}
 				
-                if(rhs === undefined) throw new NotLLException("Gramática não é LL.");
+        if(rhs === undefined) throw new NotLLException("Gramática não é LL.");
 
 				if (rhs.length == 0)
 					result.push(

@@ -250,29 +250,29 @@ export class JavaScannerGenerator
 					const m: Map<string, number> = trans.get(i);
 					if (m.size == 0)
 						continue;
-						
+					
 					casesState.push(
-				"            case "+i+":\n"+
-				"                switch (c)\n"+
-				"                {\n");
-                    for (const [key, value] of m.entries()) {
-                        const ch: string = key;
-                        const it: number = value;
+						"            case "+i+":\n"+
+						"                switch (c)\n"+
+						"                {\n");
+					for (const [key, value] of m.entries()) {
+							const ch: string = key;
+							const it: number = value;
 						casesState.push(
-                            "                    case "+(ch)+": return "+it+";\n");
-                    }
+						"                    case "+(ch.charCodeAt(0))+": return "+it+';\n')
+					}
 				
 					casesState.push(
 				"                    default: return -1;\n"+
 				"                }\n");
 				}
-				
+
 				nextState = 
 				"    private int nextState(char c, int state)\n"+
 				"    {\n"+
 				"        switch (state)\n"+
 				"        {\n"+
-				casesState.toString()+
+				casesState.join("")+
 				"            default: return -1;\n"+
 				"        }\n"+
 				"    }\n";
