@@ -258,7 +258,6 @@ export class CppCommomGenerator
 	{
 		if (g == null)
 			return "";
-			
 		
 		switch (options.parser)
 		{
@@ -279,7 +278,7 @@ export class CppCommomGenerator
 				}
 				
 				const numNT = g.FIRST_SEMANTIC_ACTION()-g.FIRST_NON_TERMINAL;
-					
+				
 				return "const int START_SYMBOL = "+g.startSymbol+";\n"+
 					"\n"+
 					"const int FIRST_NON_TERMINAL    = "+g.FIRST_NON_TERMINAL+";\n"+
@@ -294,10 +293,9 @@ export class CppCommomGenerator
 			}
 			default: //SLR, LALR, LR
 			{
+        const generator = LRGeneratorFactory.createGenerator(g, options.parser); // TODO Change based on Options
 
-                const generator = LRGeneratorFactory.createGenerator(g, Options.PARSER_SLR); // TODO Change based on Options
-
-                if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
+        if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
 				this.lrTable = generator.buildIntTable();
 

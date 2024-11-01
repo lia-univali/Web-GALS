@@ -173,7 +173,7 @@ export abstract class LRGenerator {
 		if (equals)
 			return cmds[0];
 		else {
-			const lrConflictSolver: LRConflictSolver = new LRConflictSolver;
+			const lrConflictSolver: LRConflictSolver = new LRConflictSolver();
 			lrConflictSolver.setup(cmds, state);
 			return cmds[lrConflictSolver.resolve(this.g, input)];
 		}

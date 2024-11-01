@@ -464,7 +464,7 @@ export class CppParserGenerator
 			"\n"+
 			"bool "+parserName+"::step()\n"+// throw (AnalysisError)\n"+
 			"{\n"+
-			"    if (currentToken == 0) //Fim de Sentensa\n"+
+			"    if (currentToken == 0) //Fim de Sentença\n"+
 			"    {\n"+
 			"        int pos = 0;\n"+
 			"        if (previousToken != 0)\n"+

@@ -60,7 +60,10 @@ export class List<T> {
   }
 
   setItems(items: Array<T>){
-    this.items = items;
+    items.forEach((element => {
+      this.items.push(element);
+    }))
+//    this.items = items;
   }
 
   add(value: T): void {
