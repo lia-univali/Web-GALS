@@ -702,7 +702,7 @@ lexico.destroy;</pre></code>
 <hr>
 <h3><a name="Analisador_Sintatico"></a>Analisador Sint&aacute;tico</h3>
 <p>O analisador sintático possui apenas um método público (além de seu construtor padrão):</p>
-<code>void parse(Lexico scanner, Semantico semanticAnalyser) throws LexicalError, SyntaticError, SemanticError</code>
+<code>void parse(Lexico scanner, Semantico semanticAnalyser) throws LexicalError, SyntacticError, SemanticError</code>
 <p>Para este método é passado um analisador léxico e um semântico (em c++ via ponteiros).<br>
 Se nenhum erro for detectado, o método termina de forma normal (o analisador semântico deve
 ser programado de forma que ele guarde os resultados finais da análise, se houverem).</p>
@@ -711,7 +711,7 @@ Este método é o "coração" do processo de análise, e os erros detectados dur
 ser tratados pelo chamador deste método.<br>
 Erros léxicos vem do analisador léxico na forma da exceção LexicalError. Erros semânticos
 serão reportados via a exceção SemanticError. O próprio analisador sintático detecta erros, e
-lança a exceção SyntaticError quando os encontra.
+lança a exceção SyntacticError quando os encontra.
 </p>
 <h4>Interface com o Analisador Léxico</h4>
 <p>Sempre que um novo token for preciso, o método nextToken do analisador léxico é envocado.
@@ -826,7 +826,7 @@ As exceções utilizados no GALS possuem dois atributos: uma mensagem de erro e 
 entrada) onde o erro aconteceu. Existem três classes concretas de exceções:
 <ul>
   <li> LexicalError </li>
-  <li> SyntaticError </li>
+  <li> SyntacticError </li>
   <li> SemanticError </li>
 </ul>
 que são produzidas pelos analisadores léxico, sintático e semântico respectivamente. Existe
@@ -851,7 +851,7 @@ catch ( LexicalError e )
 {
     //Trada erros léxicos
 }
-catch ( SyntaticError e )
+catch ( SyntacticError e )
 {
     //Trada erros sintáticos
 }
@@ -877,7 +877,7 @@ catch ( LexicalError &e )
 {
     //Trada erros léxicos
 }
-catch ( SyntaticError &e )
+catch ( SyntacticError &e )
 {
     //Trada erros sintáticos
 }
@@ -904,7 +904,7 @@ try
 except
   on e : ELexicalError do
     //Trada erros léxicos
-  on e : ESyntaticError do
+  on e : ESyntacticError do
     //Trada erros sintáticos
   on e : ESemanticError do
     //Trada erros semânticos
