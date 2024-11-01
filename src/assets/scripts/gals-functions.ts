@@ -2,7 +2,7 @@
 //node ./dist/main.js
 import TreeMap from 'ts-treemap'
 import { List, TreeNode } from './gals-lib/DataStructures'
-import { LexicalError, SyntaticError } from './gals-lib/analyser/SystemErros'
+import { LexicalError, SyntacticError } from './gals-lib/analyser/SystemErros'
 import { Token } from './gals-lib/analyser/Token'
 import { FiniteAutomata } from './gals-lib/generator/FiniteAutomata'
 import { Options } from './gals-lib/generator/Options'
@@ -247,7 +247,7 @@ export function syntacticSimulation(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntaticError("Símbolo inicial da Gramática não encontrado.");
+  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
 
   const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
 
@@ -314,7 +314,7 @@ export function syntacticSimulation(
   // MainWindow.java List terminals = MainWindow.getInstance().getTokens()
   const terminals: Array<string> = fa.tokens.toArray();
 
-  if(g === undefined) throw new SyntaticError("Grammar is Undefined");
+  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
 
   //let lrSim: LRParserSimulator | null = null;
   //let ll1Sim: LL1ParserSimulator | null = null;
@@ -336,7 +336,7 @@ export function syntacticSimulation(
       break;
   }
 
-  if(parserResult === null && parserResultLL === null) throw new SyntaticError("Erro na criação do Parser Sintático");
+  if(parserResult === null && parserResultLL === null) throw new SyntacticError("Erro na criação do Parser Sintático");
 
   // //console.log("______________Simulator Created______________");
 
@@ -352,7 +352,7 @@ export function syntacticSimulation(
 
   let root: TreeNode<string> = new TreeNode("Derivação");
 
-  if(faSim === undefined) throw new SyntaticError("Finite Automata Simulator is Null")
+  if(faSim === undefined) throw new SyntacticError("Finite Automata Simulator is Null")
 
   faSim.setInput(input);
 
@@ -404,7 +404,7 @@ export function syntacticTable(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntaticError("Símbolo inicial da Gramática não encontrado.");
+  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
 
   const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
 
@@ -461,7 +461,7 @@ export function syntacticTable(
     // //console.log("______________________________GRAMAR IS PARSED______________________________");
   }
 
-  if(g === undefined) throw new SyntaticError("Grammar is Undefined");
+  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
 
   let parserResultLR: LRGenerator | null = null;
   let parserResultLL: LLParser | null = null;
@@ -483,7 +483,7 @@ export function syntacticTable(
     return [parserResultLR.tableAsHTML(), g];
   else if(parserResultLL !== null)
     return [parserResultLL.tableAsHTML(), g];
-  else throw new SyntaticError("Erro na criação do Parser Sintático");
+  else throw new SyntacticError("Erro na criação do Parser Sintático");
 }
 
 export function syntacticSetTable(
@@ -521,7 +521,7 @@ export function syntacticSetTable(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntaticError("Símbolo inicial da Gramática não encontrado.");
+  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
 
   const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
 
@@ -578,7 +578,7 @@ export function syntacticSetTable(
     // //console.log("______________________________GRAMAR IS PARSED______________________________");
   }
 
-  if(g === undefined) throw new SyntaticError("Grammar is Undefined");
+  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
 
   let parserResultLR: LRGenerator | null = null;
   let parserResultLL: LLParser | null = null;
@@ -596,7 +596,7 @@ export function syntacticSetTable(
       break;
   }
 
-  if(parserResultLR === null && parserResultLL === null) throw new SyntaticError("Erro na criação do Parser Sintático");
+  if(parserResultLR === null && parserResultLL === null) throw new SyntacticError("Erro na criação do Parser Sintático");
 
   if(parserResultLR != null)
     return [parserResultLR.itemsAsHTML(), g];
@@ -641,7 +641,7 @@ export function syntacticFirstFollowTable(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntaticError("Símbolo inicial da Gramática não encontrado.");
+  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
 
   const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
 
@@ -701,7 +701,7 @@ export function syntacticFirstFollowTable(
   // MainWindow.java List terminals = MainWindow.getInstance().getTokens()
   fa.tokens.toArray();
 
-  if(g === undefined) throw new SyntaticError("Grammar is Undefined");
+  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
 
   return [g.ffAsHTML(), g];
 }
@@ -771,7 +771,7 @@ export function generateCode(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntaticError("Símbolo inicial da Gramática não encontrado.");
+  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
 
   const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
 
@@ -832,7 +832,7 @@ export function generateCode(
   // MainWindow.java List terminals = MainWindow.getInstance().getTokens()
   fa.tokens.toArray();
 
-  if(g === undefined) throw new SyntaticError("Grammar is Undefined");
+  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
 
   // Produção de codigo
   const allFiles: TreeMap<string, string> = new TreeMap();
@@ -864,7 +864,7 @@ export function generateCode(
 //   if (mode == Mode.BOTH || mode == Mode.LEXICAL)
 //   {
 //
-//     if(fa == undefined) throw new SyntaticError("Automato Finito é nulo.");
+//     if(fa == undefined) throw new SyntacticError("Automato Finito é nulo.");
 //
 //     const tokens = fa.tokens;
 //     for (let i = 0 ; i < tokens.size() ; i++)
@@ -914,11 +914,11 @@ function simulateLL(
 
     parser = new LLParser(g);
 
-    if(parser === null) throw new SyntaticError("Parser is Null");
+    if(parser === null) throw new SyntacticError("Parser is Null");
 
     if(llSim === undefined) llSim = new LL1ParserSimulator(parser);
 
-  }else throw new SyntaticError("Grammar is Null");
+  }else throw new SyntacticError("Grammar is Null");
 
   return [llSim, faSim, parser];
 }
@@ -953,10 +953,10 @@ function simulateLR(
   if (g != null)
   {
     parser = LRGeneratorFactory.createGenerator(g, parserEnum);
-    if(parser === null) throw new SyntaticError("Parser is Null");
+    if(parser === null) throw new SyntacticError("Parser is Null");
     if(lrSim === undefined) lrSim = new LRParserSimulator(parser);
     // //console.log(parser.tableAsHTML());
-  }else throw new SyntaticError("Grammar is Null");
+  }else throw new SyntacticError("Grammar is Null");
 
   return [lrSim, faSim, parser];
   // show();

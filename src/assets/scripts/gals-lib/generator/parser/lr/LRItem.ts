@@ -1,4 +1,4 @@
-import { SyntaticError } from "../../../analyser/SystemErros";
+import { SyntacticError } from "../../../analyser/SystemErros";
 import { Production } from "../../../util/Production";
 import { Grammar } from "../Grammar";
 
@@ -55,7 +55,7 @@ export class LRItem //implements Comparable
 	{
 		let bfr = "";
 
-        if(this._g == null) throw new SyntaticError("Grammar to string is null");
+        if(this._g == null) throw new SyntacticError("Grammar to string is null");
 
 		bfr += this._g.symbols[this._production.get_lhs()] + " ::= ";
 		

@@ -4,7 +4,7 @@
  * @author Carlos E. Gesser
  */
 
-import { SyntaticError } from "../../analyser/SystemErros";
+import { SyntacticError } from "../../analyser/SystemErros";
 import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
 import { Options } from "../Options";
@@ -30,7 +30,7 @@ export class DelphiCommomGenerator
 
 		result.set("UAnalysisError.pas", this.generateAnalysisError());
 		result.set("ULexicalError.pas",  this.generateLexicalError());
-		result.set("USyntaticError.pas", this.generateSyntaticError());
+		result.set("USyntacticError.pas", this.generateSyntacticError());
 		result.set("USemanticError.pas", this.generateSemanticError());	
 		
 		return result;
@@ -167,16 +167,16 @@ export class DelphiCommomGenerator
 			"";
 	}
 	
-	private generateSyntaticError(): string
+	private generateSyntacticError(): string
 	{
-		return "unit USyntaticError;\n"+
+		return "unit USyntacticError;\n"+
 			"\n"+
 			"interface\n"+
 			"\n"+
 			"uses UAnalysisError;\n"+
 			"\n"+
 			"type\n"+
-			"    ESyntaticError = class(EAnalysisError)\n"+
+			"    ESyntacticError = class(EAnalysisError)\n"+
 			"    public\n"+
 			"        constructor create(message:string; position:integer); overload;\n"+
 			"        constructor create(message:string); overload;\n"+
@@ -184,12 +184,12 @@ export class DelphiCommomGenerator
 			"\n"+
 			"implementation\n"+
 			"\n"+
-			"constructor ESyntaticError.create(message:string; position:integer);\n"+
+			"constructor ESyntacticError.create(message:string; position:integer);\n"+
 			"begin\n"+
 			"    inherited create(message, position);\n"+
 			"end;\n"+
 			"\n"+
-			"constructor ESyntaticError.Create(message:string);\n"+
+			"constructor ESyntacticError.Create(message:string);\n"+
 			"begin\n"+
 			"    inherited create(message);\n"+
 			"end;\n"+
@@ -523,7 +523,7 @@ export class DelphiCommomGenerator
 
 		const generator = LRGeneratorFactory.createGenerator(g, Options.PARSER_SLR); // TODO Change based on Options
 
-		if(generator == null) throw new SyntaticError("Gerador de Tabela é nulo.");
+		if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
 		this.lrTable = generator.buildIntTable();
 		
@@ -724,7 +724,7 @@ export class DelphiCommomGenerator
 	private errorLR(): string
 	{
 
-		if(this.lrTable  === null ) throw new SyntaticError("Tabela LR está nula.");
+		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 
 		let result = "";
 	

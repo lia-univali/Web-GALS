@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-escape */
 import { List } from "../../DataStructures";
-import { LexicalError, SyntaticError } from "../../analyser/SystemErros";
+import { LexicalError, SyntacticError } from "../../analyser/SystemErros";
 import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
 import { Options } from "../Options";
@@ -155,14 +155,14 @@ export class JavaCommonGenerator {
         }
       
 		result.push(
-		"public class SyntaticError extends AnalysisError\n"+
+		"public class SyntacticError extends AnalysisError\n"+
 		"{\n"+
-		"    public SyntaticError(String msg, int position)\n"+
+		"    public SyntacticError(String msg, int position)\n"+
 		"	 {\n"+
 		"        super(msg, position);\n"+
 		"    }\n"+
 		"\n"+
-		"    public SyntaticError(String msg)\n"+
+		"    public SyntacticError(String msg)\n"+
 		"    {\n"+
 		"        super(msg);\n"+
 		"    }\n"+
@@ -217,7 +217,7 @@ export class JavaCommonGenerator {
         }
       
         if(fa === null) throw new LexicalError("Automato Finito é nulo")
-        if(g === null) throw new SyntaticError("Gramatica é nulo")
+        if(g === null) throw new SyntacticError("Gramatica é nulo")
 
 		result.push(
         "public interface Constants extends "+extInter+"\n"+
@@ -264,11 +264,11 @@ export class JavaCommonGenerator {
 		"public interface ParserConstants\n"+
 		"{");
 
-        if(g === null) throw new SyntaticError("Gramatica é nulo")
+        if(g === null) throw new SyntacticError("Gramatica é nulo")
 
         const table = this.genSyntTables(g, options)
 
-        if(table === null) throw new SyntaticError("Tabela Sintatica é nula")
+        if(table === null) throw new SyntacticError("Tabela Sintatica é nula")
 
         result.push(table);
 			
@@ -387,7 +387,7 @@ export class JavaCommonGenerator {
 	{
         const generator = LRGeneratorFactory.createGenerator(g, lrParserOption);
 
-        if(generator == null) throw new SyntaticError("Gerador de Tabela é nulo.");
+        if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
 		this.lrTable = generator.buildIntTable();
 
@@ -446,7 +446,7 @@ export class JavaCommonGenerator {
 	private emitLRTable(g: Grammar): string
 	{
         const result: string[] = [];
-		if(this.lrTable  === null ) throw new SyntaticError("Tabela LR está nula.");
+		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 		const tbl: number[][][] = this.lrTable;
 		// //console.log(this.lrTable);
 		result.push("    int[][][] PARSER_TABLE =\n");
@@ -827,7 +827,7 @@ export class JavaCommonGenerator {
 	private emitErrorTableLR(): string
 	{
 
-        if(this.lrTable == null) throw new SyntaticError("Tabela LR está nula.");
+        if(this.lrTable == null) throw new SyntacticError("Tabela LR está nula.");
         
 		const count = this.lrTable.length;
 		// //console.log(count)

@@ -1,4 +1,4 @@
-import { LexicalError, SyntaticError } from '../analyser/SystemErros'
+import { LexicalError, SyntacticError } from '../analyser/SystemErros'
 import { MetaException } from '../util/MetaException'
 import { LineScanner } from './LineScanner'
 import { FiniteAutomataGenerator } from './FiniteAutomataGenerator'
@@ -83,10 +83,10 @@ export class LineParser {
                 analysisError.position = analysisError.position + this.pos
                 throw analysisError
               }
-            } else throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
-          } else throw new SyntaticError("Era esperado ':'", this.pos)
+            } else throw new SyntacticError('Era esperado uma Expressão Regular', this.pos)
+          } else throw new SyntacticError("Era esperado ':'", this.pos)
         } else if (t == null) continue
-        else throw new SyntaticError('Era esperado um identificador', this.pos)
+        else throw new SyntacticError('Era esperado um identificador', this.pos)
       } catch (e) {
         throw new MetaException(MetaException.Mode.DEFINITION, 0, e as AnalysisError)
       }
@@ -149,13 +149,13 @@ export class LineParser {
 
   // 								throw analysisError;
   // 							}
-  // 						} else throw new SyntaticError("Era esperado uma Expressão Regular", this.pos);
+  // 						} else throw new SyntacticError("Era esperado uma Expressão Regular", this.pos);
 
-  // 					} else throw new SyntaticError("Era esperado ':'", this.pos);
+  // 					} else throw new SyntacticError("Era esperado ':'", this.pos);
 
   // 				} else if (t == null) continue;
 
-  // 				else throw new SyntaticError("Era esperado um identificador", this.pos);
+  // 				else throw new SyntacticError("Era esperado um identificador", this.pos);
 
   // 			}catch (e){
   // 				throw new MetaException(MetaException.Mode.DEFINITION, lineCount, e as AnalysisError);
@@ -342,10 +342,10 @@ export class LineParser {
           t = this.nextToken()
 
           if (t != null)
-            throw new SyntaticError('Só é permitido uma definição por linha', t.position)
-        } else throw new SyntaticError('Era esperado uma Expressão Regular', this.pos)
-      } else throw new SyntaticError("Era esperado ':'", this.pos)
-    } else throw new SyntaticError('Era esperado um Identificador', this.pos)
+            throw new SyntacticError('Só é permitido uma definição por linha', t.position)
+        } else throw new SyntacticError('Era esperado uma Expressão Regular', this.pos)
+      } else throw new SyntacticError("Era esperado ':'", this.pos)
+    } else throw new SyntacticError('Era esperado um Identificador', this.pos)
   }
 
   private nextToken(): Token | null {

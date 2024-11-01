@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 import { List, Stack, TreeNode } from "../DataStructures";
-import { SyntaticError } from "../analyser/SystemErros";
+import { SyntacticError } from "../analyser/SystemErros";
 import { Token } from "../analyser/Token";
 import { Command } from "../generator/parser/lr/Command";
 import { LRGenerator } from "../generator/parser/lr/LRGenerator";
@@ -45,7 +45,7 @@ export class LRParserSimulator
 		this.errors = parser.getErrors(this.table);
 	}
 	
-	public parse(scanner: BasicScanner, root: TreeNode<string>): TreeNode<string>  //throws SemanticError, SyntaticError, SyntaticError, LexicalError
+	public parse(scanner: BasicScanner, root: TreeNode<string>): TreeNode<string>  //throws SemanticError, SyntacticError, SyntacticError, LexicalError
 	{
 		this.scanner = scanner;
 
@@ -61,7 +61,7 @@ export class LRParserSimulator
 			while ( ! this.step() ); //faz nada
             
             const node = this.nodeStack.pop();
-            if(node === undefined) throw new SyntaticError("Node is Null");
+            if(node === undefined) throw new SyntacticError("Node is Null");
 			root.add(node);
 		}
 		catch(e) // AnalysisError
@@ -69,7 +69,7 @@ export class LRParserSimulator
 
 			for (let i=0; i< this.nodeStack.size(); i++){
                 const node = this.nodeStack.get(i);
-                if(node === undefined) throw new SyntaticError("Node is Null");
+                if(node === undefined) throw new SyntacticError("Node is Null");
                 root.add(node);
             }
 
@@ -79,7 +79,7 @@ export class LRParserSimulator
 		return root;	
 	}
 	
-	private step(): boolean //throws SyntaticError, SemanticError, LexicalError
+	private step(): boolean //throws SyntacticError, SemanticError, LexicalError
 	{
 		const state = this.stack.peek();
 		
@@ -94,7 +94,7 @@ export class LRParserSimulator
 		
     	const token = this.currentToken.id;
 		
-        if(state === undefined) throw new SyntaticError("State is undefined");
+        if(state === undefined) throw new SyntacticError("State is undefined");
 
 		const cmd: Command = this.table[state][token-1];
 		
@@ -104,7 +104,7 @@ export class LRParserSimulator
 				this.stack.push(cmd.getParameter());
 				this.nodeStack.push(new TreeNode(this.symbols[this.currentToken.id]));
 				this.previousToken = this.currentToken;
-				if(this.scanner === null) throw new SyntaticError("Scanner is Null");
+				if(this.scanner === null) throw new SyntacticError("Scanner is Null");
 				this.currentToken = this.scanner.nextToken();
 				return false;
 
@@ -116,17 +116,17 @@ export class LRParserSimulator
 				for (let i = 0; i < prod[1]; i++) {
 					this.stack.pop();
 					const node = this.nodeStack.pop();
-					if(node === undefined) throw new SyntaticError("Node is Null");
+					if(node === undefined) throw new SyntacticError("Node is Null");
 					tmp.push(node);
 				}
 				const oldState = this.stack.peek();
-				if(oldState === undefined) throw new SyntaticError("Old State is Null");
+				if(oldState === undefined) throw new SyntacticError("Old State is Null");
 				this.stack.push(this.table[oldState][prod[0] - 1].getParameter());
 		
 				const node = new TreeNode(this.symbols[prod[0]]);
 				while (tmp.size() > 0) {
 					const pivot = tmp.pop();
-					if(pivot === undefined) throw new SyntaticError("Pivot is Null");
+					if(pivot === undefined) throw new SyntacticError("Pivot is Null");
 					node.add(pivot);
 				}
 				this.nodeStack.push(node);
@@ -146,7 +146,7 @@ export class LRParserSimulator
 				return true;
 				
 			case Command.ERROR:
-				throw new SyntaticError("Era esperado: "+this.errors.get(state), this.currentToken.position);
+				throw new SyntacticError("Era esperado: "+this.errors.get(state), this.currentToken.position);
 		}
 		return false;
 	}

@@ -1,6 +1,6 @@
 import { OrderedIntegerSet } from "../../../DataStructures";
 import { HTMLDialog } from "../../../HTMLDialog";
-import { NotLLException, SyntaticError } from "../../../analyser/SystemErros";
+import { NotLLException, SyntacticError } from "../../../analyser/SystemErros";
 import { Production } from "../../../util/Production";
 import { Grammar } from "../Grammar";
 import { LLConflictSolver } from "./LLConflictSolver";
@@ -41,7 +41,7 @@ export class LLParser
 	 */
 	private lookahead(p: Production): OrderedIntegerSet
 	{
-		if(this.g == null) throw new SyntaticError("Gramatica é nula");
+		if(this.g == null) throw new SyntacticError("Gramatica é nula");
 		// let result: OrderedIntegerSet = this.g.first(p.get_rhs());
 		// if (result.get(Grammar.EPSILON))
 		// {
@@ -58,7 +58,7 @@ export class LLParser
 
 	public generateTable(): number[][]
 	{
-		if(this.g == null) throw new SyntaticError("Gramatica é nula");
+		if(this.g == null) throw new SyntacticError("Gramatica é nula");
 
 		const symbols: string[] = this.g.symbols;
 		const table: OrderedIntegerSet[][] = [];
@@ -90,7 +90,7 @@ export class LLParser
 	private resolveConflicts(table: OrderedIntegerSet[][], cs: LLConflictSolver): number[][]
 	{
 
-		if(this.g == null) throw new SyntaticError("Gramatica é nula");
+		if(this.g == null) throw new SyntacticError("Gramatica é nula");
 
 		const result: number[][]  = [] //new int[table.length][table[0].length];
 
@@ -120,7 +120,7 @@ export class LLParser
 	public tableAsHTML(): string
 	{
 
-		if(this.g == null) throw new SyntaticError("Gramatica é nula");
+		if(this.g == null) throw new SyntacticError("Gramatica é nula");
 
 		const tbl: number[][] = this.generateTable();
 		let result = "";

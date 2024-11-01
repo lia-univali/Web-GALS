@@ -1,4 +1,4 @@
-import { NotLLException, SyntaticError } from "../../analyser/SystemErros";
+import { NotLLException, SyntacticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
 import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
 import { Grammar } from "../parser/Grammar";
@@ -32,7 +32,7 @@ export class JavaParserGenerator{
 					parser = null;
 			}
 			
-            if(parser === null) throw new SyntaticError("String do Parser é nulo.");
+            if(parser === null) throw new SyntacticError("String do Parser é nulo.");
 
 			result.set(classname+".java", parser);
 			
@@ -125,7 +125,7 @@ export class JavaParserGenerator{
 			
 		result.push(
 		
-		"    public void parse("+scannerName+" scanner, "+semanName+" semanticAnalyser) throws LexicalError, SyntaticError, SemanticError\n"+
+		"    public void parse("+scannerName+" scanner, "+semanName+" semanticAnalyser) throws LexicalError, SyntacticError, SemanticError\n"+
 		"    {\n"+
 		"        this.scanner = scanner;\n"+
 		"        this.semanticAnalyser = semanticAnalyser;\n"+
@@ -139,7 +139,7 @@ export class JavaParserGenerator{
 		"            ;\n"+
 		"    }\n"+		
 		"\n"+
-		"    private boolean step() throws LexicalError, SyntaticError, SemanticError\n"+
+		"    private boolean step() throws LexicalError, SyntacticError, SemanticError\n"+
 		"    {\n"+
 		"        if (currentToken == null)\n"+
         "        {\n"+
@@ -183,7 +183,7 @@ export class JavaParserGenerator{
 		"                return true;\n"+
 		"\n"+
 		"            case ERROR:\n"+
-		"                throw new SyntaticError(PARSER_ERROR[state], currentToken.getPosition());\n"+
+		"                throw new SyntacticError(PARSER_ERROR[state], currentToken.getPosition());\n"+
 		"        }\n"+
 		"        return false;\n"+
 		"    }\n"+
@@ -268,7 +268,7 @@ export class JavaParserGenerator{
 		const semanName: string   = parserOptions.semanticName;
 				
 		return (
-		"    public void parse("+scannerName+" scanner, "+semanName+" semanticAnalyser) throws LexicalError, SyntaticError, SemanticError\n"+
+		"    public void parse("+scannerName+" scanner, "+semanName+" semanticAnalyser) throws LexicalError, SyntacticError, SemanticError\n"+
 	    "    {\n"+
 		"        this.scanner = scanner;\n"+
 		"        this.semanticAnalyser = semanticAnalyser;\n"+
@@ -288,7 +288,7 @@ export class JavaParserGenerator{
 	private emitStep(): string
 	{
 		return (
-		"    private boolean step() throws LexicalError, SyntaticError, SemanticError\n"+
+		"    private boolean step() throws LexicalError, SyntacticError, SemanticError\n"+
 		"    {\n"+			
 		"        if (currentToken == null)\n"+
         "        {\n"+
@@ -321,7 +321,7 @@ export class JavaParserGenerator{
 		"            }\n"+
 		"            else\n"+
 		"            {\n"+
-		"                throw new SyntaticError(PARSER_ERROR[x], currentToken.getPosition());\n"+
+		"                throw new SyntacticError(PARSER_ERROR[x], currentToken.getPosition());\n"+
 		"            }\n"+
 		"        }\n"+
 		"        else if (isNonTerminal(x))\n"+
@@ -329,7 +329,7 @@ export class JavaParserGenerator{
 		"            if (pushProduction(x, a))\n"+
 		"                return false;\n"+
 		"            else\n"+
-		"                throw new SyntaticError(PARSER_ERROR[x], currentToken.getPosition());\n"+
+		"                throw new SyntacticError(PARSER_ERROR[x], currentToken.getPosition());\n"+
 		"        }\n"+
 		"        else // isSemanticAction(x)\n"+
 		"        {\n"+
@@ -393,7 +393,7 @@ export class JavaParserGenerator{
 		"        "+rd.getStart()+"();\n"+
 		"\n"+
 		"        if (currentToken.getId() != DOLLAR)\n"+
-		"            throw new SyntaticError(PARSER_ERROR[DOLLAR], currentToken.getPosition());\n"+
+		"            throw new SyntacticError(PARSER_ERROR[DOLLAR], currentToken.getPosition());\n"+
 		"    }\n"+		
 		"\n"+
 		"    private void match(int token) throws AnalysisError\n"+
@@ -412,7 +412,7 @@ export class JavaParserGenerator{
 		"            }\n"+
 		"        }\n"+
 		"        else\n"+
-		"            throw new SyntaticError(PARSER_ERROR[token], currentToken.getPosition());\n"+
+		"            throw new SyntacticError(PARSER_ERROR[token], currentToken.getPosition());\n"+
 		"    }\n"+
 		"\n");
 
@@ -486,7 +486,7 @@ export class JavaParserGenerator{
 
 			result.push(
 						"            default:\n"+
-						"                throw new SyntaticError(PARSER_ERROR["+f.lhs+"], currentToken.getPosition());\n"+
+						"                throw new SyntacticError(PARSER_ERROR["+f.lhs+"], currentToken.getPosition());\n"+
 						"        }\n"+
 						"    }\n"+
 						"\n");

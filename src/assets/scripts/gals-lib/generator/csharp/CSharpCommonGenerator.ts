@@ -2,7 +2,7 @@
 // import { Options } from "../Options";
 // import type { Grammar } from "../parser/Grammar";
 // import { LRGeneratorFactory } from '@/assets/scripts/gals-lib/generator/parser/lr/LRGeneratorFactory'
-// import { SyntaticError } from '@/assets/scripts/gals-lib/analyser/SystemErros'
+// import { SyntacticError } from '@/assets/scripts/gals-lib/analyser/SystemErros'
 // import { Command } from '@/assets/scripts/gals-lib/generator/parser/lr/Command'
 // import { LLParser } from '@/assets/scripts/gals-lib/generator/parser/ll/LLParser'
 // import type { List } from '@/assets/scripts/gals-lib/DataStructures'
@@ -32,7 +32,7 @@
 //
 // 		result.set("AnalysisError.cs", this.generateAnalysisError(options));
 // 		result.set("LexicalError.cs", this.generateLexicalError(options));
-// 		result.set("SyntaticError.cs", this.generateSyntaticError(options));
+// 		result.set("SyntacticError.cs", this.generateSyntacticError(options));
 // 		result.set("SemanticError.cs", this.generateSemanticError(options));
 //
 // 		return result;
@@ -99,16 +99,16 @@
 // 		return result;
 // 	}
 //
-// 	private generateSyntaticError(options: Options ): string
+// 	private generateSyntacticError(options: Options ): string
 // 	{
 // 		let result = "";
 //
 // 		let cls =
-// 		"    public class SyntaticError : AnalysisError\n"
+// 		"    public class SyntacticError : AnalysisError\n"
 // 		+ "    {\n"
-// 		+ "        public SyntaticError(string msg, let position) : base(msg, position) { }\n"
+// 		+ "        public SyntacticError(string msg, let position) : base(msg, position) { }\n"
 // 		+ "\n"
-// 		+ "        public SyntaticError(string msg) : base(msg) { }\n"
+// 		+ "        public SyntacticError(string msg) : base(msg) { }\n"
 // 		+ "    }";
 //
 // 		result += (cls);
@@ -356,7 +356,7 @@
 // 		result += ("        public static readonly int[][][] PARSER_TABLE =\n");
 // 		result += ("        {\n");
 //
-//     if(tbl == null) throw new SyntaticError("Tabela LR está nula.");
+//     if(tbl == null) throw new SyntacticError("Tabela LR está nula.");
 //
 // 		let max = tbl.length;
 // 		if (g.productions.size() > max)
@@ -740,7 +740,7 @@
 // 	private emitErrorTableLR(): string
 // 	{
 //
-//     if(this.lrTable == null) throw new SyntaticError("Tabela LR está nula.");
+//     if(this.lrTable == null) throw new SyntacticError("Tabela LR está nula.");
 //
 // 		let count = this.lrTable.length;
 //

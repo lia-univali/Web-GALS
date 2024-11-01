@@ -5,7 +5,7 @@ import { Grammar } from "../generator/parser/Grammar";
 import { Constants } from "./Constants";
 import { SemanticAnalyser } from "./SemanticAnalyser";
 import { Scanner } from "./Scanner";
-import { LexicalError, SemanticError, SyntaticError } from "../analyser/SystemErros";
+import { LexicalError, SemanticError, SyntacticError } from "../analyser/SystemErros";
 import { MetaException } from "../util/MetaException";
 import { AnalysisError } from "../analyser/AnalysisError";
 
@@ -146,7 +146,7 @@ export class Parser
 	}
 	
 	public parseByMap(input: string, symbols: Map<string, number>)
-		//throws LexicalError, SyntaticError, SemanticError
+		//throws LexicalError, SyntacticError, SemanticError
 	{
 		this.scanner = new Scanner(input);
 		this.semanticAnalyser = new SemanticAnalyser(symbols);
@@ -159,7 +159,7 @@ export class Parser
 		while ( ! this.step() ); //faz nada
 	}
 	
-	public step(): boolean // throws LexicalError, SyntaticError, SemanticError
+	public step(): boolean // throws LexicalError, SyntacticError, SemanticError
 	{			
 		const x = this.stack.pop();
         if(x === undefined) return false;
@@ -189,7 +189,7 @@ export class Parser
 				}
 				else
 				{
-					throw new SyntaticError("Era esperado "+ Constants.EXPECTED_MESSAGE[x], this.scanner.getPosition());
+					throw new SyntacticError("Era esperado "+ Constants.EXPECTED_MESSAGE[x], this.scanner.getPosition());
 				}
 		}
 		else if (this.isNonTerminal(x))
@@ -198,7 +198,7 @@ export class Parser
 			if (p >= 0 )
 			{
 				const production = Constants.PRODUCTIONS[p];
-				if(production === undefined) throw new SyntaticError("Produção não definida");
+				if(production === undefined) throw new SyntacticError("Produção não definida");
 				//empilha a produção em ordem reversa
 				for (let i = production.length - 1; i>=0; i--)
 				{
@@ -208,7 +208,7 @@ export class Parser
 			}
 			else
 			{
-				throw new SyntaticError(Constants.PARSER_ERROR[x-Constants.FIRST_NON_TERMINAL], this.scanner.getPosition());
+				throw new SyntacticError(Constants.PARSER_ERROR[x-Constants.FIRST_NON_TERMINAL], this.scanner.getPosition());
 			}
 		}
 		else if (this.isSemanticAction(x))

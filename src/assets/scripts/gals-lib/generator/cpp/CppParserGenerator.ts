@@ -1,4 +1,4 @@
-import { SyntaticError } from "../../analyser/SystemErros";
+import { SyntacticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
 import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
 import { Grammar } from "../parser/Grammar";
@@ -59,7 +59,7 @@ export class CppParserGenerator
 			"class "+classname+"\n"+
 			"{\n"+
 			"public:\n"+
-			"    void executeAction(int action, const Token *token)\n"+ // throw (SemanticError );\n"+ // Verificar throw
+			"    void executeAction(int action, const Token *token);\n"+ // throw (SemanticError );\n"+ // Verificar throw
 			"};\n"+
 			"\n"+
 			this.closeNamespace(options)+
@@ -116,7 +116,7 @@ export class CppParserGenerator
 			"#include \"Token.h\"\n"+
 			"#include \""+scannerName+".h\"\n"+
 			"#include \""+semanticName+".h\"\n"+
-			"#include \"SyntaticError.h\"\n"+
+			"#include \"SyntacticError.h\"\n"+
 			"\n"+
 			(descendant ? "" :
 			"#include <stack>\n"+
@@ -138,13 +138,13 @@ export class CppParserGenerator
 			"private:\n"+
 			(descendant ? "" :
 			"    std::stack<int> stack;\n")+
-			"    Token *currentToken;\n"+
 			"    Token *previousToken;\n"+
+			"    Token *currentToken;\n"+
 			"    "+scannerName+" *scanner;\n"+
 			"    "+semanticName+" *semanticAnalyser;\n"+
 			"\n"+
 			( descendant ? recDescFuncs :
-			"    bool step()\n"+// throw (AnalysisError);\n"+
+			"    bool step();\n"+// throw (AnalysisError);\n"+
 			(type == Options.PARSER_LL ?
 			"    bool pushProduction(int topStack, int tokenInput);\n"+
 			"\n"+
@@ -177,7 +177,7 @@ export class CppParserGenerator
 	private parserCppRecursiveDescendant(g: Grammar, options: Options): string
 	{
 
-		if(this.rd == null) throw new SyntaticError("RecursiveDescendent é nulo.");
+		if(this.rd == null) throw new SyntacticError("RecursiveDescendent é nulo.");
 
 		const scannerName  = options.scannerName;
 		const parserName   = options.parserName;
@@ -205,7 +205,7 @@ export class CppParserGenerator
 			"    "+this.rd.getStart()+"();\n"+
 			"\n"+
 			"    if (currentToken->getId() != DOLLAR)\n"+
-			"        throw SyntaticError(PARSER_ERROR[DOLLAR], currentToken->getPosition());\n"+
+			"        throw SyntacticError(PARSER_ERROR[DOLLAR], currentToken->getPosition());\n"+
 			"}\n"+
 			"\n"+
 			
@@ -227,7 +227,7 @@ export class CppParserGenerator
 			"        }\n"+
 			"    }\n"+
 			"    else\n"+
-			"        throw SyntaticError(PARSER_ERROR[token], currentToken->getPosition());\n"+
+			"        throw SyntacticError(PARSER_ERROR[token], currentToken->getPosition());\n"+
 			"}\n";
 			
 		let bfr = "";
@@ -239,7 +239,7 @@ export class CppParserGenerator
 			const name: string = this.rd.getSymbols(symb);
 			const f: FunctionCustom | undefined = funcs.get(name); // TODO Vericiar o motivo de erro para tipagem
 	
-            if(f == undefined) throw new SyntaticError('FunctionCustom é nulo');
+            if(f == undefined) throw new SyntacticError('FunctionCustom é nulo');
 
 			bfr += (
 						"\n"+
@@ -263,7 +263,7 @@ export class CppParserGenerator
 				{
 					const rhs2: number[] | undefined = f.input.get(keys[j]);
 					
-                    if(rhs == undefined || rhs2 == undefined) throw new SyntaticError('rhs é nulo');
+                    if(rhs == undefined || rhs2 == undefined) throw new SyntacticError('rhs é nulo');
                     
                     if (rhs.sort().toString() == rhs2.sort().toString() )
 					{
@@ -279,7 +279,7 @@ export class CppParserGenerator
 					bfr += ("            // EPSILON\n");
                 }
 
-                if(rhs == undefined) throw new SyntaticError('rhs é nulo');
+                if(rhs == undefined) throw new SyntacticError('rhs é nulo');
 
 				for (let k=0; k<rhs.length; k++)
 				{
@@ -307,7 +307,7 @@ export class CppParserGenerator
 
 			bfr += (
 						"        default:\n"+
-						"            throw SyntaticError(PARSER_ERROR["+f.lhs+"], currentToken->getPosition());\n"+
+						"            throw SyntacticError(PARSER_ERROR["+f.lhs+"], currentToken->getPosition());\n"+
 						"    }\n"+
 						"}\n" );
 		}
@@ -391,7 +391,7 @@ export class CppParserGenerator
 			"        }\n"+
 			"        else\n"+
 			"        {\n"+
-			"            throw SyntaticError(PARSER_ERROR[x], currentToken->getPosition());\n"+
+			"            throw SyntacticError(PARSER_ERROR[x], currentToken->getPosition());\n"+
 			"        }\n"+
 			"    }\n"+
 			"    else if (isNonTerminal(x))\n"+
@@ -399,7 +399,7 @@ export class CppParserGenerator
 			"        if (pushProduction(x, a))\n"+
 			"            return false;\n"+
 			"        else\n"+
-			"            throw SyntaticError(PARSER_ERROR[x], currentToken->getPosition());\n"+
+			"            throw SyntacticError(PARSER_ERROR[x], currentToken->getPosition());\n"+
 			"    }\n"+
 			"    else // isSemanticAction(x)\n"+
 			"    {\n"+
@@ -513,7 +513,7 @@ export class CppParserGenerator
 			"            return true;\n"+
 			"\n"+
 			"        case ERROR:\n"+
-			"            throw SyntaticError(PARSER_ERROR[state], currentToken->getPosition());\n"+
+			"            throw SyntacticError(PARSER_ERROR[state], currentToken->getPosition());\n"+
 			"    }\n"+
 			"    return false;\n"+
 			"}\n"+

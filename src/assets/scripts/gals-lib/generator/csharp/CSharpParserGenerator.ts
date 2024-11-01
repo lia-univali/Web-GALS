@@ -157,7 +157,7 @@
 //     "                    return true;\n"+
 //     "\n"+
 //     "                case ERROR:\n"+
-//     "                    throw new SyntaticError(PARSER_ERROR[state], _currentToken.Position);\n"+
+//     "                    throw new SyntacticError(PARSER_ERROR[state], _currentToken.Position);\n"+
 //     "            }\n"+
 //     "            return false;\n"+
 //     "        }\n"+
@@ -293,7 +293,7 @@
 //   + "                }\n"
 //   + "                else\n"
 //   + "                {\n"
-//   + "                    throw new SyntaticError(PARSER_ERROR[x], _currentToken.Position);\n"
+//   + "                    throw new SyntacticError(PARSER_ERROR[x], _currentToken.Position);\n"
 //   + "                }\n"
 //   + "            }\n"
 //   + "            else if (IsNonTerminal(x))\n"
@@ -301,7 +301,7 @@
 //   + "                if (PushProduction(x, a))\n"
 //   + "                    return false;\n"
 //   + "                else\n"
-//   + "                    throw new SyntaticError(PARSER_ERROR[x], _currentToken.Position);\n"
+//   + "                    throw new SyntacticError(PARSER_ERROR[x], _currentToken.Position);\n"
 //   + "            }\n"
 //   + "            else // isSemanticAction(x)\n"
 //   + "            {\n"
@@ -362,7 +362,7 @@
 //     "            "+rd.getStart()+"();\n"+
 //     "\n"+
 //     "            if (_currentToken.Id != DOLLAR)\n"+
-//     "                throw new SyntaticError(PARSER_ERROR[DOLLAR], _currentToken.Position);\n"+
+//     "                throw new SyntacticError(PARSER_ERROR[DOLLAR], _currentToken.Position);\n"+
 //     "        }\n"+
 //     "\n"+
 //     "        private void Match(int token)\n"+
@@ -381,7 +381,7 @@
 //     "                }\n"+
 //     "            }\n"+
 //     "            else\n"+
-//     "                throw new SyntaticError(PARSER_ERROR[token], _currentToken.Position);\n"+
+//     "                throw new SyntacticError(PARSER_ERROR[token], _currentToken.Position);\n"+
 //     "        }\n"+
 //     "\n");
 //
@@ -450,7 +450,7 @@
 //
 //     result.append(
 //       "                default:\n"+
-//       "                    throw new SyntaticError(PARSER_ERROR["+f.lhs+"], _currentToken.Position);\n"+
+//       "                    throw new SyntacticError(PARSER_ERROR["+f.lhs+"], _currentToken.Position);\n"+
 //       "            }\n"+
 //       "        }\n"+
 //       "\n");

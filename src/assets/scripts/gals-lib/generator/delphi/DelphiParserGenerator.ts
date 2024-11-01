@@ -1,4 +1,4 @@
-import { NotLLException, SyntaticError } from "../../analyser/SystemErros";
+import { NotLLException, SyntacticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
 import type { Grammar } from "../parser/Grammar";
 import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
@@ -33,7 +33,7 @@ export class DelphiParserGenerator
 					//nunca acontece
 					parser = null;
 			}
-            if(parser === null) throw new SyntaticError("String do Parser é nulo.");
+            if(parser === null) throw new SyntacticError("String do Parser é nulo.");
             
 			result.set("U"+classname+".pas", parser);
 			
@@ -130,7 +130,7 @@ export class DelphiParserGenerator
 
 			bfr += (
 						"        else\n"+
-						"            raise ESyntaticError.create(PARSER_ERROR["+f.lhs+"], currentToken.getPosition());\n"+
+						"            raise ESyntacticError.create(PARSER_ERROR["+f.lhs+"], currentToken.getPosition());\n"+
 						"    end;\n"+
 						"end;\n" );
 		}
@@ -141,7 +141,7 @@ export class DelphiParserGenerator
                 "\n"+
                 "interface\n"+
                 "\n"+
-                "uses UConstants, UToken, U"+scanner+", U"+semantic+", USyntaticError, UAnalysisError;\n"+
+                "uses UConstants, UToken, U"+scanner+", U"+semantic+", USyntacticError, UAnalysisError;\n"+
                 "\n"+
                 "type\n"+
                 "    T"+classname+" = class\n"+
@@ -196,7 +196,7 @@ export class DelphiParserGenerator
                 "    "+rd.getStart()+";\n"+
                 "\n"+
                 "    if currentToken.getId <> DOLLAR then\n"+
-                "        raise ESyntaticError.create(PARSER_ERROR[DOLLAR], currentToken.getPosition);\n"+
+                "        raise ESyntacticError.create(PARSER_ERROR[DOLLAR], currentToken.getPosition);\n"+
                 "end;\n"+
                 "\n"+
                 "procedure T"+classname+".match(token : integer);\n"+
@@ -218,7 +218,7 @@ export class DelphiParserGenerator
                 "        end;\n"+
                 "    end\n"+
                 "    else\n"+
-                "        raise ESyntaticError.create(PARSER_ERROR[token], currentToken.getPosition);\n"+
+                "        raise ESyntacticError.create(PARSER_ERROR[token], currentToken.getPosition);\n"+
                 "end;\n"+
                 funcsImpl+
                 "\n"+
@@ -237,7 +237,7 @@ export class DelphiParserGenerator
 			"\n"+
 			"interface\n"+
 			"\n"+
-			"uses UConstants, UToken, U"+scanner+", U"+semantic+", USyntaticError, UAnalysisError, classes;\n"+
+			"uses UConstants, UToken, U"+scanner+", U"+semantic+", USyntacticError, UAnalysisError, classes;\n"+
 			"\n"+
 			"type\n"+
 			"    T"+classname+" = class\n"+
@@ -338,14 +338,14 @@ export class DelphiParserGenerator
 			"            end;\n"+
 			"        end\n"+
 			"        else\n"+
-			"            raise ESyntaticError.create(PARSER_ERROR[x], currentToken.getPosition);\n"+
+			"            raise ESyntacticError.create(PARSER_ERROR[x], currentToken.getPosition);\n"+
 			"    end\n"+
 			"    else if isNonTerminal(x) then\n"+
 			"    begin\n"+
 			"        if pushProduction(x, a) then\n"+
 			"            result := false\n"+
 			"        else\n"+
-			"            raise ESyntaticError.create(PARSER_ERROR[x], currentToken.getPosition);\n"+
+			"            raise ESyntacticError.create(PARSER_ERROR[x], currentToken.getPosition);\n"+
 			"    end\n"+
 			"    else // isSemanticAction(x)\n"+
 			"    begin\n"+
@@ -403,7 +403,7 @@ export class DelphiParserGenerator
 			"\n"+
 			"interface\n"+
 			"\n"+
-			"uses UConstants, UToken, U"+scanner+", U"+semantic+", USyntaticError, UAnalysisError, classes;\n"+
+			"uses UConstants, UToken, U"+scanner+", U"+semantic+", USyntacticError, UAnalysisError, classes;\n"+
 			"\n"+
 			"type\n"+
 			"    T"+classname+" = class\n"+
@@ -517,7 +517,7 @@ export class DelphiParserGenerator
 			"            result := true;\n"+
 			"\n"+
 			"        ERROR:\n"+
-			"            raise ESyntaticError.create(PARSER_ERROR[state], currentToken.getPosition);\n"+
+			"            raise ESyntacticError.create(PARSER_ERROR[state], currentToken.getPosition);\n"+
 			"    end;\n"+
 			"end;\n"+
 			"\n"+

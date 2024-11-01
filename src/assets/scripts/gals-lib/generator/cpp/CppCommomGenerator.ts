@@ -1,4 +1,4 @@
-import { SyntaticError } from "../../analyser/SystemErros";
+import { SyntacticError } from "../../analyser/SystemErros";
 import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
 import { Options } from "../Options";
@@ -25,7 +25,7 @@ export class CppCommomGenerator
 				
 		result.set("AnalysisError.h", this.generateAnalysisError(options));
 		result.set("LexicalError.h", this.generateLexicalError(options));
-		result.set("SyntaticError.h", this.generateSyntaticError(options));
+		result.set("SyntacticError.h", this.generateSyntacticError(options));
 		result.set("SemanticError.h", this.generateSemanticError(options));	
 		
 		return result;
@@ -133,7 +133,7 @@ export class CppCommomGenerator
 			"";
 	}
 	
-	private generateSyntaticError(options: Options): string
+	private generateSyntacticError(options: Options): string
 	{
 		return "#ifndef SYNTATIC_ERROR_H\n"+
         "#define SYNTATIC_ERROR_H\n"+
@@ -143,11 +143,11 @@ export class CppCommomGenerator
         "#include <string>\n"+
         "\n"+
         this.openNamespace(options)+
-        "class SyntaticError : public AnalysisError\n"+
+        "class SyntacticError : public AnalysisError\n"+
         "{\n"+
         "public:\n"+
         "\n"+
-        "    SyntaticError(const std::string &msg, int position = -1)\n"+
+        "    SyntacticError(const std::string &msg, int position = -1)\n"+
         "      : AnalysisError(msg, position) { }\n"+
         "};\n"+
         "\n"+
@@ -297,7 +297,7 @@ export class CppCommomGenerator
 
                 const generator = LRGeneratorFactory.createGenerator(g, Options.PARSER_SLR); // TODO Change based on Options
 
-                if(generator == null) throw new SyntaticError("Gerador de Tabela é nulo.");
+                if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
 				this.lrTable = generator.buildIntTable();
 
@@ -566,7 +566,7 @@ export class CppCommomGenerator
 
 	private syntTransTableGrammar(g: Grammar): string
 	{
-		if(this.lrTable  === null ) throw new SyntaticError("Tabela LR está nula.");
+		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 
 		let result = "";
 
@@ -746,7 +746,7 @@ export class CppCommomGenerator
 	private syntErrorsLR(): string
 	{
 
-        if(this.lrTable  === null ) throw new SyntaticError("Tabela LR está nula.");
+        if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 
 		let result = "";
 	
