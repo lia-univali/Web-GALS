@@ -329,11 +329,8 @@ export class FiniteAutomataGenerator {
       scIndexes[i] = [start, end]
     }
 
-    let sc: KeyValuePar[] = []
-
-    const clone = Object.assign({}, scList)
-    sc = Object.setPrototypeOf(clone, KeyValuePar.prototype)
-
+    const clone = Object.assign([], scList)
+    let sc: KeyValuePar[] = Object.setPrototypeOf(clone, KeyValuePar.prototype)
     //sc = cloneDeep(scList.toArray())//this one is the older clone
 
     const cont: number[][] = Array.from({ length: states.size() }, () => Array.from({ length: 2 }))
