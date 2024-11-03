@@ -421,7 +421,7 @@ export class JavaCommonGenerator {
 
 	private emitProductionsForLR(g: Grammar): string
 	{
-        const result: string[] = [];
+    const result: string[] = [];
 		
 		const prods = g.productions;
 		
@@ -538,9 +538,9 @@ export class JavaCommonGenerator {
 		return result.join("");
 	}
 
-    private genLLSyntTables(g: Grammar, type: number)
+  private genLLSyntTables(g: Grammar, type: number)
 	{
-        const result: string[] = [];
+    const result: string[] = [];
 		
 		if (type == Options.PARSER_LL)
 		{	
@@ -571,7 +571,7 @@ export class JavaCommonGenerator {
 			return result.join("");
 		}
 		else if (type == Options.PARSER_REC_DESC)
-			return null //this.emitErrorTableLL(g);
+			return this.emitErrorTableLL(g);
 		else
 			return null;
 	}

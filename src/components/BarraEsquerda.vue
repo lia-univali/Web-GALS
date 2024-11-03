@@ -354,7 +354,6 @@ export default defineComponent({
       <div class="container__info" v-else-if="paginaAberta == 'Informações'">
         <p>Versão on-line do <br /> <b>G</b>erador de <b>A</b>nalisadores <b>L</b>éxicos e <b>S</b>intáticos.</p>
         <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
-        <p><a class="link" href="https://forms.gle/BNN55tGTmULiSGYr8" target="_blank">Feedback e Bugs</a></p>
         <p>Projeto Acadêmico iniciado na UFSC - Universidade Federal de Santa Catarina e continuado na Univali - Universidade do Vale do Itajaí</p>
         <div class="container__developers">
           <h4>Versão Original - Desktop <br />(v. 2003.10.03)</h4>
