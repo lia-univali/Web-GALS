@@ -8,7 +8,7 @@ export class JavaScannerGenerator
 	
 	public generate(fa: FiniteAutomata, options: Options): Map<string, string>
 	{
-        const result: Map<string, string> = new Map();
+    const result: Map<string, string> = new Map();
 		
 		const classname: string = options.scannerName;
 		

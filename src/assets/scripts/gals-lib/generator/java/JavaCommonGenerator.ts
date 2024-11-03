@@ -249,7 +249,7 @@ export class JavaCommonGenerator {
             
         result.push("}\n");
 
-        return result.join('\n');//TODO verificar comportamento
+        return result.join('');
     }
 
     private generateParserConstants(g: Grammar | null, options: Options): string {
@@ -405,7 +405,8 @@ export class JavaCommonGenerator {
 		
 		result.push("\n");
     	
-		result.push(this.emitLRTable(g));
+//		result.push(this.emitLRTable(g));
+		result.push(this.emitModifiedLRTable(g));
 		
 		result.push("\n");
 
@@ -487,6 +488,56 @@ export class JavaCommonGenerator {
 		return result.join("");
 	}
 
+	private emitModifiedLRTable(g: Grammar): string
+	{
+    const result: string[] = [];
+		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
+		const tbl: number[][][] = this.lrTable;
+		// //console.log(this.lrTable);
+		result.push('    int[][][] PARSER_TABLE = new LRTableAdapter().table;\n')
+		
+		let max = tbl.length;
+		if (g.productions.size() > max)
+			max = g.productions.size();
+			
+		max = (""+max).length;
+		let newPart : string = "";
+		result.push("\n")
+		result.push("    public class LRTableAdapter // Code too large sem adapter (>64kb)\n")
+		result.push("    {\n");
+		result.push('        int table[][][] = new int[' + tbl.length + '][' + tbl[0].length + '][2];\n')
+		result.push("\n")
+		
+		for (let i=0; i< tbl.length; i++)
+		{
+			result.push("        public class state" + i + "{ int q" + i + "[][] = {");
+
+			for (let j=0; j<tbl[i].length; j++)
+			{
+				 result.push(" {");
+				 result.push(Command.CONSTANTS[tbl[i][j][0]]);
+				 result.push(', ')
+				const str: string = ""+tbl[i][j][1];
+
+				for (let k=str.length; k<max; k++)
+					result.push(' ')
+
+				result.push(str)
+        result.push('},')
+			}
+
+			result.pop();
+			result.push("} }; }\n");
+			newPart = newPart.concat('            table[' + i + '] = new state' + i + '().q' + i + ';\n');
+		}
+
+		result.push('\n        public LRTableAdapter(){\n' + newPart + '        }')
+		result.push("\n    }");
+		result.push("\n");
+		
+		return result.join("");
+	}
+
     private genLLSyntTables(g: Grammar, type: number)
 	{
         const result: string[] = [];
@@ -501,7 +552,7 @@ export class JavaCommonGenerator {
 			"    int START_SYMBOL = "+start+";\n"+
 			"\n"+
 			"    int FIRST_NON_TERMINAL    = "+fnt+";\n"+
-	    	"    int FIRST_SEMANTIC_ACTION = "+fsa+";\n";
+	    "    int FIRST_SEMANTIC_ACTION = "+fsa+";\n";
 	    	
 	    	result.push(syntConsts);
 	    	
@@ -617,7 +668,7 @@ export class JavaCommonGenerator {
 
 	private lex_table(fa: FiniteAutomata): string
 	{
-        const result: string[] = [];
+    const result: string[] = [];
 		
 		result.push("    int[][] SCANNER_TABLE = \n");
 		result.push("    {\n");
@@ -636,7 +687,7 @@ export class JavaCommonGenerator {
 				for (let j = n.length; j<max; j++)
 					result.push(" ");
 				result.push(n);
-                result.push(", ");
+        result.push(", ");
 			}
 			result.pop();
 			result.push(" },\n");
