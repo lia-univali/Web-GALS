@@ -1,6 +1,6 @@
 {
   "name": "web-gals",
-  "version": "0.0.0",
+  "version": "2.0.0",
   "description": "Versão Web do GALS - Gerador de Analisadores Léxico e Sintáticos",
   "author": "Daniel Akira Nakamura Gullich <daniel.gullich@edu.univali.br> (https://github.com/Dangaki)",
   "contributors": [
