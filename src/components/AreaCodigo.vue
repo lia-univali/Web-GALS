@@ -178,14 +178,14 @@ export default defineComponent({
 </script>
 
 <template>
-  <div :class="[titulo === 'Símbolo Inicial' ? 'caixa__input' : 'caixa']">
+  <div :class="[titulo === 'Símbolo inicial' ? 'caixa__input' : 'caixa']">
     <div class="caixa__titulo">
       <p class="caixa__titulo">{{ titulo }}</p>
     </div>
     
     <div v-if="projetos[selecionado] === undefined" class="caixa__interna">
       <input
-        v-if="titulo === 'Símbolo Inicial'"
+        v-if="titulo === 'Símbolo inicial'"
         name="textoCodigoVazio"
         class="input__codigo"
         spellcheck="false"
@@ -235,7 +235,7 @@ export default defineComponent({
     </div>
     <div v-else-if="titulo == 'Gramática'" class="caixa__interna">
       <div class="simboloInicial" @click="focusEditor('textoSimboloInicial')">
-        <label>Símbolo Inicial</label>
+        <label>Símbolo inicial</label>
         <input @change="store.verificaNecessarioRecriar"
                 id="textoSimboloInicial"
                 type="text"
@@ -372,7 +372,7 @@ flex-direction: column;
   margin: 0px;
   padding: 3px;
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
-  height: calc(100% - 18px);
+  height: calc(100% - 26px);
   width: 100%;
 }
 
@@ -411,14 +411,9 @@ flex-direction: column;
   font-family: "IBM Plex Sans";
   font-weight: 500;
 
-  padding-left: 12px;
+  padding: 4px;
 
-  border-radius: 5px;
-  background-color: white;
-
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
-
-  width: calc(100% - 14px);
+  width: calc(100% - 6px);
 }
 
 
