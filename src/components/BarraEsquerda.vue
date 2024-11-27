@@ -352,9 +352,37 @@ export default defineComponent({
         <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
       <div class="container__info" v-else-if="paginaAberta == 'Informações'">
-        <p>Versão on-line do <br /> <b>G</b>erador de <b>A</b>nalisadores <b>L</b>éxicos e <b>S</b>intáticos.</p>
+        
+        <p><b>G</b>erador de <b>A</b>nalisadores<b> <br /> L</b>éxicos e <b>S</b>intáticos.</p>
         <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
-        <p>Projeto Acadêmico iniciado na UFSC - Universidade Federal de Santa Catarina e continuado na Univali - Universidade do Vale do Itajaí</p>
+
+        <p>
+          <a href="https://univali.br/computacao" target="_blank"><img src="https://portal.univali.br/Style%20Library/Univali/Home/assets/univali-azul.svg" alt="Logo Univali" width="96" /></a>
+          <span style="margin:12px"></span>
+          <a href="https://cco.ufsc.br/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Brasao_UFSC_vertical_extenso.svg" alt="Logo UFSC" width="96"/></a>
+        </p>
+        
+        <hr>
+
+        <div class="container__developers">
+          <h4>Versão Web<br />(v. 2024.11.10)</h4>
+
+          <p>
+            <em>Desenvolvedor</em><br />
+            <a href="https://github.com/Dangaki" target="_blank">Daniel Akira Nakamura Gullich</a>
+          </p>
+          <p>
+            <em>Orientador</em> <br /> 
+            <a href="https://linktr.ee/prof.edu" target="_blank">Prof. Eduardo Alves da Silva</a>
+          </p>
+          <p>
+            <em>Mantida em:</em><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
+          </p>
+          
+        </div>
+
+        <hr>
+
         <div class="container__developers">
           <h4>Versão Original - Desktop <br />(v. 2003.10.03)</h4>
           <p>
@@ -370,23 +398,6 @@ export default defineComponent({
           </p>
           
         </div>
-
-        <div class="container__developers">
-          <h4>Versão Web<br />(v. 2024.11.10)</h4>
-          <p>
-            <em>Desenvolvedor</em><br />
-            <a href="https://github.com/Dangaki" target="_blank">Daniel Akira Nakamura Gullich</a>
-          </p>
-          <p>
-            <em>Orientador</em> <br /> 
-            <a href="https://linktr.ee/prof.edu" target="_blank">Prof. Eduardo Alves da Silva</a>
-          </p>
-          <p>
-            <em>Mantida em:</em><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
-          </p>
-          
-        </div>
-
         
       </div>
     </div>
