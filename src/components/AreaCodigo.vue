@@ -49,7 +49,7 @@ export default defineComponent({
     selecionado() {
       const definicoesRegulares = document.getElementById('textoDefinicoesRegulares')
       const tokens = document.getElementById('textoTokens')
-      const naoTerminais = document.getElementById('textoNaoTerminais')
+      const naoTerminais = document.getElementById('textoSimboloInicial')
       const gramatica = document.getElementById('textoGramatica')
       const saida = document.getElementById('textoSaida')
       const simulador = document.getElementById('textoSimulador')
@@ -178,30 +178,18 @@ export default defineComponent({
 </script>
 
 <template>
-  <div :class="[titulo === 'Simbolo inicial' ? 'caixa__input' : 'caixa']">
+  <div :class="[titulo === 'Símbolo Inicial' ? 'caixa__input' : 'caixa']">
     <div class="caixa__titulo">
       <p class="caixa__titulo">{{ titulo }}</p>
-      <div v-if="titulo == 'Gramática'" class="caixa__input">
-        <label> Simbolo inicial </label>
-                <input @change="store.verificaNecessarioRecriar"
-                  id="textoNaoTerminais"
-                  type="text"
-                  name="textoCodigo"
-                  class="input__codigo"
-                  spellcheck="false"
-                  v-model="projetos[selecionado].nonTerminals"
-                  pattern="<[a-zA-Z_0-9]+>"
-                  :disabled="selecionado == -1"
-                />
-      </div>
     </div>
-
-
-    <div v-if="projetos[selecionado] == undefined" class="caixa__interna">
+    
+    <div v-if="projetos[selecionado] === undefined" class="caixa__interna">
       <input
-        v-if="titulo === 'Simbolo inicial'"
+        v-if="titulo === 'Símbolo Inicial'"
         name="textoCodigoVazio"
         class="input__codigo"
+        spellcheck="false"
+        autocomplete="off"
         :disabled="selecionado == -1"
       />
       <textarea
@@ -245,33 +233,35 @@ export default defineComponent({
         :line-numbers="true"
       />
     </div>
-    <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna">
-      <input
-        @change="store.verificaNecessarioRecriar"
-        id="textoNaoTerminais"
-        type="text"
-        name="textoCodigo"
-        class="input__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].nonTerminals"
-        pattern="<[a-zA-Z_0-9]+>"
-        :disabled="selecionado == -1"
-      />
-    </div>
-    <div v-else-if="titulo == 'Gramática'" class="caixa__interna__gramatica" @click="focusEditor('textoGramatica')">
-      <prism-editor
-        @change="store.verificaNecessarioRecriar"
-        id="textoGramatica"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].grammar"
-        :disabled="selecionado == -1"
-        :highlight="highlighterGrammarGALS"
-        :line-numbers="true"
-      />
+    <div v-else-if="titulo == 'Gramática'" class="caixa__interna">
+      <div class="simboloInicial" @click="focusEditor('textoSimboloInicial')">
+        <label>Símbolo Inicial</label>
+        <input @change="store.verificaNecessarioRecriar"
+                id="textoSimboloInicial"
+                type="text"
+                name="textoCodigo"
+                class="input__codigo"
+                spellcheck="false"
+                autocomplete="off"
+                :disabled="selecionado == -1"
+                v-model="projetos[selecionado].nonTerminals"
+                pattern="<[a-zA-Z_0-9]+>" />
+      </div>
+      <div class="caixa__interna__gramatica" @click="focusEditor('textoGramatica')">
+        <prism-editor
+          @change="store.verificaNecessarioRecriar"
+          id="textoGramatica"
+          name="textoCodigo"
+          rows="4"
+          cols="50"
+          class="texto__codigo"
+          spellcheck="false"
+          v-model="projetos[selecionado].grammar"
+          :disabled="selecionado == -1"
+          :highlight="highlighterGrammarGALS"
+          :line-numbers="true"
+        />
+      </div>
     </div>
     <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor('textoSimulacao')">
       <prism-editor
@@ -363,11 +353,27 @@ export default defineComponent({
   height: calc(100% - 28px);
 }
 
+.caixa_gramatica {
+display: flex;
+flex-direction: column;
+
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+
+  border-radius: 5px;
+  background-color: white;
+
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
+}
+
 .caixa__interna__gramatica {
   margin: 0px;
   padding: 3px;
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
-  height: calc(100% - 54px);
+  height: calc(100% - 18px);
+  width: 100%;
 }
 
 .caixa__titulo {
@@ -384,17 +390,38 @@ export default defineComponent({
   padding: 0px;
 }
 
-#textoNaoTerminais:valid {
+#textoSimboloInicial:valid {
   color: #07a;
 }
 
-#textoNaoTerminais:invalid {
+#textoSimboloInicial:invalid {
   color: #ff0000;
 }
 
-#textoNaoTerminais {
-  margin-left: 10px !important;
+#textoSimboloInicial {
+  margin-left: 12px;
+  width: 100%;
 }
+
+.simboloInicial {
+  display: flex;
+  align-items: stretch;
+  white-space: nowrap;
+
+  font-family: "IBM Plex Sans";
+  font-weight: 500;
+
+  padding-left: 12px;
+
+  border-radius: 5px;
+  background-color: white;
+
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
+
+  width: calc(100% - 14px);
+}
+
+
 
 
 #textoDefinicoesRegulares {
