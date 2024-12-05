@@ -66,7 +66,7 @@ export default defineComponent({
 
       } catch (error) {
         console.log(error)
-        this.$toast.error((error as Error).message)
+        this.$toast.error((error as Error).message,{"duration":0})
       }
 
       if (allFiles == null) return
@@ -92,7 +92,7 @@ export default defineComponent({
         this.$toast.success('Arquivos Gerados!')
       } catch (error) {
         console.error(error)
-        this.$toast.error((error as Error).message)
+        this.$toast.error((error as Error).message,{"duration":0})
       }
     },
     mudaLayout(perfil: number) {

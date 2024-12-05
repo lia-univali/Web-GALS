@@ -64,7 +64,7 @@ export default defineComponent({
         projeto.consoleExit = 'Simulação Léxica Concluida'
       } catch (error) {
         console.warn(error)
-        this.$toast.error("Erro Léxico: "+(error as Error).message)
+        this.$toast.error("Erro Léxico: "+(error as Error).message,{"duration":0})
         projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
     },
@@ -107,7 +107,7 @@ export default defineComponent({
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
         console.log(error)
-        this.$toast.error("Erro Léxico/Sintático: "+ this.translateHTMLTags((error as Error).message));
+        this.$toast.error("Erro Léxico/Sintático: "+ this.translateHTMLTags((error as Error).message), {"duration":0});
         projeto.consoleExit = 'Erro Léxico/Sintático: ' + (error as Error).message
       }
     },
