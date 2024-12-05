@@ -100,29 +100,29 @@ export class SemanticAnalyser {
   }
 
   private action1() {
-    let nodeResult: Node | undefined = this._termo1.pop()
+    const nodeResult: Node | undefined = this._termo1.pop()
     if (nodeResult == undefined) return
 
     this._exp_simp1.push(nodeResult)
   }
 
   private action2() {
-    let n1: Node | undefined = this._exp_simp1.pop()
-    let n2: Node | undefined = this._termo1.pop()
+    const n1: Node | undefined = this._exp_simp1.pop()
+    const n2: Node | undefined = this._termo1.pop()
     if (n1 == undefined || n2 == undefined) return
 
-    let nodeResult: Node | null = Node.createUnionNode(n1, n2)
+    const nodeResult: Node | null = Node.createUnionNode(n1, n2)
     if (nodeResult == null) return
 
     this._exp_simp1.push(nodeResult)
   }
 
   private action3() {
-    let n2: Node | undefined = this._exp_simp1.pop()
-    let n1: Node | undefined = this._exp_simp1.pop()
+    const n2: Node | undefined = this._exp_simp1.pop()
+    const n1: Node | undefined = this._exp_simp1.pop()
     if (n1 == undefined || n2 == undefined) return
 
-    let nodeResult: Node | null = Node.createContextNode(n1, n2)
+    const nodeResult: Node | null = Node.createContextNode(n1, n2)
     if (nodeResult == null) return
 
     this._exp_simp1.push(nodeResult)
@@ -130,43 +130,43 @@ export class SemanticAnalyser {
 
   private action4() {
     if (this._fator == undefined) return
-    let nodeResult: Node | undefined = this._fator.pop()
+    const nodeResult: Node | undefined = this._fator.pop()
     if (nodeResult == undefined) return
 
     this._termo1.push(nodeResult)
   }
 
   private action5() {
-    let n1: Node | undefined = this._termo1.pop()
-    let n2: Node | undefined = this._fator.pop()
+    const n1: Node | undefined = this._termo1.pop()
+    const n2: Node | undefined = this._fator.pop()
     if (n1 == undefined || n2 == undefined) return
 
     this._termo1.push(Node.createConcatNode(n1, n2))
   }
 
   private action6() {
-    let n: Node | undefined = this._fator.pop()
+    const n: Node | undefined = this._fator.pop()
     if (n == undefined) return
 
     this._fator.push(Node.createClosureNode(n))
   }
 
   private action7() {
-    let n: Node | undefined = this._fator.pop()
+    const n: Node | undefined = this._fator.pop()
     if (n == undefined) return
 
     this._fator.push(Node.createClosureObNode(n))
   }
 
   private action8() {
-    let n: Node | undefined = this._fator.pop()
+    const n: Node | undefined = this._fator.pop()
     if (n == undefined) return
 
     this._fator.push(Node.createOptionalNode(n))
   }
 
   private action9() {
-    let n: Node | undefined = this._exp_simp1.pop()
+    const n: Node | undefined = this._exp_simp1.pop()
     if (n == undefined) return
 
     this._fator.push(n)
@@ -179,7 +179,7 @@ export class SemanticAnalyser {
   private action11() {
     if (this._token == undefined) return
 
-    let def: Node | undefined = this._gen.getDefinitionById(this._token.lexeme)
+    const def: Node | undefined = this._gen.getDefinitionById(this._token.lexeme)
 
     if (def == undefined)
       throw new SemanticError(
@@ -197,18 +197,18 @@ export class SemanticAnalyser {
   }
 
   private action13() {
-    let n: Node | undefined = this._fator.pop()
+    const n: Node | undefined = this._fator.pop()
     if (n == undefined) return
 
     this._fator.push(Node.createComplementNode(n))
   }
 
   private action14() {
-    let n2: Node | undefined = this._fator.pop()
-    let n1: Node | undefined = this._fator.pop()
+    const n2: Node | undefined = this._fator.pop()
+    const n1: Node | undefined = this._fator.pop()
     if (n1 == undefined || n2 == undefined) return
 
-    let nodeResult: Node | null = Node.createUnionNode(n1, n2)
+    const nodeResult: Node | null = Node.createUnionNode(n1, n2)
     if (nodeResult == null) return
 
     this._fator.push(nodeResult)
@@ -216,12 +216,12 @@ export class SemanticAnalyser {
 
   private action15() {
     if (this._token == undefined) return
-    let n1: Node | undefined = this._fator.pop()
-    let n2: Node | undefined = Node.createCharNode(this._token.lexeme.charAt(0))
+    const n1: Node | undefined = this._fator.pop()
+    const n2: Node | undefined = Node.createCharNode(this._token.lexeme.charAt(0))
     if (n1 == undefined || n2 == undefined) return
 
-    let c1: string = String.fromCharCode(n1.alphabet.list()[0])
-    let c2: string = String.fromCharCode(n2.alphabet.list()[0])
+    const c1: string = String.fromCharCode(n1.alphabet.list()[0])
+    const c2: string = String.fromCharCode(n2.alphabet.list()[0])
 
     if (c1 >= c2) throw new SemanticError('Intervalo inválido', this._token.position)
 

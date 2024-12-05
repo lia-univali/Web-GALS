@@ -24,7 +24,7 @@ export class LRConflictSolver extends ConflictSolver
         super()
         this._conflict  = (conflict === undefined? [] : conflict);
         this._state     = (state === undefined? -1 : state);
-        this._conflictListModel = new Array();
+        this._conflictListModel = new Array<ConflictModel>();
     }
 
     resolve(g: Grammar, input: number): number{
@@ -81,7 +81,13 @@ export class LRConflictSolver extends ConflictSolver
         //     console.log('Thing was not saved to the database.');
         //   }
 
-        let result = prompt(header, '1')
+        let result: string | null = null
+
+        try {
+            result = prompt(header, '1')
+        } catch {
+            console.log('Prompt não encontrado')
+        }
 
         if(result == null)
             result = '1' 
@@ -116,7 +122,7 @@ export class LRConflictSolver extends ConflictSolver
         //     alert(`Comando escolhido: ${chosenCommand}`);
         // });
 
-        alert("Teste: " + resultNumber + "  teste:" + this._conflict.length )
+        //alert("Teste: " + resultNumber + "  teste:" + this._conflict.length )
         ////console.log(this._conflictListModel[0].command)
         //return this._conflictListModel[0].command;
         return this._conflictListModel[resultNumber].command
@@ -173,7 +179,7 @@ export class LRConflictSolver extends ConflictSolver
             button.onclick = () => {
                 dialog.close();
                 document.body.removeChild(dialog);
-               option.command;
+               //option.command;
             };
             dialog.appendChild(button);
             dialog.appendChild(document.createElement('br'));

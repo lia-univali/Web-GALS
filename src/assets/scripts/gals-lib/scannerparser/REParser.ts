@@ -4,7 +4,7 @@ import { Node } from './Node'
 import { FiniteAutomataGenerator } from './FiniteAutomataGenerator'
 import { SemanticAnalyser } from './SemanticAnalyser'
 import { DOLLAR } from './Constants'
-import { SyntaticError } from '../analyser/SystemErros'
+import { SyntacticError } from '../analyser/SystemErros'
 import { PARSER_ERROR } from './ParserConstants'
 import { AnalysisError } from '../analyser/AnalysisError'
 
@@ -29,7 +29,7 @@ export class REParser {
     this.reg_exp_ctxt()
 
     if (this._currentToken.id != DOLLAR)
-      throw new SyntaticError(PARSER_ERROR[DOLLAR], this._currentToken.position)
+      throw new SyntacticError(PARSER_ERROR[DOLLAR], this._currentToken.position)
 
     return this._semanticAnalyser.root
   }
@@ -55,7 +55,7 @@ export class REParser {
 
         this._currentToken = new Token(DOLLAR, '$', pos)
       }
-    } else throw new SyntaticError(PARSER_ERROR[token], this._currentToken.position)
+    } else throw new SyntacticError(PARSER_ERROR[token], this._currentToken.position)
   }
 
   private reg_exp_ctxt() {
@@ -75,7 +75,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[15], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[15], this._currentToken.position)
     }
   }
 
@@ -98,7 +98,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[16], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[16], this._currentToken.position)
     }
   }
 
@@ -124,7 +124,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[17], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[17], this._currentToken.position)
     }
   }
 
@@ -147,7 +147,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[18], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[18], this._currentToken.position)
     }
   }
 
@@ -177,7 +177,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[19], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[19], this._currentToken.position)
     }
   }
 
@@ -200,7 +200,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[20], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[20], this._currentToken.position)
     }
   }
 
@@ -221,7 +221,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[21], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[21], this._currentToken.position)
     }
   }
 
@@ -260,7 +260,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[22], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[22], this._currentToken.position)
     }
   }
 
@@ -300,7 +300,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[23], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[23], this._currentToken.position)
     }
   }
 
@@ -327,7 +327,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[24], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[24], this._currentToken.position)
     }
   }
 
@@ -350,7 +350,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[25], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[25], this._currentToken.position)
     }
   }
 
@@ -369,7 +369,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[26], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[26], this._currentToken.position)
     }
   }
 
@@ -393,7 +393,7 @@ export class REParser {
         break
 
       default:
-        throw new SyntaticError(PARSER_ERROR[27], this._currentToken.position)
+        throw new SyntacticError(PARSER_ERROR[27], this._currentToken.position)
     }
   }
 }

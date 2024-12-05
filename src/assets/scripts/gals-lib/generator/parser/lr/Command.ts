@@ -80,20 +80,21 @@ export class Command
 		}
 	}
 	
-	public equals(obj: Object): boolean
+	public equals(obj: object): boolean
 	{
 		try
 		{
-			let other: Command = obj as (Command);
+			const other: Command = obj as (Command);
 			
-            let result = this.type == other.type && this.parameter == other.parameter;
+      const result = this.type == other.type && this.parameter == other.parameter;
 
-            if(result === undefined) return false
+      if(result === undefined) return false
 
 			return result;
 		}
 		catch (e)
 		{
+			console.warn(e);
 			return false;
 		}
 	}

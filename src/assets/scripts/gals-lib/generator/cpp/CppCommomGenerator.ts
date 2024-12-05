@@ -1,4 +1,4 @@
-import { SyntaticError } from "../../analyser/SystemErros";
+import { SyntacticError } from "../../analyser/SystemErros";
 import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
 import { Options } from "../Options";
@@ -25,7 +25,7 @@ export class CppCommomGenerator
 				
 		result.set("AnalysisError.h", this.generateAnalysisError(options));
 		result.set("LexicalError.h", this.generateLexicalError(options));
-		result.set("SyntaticError.h", this.generateSyntaticError(options));
+		result.set("SyntacticError.h", this.generateSyntacticError(options));
 		result.set("SemanticError.h", this.generateSemanticError(options));	
 		
 		return result;
@@ -133,7 +133,7 @@ export class CppCommomGenerator
 			"";
 	}
 	
-	private generateSyntaticError(options: Options): string
+	private generateSyntacticError(options: Options): string
 	{
 		return "#ifndef SYNTATIC_ERROR_H\n"+
         "#define SYNTATIC_ERROR_H\n"+
@@ -143,11 +143,11 @@ export class CppCommomGenerator
         "#include <string>\n"+
         "\n"+
         this.openNamespace(options)+
-        "class SyntaticError : public AnalysisError\n"+
+        "class SyntacticError : public AnalysisError\n"+
         "{\n"+
         "public:\n"+
         "\n"+
-        "    SyntaticError(const std::string &msg, int position = -1)\n"+
+        "    SyntacticError(const std::string &msg, int position = -1)\n"+
         "      : AnalysisError(msg, position) { }\n"+
         "};\n"+
         "\n"+
@@ -258,7 +258,6 @@ export class CppCommomGenerator
 	{
 		if (g == null)
 			return "";
-			
 		
 		switch (options.parser)
 		{
@@ -279,7 +278,7 @@ export class CppCommomGenerator
 				}
 				
 				const numNT = g.FIRST_SEMANTIC_ACTION()-g.FIRST_NON_TERMINAL;
-					
+				
 				return "const int START_SYMBOL = "+g.startSymbol+";\n"+
 					"\n"+
 					"const int FIRST_NON_TERMINAL    = "+g.FIRST_NON_TERMINAL+";\n"+
@@ -294,10 +293,9 @@ export class CppCommomGenerator
 			}
 			default: //SLR, LALR, LR
 			{
+        const generator = LRGeneratorFactory.createGenerator(g, options.parser); // TODO Change based on Options
 
-                const generator = LRGeneratorFactory.createGenerator(g, Options.PARSER_SLR); // TODO Change based on Options
-
-                if(generator == null) throw new SyntaticError("Gerador de Tabela é nulo.");
+        if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
 				this.lrTable = generator.buildIntTable();
 
@@ -393,7 +391,7 @@ export class CppCommomGenerator
 		return result.toString();
 	}
 
-	private context(fa: FiniteAutomata): Object
+	private context(fa: FiniteAutomata): string
 	{
 		if (! fa.hasContext())
 			return "";
@@ -566,7 +564,7 @@ export class CppCommomGenerator
 
 	private syntTransTableGrammar(g: Grammar): string
 	{
-		if(this.lrTable  === null ) throw new SyntaticError("Tabela LR está nula.");
+		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 
 		let result = "";
 
@@ -621,24 +619,24 @@ export class CppCommomGenerator
 		
 		let bfr = "";
 		
-		bfr + ("int PARSER_TABLE["+table.length+"]["+table[0].length+"] =\n");
-		bfr + ("{\n");
+		bfr += ("int PARSER_TABLE["+table.length+"]["+table[0].length+"] =\n");
+		bfr += ("{\n");
 		
 		for (let i=0; i< table.length; i++)
 		{
-			bfr + ("    {");
+			bfr += ("    {");
 			for (let j=0; j<table[i].length; j++)
 			{
-				bfr + (" ");
+				bfr += (" ");
 				for (let k = table[i][j].length; k<max; k++)
-					bfr + (" ");
-				bfr + (table[i][j]) + (",");
+					bfr += (" ");
+				bfr += (table[i][j]) + (",");
 			}
-			bfr= bfr.slice(0, -1);
-	 		bfr + (" },\n");
+			bfr = bfr.slice(0, -1);
+	 		bfr += (" },\n");
 		}	
 		bfr= bfr.slice(0, -2);
-		bfr + ("\n};\n\n");
+		bfr += ("\n};\n\n");
 		
 		return bfr.toString();
 	}
@@ -675,31 +673,31 @@ export class CppCommomGenerator
 		
 		let bfr = "";
 		
-		bfr + ("int PRODUCTIONS["+pl.length+"]["+(longest+1)+"] = \n");
-		bfr + ("{\n");
+		bfr += ("int PRODUCTIONS["+pl.length+"]["+(longest+1)+"] = \n");
+		bfr += ("{\n");
 		
 		for (let i=0; i< productions.length; i++)
 		{
-			bfr + ("    {");
+			bfr += ("    {");
 			for (let j=0; j<productions[i].length; j++)
 			{
-				bfr + (" ");
+				bfr += (" ");
 				for (let k = productions[i][j].length; k<max; k++)
-					bfr + (" ");
-				bfr + (productions[i][j]) + (",");
+					bfr += (" ");
+				bfr += (productions[i][j]) + (",");
 			}
 			for (let j=productions[i].length; j<=longest; j++)
 			{
-				bfr + (" ");
+				bfr += (" ");
 				for (let k = 1; k<max; k++)
-					bfr + (" ");
-				bfr + ("0") + (",");
+					bfr += (" ");
+				bfr += ("0") + (",");
 			}
 			bfr= bfr.slice(0, -1);
-	 		bfr + (" },\n");
+	 		bfr += (" },\n");
 		}	
 		bfr= bfr.slice(0, -2);
-		bfr + ("\n};\n\n");
+		bfr += ("\n};\n\n");
 		
 		return bfr.toString();
 	}
@@ -746,7 +744,7 @@ export class CppCommomGenerator
 	private syntErrorsLR(): string
 	{
 
-        if(this.lrTable  === null ) throw new SyntaticError("Tabela LR está nula.");
+        if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 
 		let result = "";
 	

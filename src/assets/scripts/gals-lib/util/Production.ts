@@ -88,7 +88,7 @@ export class Production {
         return bfr.join('');
     }
 
-    equals(p: any): boolean {
+    equals(p: Production): boolean {
         
         if (this.lhs !== p.lhs) {
             return false;

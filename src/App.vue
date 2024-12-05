@@ -5,6 +5,7 @@ import AreaCodigo from './components/AreaCodigo.vue'
 import SimuladorJanela from './components/SimuladorJanela.vue'
 import BarraEsquerda from './components/BarraEsquerda.vue'
 import ModalNovoArquivo from './components/ModalNovoArquivo.vue'
+import ModalEditarArquivo from './components/ModalEditarArquivo.vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import { projetoStore } from './stores/projetoStore'
@@ -18,7 +19,8 @@ export default defineComponent({
     Pane,
     SimuladorJanela,
     BarraEsquerda,
-    ModalNovoArquivo
+    ModalNovoArquivo,
+    ModalEditarArquivo
   },
   setup() {
     const store = projetoStore()
@@ -43,6 +45,7 @@ export default defineComponent({
 
 <template>
   <ModalNovoArquivo />
+  <ModalEditarArquivo />
   <BarraSuperior />
 
   <div class="contentor__geral">
@@ -76,7 +79,7 @@ export default defineComponent({
           </pane>
         </splitpanes>
       </div>
-      <div class="contentor__centro__inferior">
+      <div hidden class="contentor__centro__inferior">
         <AreaCodigo titulo="Saída" />
       </div>
     </div>
@@ -113,6 +116,7 @@ body {
 .contentor__geral {
   display: flex;
   height: calc(100vh - 76px);
+  min-height: 450px;
   margin: 0px;
   padding: 10px;
   gap: 10px;
@@ -122,7 +126,7 @@ body {
   /* flex-grow: 1; */
   /* flex-shrink: 0; */
   display: flex;
-  flex-direction: column;
+  
 
   margin: 0px;
   padding: 0px;
@@ -174,5 +178,9 @@ body {
   background-color: #a8d19b;
   border-radius: 3px;
   transition: 0.3s;
+}
+
+.v-toast {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
 }
 </style>

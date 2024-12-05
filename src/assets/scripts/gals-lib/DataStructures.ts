@@ -60,7 +60,10 @@ export class List<T> {
   }
 
   setItems(items: Array<T>){
-    this.items = items;
+    items.forEach((element => {
+      this.items.push(element);
+    }))
+//    this.items = items;
   }
 
   add(value: T): void {
@@ -226,7 +229,7 @@ export class OrderedIntegerSet {
   }
 
   public addAll(data: OrderedIntegerSet): boolean {
-    let sizeBefore: number = this._elements.length;
+    const sizeBefore: number = this._elements.length;
     if (this._elements[this._elements.length - 1] < data._elements[0]) {
       this._elements.push(...data._elements);
       return sizeBefore != this._elements.length;
@@ -235,7 +238,7 @@ export class OrderedIntegerSet {
     // Estratégia de MERGE do MergeSort, mas respeitando a regra de conjunto: não permitir duplicatas
     let i: number = 0;
     let x: number = 0;
-    let newArray = [];
+    const newArray = [];
     while (i < this._elements.length || x < data._elements.length) {
       if (i == this._elements.length) {
         while (x < data._elements.length) {

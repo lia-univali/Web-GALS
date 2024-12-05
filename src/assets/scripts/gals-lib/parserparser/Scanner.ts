@@ -15,8 +15,8 @@ export class Scanner implements BasicScanner
 	{
 		if(str == undefined){
 			this.input = "";
-			this.pos = -1;
-			this.endPosition =-1;
+			this.pos = 0;
+			this.endPosition = 0;
 		}
 		else{
 			this.input = str;
@@ -41,8 +41,8 @@ export class Scanner implements BasicScanner
 	{	
 		while (this.hasMoreChars())
 		{			
-			let start = this.pos;
-			let c = this.nextChar();
+			const start = this.pos;
+			const c = this.nextChar();
 			
 			switch (c)
 			{
@@ -73,7 +73,7 @@ export class Scanner implements BasicScanner
 					
 				case '/':
 				{
-					let t: Token = this.analyseComent();
+					const t: Token = this.analyseComent();
 					if (this.returnComents)
 						return t;
 					else
@@ -92,13 +92,18 @@ export class Scanner implements BasicScanner
 	}
 
 	private isLetter(char: string): boolean {
-		return /^[a-zA-Zî]+$/.test(char);
+		//return /^[a-zA-Zî]+$/.test(char); // Não é compatível com o Java -> Character.isLetter()
+      return (
+        char.toLowerCase() != char.toUpperCase() ||
+        char.charCodeAt(0) == 170 ||
+        char.charCodeAt(0) == 186
+      )
 	}
 	  
 
 	private analyseComent(): Token // throws LexicalError
 	{
-		let start = this.pos - 1;
+		const start = this.pos - 1;
 		if ( ! this.hasMoreChars() )
 			throw new LexicalError("Caracter Inválido: '/'", start);
 			
@@ -127,7 +132,7 @@ export class Scanner implements BasicScanner
 
 	private analyseDerives(): Token // throws LexicalError
 	{
-		let start: number = this.pos - 1;
+		const start: number = this.pos - 1;
 
 		if ( this.input.length - start >= 3 )
 		{
@@ -165,7 +170,7 @@ export class Scanner implements BasicScanner
 	
 	private analyseTerminal(c:string): Token // throws LexicalError
 	{
-		let start = this.pos - 1;
+		const start = this.pos - 1;
 		let bfr = "";
 		bfr += c;
 		if (c == '\"')
@@ -215,12 +220,13 @@ export class Scanner implements BasicScanner
 	}
 
 	private isLetterOrDigit(char: string): boolean {
-		return /^[a-zA-Z0-9]$/.test(char);
+
+		return this.isLetter(char) || /^[0-9]$/.test(char);
 	}
 
 	private analyseNonTerminal(): Token //throws LexicalError
 	{
-		let start = this.pos-1;
+		const start = this.pos-1;
 		let bfr = "";	
 		let c = '<';
 		while (this.hasMoreChars())
@@ -240,12 +246,12 @@ export class Scanner implements BasicScanner
 	
 	private analyseAction(): Token //throws LexicalError
 	{
-		let start = this.pos-1;
+		const start = this.pos-1;
 		
 		let bfr = ""; 		
 		while (this.hasMoreChars())
 		{
-			let c = this.nextChar();
+			const c = this.nextChar();
 			
 			if (! this.isDigit(c) )
 			{

@@ -20,7 +20,7 @@ export class SemanticError extends AnalysisError {
   }
 }
 
-export class SyntaticError extends AnalysisError {
+export class SyntacticError extends AnalysisError {
   constructor(message: string, position?: number) {
     if (position == undefined) {
       super(message)

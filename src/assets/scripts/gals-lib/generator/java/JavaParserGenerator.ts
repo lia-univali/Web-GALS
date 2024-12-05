@@ -1,4 +1,4 @@
-import { NotLLException, SyntaticError } from "../../analyser/SystemErros";
+import { NotLLException, SyntacticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
 import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
 import { Grammar } from "../parser/Grammar";
@@ -32,7 +32,7 @@ export class JavaParserGenerator{
 					parser = null;
 			}
 			
-            if(parser === null) throw new SyntaticError("String do Parser é nulo.");
+            if(parser === null) throw new SyntacticError("String do Parser é nulo.");
 
 			result.set(classname+".java", parser);
 			
@@ -114,7 +114,7 @@ export class JavaParserGenerator{
 		const semanName: string = parserOptions.semanticName;
 	
 		const variables: string = 
-		"    private Stack stack = new Stack();\n"+
+		"    private final Stack<Integer> stack = new Stack<Integer>();\n"+
 		"    private Token currentToken;\n"+
 		"    private Token previousToken;\n"+
 		"    private "+scannerName+" scanner;\n"+
@@ -124,72 +124,78 @@ export class JavaParserGenerator{
 		result.push(variables);
 			
 		result.push(
-		
-		"    public void parse("+scannerName+" scanner, "+semanName+" semanticAnalyser) throws LexicalError, SyntaticError, SemanticError\n"+
-		"    {\n"+
-		"        this.scanner = scanner;\n"+
-		"        this.semanticAnalyser = semanticAnalyser;\n"+
-		"\n"+
-		"        stack.clear();\n"+
-		"        stack.push(new Integer(0));\n"+
-		"\n"+
-		"        currentToken = scanner.nextToken();\n"+
-		"\n"+
-		"        while ( ! step() )\n"+
-		"            ;\n"+
-		"    }\n"+		
-		"\n"+
-		"    private boolean step() throws LexicalError, SyntaticError, SemanticError\n"+
-		"    {\n"+
-		"        if (currentToken == null)\n"+
-        "        {\n"+
-		"            int pos = 0;\n"+
-		"            if (previousToken != null)\n"+
-		"                pos = previousToken.getPosition()+previousToken.getLexeme().length();\n"+
-		"\n"+
-        "            currentToken = new Token(DOLLAR, \"$\", pos);\n"+
-        "        }\n"+
-        "\n"+
-        "        int token = currentToken.getId();\n"+
-		"        int state = ((Integer)stack.peek()).intValue();\n"+
-		"\n"+
-        "        int[] cmd = PARSER_TABLE[state][token-1];\n"+
-		"\n"+
-		"        switch (cmd[0])\n"+
-		"        {\n"+
-		"            case SHIFT:\n"+
-		"                stack.push(new Integer(cmd[1]));\n"+
-		"                previousToken = currentToken;\n"+
-		"                currentToken = scanner.nextToken();\n"+
-		"                return false;\n"+
-		"\n"+
-		"            case REDUCE:\n"+
-		"                int[] prod = PRODUCTIONS[cmd[1]];\n"+
-		"\n"+
-		"                for (int i=0; i<prod[1]; i++)\n"+
-		"                    stack.pop();\n"+
-		"\n"+
-		"                int oldState = ((Integer)stack.peek()).intValue();\n"+
-		"                stack.push(new Integer(PARSER_TABLE[oldState][prod[0]-1][1]));\n"+
-		"                return false;\n"+
-		"\n"+
-		"            case ACTION:\n"+
-		"                int action = FIRST_SEMANTIC_ACTION + cmd[1] - 1;\n"+
-		"                stack.push(new Integer(PARSER_TABLE[state][action][1]));\n"+
-		"                semanticAnalyser.executeAction(cmd[1], previousToken);\n"+
-		"                return false;\n"+
-		"\n"+
-		"            case ACCEPT:\n"+
-		"                return true;\n"+
-		"\n"+
-		"            case ERROR:\n"+
-		"                throw new SyntaticError(PARSER_ERROR[state], currentToken.getPosition());\n"+
-		"        }\n"+
-		"        return false;\n"+
-		"    }\n"+
-		"\n"
-	
-		);
+      '    public void parse(' +
+        scannerName +
+        ' scanner, ' +
+        semanName +
+        ' semanticAnalyser) throws LexicalError, SyntacticError, SemanticError\n' +
+        '    {\n' +
+        '        this.scanner = scanner;\n' +
+        '        this.semanticAnalyser = semanticAnalyser;\n' +
+        '\n' +
+        '        stack.clear();\n' +
+//        '        stack.push(new Integer(0));\n' + // JDK Antigo - deprecated
+        '        stack.push(0);\n' +
+        '\n' +
+        '        currentToken = scanner.nextToken();\n' +
+        '\n' +
+        '        while ( ! step() )\n' +
+        '            ;\n' +
+        '    }\n' +
+        '\n' +
+        '    private boolean step() throws LexicalError, SyntacticError, SemanticError\n' +
+        '    {\n' +
+        '        if (currentToken == null)\n' +
+        '        {\n' +
+        '            int pos = 0;\n' +
+        '            if (previousToken != null)\n' +
+        '                pos = previousToken.getPosition()+previousToken.getLexeme().length();\n' +
+        '\n' +
+        '            currentToken = new Token(DOLLAR, "$", pos);\n' +
+        '        }\n' +
+        '\n' +
+        '        int token = currentToken.getId();\n' +
+        '        int state = stack.peek();\n' +
+        '\n' +
+        '        int[] cmd = PARSER_TABLE[state][token-1];\n' +
+        '\n' +
+        '        switch (cmd[0])\n' +
+        '        {\n' +
+        '            case SHIFT:\n' +
+        //'                stack.push(new Integer(cmd[1]));\n' + // JDK Antigo - deprecated
+        '                stack.push(cmd[1]);\n' +
+        '                previousToken = currentToken;\n' +
+        '                currentToken = scanner.nextToken();\n' +
+        '                return false;\n' +
+        '\n' +
+        '            case REDUCE:\n' +
+        '                int[] prod = PRODUCTIONS[cmd[1]];\n' +
+        '\n' +
+        '                for (int i=0; i<prod[1]; i++)\n' +
+        '                    stack.pop();\n' +
+        '\n' +
+        '                int oldState = stack.peek();\n' +
+//        '                stack.push(new Integer(PARSER_TABLE[oldState][prod[0]-1][1]));\n' + // JDK Antigo - deprecated
+        '                stack.push(PARSER_TABLE[oldState][prod[0]-1][1]);\n' +
+        '                return false;\n' +
+        '\n' +
+        '            case ACTION:\n' +
+        '                int action = FIRST_SEMANTIC_ACTION + cmd[1] - 1;\n' +
+//        '                stack.push(new Integer(PARSER_TABLE[state][action][1]));\n' + // JDK Antigo - deprecated
+        '                stack.push(PARSER_TABLE[state][action][1]);\n' +
+        '                semanticAnalyser.executeAction(cmd[1], previousToken);\n' +
+        '                return false;\n' +
+        '\n' +
+        '            case ACCEPT:\n' +
+        '                return true;\n' +
+        '\n' +
+        '            case ERROR:\n' +
+        '                throw new SyntacticError(PARSER_ERROR[state], currentToken.getPosition());\n' +
+        '        }\n' +
+        '        return false;\n' +
+        '    }\n' +
+        '\n'
+    )
 		result.push("}\n");
 
 		return result.join("");
@@ -208,7 +214,7 @@ export class JavaParserGenerator{
 		const semanName: string = parserOptions.semanticName;
 		
 		const variables = 
-		"    private Stack stack = new Stack();\n"+
+		"    private final Stack<Integer> stack = new Stack<Integer>();\n"+
 		"    private Token currentToken;\n"+
 		"    private Token previousToken;\n"+
 		"    private "+scannerName+" scanner;\n"+
@@ -268,93 +274,102 @@ export class JavaParserGenerator{
 		const semanName: string   = parserOptions.semanticName;
 				
 		return (
-		"    public void parse("+scannerName+" scanner, "+semanName+" semanticAnalyser) throws LexicalError, SyntaticError, SemanticError\n"+
-	    "    {\n"+
-		"        this.scanner = scanner;\n"+
-		"        this.semanticAnalyser = semanticAnalyser;\n"+
-		"\n"+
-		"        stack.clear();\n"+
-		"        stack.push(new Integer(DOLLAR));\n"+
-		"        stack.push(new Integer(START_SYMBOL));\n"+
-		"\n"+
-		"        currentToken = scanner.nextToken();\n"+
-		"\n"+
-		"        while ( ! step() )\n"+
-		"            ;\n"+
-	    "    }\n"+		
-		"");
+      '    public void parse(' +
+      scannerName +
+      ' scanner, ' +
+      semanName +
+      ' semanticAnalyser) throws LexicalError, SyntacticError, SemanticError\n' +
+      '    {\n' +
+      '        this.scanner = scanner;\n' +
+      '        this.semanticAnalyser = semanticAnalyser;\n' +
+      '\n' +
+      '        stack.clear();\n' +
+//      '        stack.push(new Integer(DOLLAR));\n' + // JDK Antigo - deprecated
+//      '        stack.push(new Integer(START_SYMBOL));\n' + // JDK Antigo - deprecated
+      '        stack.push(DOLLAR);\n' +
+      '        stack.push(START_SYMBOL);\n' +
+      '\n' +
+      '        currentToken = scanner.nextToken();\n' +
+      '\n' +
+      '        while ( ! step() )\n' +
+      '            ;\n' +
+      '    }\n' +
+      ''
+    )
 	}
 
 	private emitStep(): string
 	{
 		return (
-		"    private boolean step() throws LexicalError, SyntaticError, SemanticError\n"+
-		"    {\n"+			
-		"        if (currentToken == null)\n"+
-        "        {\n"+
-		"            int pos = 0;\n"+
-		"            if (previousToken != null)\n"+
-		"                pos = previousToken.getPosition()+previousToken.getLexeme().length();\n"+
-		"\n"+
-        "            currentToken = new Token(DOLLAR, \"$\", pos);\n"+
-        "        }\n"+
-        "\n"+
-		"        int x = ((Integer)stack.pop()).intValue();\n"+
-		"        int a = currentToken.getId();\n"+
-		"\n"+
-		"        if (x == EPSILON)\n"+
-		"        {\n"+
-		"            return false;\n"+
-		"        }\n"+
-		"        else if (isTerminal(x))\n"+
-		"        {\n"+
-		"            if (x == a)\n"+
-		"            {\n"+
-		"                if (stack.empty())\n"+
-		"                    return true;\n"+
-		"                else\n"+
-		"                {\n"+
-		"                    previousToken = currentToken;\n"+
-		"                    currentToken = scanner.nextToken();\n"+
-		"                    return false;\n"+
-		"                }\n"+
-		"            }\n"+
-		"            else\n"+
-		"            {\n"+
-		"                throw new SyntaticError(PARSER_ERROR[x], currentToken.getPosition());\n"+
-		"            }\n"+
-		"        }\n"+
-		"        else if (isNonTerminal(x))\n"+
-		"        {\n"+
-		"            if (pushProduction(x, a))\n"+
-		"                return false;\n"+
-		"            else\n"+
-		"                throw new SyntaticError(PARSER_ERROR[x], currentToken.getPosition());\n"+
-		"        }\n"+
-		"        else // isSemanticAction(x)\n"+
-		"        {\n"+
-		"            semanticAnalyser.executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n"+
-		"            return false;\n"+
-		"        }\n"+
-		"    }\n"+
-		"\n"+
-		"    private boolean pushProduction(int topStack, int tokenInput)\n"+
-		"    {\n"+
-		"        int p = PARSER_TABLE[topStack-FIRST_NON_TERMINAL][tokenInput-1];\n"+
-		"        if (p >= 0)\n"+
-		"        {\n"+
-		"            int[] production = PRODUCTIONS[p];\n"+
-		"            //empilha a produção em ordem reversa\n"+
-		"            for (int i=production.length-1; i>=0; i--)\n"+
-		"            {\n"+
-		"                stack.push(new Integer(production[i]));\n"+
-		"            }\n"+
-		"            return true;\n"+
-		"        }\n"+
-		"        else\n"+
-		"            return false;\n"+
-		"    }\n"+
-		"");
+      '    private boolean step() throws LexicalError, SyntacticError, SemanticError\n' +
+      '    {\n' +
+      '        if (currentToken == null)\n' +
+      '        {\n' +
+      '            int pos = 0;\n' +
+      '            if (previousToken != null)\n' +
+      '                pos = previousToken.getPosition()+previousToken.getLexeme().length();\n' +
+      '\n' +
+      '            currentToken = new Token(DOLLAR, "$", pos);\n' +
+      '        }\n' +
+      '\n' +
+      '        int x = stack.pop();\n' +
+      '        int a = currentToken.getId();\n' +
+      '\n' +
+      '        if (x == EPSILON)\n' +
+      '        {\n' +
+      '            return false;\n' +
+      '        }\n' +
+      '        else if (isTerminal(x))\n' +
+      '        {\n' +
+      '            if (x == a)\n' +
+      '            {\n' +
+      '                if (stack.empty())\n' +
+      '                    return true;\n' +
+      '                else\n' +
+      '                {\n' +
+      '                    previousToken = currentToken;\n' +
+      '                    currentToken = scanner.nextToken();\n' +
+      '                    return false;\n' +
+      '                }\n' +
+      '            }\n' +
+      '            else\n' +
+      '            {\n' +
+      '                throw new SyntacticError(PARSER_ERROR[x], currentToken.getPosition());\n' +
+      '            }\n' +
+      '        }\n' +
+      '        else if (isNonTerminal(x))\n' +
+      '        {\n' +
+      '            if (pushProduction(x, a))\n' +
+      '                return false;\n' +
+      '            else\n' +
+      '                throw new SyntacticError(PARSER_ERROR[x], currentToken.getPosition());\n' +
+      '        }\n' +
+      '        else // isSemanticAction(x)\n' +
+      '        {\n' +
+      '            semanticAnalyser.executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n' +
+      '            return false;\n' +
+      '        }\n' +
+      '    }\n' +
+      '\n' +
+      '    private boolean pushProduction(int topStack, int tokenInput)\n' +
+      '    {\n' +
+      '        int p = PARSER_TABLE[topStack-FIRST_NON_TERMINAL][tokenInput-1];\n' +
+      '        if (p >= 0)\n' +
+      '        {\n' +
+      '            int[] production = PRODUCTIONS[p];\n' +
+      '            //empilha a produção em ordem reversa\n' +
+      '            for (int i=production.length-1; i>=0; i--)\n' +
+      '            {\n' +
+//      '                stack.push(new Integer(production[i]));\n' + // JDK Antigo - deprecated
+      '                stack.push(production[i]);\n' +
+      '            }\n' +
+      '            return true;\n' +
+      '        }\n' +
+      '        else\n' +
+      '            return false;\n' +
+      '    }\n' +
+      ''
+    )
 	}
 	
 	private emitRecursiveDecendantClass(g: Grammar , parserOptions: Options ): string // throws NotLLException
@@ -393,7 +408,7 @@ export class JavaParserGenerator{
 		"        "+rd.getStart()+"();\n"+
 		"\n"+
 		"        if (currentToken.getId() != DOLLAR)\n"+
-		"            throw new SyntaticError(PARSER_ERROR[DOLLAR], currentToken.getPosition());\n"+
+		"            throw new SyntacticError(PARSER_ERROR[DOLLAR], currentToken.getPosition());\n"+
 		"    }\n"+		
 		"\n"+
 		"    private void match(int token) throws AnalysisError\n"+
@@ -412,7 +427,7 @@ export class JavaParserGenerator{
 		"            }\n"+
 		"        }\n"+
 		"        else\n"+
-		"            throw new SyntaticError(PARSER_ERROR[token], currentToken.getPosition());\n"+
+		"            throw new SyntacticError(PARSER_ERROR[token], currentToken.getPosition());\n"+
 		"    }\n"+
 		"\n");
 
@@ -453,7 +468,7 @@ export class JavaParserGenerator{
 					}
 				}
 				
-                if(rhs === undefined) throw new NotLLException("Gramática não é LL.");
+        if(rhs === undefined) throw new NotLLException("Gramática não é LL.");
 
 				if (rhs.length == 0)
 					result.push(
@@ -486,7 +501,7 @@ export class JavaParserGenerator{
 
 			result.push(
 						"            default:\n"+
-						"                throw new SyntaticError(PARSER_ERROR["+f.lhs+"], currentToken.getPosition());\n"+
+						"                throw new SyntacticError(PARSER_ERROR["+f.lhs+"], currentToken.getPosition());\n"+
 						"        }\n"+
 						"    }\n"+
 						"\n");

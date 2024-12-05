@@ -37,7 +37,7 @@ export class LineScanner {
   }
 
   public nextToken(): Token | null {
-    if (!this.hasMoreChars) return null
+    if (!this.hasMoreChars()) return null
 
     if (this._regularMode) {
       if (this._specialCaseMode) {
@@ -48,10 +48,8 @@ export class LineScanner {
       return this.parseRE()
     } else {
       while (this.hasMoreChars()) {
-        let start: number = this._pos
-        let c: string | null = this.nextChar()
-
-        if (c == null) return null // TODO (added extra)
+        const start: number = this._pos
+        const c: string = this.nextChar()
 
         switch (c) {
           case '\n':
@@ -59,7 +57,7 @@ export class LineScanner {
             this._specialCaseMode = false
             this._regularMode = false
           case ' ':
-            continue
+          //case '\s':
           case '\t':
             continue
           case ':':
@@ -81,14 +79,12 @@ export class LineScanner {
     }
   }
 
-  private parseRE(): Token | null {
-    let start: number = this._pos
+  private parseRE(): Token {
+    const start: number = this._pos
     this._regularMode = false
 
     while (this.hasMoreChars()) {
-      let c: string | null = this.nextChar()
-
-      if (c == null) return null // TODO (Added Extra)
+      const c: string = this.nextChar()
 
       if (c == '\n') {
         this._pos--
@@ -104,15 +100,16 @@ export class LineScanner {
         }
       }
     }
-    let tok: string = this._text.substring(start, this._pos)
+
+    const tok: string = this._text.substring(start, this._pos)
     return new Token(LineScanner.RE, tok, start)
   }
 
   private getString(): Token {
-    let start: number = this._pos - 1
+    const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
-      let c: string | null = this.nextChar()
+      const c: string = this.nextChar()
 
       if (c == '\n') break
       else if (c == '"') {
@@ -127,13 +124,11 @@ export class LineScanner {
     return new Token(LineScanner.ERROR, this.text.substring(start, this._pos), start)
   }
 
-  private getId(): Token | null {
-    let start: number = this._pos - 1
+  private getId(): Token {
+    const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
-      let c: string | null = this.nextChar()
-
-      if (c == null) return null // TODO (Added Extra)
+      const c: string = this.nextChar()
 
       if (!this.isLetterOrDigit(c) && c != '_') {
         this._pos--
@@ -144,8 +139,8 @@ export class LineScanner {
     return new Token(LineScanner.ID, this._text.substring(start, this._pos), start)
   }
 
-  private getError(): Token | null {
-    let start: number = this._pos - 1
+  private getError(): Token {
+    const start: number = this._pos - 1
 
     while (this.hasMoreChars()) {
       if (' \t\n\r'.indexOf(this.nextChar()) == -1) {
@@ -158,7 +153,7 @@ export class LineScanner {
   }
 
   private getComment(): Token {
-    let start: number = this._pos - 1
+    const start: number = this._pos - 1
 
     if (this.hasMoreChars()) {
       if (this.nextChar() == '/') {
@@ -175,20 +170,20 @@ export class LineScanner {
     return new Token(LineScanner.ERROR, this._text.substring(start, this._pos), start)
   }
 
-  //TODO Verify if compatible with java functions
-
-  private isLetter(c: string): boolean {
-    // TODO Verify if is correct
-    return c.toLowerCase() != c.toUpperCase()
+  private isLetter(char: string): boolean {
+    return (
+      char.toLowerCase() != char.toUpperCase() 
+        || char.charCodeAt(0) == 170
+        || char.charCodeAt(0) == 186
+    )
+    //return c.toLowerCase() != c.toUpperCase() // Não é 1-1 com o Java
   }
 
   private isLetterOrDigit(c: string): boolean {
-    // TODO Verify if is correct
-    return c.toLowerCase() != c.toUpperCase() || this.isNumber(c)
+    return this.isLetter(c) || this.isNumber(c)
   }
 
   private isNumber(str: string): boolean {
-    // TODO Verify if is correct
     if (typeof str !== 'string') {
       return false
     }

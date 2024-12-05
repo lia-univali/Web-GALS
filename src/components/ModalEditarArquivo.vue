@@ -1,10 +1,9 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { projetoStore, type Projeto } from '@/stores/projetoStore'
-import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
-  name: 'ModalNovoArquivo',
+  name: 'ModalEditarArquivo',
   components: {},
   setup() {
     const store = projetoStore()
@@ -15,31 +14,22 @@ export default defineComponent({
   },
   methods: {
     fecharModal() {
-      const formulario = document.getElementById('modal__arquivo')
+      const formulario = document.getElementById('modal__arquivo__editar')
       if (formulario != null) formulario.style.display = 'none'
     },
-    adicionarProjeto() {
-      const input = document.getElementById('nomeProjeto') as HTMLInputElement
+    editarProjeto() {
+      const input = document.getElementById('nomeProjetoEditar') as HTMLInputElement
       if (input != null) {
         let nome: string = input.value.trim() + '.gals'
 
-        const newProject = {
-          id: this.store.totalProjetos,
-          fileName: nome,
-          options: '',
-          regularDefinitions: '',
-          tokens: '',
-          nonTerminals: '',
-          grammar: '',
-          textSimulator: '',
-          consoleExit: '',
-          optionsGals: new Options()
-        } as Projeto
+        const selecionado = this.store.selecionado
+        if (selecionado == -1) return
+        const projeto = this.store.listaProjetos[selecionado]
 
-        this.store.addProject(newProject)
-        this.store.selectLastProject()
+        projeto.fileName = nome;
+
         this.fecharModal()
-        this.$toast.info('Projeto Criado!')
+        this.$toast.info('Nome do Projeto Modificado!')
       }
     }
   }
@@ -47,12 +37,12 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="modal__arquivo" id="modal__arquivo">
-    <h2>Novo Projeto</h2>
-    <div class="modal__arquivo__inner" id="modal__arquivo__inner">
+  <div class="modal__arquivo__editar" id="modal__arquivo__editar">
+    <h2>Nome do Projeto</h2>
+    <div class="modal__arquivo__editar__inner" id="modal__arquivo__editar__inner">
       <span id="close" v-on:click="fecharModal"></span>
-      <input type="text" id="nomeProjeto" />
-      <button v-on:click="adicionarProjeto">Criar</button>
+      <input type="text" id="nomeProjetoEditar" />
+      <button v-on:click="editarProjeto">Modificar</button>
     </div>
   </div>
 </template>
@@ -111,7 +101,7 @@ button:active {
   transform: translateY(1px);
 }
 
-.modal__arquivo {
+.modal__arquivo__editar {
   border: 2px solid rgb(182, 182, 182);
   border-radius: 5px;
   background-color: #f2f2f2;
@@ -134,7 +124,7 @@ button:active {
   overflow: auto;
 }
 
-.modal__arquivo__inner {
+.modal__arquivo__editar__inner {
   background-color: #f2f2f2;
   padding: 1%;
   width: 90%;

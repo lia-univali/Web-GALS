@@ -85,12 +85,14 @@ export default defineComponent({
       this.projetos[this.selecionado].optionsGals = newOptions
       this.projetos[this.selecionado].options = newOptions.toString()
       this.fecharModal()
+      this.store.necessarioRecriar = true
+      this.$toast.info('Configurações Aplicadas!')
     },
     preencherModal() {
       const form: any = this.$refs.form
       const opcoes: Options = this.projetos[this.selecionado].optionsGals
 
-      alert(opcoes.toString())
+      //alert(opcoes.toString())
 
       if (opcoes.generateScanner && opcoes.generateParser) form.gerar.value = '3'
       else if (opcoes.generateParser) form.gerar.value = '2'
@@ -304,12 +306,12 @@ export default defineComponent({
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLALR" name="parser" value="LALR" />
+                <input type="radio" id="sintaticoLALR" name="parser" value="LALR" disabled/>
                 <label for="sintaticoLALR">LALR(1)</label>
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" />
+                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" disabled />
                 <label for="sintaticoLRCanonico">LR(1)</label>
               </div>
             </fieldset>

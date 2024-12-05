@@ -13,7 +13,7 @@ export class CppScannerGeneretor
 	
 	public generate(fa: FiniteAutomata, options: Options): Map<string, string>
 	{		
-        const result: Map<string, string> = new Map();
+    const result: Map<string, string> = new Map();
 		
 		const classname: string = options.scannerName;
 		
@@ -113,7 +113,7 @@ export class CppScannerGeneretor
 			"\n"+
 			"    void setInput("+inType+"input);\n"+
 			"    void setPosition(unsigned pos) { position = pos; }\n"+
-			"    Token *nextToken() throw (LexicalError);\n"+
+			"    Token *nextToken();\n"+ // throw (LexicalError);\n"+
 			"\n"+
     		"private:\n"+
 			"    unsigned position;\n"+
@@ -365,7 +365,7 @@ export class CppScannerGeneretor
 			"{\n"+
 			"public:\n"+
 			"\n"+
-			"    Token *nextToken() throw (LexicalError);\n"+
+			"    Token *nextToken();\n"+ // throw (LexicalError);\n"+
 			"\n"+
     		"};\n"+
 			"\n";

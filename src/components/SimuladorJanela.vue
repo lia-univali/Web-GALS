@@ -1,11 +1,13 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { computed, defineComponent } from 'vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { Token } from '@/assets/scripts/gals-lib/analyser/Token'
 import { lexicalSimulation, syntacticSimulation } from '@/assets/scripts/gals-functions'
-import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import { TreeNode } from '@/assets/scripts/gals-lib/DataStructures'
 import TreeBrowser from '@/components/TreeBrowser.vue'
+import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
+import { LRParserSimulator } from '@/assets/scripts/gals-lib/simulator/LRParserSimulator'
+import { LL1ParserSimulator } from '@/assets/scripts/gals-lib/simulator/LL1ParserSimulator'
 
 export default defineComponent({
   name: 'SimuladorJanela',
@@ -22,9 +24,20 @@ export default defineComponent({
   setup() {
     const store = projetoStore()
 
+    const toggleNecessarioRecriar = () => {
+      store.changeNecessarioRecriar();
+    };
+
+    const necessarioRecriar = computed({
+      get: () => store.necessarioRecriar,
+      set: (value: boolean) => store.setNecessarioRecriar(value),
+    });
+
     return {
-      store
+      store,
+      necessarioRecriar
     }
+
   },
   methods: {
     simularLexico() {
@@ -34,6 +47,11 @@ export default defineComponent({
       if (selecionado == -1) return
 
       const projeto = this.store.listaProjetos[selecionado]
+      if(!projeto.textSimulator) {
+        projeto.consoleExit = 'A entrada do simulador está vazia!'
+        this.$toast.warning("A entrada do simulador está vazia.");
+        return;
+      }
       try {
         this.resultadoLexico = lexicalSimulation(
           projeto.textSimulator,
@@ -41,9 +59,12 @@ export default defineComponent({
           projeto.tokens
         )
 
-        projeto.consoleExit = 'Simulação Concluida'
+        this.$toast.default("Simulação Léxica Concluída");
+
+        projeto.consoleExit = 'Simulação Léxica Concluida'
       } catch (error) {
-        console.log(error as Object)
+        console.warn(error)
+        this.$toast.error("Erro Léxico: "+(error as Error).message,{"duration":0})
         projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
     },
@@ -54,6 +75,11 @@ export default defineComponent({
 
       const projeto = this.store.listaProjetos[selecionado]
 
+      if(!projeto.textSimulator) {
+        projeto.consoleExit = 'A entrada do simulador está vazia!'
+        this.$toast.warning("A entrada do simulador está vazia.");
+        return;
+      }
       try {
         const result = syntacticSimulation(
           projeto.textSimulator,
@@ -62,14 +88,36 @@ export default defineComponent({
           projeto.nonTerminals,
           projeto.grammar,
           projeto.optionsGals.parser,
-          null
+          this.store.necessarioRecriar,
+          undefined,
+          undefined,
+          this.store.gramatica as Grammar | undefined,
+          this.store.lrSim as LRParserSimulator | undefined,
+          this.store.ll1Sim as LL1ParserSimulator | undefined
         )
-        this.resultadoSintatico = result
+        let [resultadoSintatico,  novaGramatica, novoLRSim, novoLL1Sim] = result
+
+        this.resultadoSintatico = resultadoSintatico
+        this.store.gramatica = novaGramatica;
+        this.store.lrSim = novoLRSim;
+        this.store.ll1Sim = novoLL1Sim;
+
+        this.$toast.default("Simulação Sintática Concluída")
+        
         projeto.consoleExit = 'Simulação Concluida'
       } catch (error) {
-        console.log(error as Object)
-        projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
+        console.log(error)
+        this.$toast.error("Erro Léxico/Sintático: "+ this.translateHTMLTags((error as Error).message), {"duration":0});
+        projeto.consoleExit = 'Erro Léxico/Sintático: ' + (error as Error).message
       }
+    },
+    translateHTMLTags(line: string): string{
+      return line.replace('<', '&lt').replace('>', '&gt');
+    },
+    tokenSelect(lexeme:string, position:number) {
+      const inputSimulacaotextArea = document.getElementById('textoSimulacao')?.getElementsByTagName('textarea')[0];
+      inputSimulacaotextArea?.setSelectionRange(position, position+lexeme.length);
+      inputSimulacaotextArea?.focus()
     }
   }
 })
@@ -90,7 +138,7 @@ export default defineComponent({
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(valor, chave) in resultadoLexico" :key="chave">
+            <tr v-for="(valor, chave) in resultadoLexico" :key="chave" v-on:click="tokenSelect(valor[0].lexeme,valor[0].position)">
               <td>{{ valor[1] }}</td>
               <td>{{ valor[0].lexeme }}</td>
               <td>{{ valor[0].position }}</td>
@@ -107,12 +155,21 @@ export default defineComponent({
         <button class="botao__simular" @click="simularLexico">Simular Lexico</button>
         <button class="botao__simular" @click="simularSintatico">Simular Sintático</button>
       </div>
+      <div class="container__botao__simular">
+        <span class="material-icons customizado"  title="Reconstruir Gramática" style="font-size: 22px;">restart_alt</span>
+        <label class="switch">
+          <input type="checkbox" title="Reconstruir Gramática" v-model="necessarioRecriar"/>-
+          <span title="Reconstruir Gramática" class="slider round"></span>
+        </label>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
 .caixa__titulo {
+  text-align: center;
+
   font-family: 'IBM Plex Sans';
   font-weight: 600;
   color: #424242;
@@ -120,7 +177,6 @@ export default defineComponent({
   border-bottom: 1px solid;
   border-color: #b1b1b1;
 
-  text-align: center;
   margin: 0px;
   padding: 0px;
 }
@@ -213,6 +269,8 @@ tr:hover {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: center;
+
+  align-items: center;
 }
 .botao__tipo__simulacao {
   font-family: 'IBM Plex Sans';
@@ -302,4 +360,74 @@ tr:hover {
   box-shadow: 0 1px #666;
   transform: translateY(1px);
 }
+
+
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+  margin: 5px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 17px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.material-icons.customizado{
+  cursor: default;
+}
+
 </style>

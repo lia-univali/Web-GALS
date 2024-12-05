@@ -21,7 +21,8 @@ export default defineComponent({
   data() {
     return {
       texto: 'Area de Texto para teste',
-      tabSize: 2
+      tabSize: 2,
+      
     }
   },
   components: {
@@ -48,7 +49,7 @@ export default defineComponent({
     selecionado() {
       const definicoesRegulares = document.getElementById('textoDefinicoesRegulares')
       const tokens = document.getElementById('textoTokens')
-      const naoTerminais = document.getElementById('textoNaoTerminais')
+      const naoTerminais = document.getElementById('textoSimboloInicial')
       const gramatica = document.getElementById('textoGramatica')
       const saida = document.getElementById('textoSaida')
       const simulador = document.getElementById('textoSimulador')
@@ -177,14 +178,18 @@ export default defineComponent({
 </script>
 
 <template>
-  <div :class="[titulo === 'Simbolo inicial' ? 'caixa__input' : 'caixa']">
-    <p class="caixa__titulo">{{ titulo }}</p>
-
-    <div v-if="projetos[selecionado] == undefined" class="caixa__interna">
+  <div :class="[titulo === 'Símbolo inicial' ? 'caixa__input' : 'caixa']">
+    <div class="caixa__titulo">
+      <p class="caixa__titulo">{{ titulo }}</p>
+    </div>
+    
+    <div v-if="projetos[selecionado] === undefined" class="caixa__interna">
       <input
-        v-if="titulo === 'Simbolo inicial'"
+        v-if="titulo === 'Símbolo inicial'"
         name="textoCodigoVazio"
         class="input__codigo"
+        spellcheck="false"
+        autocomplete="off"
         :disabled="selecionado == -1"
       />
       <textarea
@@ -200,6 +205,7 @@ export default defineComponent({
       @click="focusEditor('textoDefinicoesRegulares')"
     >
       <prism-editor
+        @change="store.verificaNecessarioRecriar"
         id="textoDefinicoesRegulares"
         name="textoCodigo"
         rows="4"
@@ -214,6 +220,7 @@ export default defineComponent({
     </div>
     <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor('textoTokens')">
       <prism-editor
+        @change="store.verificaNecessarioRecriar"
         id="textoTokens"
         name="textoCodigo"
         rows="4"
@@ -226,43 +233,35 @@ export default defineComponent({
         :line-numbers="true"
       />
     </div>
-    <div v-else-if="titulo == 'Simbolo inicial'" class="caixa__interna__input">
-      <input
-        id="textoNaoTerminais"
-        type="text"
-        name="textoCodigo"
-        class="input__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].nonTerminals"
-        pattern="<[a-zA-Z_0-9]+>"
-        :disabled="selecionado == -1"
-      />
-    </div>
-    <div v-else-if="titulo == 'Gramática'" class="caixa__interna" @click="focusEditor('textoGramatica')">
-      <prism-editor
-        id="textoGramatica"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].grammar"
-        :disabled="selecionado == -1"
-        :highlight="highlighterGrammarGALS"
-        :line-numbers="true"
-      />
-    </div>
-    <div v-else-if="titulo == 'Saída'" class="caixa__interna">
-      <textarea
-        id="textoSaida"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        disabled
-        v-model="projetos[selecionado].consoleExit"
-      ></textarea>
+    <div v-else-if="titulo == 'Gramática'" class="caixa__interna">
+      <div class="simboloInicial" @click="focusEditor('textoSimboloInicial')">
+        <label>Símbolo inicial</label>
+        <input @change="store.verificaNecessarioRecriar"
+                id="textoSimboloInicial"
+                type="text"
+                name="textoCodigo"
+                class="input__codigo"
+                spellcheck="false"
+                autocomplete="off"
+                :disabled="selecionado == -1"
+                v-model="projetos[selecionado].nonTerminals"
+                pattern="<[a-zA-Z_0-9]+>" />
+      </div>
+      <div class="caixa__interna__gramatica" @click="focusEditor('textoGramatica')">
+        <prism-editor
+          @change="store.verificaNecessarioRecriar"
+          id="textoGramatica"
+          name="textoCodigo"
+          rows="4"
+          cols="50"
+          class="texto__codigo"
+          spellcheck="false"
+          v-model="projetos[selecionado].grammar"
+          :disabled="selecionado == -1"
+          :highlight="highlighterGrammarGALS"
+          :line-numbers="true"
+        />
+      </div>
     </div>
     <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor('textoSimulacao')">
       <prism-editor
@@ -295,13 +294,15 @@ export default defineComponent({
   box-sizing: border-box;
   /* Opera/IE 8+ */
 
-  font-family: 'Ubuntu Mono';
+  /* font-family: 'Ubuntu Mono'; */
+  /* font-family: "Lucida Console", Courier, monospace; */
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
 
   white-space: pre !important;
 }
 
 .input__codigo {
-  outline: none;
+  outline: auto;
   resize: none;
   width: 100%;
   -webkit-box-sizing: border-box;
@@ -311,7 +312,9 @@ export default defineComponent({
   box-sizing: border-box;
   /* Opera/IE 8+ */
   text-align: center;
-  font-family: 'Ubuntu Mono';
+  /* font-family: 'Ubuntu Mono'; */
+  /* font-family: "Lucida Console", Courier, monospace; */
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
 }
 
 .caixa {
@@ -323,8 +326,6 @@ export default defineComponent({
   border-radius: 5px;
   background-color: white;
 
-  flex-grow: 1;
-
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
 }
 
@@ -333,10 +334,12 @@ export default defineComponent({
 }
 
 .caixa__input {
-  /*  margin: 0px; */
-  /* padding: 0px; */
-  width: 100%;
-
+  margin: 0px;
+  padding: 6px;
+  width: calc(100% - 12px);
+  display: flex;
+  text-wrap: nowrap;
+  flex-direction: row;
   border-radius: 5px;
   background-color: white;
 
@@ -346,18 +349,36 @@ export default defineComponent({
 .caixa__interna {
   margin: 0px;
   padding: 3px;
-  /* width: 100%; */
-  height: calc(100% - 21.333px);
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
+  height: calc(100% - 28px);
 }
 
-.caixa__interna__input {
+.caixa_gramatica {
+display: flex;
+flex-direction: column;
+
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+
+  border-radius: 5px;
+  background-color: white;
+
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
+}
+
+.caixa__interna__gramatica {
   margin: 0px;
   padding: 3px;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
+  height: calc(100% - 26px);
   width: 100%;
 }
 
 .caixa__titulo {
-  font-family: 'IBM Plex Sans';
+   font-family: 'IBM Plex Sans'; 
+  /* font-family: "Lucida Console", Courier, monospace; */
   font-weight: 600;
   color: #424242;
 
@@ -369,11 +390,36 @@ export default defineComponent({
   padding: 0px;
 }
 
-#textoNaoTerminais:valid {
+#textoSimboloInicial:valid {
   color: #07a;
 }
 
-#textoNaoTerminais:invalid {
+#textoSimboloInicial:invalid {
   color: #ff0000;
+}
+
+#textoSimboloInicial {
+  margin-left: 12px;
+  width: 100%;
+}
+
+.simboloInicial {
+  display: flex;
+  align-items: stretch;
+  white-space: nowrap;
+
+  font-family: "IBM Plex Sans";
+  font-weight: 500;
+
+  padding: 4px;
+
+  width: calc(100% - 6px);
+}
+
+
+
+
+#textoDefinicoesRegulares {
+  height: 100%;
 }
 </style>

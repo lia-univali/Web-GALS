@@ -14,6 +14,7 @@ import {
 } from '@/assets/scripts/gals-functions'
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
+import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
 export default defineComponent({
   name: 'BarraEsquerda',
@@ -51,7 +52,7 @@ export default defineComponent({
     },
     abrirOpcoes() {
       if (this.selecionado === -1) {
-        alert('Nenhum projeto selecionado!')
+        this.$toast.info('Nenhum projeto selecionado!')
         return
       }
 
@@ -132,6 +133,7 @@ export default defineComponent({
 
           input.value = ''
         });
+        this.$toast.info('Arquivo carregado!')
       }).catch(error => {
         console.error('Error importing DetectFileEncodingAndLanguage:', error);
       });
@@ -143,9 +145,16 @@ export default defineComponent({
       const input = document.getElementById('nomeProjeto') as HTMLInputElement
       if (input != null) input.value = ''
     },
+    abrirModalEditarArquivo() {
+      const formulario = document.getElementById('modal__arquivo__editar')
+      if (formulario != null) formulario.style.display = 'flex'
+
+      const input = document.getElementById('nomeProjetoEditar') as HTMLInputElement
+      if (input != null) input.value = ''
+    },
     salvarArquivo() {
       if (this.selecionado == -1) {
-        alert('Nenhum projeto selecionado!')
+        this.$toast.error('Nenhum projeto selecionado!')
       } else {
         const options = this.projetos[this.selecionado].options
         const objOptions = this.projetos[this.selecionado].optionsGals
@@ -169,6 +178,7 @@ export default defineComponent({
         codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar)
 
         salvador.download(codigo, this.projetos[this.selecionado].fileName, '.gals')
+        this.$toast.success('Projeto salvo!')
       }
     },
     abrirInformacoes() {
@@ -190,78 +200,84 @@ export default defineComponent({
       if (newTab) {
         newTab.document.write(html)
         newTab.document.close()
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-      } else {
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
+      projeto.consoleExit = 'Tabela criada com Sucesso!'
+      this.$toast.info("Tabela Léxica criada com Sucesso!")
     },
     mostrarTabelaSintatico() {
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const html: string = syntacticTable(
+      const [html, gramatica] = syntacticTable(
         projeto.regularDefinitions,
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
-        Options.PARSER_SLR,
-        null
+        projeto.optionsGals.parser,
+        this.store.necessarioRecriar,
+        undefined,
+        this.store.gramatica as Grammar | undefined
       )
 
-      salvador.download(html, this.projetos[this.selecionado].fileName, '.html')
+      this.store.gramatica = gramatica;
 
       const newTab = window.open()
       if (newTab) {
         newTab.document.write(html)
         newTab.document.close()
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-      } else {
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
+      projeto.consoleExit = 'Tabela criada com Sucesso!'
+      this.$toast.info("Tabela Sintática criada com Sucesso!")
     },
     mostrarTabelaConjuntoSintatico() {
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const html: string = syntacticSetTable(
+      const [html, gramatica] = syntacticSetTable(
         projeto.regularDefinitions,
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
-        Options.PARSER_SLR,
-        null
+        projeto.optionsGals.parser,
+        this.store.necessarioRecriar,
+        undefined,
+        this.store.gramatica as Grammar | undefined
       )
+
+      this.store.gramatica = gramatica;
 
       const newTab = window.open()
       if (newTab) {
         newTab.document.write(html)
-        newTab.document.close()
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-      } else {
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
+        newTab.document.close()       
       }
+      projeto.consoleExit = 'Tabela criada com Sucesso!'
+      this.$toast.info('Tabela do Conjunto de Itens criada com sucesso.')
     },
     mostrarTabelaFirstFollowSintatico() {
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const html: string = syntacticFirstFollowTable(
+      const [html, gramatica] = syntacticFirstFollowTable(
         projeto.regularDefinitions,
         projeto.tokens,
         projeto.nonTerminals,
         projeto.grammar,
-        Options.PARSER_SLR,
-        null
+        projeto.optionsGals.parser,
+        this.store.necessarioRecriar,
+        undefined,
+        this.store.gramatica as Grammar | undefined
       )
+
+      this.store.gramatica = gramatica;
 
       const newTab = window.open()
       if (newTab) {
         newTab.document.write(html)
         newTab.document.close()
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-      } else {
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
       }
+      projeto.consoleExit = 'Tabela criada com Sucesso!'
+      this.$toast.info("Tabela First Follow criada com sucesso!")
     }
   }
 })
@@ -309,15 +325,18 @@ export default defineComponent({
             >
               {{ projeto.fileName }}
             </button>
-            <button @click="store.deleteProject(projeto.id)" class="botao__excluir__projeto">
-              X
-            </button>
+            <div class="botao__conjunto__projeto" >
+              <span @click="abrirModalEditarArquivo" class="material-icons customizado"  title="Editar Projeto" style="font-size: 14px;">edit_square</span>
+              <button @click="store.deleteProject(projeto.id)" class="botao__excluir__projeto" title="Excluir Projeto">
+                X
+              </button>
+            </div>
           </div>
         </div>
         <div class="codigo__definicao__regulares">
           <AreaCodigo titulo="Definições Regulares" />
         </div>
-        <AreaCodigo titulo="Simbolo inicial" />
+        <!--<AreaCodigo titulo="Simbolo inicial" /> -->
       </div>
       <div v-else-if="paginaAberta == 'Opções'">
         <div v-if="store.totalProjetos > 0">
@@ -327,25 +346,72 @@ export default defineComponent({
       <div v-else-if="paginaAberta == 'Documentação'">
         <button class="btn" @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
         <button class="btn" @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
-        <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
+        <div v-if="(projetos[selecionado].optionsGals.parser != 3 && projetos[selecionado].optionsGals.parser != 4)">
+          <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
+        </div>
         <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
-      <div v-else-if="paginaAberta == 'Informações'">
-        <div class="container__links">
-          <a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a>
+      <div class="container__info" v-else-if="paginaAberta == 'Informações'">
+        
+        <p><b>G</b>erador de <b>A</b>nalisadores<b> <br /> L</b>éxicos e <b>S</b>intáticos.</p>
+        <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
+
+        <p>
+          <a href="https://univali.br/computacao" target="_blank"><img src="https://portal.univali.br/Style%20Library/Univali/Home/assets/univali-azul.svg" alt="Logo Univali" width="96" /></a>
+          <span style="margin:12px"></span>
+          <a href="https://cco.ufsc.br/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Brasao_UFSC_vertical_extenso.svg" alt="Logo UFSC" width="96"/></a>
+        </p>
+        
+        <hr>
+
+        <div class="container__developers">
+          <h4>Versão Web<br />(v. 2024.11.10)</h4>
+
+          <p>
+            <em>Desenvolvedor</em><br />
+            <a href="https://github.com/Dangaki" target="_blank">Daniel Akira Nakamura Gullich</a>
+          </p>
+          <p>
+            <em>Orientador</em> <br /> 
+            <a href="https://linktr.ee/prof.edu" target="_blank">Prof. Eduardo Alves da Silva</a>
+          </p>
+          <p>
+            <em>Mantida em:</em><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
+          </p>
+          
         </div>
+
+        <hr>
+
+        <div class="container__developers">
+          <h4>Versão Original - Desktop <br />(v. 2003.10.03)</h4>
+          <p>
+            <em>Desenvolvedor</em><br />
+            <a href="https://github.com/cegesser/gals" target="_blank">Carlos Eduardo Gesser</a>
+          </p>
+          <p>
+            <em>Orientador</em> <br /> 
+            <a href="https://www.inf.ufsc.br/~olinto.furtado/" target="_blank">Prof. Olinto José V. Furtado</a>
+          </p>
+          <p>
+            <em>Mantida em:</em><a href="https://gals.sourceforge.net/" target="_blank">SOURCEFORGE</a>
+          </p>
+          
+        </div>
+        
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.container__links {
-  display: flex;
+.container__info {
   justify-content: center;
   align-items: center;
-  flex-direction: column;
-  gap: 20px;
+  gap: 10px;
+
+  overflow-y: auto;
+  max-height: 80vh;
 }
 
 .link {
@@ -386,20 +452,19 @@ export default defineComponent({
 }
 
 .codigo__definicao__regulares {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   margin: 0;
-  margin-bottom: 6px;
   padding: 0;
-  height: calc(100% - 228px);
 }
+
 .abaProjetos {
-  /* overflow: auto;
-  overflow-x: hidden; */
+  max-height: calc(100% - 72px - 172px);
   height: 100%;
 }
 
 .lista__projetos {
-  /* width: 100%; */
-  /* height: 30%; */
   max-height: 170px;
   min-height: 170px;
   border: 2px solid #ecf0f1;
@@ -420,10 +485,34 @@ h2 {
   color: #424242;
 }
 
+h3 {
+  font-family: 'IBM Plex Sans';
+  text-align: center;
+  font-weight: 400;
+  font-size: x-large;
+  color: #424242;
+}
+
+h4 {
+  font-family: 'IBM Plex Sans';
+}
+
+p {
+  font-family: 'IBM Plex Sans';
+  text-align: center;
+}
+
+.container__developers p {
+  font-family: 'IBM Plex Sans';
+  text-align: left;
+}
+
 .conteudo {
   margin: 0px;
   padding: 3%;
-  width: 240px;
+  width: 302px;
+  height: 100%;
+  box-sizing: border-box;
   border-radius: 5px;
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
@@ -432,7 +521,6 @@ h2 {
 
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
 }
 
 .barra__esquerda {
@@ -557,10 +645,25 @@ input[type='file'] {
   text-align: center;
   font-weight: 600;
   color: #a40000;
-
   background: none;
   border: none;
   margin: 0;
+  padding: 0;
+  cursor: pointer;
+
+  align-items: center;
+}
+
+.botao__editar__projeto {
+  font-family: 'IBM Plex Sans';
+  text-align: center;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.93);
+
+  background: none;
+  border: none;
+  margin: 0px;
+  margin-left: 20px;
   padding: 0;
   cursor: pointer;
 }
@@ -579,5 +682,17 @@ input[type='file'] {
   border-left: 3px solid #ffffff;
   border-right: 3px solid #ffffff;
 }
+
+.material-icons.customizado{
+  margin-left: 30px;
+  cursor: pointer;
+}
+
+.botao__conjunto__projeto{
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
 </style>
 @/assets/scripts/salvador@/assets/scripts/saver

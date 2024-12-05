@@ -5,6 +5,7 @@ import { projetoStore } from '@/stores/projetoStore'
 import JSZip from 'jszip'
 import type TreeMap from 'ts-treemap'
 import { computed, defineComponent } from 'vue'
+import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
 export default defineComponent({
   name: 'BarraSuperior',
@@ -39,7 +40,7 @@ export default defineComponent({
         case Options.LANG_DELPHI:	linguagemString =  ("Delphi"); break;
       }
 
-      alert(options.toString())
+      //alert(options.toString())
 
       //let optionsTeste = new Options();
       //optionsTeste.pkgName =  "teste";
@@ -47,17 +48,25 @@ export default defineComponent({
       //options.scannerTable = Options.SCANNER_TABLE_COMPACT;
       //optionsTeste.input = Options.INPUT_STREAM
       let allFiles: TreeMap<string, string> | null = null
+      let gramatica: Grammar
 
       try {
-        allFiles = generateCode(
+        [allFiles, gramatica] = generateCode(
           projeto.regularDefinitions,
           projeto.tokens,
           projeto.nonTerminals,
           projeto.grammar,
-          options
+          options,
+          this.store.necessarioRecriar,
+          undefined,
+          this.store.gramatica as Grammar | undefined
         )
+
+        this.store.gramatica = gramatica;
+
       } catch (error) {
         console.log(error)
+        this.$toast.error((error as Error).message,{"duration":0})
       }
 
       if (allFiles == null) return
@@ -80,10 +89,10 @@ export default defineComponent({
           URL.revokeObjectURL(url)
         });
 
-        alert('Arquivos Gerados!')
+        this.$toast.success('Arquivos Gerados!')
       } catch (error) {
         console.error(error)
-        alert('Ocorreu um erro!')
+        this.$toast.error((error as Error).message,{"duration":0})
       }
     },
     mudaLayout(perfil: number) {
@@ -224,7 +233,7 @@ a:hover {
   font-family: 'IBM Plex Sans';
   background-color: #f2f2f2;
   color: rgb(129, 129, 129);
-  padding: 14px;
+  padding: 13px;
   font-size: 16px;
   border: none;
   text-align: right;

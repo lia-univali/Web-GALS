@@ -1,5 +1,5 @@
 import { List, Stack, TreeNode } from "../DataStructures";
-import { SyntaticError } from "../analyser/SystemErros";
+import { SyntacticError } from "../analyser/SystemErros";
 import { Token } from "../analyser/Token";
 import { Grammar } from "../generator/parser/Grammar";
 import { LLParser } from "../generator/parser/ll/LLParser";
@@ -60,7 +60,7 @@ export class LL1ParserSimulator
 		this.symb = this.grammar.symbols;
 	}
 	
-	public step(): boolean //throws LexicalError, SyntaticError, SemanticError
+	public step(): boolean //throws LexicalError, SyntacticError, SemanticError
 	{		
 		if (this.currentToken == null)
 		{
@@ -69,7 +69,7 @@ export class LL1ParserSimulator
 		const x = this.stack.pop();
 		const a = this.currentToken.id;
 		
-        if(x == undefined) throw new SyntaticError("Stack is not initialized");
+        if(x == undefined) throw new SyntacticError("Stack is not initialized");
 
 		if (x == LL1ParserSimulator.EPSILON)
 		{
@@ -79,7 +79,7 @@ export class LL1ParserSimulator
 			while (itg == 1)
 			{
 				const parent = this.node.parent;
-				if(parent === null) throw new SyntaticError("Null parent");
+				if(parent === null) throw new SyntacticError("Null parent");
 				this.node = parent;
 				if ( this.nodeCount.size() > 0 )
 					itg = this.nodeCount.pop();
@@ -98,7 +98,7 @@ export class LL1ParserSimulator
 			while (itg == 1)
 			{
 				const parent = this.node.parent;
-				if(parent === null) throw new SyntaticError("Null parent");
+				if(parent === null) throw new SyntacticError("Null parent");
 				this.node = parent;
 				if ( this.nodeCount.size() > 0 )
 					itg = this.nodeCount.pop();
@@ -113,7 +113,7 @@ export class LL1ParserSimulator
 					return true;
 				else
 				{
-                    if(this.scanner == null) throw new SyntaticError("Scanner is NULL");
+                    if(this.scanner == null) throw new SyntacticError("Scanner is NULL");
 					this.currentToken = this.scanner.nextToken();
 					return false;
 				}
@@ -121,7 +121,7 @@ export class LL1ParserSimulator
 			else
 			{
 				this.node.add(new TreeNode("ERRO SINTÁTICO: Era esperado "+this.symb[x]));
-				throw new SyntaticError("Era esperado " + this.symb[x], this.currentToken.position);
+				throw new SyntacticError("Era esperado " + this.symb[x], this.currentToken.position);
 			}
 		}
 		else if (this.isNonTerminal(x))
@@ -144,7 +144,7 @@ export class LL1ParserSimulator
 			else
 			{
 				this.node.add(new TreeNode("ERRO SINTÁTICO: " + this.symb[a] + " inesperado"));
-				throw new SyntaticError(this.symb[a]+" inesperado", this.currentToken.position);
+				throw new SyntacticError(this.symb[a]+" inesperado", this.currentToken.position);
 			}
 		}
 		else if (this.isSemanticAction(x))
@@ -155,7 +155,7 @@ export class LL1ParserSimulator
 			while (itg == 1)
 			{
 				const parent = this.node.parent;
-				if(parent === null) throw new SyntaticError("Null parent");
+				if(parent === null) throw new SyntacticError("Null parent");
 				this.node = parent;
 				if ( this.nodeCount.size() > 0 )
 					itg = this.nodeCount.pop();
@@ -174,7 +174,7 @@ export class LL1ParserSimulator
 		}
 	}
 	
-	public parse(scnr: BasicScanner, root: TreeNode<string>): TreeNode<string>  //throws LexicalError, SyntaticError, SemanticError
+	public parse(scnr: BasicScanner, root: TreeNode<string>): TreeNode<string>  //throws LexicalError, SyntacticError, SemanticError
 	{			
 		this.scanner = scnr;
 		this.node = root;

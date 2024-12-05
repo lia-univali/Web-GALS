@@ -7,7 +7,7 @@ export default {
       (window.navigator as any).msSaveOrOpenBlob(file, filename)
     else {
       // Others
-      let a = document.createElement('a'),
+      const a = document.createElement('a'),
         url = URL.createObjectURL(file)
       a.href = url
       a.download = filename

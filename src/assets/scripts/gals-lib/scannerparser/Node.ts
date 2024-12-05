@@ -77,7 +77,7 @@ export class Node {
   }
 
   public static createUnionNode(node1: Node, node2: Node): Node | null {
-    let newNode: Node = new Node(UNION, node1, node2)
+    const newNode: Node = new Node(UNION, node1, node2)
 
     newNode.value = '|'
 
@@ -85,7 +85,7 @@ export class Node {
   }
 
   public static createConcatNode(node1: Node, node2: Node): Node {
-    let newNode: Node = new Node(-1, node1, node2)
+    const newNode: Node = new Node(-1, node1, node2)
 
     newNode.value = '&'
 
@@ -116,13 +116,13 @@ export class Node {
 		return nc1;
 		*/
 
-    let pivotNode: Node | null = node2.deepestLeft()
+    const pivotNode: Node | null = node2.deepestLeft()
 
     if (pivotNode == null) return null
 
     pivotNode.context = 0
 
-    let newNode: Node = new Node(-1, node1, node2)
+    const newNode: Node = new Node(-1, node1, node2)
 
     newNode.value = '&'
 
@@ -130,7 +130,7 @@ export class Node {
   }
 
   public static createClosureNode(node: Node): Node {
-    let newNode: Node = new Node(CLOSURE, node, null)
+    const newNode: Node = new Node(CLOSURE, node, null)
 
     newNode.value = '*'
 
@@ -138,7 +138,7 @@ export class Node {
   }
 
   public static createClosureObNode(node: Node): Node {
-    let newNode: Node = new Node(CLOSURE_OB, node, null)
+    const newNode: Node = new Node(CLOSURE_OB, node, null)
 
     newNode.value = '+'
 
@@ -146,7 +146,7 @@ export class Node {
   }
 
   public static createOptionalNode(node: Node): Node {
-    let newNode: Node = new Node(OPTIONAL, node, null)
+    const newNode: Node = new Node(OPTIONAL, node, null)
 
     newNode.value = '?'
 
@@ -154,7 +154,7 @@ export class Node {
   }
 
   public static createIntervalNode(char1: string, char2: string): Node {
-    let newNode: Node = new Node(CHAR, null, null)
+    const newNode: Node = new Node(CHAR, null, null)
 
     for (let index = char1.charCodeAt(0); index <= char2.charCodeAt(0); index++) {
       newNode.alphabet.add(index)
@@ -162,7 +162,7 @@ export class Node {
 
     let bfr = '['
 
-    for (let value of newNode.alphabet) {
+    for (const value of newNode.alphabet) {
       bfr += String.fromCharCode(value)
     }
 
@@ -174,7 +174,7 @@ export class Node {
   }
 
   public static createComplementNode(node: Node): Node {
-    let newNode: Node = new Node(CHAR, null, null)
+    const newNode: Node = new Node(CHAR, null, null)
 
     if (!node.alphabet.has('\t'.charCodeAt(0))) {
       newNode.alphabet.add('\t'.charCodeAt(0))
@@ -196,7 +196,7 @@ export class Node {
 
     let bfr = '['
 
-    for (let value of newNode.alphabet) {
+    for (const value of newNode.alphabet) {
       bfr += String.fromCharCode(value)
     }
 
@@ -208,7 +208,7 @@ export class Node {
   }
 
   public static createCharNode(char: string): Node {
-    let newNode: Node = new Node(CHAR, null, null)
+    const newNode: Node = new Node(CHAR, null, null)
 
     newNode.value = char
 
@@ -218,7 +218,7 @@ export class Node {
   }
 
   public static createAllNode(): Node {
-    let newNode: Node = new Node(CHAR, null, null)
+    const newNode: Node = new Node(CHAR, null, null)
 
     newNode.alphabet.add('\t'.charCodeAt(0))
 
@@ -248,7 +248,7 @@ export class Node {
   }
 
   public static createEndNode(tokenId: number, back: boolean): Node {
-    let newNode: Node = new Node(CHAR, null, null)
+    const newNode: Node = new Node(CHAR, null, null)
 
     newNode.end = tokenId
     newNode.backtrack = back
@@ -260,7 +260,7 @@ export class Node {
   public clone(): Node {
     // TODO add Try catch as the source code
 
-    let newNode: Node = structuredClone(this)
+    const newNode: Node = structuredClone(this)
     newNode.alphabet = new OrderedIntegerSet(this._alphabet)
     newNode.metaData = new MetaData()
     newNode.backtrack = true

@@ -1,10 +1,11 @@
 /* eslint-disable no-useless-escape */
 import { List } from "../../DataStructures";
-import { LexicalError, SyntaticError } from "../../analyser/SystemErros";
+import { LexicalError, SyntacticError } from "../../analyser/SystemErros";
 import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
 import { Options } from "../Options";
 import { Grammar } from "../parser/Grammar";
+import { LLParser } from "../parser/ll/LLParser";
 import { Command } from "../parser/lr/Command";
 import { LRGeneratorFactory } from "../parser/lr/LRGeneratorFactory";
 
@@ -154,14 +155,14 @@ export class JavaCommonGenerator {
         }
       
 		result.push(
-		"public class SyntaticError extends AnalysisError\n"+
+		"public class SyntacticError extends AnalysisError\n"+
 		"{\n"+
-		"    public SyntaticError(String msg, int position)\n"+
+		"    public SyntacticError(String msg, int position)\n"+
 		"	 {\n"+
 		"        super(msg, position);\n"+
 		"    }\n"+
 		"\n"+
-		"    public SyntaticError(String msg)\n"+
+		"    public SyntacticError(String msg)\n"+
 		"    {\n"+
 		"        super(msg);\n"+
 		"    }\n"+
@@ -216,7 +217,7 @@ export class JavaCommonGenerator {
         }
       
         if(fa === null) throw new LexicalError("Automato Finito é nulo")
-        if(g === null) throw new SyntaticError("Gramatica é nulo")
+        if(g === null) throw new SyntacticError("Gramatica é nulo")
 
 		result.push(
         "public interface Constants extends "+extInter+"\n"+
@@ -248,7 +249,7 @@ export class JavaCommonGenerator {
             
         result.push("}\n");
 
-        return result.join('\n');//TODO verificar comportamento
+        return result.join('');
     }
 
     private generateParserConstants(g: Grammar | null, options: Options): string {
@@ -263,15 +264,15 @@ export class JavaCommonGenerator {
 		"public interface ParserConstants\n"+
 		"{");
 
-        if(g === null) throw new SyntaticError("Gramatica é nulo")
+        if(g === null) throw new SyntacticError("Gramatica é nulo")
 
         const table = this.genSyntTables(g, options)
 
-        if(table === null) throw new SyntaticError("Tabela Sintatica é nula")
+        if(table === null) throw new SyntacticError("Tabela Sintatica é nula")
 
         result.push(table);
 			
-		result.push("}");
+				result.push("}");
       
         return result.join('\n');//TODO verificar comportamento
     }
@@ -376,7 +377,7 @@ export class JavaCommonGenerator {
 			case Options.PARSER_SLR:
 			case Options.PARSER_LALR:
 			case Options.PARSER_LR:
-				return this.genLRSyntTables(g, Options.PARSER_SLR); // TODO: Change value based on config file
+				return this.genLRSyntTables(g, options.parser);
 			default:
 				return null;
 		}
@@ -386,9 +387,9 @@ export class JavaCommonGenerator {
 	{
         const generator = LRGeneratorFactory.createGenerator(g, lrParserOption);
 
-        if(generator == null) throw new SyntaticError("Gerador de Tabela é nulo.");
+        if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
-		this.lrTable = generator.buildIntTable();
+				this.lrTable = generator.buildIntTable();
 
         const result: string[] = [];
 
@@ -404,7 +405,8 @@ export class JavaCommonGenerator {
 		
 		result.push("\n");
     	
-		result.push(this.emitLRTable(g));
+//		result.push(this.emitLRTable(g));
+		result.push(this.emitModifiedLRTable(g));
 		
 		result.push("\n");
 
@@ -419,7 +421,7 @@ export class JavaCommonGenerator {
 
 	private emitProductionsForLR(g: Grammar): string
 	{
-        const result: string[] = [];
+    const result: string[] = [];
 		
 		const prods = g.productions;
 		
@@ -444,8 +446,8 @@ export class JavaCommonGenerator {
     
 	private emitLRTable(g: Grammar): string
 	{
-        const result: string[] = [];
-		if(this.lrTable  === null ) throw new SyntaticError("Tabela LR está nula.");
+    const result: string[] = [];
+		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 		const tbl: number[][][] = this.lrTable;
 		// //console.log(this.lrTable);
 		result.push("    int[][][] PARSER_TABLE =\n");
@@ -472,7 +474,7 @@ export class JavaCommonGenerator {
 					result.push(" ");
 
 				result.push(str);
-                result.push("},");
+        result.push("},");
 			}
 
 			result.pop();
@@ -486,9 +488,59 @@ export class JavaCommonGenerator {
 		return result.join("");
 	}
 
-    private genLLSyntTables(g: Grammar, type: number)
+	private emitModifiedLRTable(g: Grammar): string
 	{
-        const result: string[] = [];
+    const result: string[] = [];
+		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
+		const tbl: number[][][] = this.lrTable;
+		// //console.log(this.lrTable);
+		result.push('    int[][][] PARSER_TABLE = new LRTableAdapter().table;\n')
+		
+		let max = tbl.length;
+		if (g.productions.size() > max)
+			max = g.productions.size();
+			
+		max = (""+max).length;
+		let newPart : string = "";
+		result.push("\n")
+		result.push("    public class LRTableAdapter // Code too large sem adapter (>64kb)\n")
+		result.push("    {\n");
+		result.push('        int table[][][] = new int[' + tbl.length + '][' + tbl[0].length + '][2];\n')
+		result.push("\n")
+		
+		for (let i=0; i< tbl.length; i++)
+		{
+			result.push("        public class state" + i + "{ int q" + i + "[][] = {");
+
+			for (let j=0; j<tbl[i].length; j++)
+			{
+				 result.push(" {");
+				 result.push(Command.CONSTANTS[tbl[i][j][0]]);
+				 result.push(', ')
+				const str: string = ""+tbl[i][j][1];
+
+				for (let k=str.length; k<max; k++)
+					result.push(' ')
+
+				result.push(str)
+        result.push('},')
+			}
+
+			result.pop();
+			result.push("} }; }\n");
+			newPart = newPart.concat('            table[' + i + '] = new state' + i + '().q' + i + ';\n');
+		}
+
+		result.push('\n        public LRTableAdapter(){\n' + newPart + '        }')
+		result.push("\n    }");
+		result.push("\n");
+		
+		return result.join("");
+	}
+
+  private genLLSyntTables(g: Grammar, type: number)
+	{
+    const result: string[] = [];
 		
 		if (type == Options.PARSER_LL)
 		{	
@@ -500,13 +552,13 @@ export class JavaCommonGenerator {
 			"    int START_SYMBOL = "+start+";\n"+
 			"\n"+
 			"    int FIRST_NON_TERMINAL    = "+fnt+";\n"+
-	    	"    int FIRST_SEMANTIC_ACTION = "+fsa+";\n";
+	    "    int FIRST_SEMANTIC_ACTION = "+fsa+";\n";
 	    	
 	    	result.push(syntConsts);
 	    	
 	    	result.push("\n");
 	    	
-	    	//result.push(this.emitLLTable(new LLParser(g)));
+	    	result.push(this.emitLLTable(new LLParser(g)));
 				
 			result.push("\n");
 			
@@ -514,12 +566,12 @@ export class JavaCommonGenerator {
 				
 			result.push("\n");
 				
-			//result.push(this.emitErrorTableLL(g));
+			result.push(this.emitErrorTableLL(g));
 			
 			return result.join("");
 		}
 		else if (type == Options.PARSER_REC_DESC)
-			return null //this.emitErrorTableLL(g);
+			return this.emitErrorTableLL(g);
 		else
 			return null;
 	}
@@ -616,7 +668,7 @@ export class JavaCommonGenerator {
 
 	private lex_table(fa: FiniteAutomata): string
 	{
-        const result: string[] = [];
+    const result: string[] = [];
 		
 		result.push("    int[][] SCANNER_TABLE = \n");
 		result.push("    {\n");
@@ -635,7 +687,7 @@ export class JavaCommonGenerator {
 				for (let j = n.length; j<max; j++)
 					result.push(" ");
 				result.push(n);
-                result.push(", ");
+        result.push(", ");
 			}
 			result.pop();
 			result.push(" },\n");
@@ -780,53 +832,53 @@ export class JavaCommonGenerator {
 		return result.join("");
 	}
 
-    // private emitLLTable(g: LLParser): string
-	// {
-	//     let tbl: number[][] = g.generateTable();
-    //     let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
+    private emitLLTable(g: LLParser): string
+	{
+	    let tbl: number[][] = g.generateTable();
+        let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
 
-	// 	let max = 0;
-	// 	for (let i = 0; i < table.length; i++)
-	// 	{
-	// 		for (let j = 0; j < table[i].length; j++)
-	// 		{
-	// 			let tmp: string = tbl[i][j].toString();
-	// 			table[i][j] = tmp;
-	// 			if (tmp.length > max)
-	// 				max = tmp.length;
-	// 		}
-	// 	}
+		let max = 0;
+		for (let i = 0; i < table.length; i++)
+		{
+			for (let j = 0; j < table[i].length; j++)
+			{
+				let tmp: string = tbl[i][j].toString();
+				table[i][j] = tmp;
+				if (tmp.length > max)
+					max = tmp.length;
+			}
+		}
 		
-    //     const result: string[] = [];
+        const result: string[] = [];
 		
-	// 	result.push("    int[][] PARSER_TABLE =\n");
-	// 	result.push("    {\n");
+		result.push("    int[][] PARSER_TABLE =\n");
+		result.push("    {\n");
 		
-	// 	for (let i=0; i< table.length; i++)
-	// 	{
-	// 		result.push("        {");
-	// 		for (let j=0; j<table[i].length; j++)
-	// 		{
-	// 			result.push(" ");
-	// 			for (let k = table[i][j].length; k<max; k++){
-	// 				result.push(" ");
-    //             }
-	// 			result.push(table[i][j]);
-    //             result.push(",");
-	// 		}
-    //         result.pop();
-    //         result.push(" },\n");
-	// 	}	
-	// 	result.pop();
-	// 	result.push("\n    };\n");
+		for (let i=0; i< table.length; i++)
+		{
+			result.push("        {");
+			for (let j=0; j<table[i].length; j++)
+			{
+				result.push(" ");
+				for (let k = table[i][j].length; k<max; k++){
+					result.push(" ");
+                }
+				result.push(table[i][j]);
+                result.push(",");
+			}
+            result.pop();
+            result.push(" },\n");
+		}	
+		result.pop();
+		result.push("\n    };\n");
 		
-	// 	return result.join("");
-	// }
+		return result.join("");
+	}
 
 	private emitErrorTableLR(): string
 	{
 
-        if(this.lrTable == null) throw new SyntaticError("Tabela LR está nula.");
+        if(this.lrTable == null) throw new SyntacticError("Tabela LR está nula.");
         
 		const count = this.lrTable.length;
 		// //console.log(count)
