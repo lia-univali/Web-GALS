@@ -357,9 +357,7 @@ export default defineComponent({
         <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
 
         <p>
-          <a href="https://univali.br/computacao" target="_blank"><img src="https://portal.univali.br/Style%20Library/Univali/Home/assets/univali-azul.svg" alt="Logo Univali" width="96" /></a>
-          <span style="margin:12px"></span>
-          <a href="https://cco.ufsc.br/"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Brasao_UFSC_vertical_extenso.svg" alt="Logo UFSC" width="96"/></a>
+          <a href="https://univali.br/computacao" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Univali.jpg" alt="Logo Univali" width="162" /></a>
         </p>
         
         <hr>
@@ -384,7 +382,7 @@ export default defineComponent({
         <hr>
 
         <div class="container__developers">
-          <h4>Versão Original - Desktop <br />(v. 2003.10.03)</h4>
+          <h4>Versão Desktop <br />(v. 2003.10.03)</h4>
           <p>
             <em>Desenvolvedor</em><br />
             <a href="https://github.com/cegesser/gals" target="_blank">Carlos Eduardo Gesser</a>
@@ -396,7 +394,6 @@ export default defineComponent({
           <p>
             <em>Mantida em:</em><a href="https://gals.sourceforge.net/" target="_blank">SOURCEFORGE</a>
           </p>
-          
         </div>
         
       </div>
