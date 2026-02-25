@@ -156,7 +156,7 @@ export default defineComponent({
         <button class="botao__simular" @click="simularSintatico">Simular Sintático</button>
       </div>
       <div class="container__botao__simular">
-        <span class="material-icons customizado"  title="Reconstruir Gramática" style="font-size: 22px;">restart_alt</span>
+        <span class="material-icons customizado"  title="Habilitado: o autômato é reconstruído a cada simulação. Desativado: o autômato da última simulação é reutilizado para simulações subsequentes. Útil para simular gramáticas ambíguas. Alteração nas definições regulares, tokens, símbolo inicial ou gramática requerem que um novo autômato seja criado." style="font-size: 22px;">restart_alt</span>
         <label class="switch">
           <input type="checkbox" title="Reconstruir Gramática" v-model="necessarioRecriar"/>-
           <span title="Reconstruir Gramática" class="slider round"></span>
