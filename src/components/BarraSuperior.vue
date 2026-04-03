@@ -38,6 +38,7 @@ export default defineComponent({
         case Options.LANG_CPP:		linguagemString =  ("C++"); break;
         case Options.LANG_JAVA:	  linguagemString =  ("Java"); break;
         case Options.LANG_DELPHI:	linguagemString =  ("Delphi"); break;
+        case Options.LANG_PYTHON:	linguagemString = ("Python"); break;
       }
 
       //alert(options.toString())

@@ -25,6 +25,9 @@ import { CppParserGenerator } from './gals-lib/generator/cpp/CppParserGenerator'
 import { DelphiCommomGenerator } from './gals-lib/generator/delphi/DelphiCommomGenerator'
 import { DelphiScannerGenerator } from './gals-lib/generator/delphi/DelphiScannerGenerator'
 import { DelphiParserGenerator } from './gals-lib/generator/delphi/DelphiParserGenerator'
+import { PythonCommonGenerator } from './gals-lib/generator/python/PythonCommonGenerator'
+import { PythonScannerGenerator } from './gals-lib/generator/python/PythonScannerGenerator'
+import { PythonParserGenerator } from './gals-lib/generator/python/PythonParserGenerator'
 import { LL1ParserSimulator } from './gals-lib/simulator/LL1ParserSimulator'
 import { LLParser } from './gals-lib/generator/parser/ll/LLParser'
 
@@ -853,6 +856,11 @@ export function generateCode(
       allFiles.setAll( new DelphiCommomGenerator().generate(fa, g, options) );
       allFiles.setAll( new DelphiScannerGenerator().generate(fa, options) );
       allFiles.setAll( new DelphiParserGenerator().generate(g, options));
+      break;
+    case Options.LANG_PYTHON:
+      allFiles.setAll( new PythonCommonGenerator().generate(fa, g, options) );
+      allFiles.setAll( new PythonScannerGenerator().generate(fa, options) );
+      allFiles.setAll( new PythonParserGenerator().generate(g, options) );
       break;
   }
 
