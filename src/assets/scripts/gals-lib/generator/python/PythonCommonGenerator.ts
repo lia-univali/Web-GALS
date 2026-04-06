@@ -26,10 +26,29 @@ export class PythonCommonGenerator
 		return result;
 	}
 
+	mainfunc(options: Options): string
+	{
+		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
+		return `from ${pkgname}Lexico import Lexico\n`+
+		`from ${pkgname}Sintatico import Sintatico\n`+
+		`from ${pkgname}Semantico import Semantico\n`+
+		`from ${pkgname}Errors import AnalysisError\n\n`+
+
+		`lex = Lexico("")\n`+
+		`syn = Sintatico()\n`+
+		`sem = Semantico()\n\n`+
+
+		`try:\n`+
+		`\tsyn.parse(lex, sem)\n`+
+		`except AnalysisError as e:\n`+
+		`\tprint(e)\n`;
+	}
+
 	private generateToken(options: Options): string
 	{	
+		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
 		return "\nfrom dataclasses import dataclass\n"+
-			"from Constants import TokenId\n\n"+
+			`from ${pkgname}Constants import TokenId\n\n`+
 
 			"@dataclass(frozen=True)\n"+
 			"class Token:\n"+

@@ -839,6 +839,8 @@ export function generateCode(
 
   // Produção de codigo
   const allFiles: TreeMap<string, string> = new TreeMap();
+  let makeFolders: boolean = false;
+  let mainfunc: string = null;
 
   switch (options.language)
   {
@@ -858,13 +860,16 @@ export function generateCode(
       allFiles.setAll( new DelphiParserGenerator().generate(g, options));
       break;
     case Options.LANG_PYTHON:
-      allFiles.setAll( new PythonCommonGenerator().generate(fa, g, options) );
+      let pcg = new PythonCommonGenerator();
+      allFiles.setAll( pcg.generate(fa, g, options) );
       allFiles.setAll( new PythonScannerGenerator().generate(fa, options) );
       allFiles.setAll( new PythonParserGenerator().generate(g, options) );
+      makeFolders = options.pkgName !== ""
+      mainfunc = pcg.mainfunc(options);
       break;
   }
 
-  return [allFiles, g];
+  return [allFiles, g, makeFolders, mainfunc];
 }
 
 // function transformToken(mode: Mode, inputString: string, fa?: FiniteAutomata, ): Array<string> {

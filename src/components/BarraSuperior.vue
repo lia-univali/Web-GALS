@@ -50,9 +50,11 @@ export default defineComponent({
       //optionsTeste.input = Options.INPUT_STREAM
       let allFiles: TreeMap<string, string> | null = null
       let gramatica: Grammar
+      let foldered: boolean;
+      let mainfunc: string;
 
       try {
-        [allFiles, gramatica] = generateCode(
+        [allFiles, gramatica, foldered, mainfunc] = generateCode(
           projeto.regularDefinitions,
           projeto.tokens,
           projeto.nonTerminals,
@@ -74,9 +76,23 @@ export default defineComponent({
 
       try {
         const zip = new JSZip()
+        let fld: JSZip;
 
-        for (const [fileName, content] of allFiles.entries()) {
-          zip.file(fileName, content)
+        if (foldered) {
+          fld = zip.folder(options.pkgName);
+        }
+
+        for (const [fileName, content] of allFiles.entries())
+        {
+          if (foldered) {
+            fld.file(fileName, content)
+          } else {
+            zip.file(fileName, content)
+          }
+        }
+
+        if (mainfunc != null) {
+          zip.file("main.py", mainfunc)
         }
 
         zip.generateAsync({ type: 'blob' }).then((content) => {

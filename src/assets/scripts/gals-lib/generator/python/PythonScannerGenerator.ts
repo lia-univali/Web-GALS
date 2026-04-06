@@ -32,10 +32,11 @@ export class PythonScannerGenerator
 	private buildScanner(fa: FiniteAutomata, options: Options): string
 	{
 		const classname: string = options.scannerName;
+		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
 
-		let result = "from Constants import *\n"+
-			"from Errors    import LexicalError\n"+
-			"from Token     import Token\n\n"+
+		let result = `from ${pkgname}Constants import *\n`+
+			`from ${pkgname}Errors    import LexicalError\n`+
+			`from ${pkgname}Token     import Token\n\n`+
 
 			"class "+classname+":\n\n"+
 

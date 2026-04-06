@@ -26,7 +26,8 @@ export class PythonParserGenerator
 	private semantic(options: Options): string
 	{
 		const classname: string = options.semanticName;
-		return "from Token import Token\n\n"+
+		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
+		return `from ${pkgname}Token import Token\n\n`+
 
 			`class ${classname}:\n\n`+
 
@@ -36,6 +37,7 @@ export class PythonParserGenerator
 	
 	private parser(g: Grammar, options: Options): string
 	{
+		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
 		switch (options.parser)
 		{
 			case Options.PARSER_REC_DESC:
@@ -48,9 +50,9 @@ export class PythonParserGenerator
 			{
 				const parserName:  string = options.parserName;
 
-				return "from Token import Token\n"+
-					"from Constants import *\n"+
-					"from Errors import SyntacticError\n\n"+
+				return `from ${pkgname}Token import Token\n`+
+					`from ${pkgname}Constants import *\n`+
+					`from ${pkgname}Errors import SyntacticError\n\n`+
 
 					"class "+parserName+":\n\n"+
 
