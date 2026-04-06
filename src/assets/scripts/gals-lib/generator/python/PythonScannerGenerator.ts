@@ -15,16 +15,19 @@ export class PythonScannerGenerator
 		let scanner: string = "";
 		const classname: string = options.scannerName;
 		
-		if (fa != null)
+		if (options.generateScanner == true)
 		{
-		 	scanner = this.buildScanner(fa, options);
+			if (fa != null)
+			{
+				scanner = this.buildScanner(fa, options);
+			}
+			else
+			{
+				scanner = "";
+			}
+
+			result.set(classname+".py", scanner);
 		}
-		else
-		{
-			scanner = "";
-		}
-		
-		result.set(classname+".py", scanner);
 		
 		return result;
 	}

@@ -11,13 +11,16 @@ export class PythonParserGenerator
 	{
 		const result: Map<string, string> = new Map();
 		
-		if (g != null)
+		if (options.generateParser == true)
 		{
-		
-			const classname: string = options.parserName;
-			
-			result.set(classname+".py", this.parser(g, options));
-			result.set(options.semanticName + ".py", this.semantic(options));
+			if (g != null)
+			{
+
+				const classname: string = options.parserName;
+
+				result.set(classname+".py", this.parser(g, options));
+				result.set(options.semanticName + ".py", this.semantic(options));
+			}
 		}
 		
 		return result;

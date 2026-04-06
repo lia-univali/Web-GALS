@@ -34,12 +34,12 @@ export class PythonCommonGenerator
 		`from ${pkgname}Semantico import Semantico\n`+
 		`from ${pkgname}Errors import AnalysisError\n\n`+
 
-		`lex = Lexico("")\n`+
-		`syn = Sintatico()\n`+
+		(options.generateScanner ? `lex = Lexico("")\n`  : "") +
+		(options.generateParser  ? `syn = Sintatico()\n` : "") +
 		`sem = Semantico()\n\n`+
 
 		`try:\n`+
-		`\tsyn.parse(lex, sem)\n`+
+		(options.generateParser && options.generateScanner ? "\tsyn.parse(lex, sem)\n" : "\t# syn.parse(lex, sem)\n") +
 		`except AnalysisError as e:\n`+
 		`\tprint(e)\n`;
 	}
@@ -82,8 +82,8 @@ export class PythonCommonGenerator
 			"\tEPSILON = 0\n"+
 			"\tDOLLAR  = 1\n"+
 			this.constList(fa, g)+
-			this.lexDecls(fa, options)+
-			this.syntDecls(g, options);
+			(options.generateScanner ? this.lexDecls(fa, options) : "")+
+			(options.generateParser  ? this.syntDecls(g, options) : "");
 	}
 
 	private constList(fa: FiniteAutomata, g: Grammar): string
@@ -278,8 +278,6 @@ export class PythonCommonGenerator
 			let result = "";
 	
 			result += `SPECIAL_CASES_INDEXES = [0 for i in range(0, ${indexes.length+1})]\n`;
-
-			console.log(sc.length, indexes.length);
 
 			let count = indexes.length;
 			for (let i = 0; i < count; i++)
