@@ -747,7 +747,7 @@ export function generateCode(
   options:Options,
   needRebuildGram: boolean,
   fa?: FiniteAutomata,
-  g?: Grammar): [TreeMap<string, string>, Grammar] {
+  g?: Grammar): [TreeMap<string, string>, Grammar, boolean, string | null] {
 
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
@@ -840,7 +840,7 @@ export function generateCode(
   // Produção de codigo
   const allFiles: TreeMap<string, string> = new TreeMap();
   let makeFolders: boolean = false;
-  let mainfunc: string = null;
+  let mainfunc: string | null = null;
 
   switch (options.language)
   {

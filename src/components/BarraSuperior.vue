@@ -50,8 +50,8 @@ export default defineComponent({
       //optionsTeste.input = Options.INPUT_STREAM
       let allFiles: TreeMap<string, string> | null = null
       let gramatica: Grammar
-      let foldered: boolean;
-      let mainfunc: string;
+      let foldered: boolean = false;
+      let mainfunc: string | null = null;
 
       try {
         [allFiles, gramatica, foldered, mainfunc] = generateCode(
@@ -76,15 +76,16 @@ export default defineComponent({
 
       try {
         const zip = new JSZip()
-        let fld: JSZip;
+        let fld: JSZip | null = null;
 
         if (foldered) {
           fld = zip.folder(options.pkgName);
+          if (fld == null) throw Error("FLD é nulo");
         }
 
         for (const [fileName, content] of allFiles.entries())
         {
-          if (foldered) {
+          if (foldered && (fld != null)) {
             fld.file(fileName, content)
           } else {
             zip.file(fileName, content)
