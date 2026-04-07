@@ -29,16 +29,18 @@ export class PythonCommonGenerator
 	mainfunc(options: Options): string
 	{
 		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
-		return `from ${pkgname}Lexico import Lexico\n`+
-		`from ${pkgname}Sintatico import Sintatico\n`+
-		`from ${pkgname}Semantico import Semantico\n`+
+		return ""+
+		(options.generateScanner? `from ${pkgname}Lexico import Lexico\n` : "")+
+		(options.generateParser ? `from ${pkgname}Sintatico import Sintatico\n` : "")+
+		(options.generateParser ? `from ${pkgname}Semantico import Semantico\n` : "")+
+
 		`from ${pkgname}Errors import AnalysisError\n\n`+
 
 		(options.generateScanner ? `lex = Lexico("")\n`  : "") +
 		(options.generateParser  ? `syn = Sintatico()\n` : "") +
-		`sem = Semantico()\n\n`+
+		(options.generateParser  ? `sem = Semantico()\n` : "")+
 
-		`try:\n`+
+		`\ntry:\n`+
 		(options.generateParser && options.generateScanner ? "\tsyn.parse(lex, sem)\n" : "\t# syn.parse(lex, sem)\n") +
 		`except AnalysisError as e:\n`+
 		`\tprint(e)\n`;
