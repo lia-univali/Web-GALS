@@ -13,5 +13,8 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  }
+  },
+  define: {
+	  __BUILD_DATE__: JSON.stringify(`v. ${new Date().toISOString().split('T')[0].replace(/-/g, '.')}`),
+  },
 })
