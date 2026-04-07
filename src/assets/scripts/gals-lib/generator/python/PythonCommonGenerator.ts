@@ -30,15 +30,15 @@ export class PythonCommonGenerator
 	{
 		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
 		return ""+
-		(options.generateScanner? `from ${pkgname}Lexico import Lexico\n` : "")+
-		(options.generateParser ? `from ${pkgname}Sintatico import Sintatico\n` : "")+
-		(options.generateParser ? `from ${pkgname}Semantico import Semantico\n` : "")+
+		(options.generateScanner? `from ${pkgname}${options.scannerName} import ${options.scannerName}\n` : "")+
+		(options.generateParser ? `from ${pkgname}${options.parserName} import ${options.parserName}\n` : "")+
+		(options.generateParser ? `from ${pkgname}${options.semanticName} import ${options.semanticName}\n` : "")+
 
 		`from ${pkgname}Errors import AnalysisError\n\n`+
 
-		(options.generateScanner ? `lex = Lexico("")\n`  : "") +
-		(options.generateParser  ? `syn = Sintatico()\n` : "") +
-		(options.generateParser  ? `sem = Semantico()\n` : "")+
+		(options.generateScanner ? `lex = ${options.scannerName}("")\n`  : "") +
+		(options.generateParser  ? `syn = ${options.parserName}()\n` : "") +
+		(options.generateParser  ? `sem = ${options.semanticName}()\n` : "")+
 
 		`\ntry:\n`+
 		(options.generateParser && options.generateScanner ? "\tsyn.parse(lex, sem)\n" : "\t# syn.parse(lex, sem)\n") +
