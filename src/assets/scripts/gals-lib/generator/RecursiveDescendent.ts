@@ -1,6 +1,7 @@
 import TreeMap from "ts-treemap";
 import { Production } from "../util/Production";
 import { Grammar } from "./parser/Grammar";
+import { LLParser } from "./parser/ll/LLParser"
 
 
 export class FunctionCustom
@@ -25,7 +26,7 @@ export class RecursiveDescendent
 	public constructor(grammar: Grammar) //throws NotLLException
 	{
 		this._grammar = grammar;
-		this._llTable = [] //new LLParser(grammar).generateTable();  TODO: Criar LLParser
+		this._llTable = new LLParser(grammar).generateTable();
 		this._symbols = grammar.symbols;
 		for (let i=0; i < this._symbols.length; i++)
 			if (this._symbols[i].charAt(0) == '<')
