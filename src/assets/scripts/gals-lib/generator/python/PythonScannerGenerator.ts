@@ -32,39 +32,99 @@ export class PythonScannerGenerator
 		return result;
 	}
 
+	private bidistream(options: Options): string
+	{
+		if (options.input == Options.INPUT_STREAM)
+		{
+			return "from io                 import StringIO\n\n"+
+				"class BidirectionalStream:\n"+
+				"\tdef __init__(self, src: StringIO):\n"+
+				"\t\tself.src       = src\n"+
+				"\t\tself.shadow    = \"\"\n"+
+				"\t\tself.shadowpos = 0\n"+
+				"\t\tself.read      = 0\n\n"+
+
+				"\tdef rewind(self, pos):\n"+
+				"\t\tself.shadowpos = pos\n\n"+
+
+				"\tdef next_char(self):\n"+
+				"\t\tif self.shadowpos == self.read:\n"+
+				"\t\t\tres = self.src.read(1)\n"+
+				"\t\t\tif res == '':\n"+
+				"\t\t\t\treturn -1\n"+
+				"\t\t\telse:\n"+
+				"\t\t\t\tself.shadow    += res\n"+
+				"\t\t\t\tself.shadowpos += 1\n"+
+				"\t\t\t\tself.read      += 1\n"+
+				"\t\t\t\treturn ord(res)\n"+
+				"\t\telse:\n"+
+				"\t\t\tres = self.shadow[self.shadowpos]\n"+
+				"\t\t\tself.shadowpos += 1\n"+
+				"\t\t\treturn ord(res)\n\n";
+		} else {
+			return "";
+		}
+	}
+
 	private buildScanner(fa: FiniteAutomata, options: Options): string
 	{
 		const classname: string = options.scannerName;
 		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
+		const stream: boolean = options.input == Options.INPUT_STREAM;
 
 		let result = `from ${pkgname}Constants import *\n`+
 			`from ${pkgname}Errors    import LexicalError\n`+
 			`from ${pkgname}Token     import Token\n\n`+
 
+			this.bidistream(options)+
+
 			"class "+classname+":\n\n"+
 
-			"\tdef __init__(self, input: str):\n"+
+			`\tdef __init__(self, input: ${stream ? "StringIO" : "str"}):\n`+
 			"\t\tself.set_input(input)\n\n"+
 
-			"\tdef set_input(self, input: str):\n"+
-			"\t\tself.input    = input\n"+
-			"\t\tself.position = 0\n\n"+
+			(
+				stream ?
+				"\tdef set_input(self, input: StringIO):\n"+
+				"\t\tself.input = BidirectionalStream(input)\n\n"
+				:
+				"\tdef set_input(self, input: str):\n"+
+				"\t\tself.input    = input\n"+
+				"\t\tself.position = 0\n\n"
+			)+
+
 
 			"\tdef next_token(self):\n\n"+
 
-			"\t\tif self.has_input() == False:\n"+
-			"\t\t\treturn None\n\n"+
+			(
+				stream ?
+				"\t\tstart    = self.input.shadowpos\n"+
+				"\t\tnewchar  = 0\n"+
+				"\t\titers    = 0\n"
+				:
+				"\t\tif self.has_input() == False:\n"+
+				"\t\t\treturn None\n\n"+
+				"\t\tstart    = self.position\n"
+			)+
 
-			"\t\tstart    = self.position\n"+
 			"\t\tstate    = 0\n"+
 			"\t\toldState = 0\n"+
 			"\t\tendState = -1\n"+
 			"\t\tend      = -1\n\n"+
 
-			"\t\twhile self.has_input():\n\n"+
+			`\t\twhile ${stream ? "True" : "self.has_input()"}:\n\n`+
+
+			(
+				stream ?
+				"\t\t\tnewchar = self.input.next_char()\n"+
+				"\t\t\tif newchar == -1:\n"+
+				"\t\t\t\tbreak\n\n"+
+				"\t\t\titers += 1\n\n"
+				: ""
+			)+
 
 			"\t\t\toldState = state\n"+
-			"\t\t\tstate    = self.next_state(self.next_char(), state)\n\n"+
+			`\t\t\tstate    = self.next_state(${stream ? "newchar" : "self.next_char()"}, state)\n\n`+
 
 			"\t\t\tif state < 0:\n"+
 			"\t\t\t\tbreak\n\n"+
@@ -72,19 +132,27 @@ export class PythonScannerGenerator
 			"\t\t\telse:\n"+
 			"\t\t\t\tif self.token_for_state(state) != None:\n"+
 			"\t\t\t\t\tendState = state\n"+
-			"\t\t\t\t\tend      = self.position\n\n"+
+			`\t\t\t\t\tend      = ${stream ? "self.input.shadowpos" : "self.position"}\n\n`+
+
+			(
+				stream ?
+				"\t\tif newchar == -1 and iters == 0:\n"+
+				"\t\t\tself.input.rewind(start)\n"+
+				"\t\t\treturn None\n\n"
+				: ""
+			)+
 
 			"\t\tif endState < 0 or (endState != state and self.token_for_state(oldState) == -2):\n"+
 			"\t\t\traise LexicalError(SCANNER_ERROR[oldState], start)\n\n"+
 
-			"\t\tself.position = end\n\n"+
+			(stream ? "\t\tself.input.rewind(end)\n\n" : "\t\tself.position = end\n\n")+
 
 			"\t\ttoken = self.token_for_state(endState)\n\n"+
 
 			"\t\tif token == 0:\n"+
 			"\t\t\treturn self.next_token()\n"+
 			"\t\telse:\n"+
-			"\t\t\tlexeme = self.input[start:end]\n"+
+			`\t\t\tlexeme = self.input${stream ? ".shadow" : ""}[start:end]\n`+
 			"\t\t\tif TOKEN_DEPENDENCY or CASE_INSENSITIVITY:\n"+
 			"\t\t\t\ttoken = self.lookup_token(token, lexeme)\n"+
 			"\t\t\treturn Token(TokenId(token), lexeme, start)\n\n"+
@@ -121,16 +189,20 @@ export class PythonScannerGenerator
 
 			"\t\treturn base\n\n"+
 
-			"\tdef has_input(self):\n"+
-			"\t\treturn self.position < len(self.input)\n\n"+
+			(
+				stream ?
+				"" :
+				"\tdef has_input(self):\n"+
+				"\t\treturn self.position < len(self.input)\n\n"+
 
-			"\tdef next_char(self):\n"+
-			"\t\tif self.has_input():\n"+
-			"\t\t\tres = self.input[self.position]\n"+
-			"\t\t\tself.position += 1\n"+
-			"\t\t\treturn ord(res)\n"+
-			"\t\telse:\n"+
-			"\t\t\treturn -1\n\n";
+				"\tdef next_char(self):\n"+
+				"\t\tif self.has_input():\n"+
+				"\t\t\tres = self.input[self.position]\n"+
+				"\t\t\tself.position += 1\n"+
+				"\t\t\treturn ord(res)\n"+
+				"\t\telse:\n"+
+				"\t\t\treturn -1\n\n"
+			);
 
 		return result;
 	}

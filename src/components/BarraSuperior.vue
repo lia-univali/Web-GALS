@@ -31,8 +31,6 @@ export default defineComponent({
       const options: Options = projeto.optionsGals
       let linguagemString = '';
 
-      options.input = Options.INPUT_STRING
-
       switch (options.language)
       {
         case Options.LANG_CPP:		linguagemString =  ("C++"); break;
@@ -41,13 +39,6 @@ export default defineComponent({
         case Options.LANG_PYTHON:	linguagemString = ("Python"); break;
       }
 
-      //alert(options.toString())
-
-      //let optionsTeste = new Options();
-      //optionsTeste.pkgName =  "teste";
-      //optionsTeste.parser = Options.PARSER_SLR;
-      //options.scannerTable = Options.SCANNER_TABLE_COMPACT;
-      //optionsTeste.input = Options.INPUT_STREAM
       let allFiles: TreeMap<string, string> | null = null
       let gramatica: Grammar
       let foldered: boolean = false;

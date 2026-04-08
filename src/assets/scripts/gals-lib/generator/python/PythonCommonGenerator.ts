@@ -36,7 +36,9 @@ export class PythonCommonGenerator
 
 		`from ${pkgname}Errors import AnalysisError\n\n`+
 
-		(options.generateScanner ? `lex = ${options.scannerName}("")\n`  : "") +
+		(options.input == Options.INPUT_STREAM ? "from io import StringIO\n" : "")+
+
+		this.mainfunc_lex(options) +
 		(options.generateParser  ? `syn = ${options.parserName}()\n` : "") +
 		(options.generateParser  ? `sem = ${options.semanticName}()\n` : "")+
 
@@ -44,6 +46,23 @@ export class PythonCommonGenerator
 		(options.generateParser && options.generateScanner ? "\tsyn.parse(lex, sem)\n" : "\t# syn.parse(lex, sem)\n") +
 		`except AnalysisError as e:\n`+
 		`\tprint(e)\n`;
+	}
+
+	private mainfunc_lex(options: Options): string
+	{
+		switch (options.input) {
+			case Options.INPUT_STREAM:
+			{
+				return (options.generateScanner ? `stream = StringIO("")\n\nlex = ${options.scannerName}(stream)\n` : "")
+			}
+			break;
+			case Options.INPUT_STRING:
+			{
+				return (options.generateScanner ? `lex = ${options.scannerName}("")\n`  : "");
+			}
+			break;
+		}
+		return "";
 	}
 
 	private generateToken(options: Options): string
