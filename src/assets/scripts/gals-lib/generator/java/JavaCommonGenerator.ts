@@ -870,6 +870,7 @@ export class JavaCommonGenerator {
             result.push(" },\n");
 		}	
 		result.pop();
+		result.push(" },");
 		result.push("\n    };\n");
 		
 		return result.join("");
@@ -930,8 +931,10 @@ export class JavaCommonGenerator {
 		}
 					
 		for (let i=g.FIRST_NON_TERMINAL; i< symbs.length; i++)
+		{
 			result.push("        \""+symbs[i]+" inválido");
 			result.push("\",\n");
+		}
 			
 		result.pop();
 		result.push("\"");
