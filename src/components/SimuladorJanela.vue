@@ -115,9 +115,11 @@ export default defineComponent({
       return line.replace('<', '&lt').replace('>', '&gt');
     },
     tokenSelect(lexeme:string, position:number) {
-      const inputSimulacaotextArea = document.getElementById('textoSimulacao')?.getElementsByTagName('textarea')[0];
-      inputSimulacaotextArea?.setSelectionRange(position, position+lexeme.length);
-      inputSimulacaotextArea?.focus()
+      // Chama o método do AreaCodigo para fazer a seleção no editor do simulador
+      const selectFunc = (window as any)._selectTextInSimulator
+      if (selectFunc) {
+        selectFunc(position, position + lexeme.length)
+      }
     }
   }
 })
