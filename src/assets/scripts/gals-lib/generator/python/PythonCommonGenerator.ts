@@ -199,7 +199,7 @@ export class PythonCommonGenerator
 		{
 			case Options.PARSER_REC_DESC:
 			{
-				throw new SyntacticError("REC_DESC NOT SUPPORTED");
+				return this.syntErrorsLL(g);
 			}
 			case Options.PARSER_LL:
 			{
@@ -418,6 +418,39 @@ export class PythonCommonGenerator
 		result += ("\n];\n");
 
 		return result.toString();
+	}
+
+	private syntErrorsLL(g: Grammar): string
+	{
+		const symbs: string[] = g.symbols;
+
+		let result = "\nPARSER_ERROR = [\n"+
+			`\t"",\n`+
+			`\t"Era esperado fim de programa",\n`;
+
+		for (let i = 2; i < g.FIRST_NON_TERMINAL; i++)
+		{
+			result += `\t"Era esperado `;
+			for (let j = 0; j < symbs[i].length; j++)
+			{
+				switch (symbs[i].charAt(j))
+				{
+					case '\"': result += ("\\\""); break;
+					case '\\': result += ("\\\\"); break;
+					default:   result += (symbs[i].charAt(j));
+				}
+			}
+			result += `",\n`;
+		}
+
+		for (let i = g.FIRST_NON_TERMINAL; i < symbs.length; i++)
+		{
+			result += `\t"${symbs[i]} inválido",\n`;
+		}
+
+		result += "]";
+
+		return result;
 	}
 
 	private syntErrorsLR(): string

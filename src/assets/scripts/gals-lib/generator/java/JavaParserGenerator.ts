@@ -447,8 +447,8 @@ export class JavaParserGenerator{
 			if(f == undefined) throw new NotLLException("Gramática não é LL.");
 
 			const keys = Array.from(f.input.keys());
-					
-			let pushed: Set<number> = new Set()
+			let pushed: Set<number> = new Set();
+
 			for (let i = 0; i<keys.length; i++)
 			{
 				const rhs = f.input.get(keys[i]);
