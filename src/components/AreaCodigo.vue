@@ -2,16 +2,69 @@
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import { defineComponent } from 'vue'
-// import Prism Editor
-import { PrismEditor } from 'vue-prism-editor'
-import 'vue-prism-editor/dist/prismeditor.min.css' // import the styles somewhere
+import { Codemirror } from 'vue-codemirror'
+import { EditorView } from '@codemirror/view'
+import { StreamLanguage } from '@codemirror/language'
+import { EditorSelection } from '@codemirror/state'
+import type { LanguageSupport } from '@codemirror/language'
 
-// import highlighting library (you can use any library you want just return html string)
-import { highlight, languages } from 'prismjs'
-import 'prismjs/components/prism-clike'
-import 'prismjs/components/prism-bnf'
-import 'prismjs/components/prism-yaml'
-import 'prismjs/themes/prism.css' // import syntax highlighting styles
+// Criar linguagem customizada para GALS tokens
+const galsTokensLanguage = StreamLanguage.define({
+  token(stream) {
+    // Comentário
+    if (stream.match(/\/\/.*/)) return 'comment'
+    
+    // String
+    if (stream.match(/"(?:\\.|[^\\"\r\n])*"/)) return 'string'
+    
+    // Operadores
+    if (stream.match(/[:|!=]/)) return 'operator'
+    
+    // Token (nome_token:)
+    if (stream.match(/^[a-zA-Z]\w*[ \t]*:/)) return 'keyword'
+    
+    // Números
+    if (stream.match(/[0-9]/)) return 'number'
+    
+    // Espaços
+    if (stream.eatSpace()) return null
+    
+    // Default
+    stream.next()
+    return null
+  }
+})
+
+// Criar linguagem customizada para BNF/Gramática GALS
+const bnfLanguage = StreamLanguage.define({
+  token(stream) {
+    // Comentário
+    if (stream.match(/\/\/.*/)) return 'comment'
+    
+    // String
+    if (stream.match(/"(?:\\.|[^\\"\r\n])*"/)) return 'string'
+    
+    // Epsilon (î)
+    if (stream.match(/î/)) return 'atom'
+    
+    // Non-terminal <...>
+    if (stream.match(/<[^<>\r\n\t]+>/)) return 'keyword'
+    
+    // Semantic action #\d+
+    if (stream.match(/#\d+/)) return 'variable'
+    
+    // Operadores BNF (::=, |, ;)
+    if (stream.match(/::=|\||;/)) return 'operator'
+    
+    // Espaços
+    if (stream.eatSpace()) return null
+    
+    // Default
+    stream.next()
+    return null
+  }
+})
+
 
 export default defineComponent({
   name: 'AreaCodigo',
@@ -22,11 +75,15 @@ export default defineComponent({
     return {
       texto: 'Area de Texto para teste',
       tabSize: 2,
-      
+      simulatorView: null as any,
+      // Extensões base para todos os editores
+      baseExtensions: [
+        EditorView.lineWrapping
+      ] as any[]
     }
   },
   components: {
-    PrismEditor
+    Codemirror
   },
   setup() {
     const store = projetoStore()
@@ -45,133 +102,88 @@ export default defineComponent({
       selecionado
     }
   },
+  mounted() {
+    // Registra a função de seleção globalmente apenas para o simulador
+    if (this.titulo === 'Simulação') {
+      (window as any)._selectTextInSimulator = this.selectTextInSimulator.bind(this)
+    }
+  },
+  beforeUnmount() {
+    // Remove a função global ao desmontar apenas se for o simulador
+    if (this.titulo === 'Simulação') {
+      delete (window as any)._selectTextInSimulator
+    }
+  },
   watch: {
     selecionado() {
-      const definicoesRegulares = document.getElementById('textoDefinicoesRegulares')
-      const tokens = document.getElementById('textoTokens')
+      // Update editor content when project changes
+      const definicoesRegulares = document.querySelector('[data-editor-id="textoDefinicoesRegulares"]')
+      const tokens = document.querySelector('[data-editor-id="textoTokens"]')
       const naoTerminais = document.getElementById('textoSimboloInicial')
-      const gramatica = document.getElementById('textoGramatica')
-      const saida = document.getElementById('textoSaida')
-      const simulador = document.getElementById('textoSimulador')
+      const gramatica = document.querySelector('[data-editor-id="textoGramatica"]')
+      const simulador = document.querySelector('[data-editor-id="textoSimulador"]')
 
       if (this.selecionado == -1) return
 
       if (definicoesRegulares != null)
-        (definicoesRegulares as HTMLInputElement).value =
+        (definicoesRegulares as any).value =
           this.projetos[this.selecionado].regularDefinitions
       if (tokens != null)
-        (tokens as HTMLInputElement).value = this.projetos[this.selecionado].tokens
+        (tokens as any).value = this.projetos[this.selecionado].tokens
       if (naoTerminais != null)
         (naoTerminais as HTMLInputElement).value = this.projetos[this.selecionado].nonTerminals
       if (gramatica != null)
-        (gramatica as HTMLInputElement).value = this.projetos[this.selecionado].grammar
-      if (saida != null)
-        (saida as HTMLInputElement).value = this.projetos[this.selecionado].consoleExit
+        (gramatica as any).value = this.projetos[this.selecionado].grammar
       if (simulador != null)
-        (simulador as HTMLInputElement).value = this.projetos[this.selecionado].textSimulator
+        (simulador as any).value = this.projetos[this.selecionado].textSimulator
+    }
+  },
+  computed: {
+    // Extensões com linguagem GALS para tokens
+    extensionsTokens(): (LanguageSupport | any)[] {
+      return [...this.baseExtensions, galsTokensLanguage] as any
+    },
+    // Extensões com linguagem BNF para gramática
+    extensionsBNF(): (LanguageSupport | any)[] {
+      return [...this.baseExtensions, bnfLanguage] as any
+    },
+    // Extensões sem linguagem para simulador
+    extensionsDefault(): any[] {
+      return this.baseExtensions as any
     }
   },
   methods: {
-    highlighterPrismBNF(code: string) {
-      return highlight(code, languages.bnf, 'bnf') // languages.<insert language> to return html with markup
-    },
-    highlighterGrammarGALS(code: string) {
-      return highlight(
-        code,
-        (languages['gals_bnf'] = {
-          comment: /\/\/.*/,
-          string: {
-            pattern: /"(?:\\.|[^\\"\r\n])*"/,
-            greedy: true
-          },
-          'semantic-action': {
-            pattern: /#\d+/,
-            alias: 'symbol'
-          },
-          'non-terminal': {
-            pattern: /<[^<>\r\n\t]+>/,
-            alias: ['bold', 'keyword'],
-            inside: {
-              punctuation: /^<|>$/
-            }
-          },
-          operator: /::=|\||;/,
-          epsilon: {
-            pattern: /î/,
-            alias: 'class-name'
-          }
-        }),
-        'gals_bnf'
-      )
-    },
-    highlighterOrignalTokensGALS(code: string) {
-      return highlight(
-        code,
-        (languages['gals'] = {
-          comment: /\/\/.*/,
-          sc_token: {
-            pattern: /\b[a-zA-Z]\w*[ \t]*(=[ \t]*[a-zA-Z]\w*[ \t]*:)/g,
-            lookbehind: true,
-            inside: {
-              important: /(:)/
-            }
-          },
-          token: {
-            pattern: /(^[a-zA-Z]\w*[ \t]*:)([^\r\n]|:)+/gm,
-            lookbehind: true,
-            alias: 'regex'
-          },
-          error: {
-            pattern: /^(?:[0-9])/m,
-            alias: 'number'
-          },
-          ignore: {
-            pattern: /^(:!?)([^\r\n]|:)+/m,
-            lookbehind: true,
-            alias: 'class-name'
-          },
-          operator: /(?:(:|!|=))/,
-          string: {
-            pattern: /"(?:\\.|[^\\"\r\n])*"/,
-            greedy: true
-          }
-        }),
-        'gals'
-      )
-    },
-    highlighterNewTokensGALS(code: string) {
-      return highlight(
-        code,
-        (languages['gals'] = {
-          comment: /\/\/.*/,
-          escaped: {
-            pattern: /\\.{1,3}/,
-            alias: ['constant']
-          },
-          token: {
-            pattern: /^[a-zA-Z_]\w*(?:[ \t]*):/gm,
-            alias: 'variable'
-          },
-          string: {
-            pattern: /"(?:\\.|[^\\"\r\n])*"/,
-            greedy: true
-          },
-          number: /[0-9]/,
-          operator: /[|()[\]{}*+?<>]/,
-          assign: {
-            pattern: /:|=|!/,
-            alias: ['important']
-          },
-          punctuation: /,|;|-|\//
-        }),
-        'gals'
-      )
-    },
-    highlighterNone(code: string) {
-      return code
+    onSimulatorReady(view: any) {
+      this.simulatorView = view
+      // Armazenar globalmente para acesso externo
+      ;(window as any)._editorStore = (window as any)._editorStore || {}
+      ;(window as any)._editorStore['textoSimulador'] = view
     },
     focusEditor(id: string) {
-      (document.getElementById(id)?.getElementsByClassName('prism-editor__textarea')[0] as HTMLElement)?.focus();
+      const editor = document.querySelector(`[data-editor-id="${id}"] .cm-editor`) as HTMLElement
+      editor?.focus()
+    },
+    selectTextInSimulator(start: number, end: number) {
+      try {
+        let view = this.simulatorView
+        if (!view) {
+          // Fallback para o store global
+          view = (window as any)._editorStore?.['textoSimulador']
+        }
+        if (!view) {
+          console.warn('Simulator editor view not found')
+          return
+        }
+
+        const selection = EditorSelection.single(start, end)
+        view.view.dispatch({
+          selection: selection,
+          effects: EditorView.scrollIntoView(start)
+        }) 
+        view.view.focus()
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 })
@@ -199,121 +211,116 @@ export default defineComponent({
         :disabled="selecionado == -1"
       ></textarea>
     </div>
+
     <div
       v-else-if="titulo == 'Definições Regulares'"
       class="caixa__interna"
+      data-editor-id="textoDefinicoesRegulares"
       @click="focusEditor('textoDefinicoesRegulares')"
     >
-      <prism-editor
-        @change="store.verificaNecessarioRecriar"
-        id="textoDefinicoesRegulares"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
+      <codemirror
+        :key="`def-reg-${selecionado}`"
         v-model="projetos[selecionado].regularDefinitions"
-        :highlight="highlighterOrignalTokensGALS"
-        :disabled="selecionado == -1"
-        :line-numbers="true"
-      />
-    </div>
-    <div v-else-if="titulo == 'Tokens'" class="caixa__interna" @click="focusEditor('textoTokens')">
-      <prism-editor
+        :extensions="extensionsTokens"
         @change="store.verificaNecessarioRecriar"
-        id="textoTokens"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
-        v-model="projetos[selecionado].tokens"
         :disabled="selecionado == -1"
-        :highlight="highlighterOrignalTokensGALS"
-        :line-numbers="true"
+        class="texto__codigo"
       />
     </div>
+
+    <div
+      v-else-if="titulo == 'Tokens'"
+      class="caixa__interna"
+      data-editor-id="textoTokens"
+      @click="focusEditor('textoTokens')"
+    >
+      <codemirror
+        :key="`tokens-${selecionado}`"
+        v-model="projetos[selecionado].tokens"
+        :extensions="extensionsTokens"
+        @change="store.verificaNecessarioRecriar"
+        :disabled="selecionado == -1"
+        class="texto__codigo"
+      />
+    </div>
+
     <div v-else-if="titulo == 'Gramática'" class="caixa__interna">
       <div class="simboloInicial" @click="focusEditor('textoSimboloInicial')">
         <label>Símbolo inicial</label>
-        <input @change="store.verificaNecessarioRecriar"
-                id="textoSimboloInicial"
-                type="text"
-                name="textoCodigo"
-                class="input__codigo"
-                spellcheck="false"
-                autocomplete="off"
-                :disabled="selecionado == -1"
-                v-model="projetos[selecionado].nonTerminals"
-                pattern="<[a-zA-Z_0-9]+>" />
-      </div>
-      <div class="caixa__interna__gramatica" @click="focusEditor('textoGramatica')">
-        <prism-editor
+        <input
           @change="store.verificaNecessarioRecriar"
-          id="textoGramatica"
+          id="textoSimboloInicial"
+          type="text"
           name="textoCodigo"
-          rows="4"
-          cols="50"
-          class="texto__codigo"
+          class="input__codigo"
           spellcheck="false"
-          v-model="projetos[selecionado].grammar"
+          autocomplete="off"
           :disabled="selecionado == -1"
-          :highlight="highlighterGrammarGALS"
-          :line-numbers="true"
+          v-model="projetos[selecionado].nonTerminals"
+          pattern="<[a-zA-Z_0-9]+>"
+        />
+      </div>
+      <div
+        class="caixa__interna__gramatica"
+        data-editor-id="textoGramatica"
+        @click="focusEditor('textoGramatica')"
+      >
+        <codemirror
+          :key="`grammar-${selecionado}`"
+          v-model="projetos[selecionado].grammar"
+          :extensions="extensionsBNF"
+          @change="store.verificaNecessarioRecriar"
+          :disabled="selecionado == -1"
+          class="texto__codigo"
         />
       </div>
     </div>
-    <div v-else-if="titulo == 'Simulação'" class="caixa__interna" @click="focusEditor('textoSimulacao')">
-      <prism-editor
-        id="textoSimulacao"
-        name="textoCodigo"
-        rows="4"
-        cols="50"
-        class="texto__codigo"
-        spellcheck="false"
+
+    <div
+      v-else-if="titulo == 'Simulação'"
+      class="caixa__interna"
+      data-editor-id="textoSimulador"
+      @click="focusEditor('textoSimulador')"
+    >
+      <codemirror
+        ref="simulatorEditor"
+        :key="`sim-${selecionado}`"
         v-model="projetos[selecionado].textSimulator"
+        :extensions="extensionsDefault"
         :disabled="selecionado == -1"
-        :highlight="highlighterNone"
-        :line-numbers="true"
+        class="texto__codigo"
+        @ready="onSimulatorReady"
       />
     </div>
   </div>
 </template>
 
 <style scoped>
-
 .texto__codigo {
   outline: none;
   resize: none;
   width: 100%;
-  height: calc(100% - 7px);
-  -webkit-box-sizing: border-box;
-  /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box;
-  /* Firefox, other Gecko */
+  height: 100%;
   box-sizing: border-box;
-  /* Opera/IE 8+ */
-
-  /* font-family: 'Ubuntu Mono'; */
-  /* font-family: "Lucida Console", Courier, monospace; */
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
+}
 
-  white-space: pre !important;
+.texto__codigo :deep(.cm-editor) {
+  height: 100%;
+  border: none;
+  border-radius: 4px;
+}
+
+.texto__codigo :deep(.cm-scroller) {
+  overflow: auto;
 }
 
 .input__codigo {
   outline: auto;
   resize: none;
   width: 100%;
-  -webkit-box-sizing: border-box;
-  /* Safari/Chrome, other WebKit */
-  -moz-box-sizing: border-box;
-  /* Firefox, other Gecko */
   box-sizing: border-box;
-  /* Opera/IE 8+ */
   text-align: center;
-  /* font-family: 'Ubuntu Mono'; */
-  /* font-family: "Lucida Console", Courier, monospace; */
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
 }
 
@@ -322,15 +329,13 @@ export default defineComponent({
   padding: 0px;
   width: 100%;
   height: 100%;
-
   border-radius: 5px;
   background-color: white;
-
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
 }
 
 .caixa__interna:hover {
-  cursor:text;
+  cursor: text;
 }
 
 .caixa__input {
@@ -342,49 +347,42 @@ export default defineComponent({
   flex-direction: row;
   border-radius: 5px;
   background-color: white;
-
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
 }
 
 .caixa__interna {
   margin: 0px;
-  padding: 3px;
+  padding: 0px;
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
   height: calc(100% - 28px);
 }
 
 .caixa_gramatica {
-display: flex;
-flex-direction: column;
-
+  display: flex;
+  flex-direction: column;
   margin: 0px;
   padding: 0px;
   width: 100%;
   height: 100%;
-
   border-radius: 5px;
   background-color: white;
-
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.15);
 }
 
 .caixa__interna__gramatica {
   margin: 0px;
-  padding: 3px;
+  padding: 0px;
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
   height: calc(100% - 26px);
   width: 100%;
 }
 
 .caixa__titulo {
-   font-family: 'IBM Plex Sans'; 
-  /* font-family: "Lucida Console", Courier, monospace; */
+  font-family: 'IBM Plex Sans';
   font-weight: 600;
   color: #424242;
-
   border-bottom: 1px solid;
   border-color: #b1b1b1;
-
   text-align: center;
   margin: 0px;
   padding: 0px;
@@ -407,19 +405,9 @@ flex-direction: column;
   display: flex;
   align-items: stretch;
   white-space: nowrap;
-
-  font-family: "IBM Plex Sans";
+  font-family: 'IBM Plex Sans';
   font-weight: 500;
-
   padding: 4px;
-
   width: calc(100% - 6px);
-}
-
-
-
-
-#textoDefinicoesRegulares {
-  height: 100%;
 }
 </style>

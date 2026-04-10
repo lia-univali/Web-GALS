@@ -191,52 +191,54 @@ export default defineComponent({
           <fieldset>
             <legend>Classes</legend>
             <table>
-              <tr>
-                <td>
-                  <label for="arquivoLexico">Analisador Léxico</label>
-                </td>
-                <td>
-                  <input type="input" id="arquivoLexico" name="nomeLexico" value="Lexico" checked />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <label for="arquivoSintatico">Analisador Sintático</label>
-                </td>
-                <td>
-                  <input
-                    type="input"
-                    id="arquivoSintatico"
-                    name="nomeSintatico"
-                    value="Sintatico"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td><label for="arquivoSemantico">Analisador Semantico</label></td>
-                <td>
-                  <input
-                    type="input"
-                    id="arquivoSemantico"
-                    name="nomeSemantico"
-                    value="Semantico"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <!-- <input
-                    type="checkbox"
-                    id="arquivoNamespace"
-                    name="namespace"
-                    v-model="namespace"
-                  /> -->
-                  <label for="arquivoNamespace">Package / Namespace</label>
-                </td>
-                <td>
-                  <input type="input" id="arquivoNamespace" name="nameNamespace" value="" />
-                </td>
-              </tr>
+              <tbody>
+                <tr>
+                  <td>
+                    <label for="arquivoLexico">Analisador Léxico</label>
+                  </td>
+                  <td>
+                    <input type="input" id="arquivoLexico" name="nomeLexico" value="Lexico" checked />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label for="arquivoSintatico">Analisador Sintático</label>
+                  </td>
+                  <td>
+                    <input
+                      type="input"
+                      id="arquivoSintatico"
+                      name="nomeSintatico"
+                      value="Sintatico"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td><label for="arquivoSemantico">Analisador Semantico</label></td>
+                  <td>
+                    <input
+                      type="input"
+                      id="arquivoSemantico"
+                      name="nomeSemantico"
+                      value="Semantico"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <!-- <input
+                      type="checkbox"
+                      id="arquivoNamespace"
+                      name="namespace"
+                      v-model="namespace"
+                    /> -->
+                    <label for="arquivoNamespace">Package / Namespace</label>
+                  </td>
+                  <td>
+                    <input type="input" id="arquivoNamespace" name="nameNamespace" value="" />
+                  </td>
+                </tr>
+              </tbody>
             </table>
           </fieldset>
         </div>

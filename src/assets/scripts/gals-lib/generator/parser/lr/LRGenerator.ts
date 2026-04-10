@@ -142,7 +142,7 @@ export abstract class LRGenerator {
 						result[i][j] = error;
 						break;
 					case 1:
-						result[i][j] = table[i][j].values().next()["value"] //.iterator().next();
+						result[i][j] = table[i][j].values().next().value! //.iterator().next();
 						break;
 					default:
 						result[i][j] = this.solve(table[i][j], i, j);
