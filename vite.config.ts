@@ -18,6 +18,6 @@ export default defineConfig({
 	  __BUILD_DATE__: JSON.stringify(`v. ${new Date().toISOString().split('T')[0].replace(/-/g, '.')}`),
   },
   build: {
-    chunkSizeWarningLimit: 525,
+    chunkSizeWarningLimit: 1000,
   },
 })
