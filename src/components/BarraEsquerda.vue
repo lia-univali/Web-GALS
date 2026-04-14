@@ -82,6 +82,15 @@ export default defineComponent({
       }
       return url
     },
+    getLinkChangelogHTML(): string {
+      let url
+      if (process.env.NODE_ENV === 'development') {
+        url = 'Web-GALS/files/changelog.html'
+      } else {
+        url = 'files/changelog.html'
+      }
+      return url
+    },
     abrirArquivo() {
       const input: HTMLInputElement = document.getElementById('file') as HTMLInputElement
 
@@ -361,6 +370,7 @@ export default defineComponent({
         <p><b>{{ buildDate }}</b></p>
 
         <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
+        <p><a class="link" :href="getLinkChangelogHTML()" target="_blank">CHANGELOG</a></p>
 
         <p>
           <a href="https://univali.br/computacao" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Univali.jpg" alt="Logo Univali" width="162" /></a>
