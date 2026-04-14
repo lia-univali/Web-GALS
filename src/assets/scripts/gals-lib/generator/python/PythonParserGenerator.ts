@@ -157,6 +157,91 @@ export class PythonParserGenerator
 
 		return result;
 	}
+
+	private llParser(g: Grammar, options: Options)
+	{
+		const pkg = options.pkgName !== "" ? options.pkgName + "." : "";
+		const prs = options.parserName;
+
+		let result = ""+
+			`from ${pkg}Token     import Token\n`+
+			`from ${pkg}Constants import *\n`+
+			`from ${pkg}Errors    import SyntacticError\n\n`+
+
+			`class ${prs}:\n\n`+
+
+			"\tdef __init__(self):\n"+
+			"\t\tself.previous_token = None\n"+
+			"\t\tself.current_token  = None\n"+
+			"\t\tself.stack          = []\n\n"+
+
+			"\tdef is_terminal(self, x):\n"+
+			"\t\treturn x < FIRST_NON_TERMINAL\n\n"+
+
+			"\tdef is_non_terminal(self, x):\n"+
+			"\t\treturn x >= FIRST_NON_TERMINAL and x < FIRST_SEMANTIC_ACTION\n\n"+
+
+			"\tdef is_semantic_action(self, x):\n"+
+			"\t\treturn x >= FIRST_SEMANTIC_ACTION\n\n"+
+
+			"\tdef step(self):\n\n"+
+			"\t\tif self.current_token == None:\n"+
+			"\t\t\tpos = 0\n"+
+			"\t\t\tif self.previous_token != None:\n"+
+			"\t\t\t\tpos = self.previous_token.position + len(self.previous_token.lexeme)\n\n"+
+
+			`\t\t\tself.current_token = Token(TokenId.DOLLAR, "$", pos)\n\n`+
+
+			"\t\tx = self.stack.pop()\n"+
+			"\t\ta = self.current_token.tkid.value\n\n"+
+
+			"\t\tif x == TokenId.EPSILON.value:\n"+
+			"\t\t\treturn False\n"+
+			"\t\telif self.is_terminal(x):\n"+
+			"\t\t\tif x == a:\n"+
+			"\t\t\t\tif len(self.stack) == 0:\n"+
+			"\t\t\t\t\treturn True\n"+
+			"\t\t\t\telse:\n"+
+			"\t\t\t\t\tself.previous_token = self.current_token\n"+
+			"\t\t\t\t\tself.current_token  = self.scanner.next_token()\n"+
+			"\t\t\t\t\treturn False\n"+
+			"\t\t\telse:\n"+
+			"\t\t\t\traise SyntacticError(PARSER_ERROR[x], self.current_token.position)\n"+
+			"\t\telif self.is_non_terminal(x):\n"+
+			"\t\t\tif self.push_production(x, a):\n"+
+			"\t\t\t\treturn False\n"+
+			"\t\t\telse:\n"+
+			"\t\t\t\traise SyntacticError(PARSER_ERROR[x], self.current_token.position)\n"+
+			"\t\telse:\n"+
+			"\t\t\tself.semantic.execute_action(x-FIRST_SEMANTIC_ACTION, self.previous_token)\n"+
+			"\t\t\treturn False\n\n"+
+
+			"\tdef push_production(self, topstack, token):\n"+
+			"\t\tp = PARSER_TABLE[topstack-FIRST_NON_TERMINAL][token-1]\n"+
+			"\t\tif p >= 0:\n"+
+			"\t\t\tproduction = PRODUCTIONS[p]\n\n"+
+
+			"\t\t\tfor i in range(len(production) - 1, -1, -1):\n"+
+			"\t\t\t\tself.stack.append(production[i])\n\n"+
+			"\t\t\treturn True\n"+
+			"\t\telse:\n"+
+			"\t\t\treturn False\n\n"+
+
+			"\tdef parse(self, scanner, semantic):\n"+
+			"\t\tself.scanner  = scanner\n"+
+			"\t\tself.semantic = semantic\n\n"+
+
+			"\t\tself.stack.clear()\n"+
+			"\t\tself.stack.append(TokenId.DOLLAR.value)\n"+
+			"\t\tself.stack.append(START_SYMBOL)\n\n"+
+
+			"\t\tself.current_token = self.scanner.next_token()\n\n"+
+
+			"\t\twhile self.step() == False:\n"+
+			"\t\t\tpass\n";
+
+		return result;
+	}
 	
 	private parser(g: Grammar, options: Options): string
 	{
@@ -167,7 +252,7 @@ export class PythonParserGenerator
 				return this.redDecParser(g, options);
 						
 			case Options.PARSER_LL:
-				throw new SyntacticError("LL(1) NOT SUPPORTED.");
+				return this.llParser(g, options);
 		
 			default: //slr, lalr, lr
 			{

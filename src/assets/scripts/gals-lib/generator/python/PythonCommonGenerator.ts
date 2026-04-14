@@ -1,3 +1,4 @@
+import { List } from "../../DataStructures";
 import { SyntacticError } from "../../analyser/SystemErros";
 import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
@@ -203,7 +204,7 @@ export class PythonCommonGenerator
 			}
 			case Options.PARSER_LL:
 			{
-				throw new SyntacticError("LL(1) NOT SUPPORTED");
+				return this.syntTables(g, options) + this.syntErrorsLL(g);
 			}
 			default: //SLR, LALR, LR
 			{
@@ -285,7 +286,7 @@ export class PythonCommonGenerator
 		}
 
 		result = result.slice(0, -2);
-		result += ("\n]\n");
+		result += ("]\n");
 		return result.toString();
 	}
 	
@@ -343,14 +344,137 @@ export class PythonCommonGenerator
 		switch (options.parser)
 		{
 			case Options.PARSER_REC_DESC:
-				throw new SyntacticError("REC_DESC NOT SUPPORTED");
+				throw new SyntacticError("REC_DESC DOES NOT USE SYNTTABLES");
 			case Options.PARSER_LL:
-				throw new SyntacticError("LL(1) NOT SUPPORTED");
+				return this.genLLSyntTables(g);
 			default: //slr, lalr, lr
 				return  this.syntTransTable(g)+
 					    this.productionsLR(g)+
 					    this.syntErrorsLR();
 		}
+	}
+
+	private genLLSyntTables(g: Grammar): string
+	{
+		const result: string[] = [];
+
+		const start = g.startSymbol;
+		const fnt   = g.FIRST_NON_TERMINAL;
+		const fsa   = g.symbols.length;
+
+		const syntConsts =
+			`START_SYMBOL = ${start};\n`+
+			"\n"+
+			`FIRST_NON_TERMINAL    = ${fnt};\n`+
+			`FIRST_SEMANTIC_ACTION = ${fsa};\n`;
+
+		result.push(syntConsts);
+
+		result.push("\n");
+
+		result.push(this.emitLLTable(new LLParser(g)));
+
+		result.push("\n");
+
+		result.push(this.productionsLL(g));
+
+		result.push("\n");
+
+		return result.join("");
+	}
+
+	private emitLLTable(g: LLParser): string
+	{
+		let tbl: number[][] = g.generateTable();
+        let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
+
+		let max = 0;
+		for (let i = 0; i < table.length; i++)
+		{
+			for (let j = 0; j < table[i].length; j++)
+			{
+				let tmp: string = tbl[i][j].toString();
+				table[i][j] = tmp;
+				if (tmp.length > max)
+					max = tmp.length;
+			}
+		}
+
+        const result: string[] = [];
+
+		result.push("PARSER_TABLE = [\n");
+
+		for (let i=0; i< table.length; i++)
+		{
+			result.push("\t[");
+			for (let j=0; j<table[i].length; j++)
+			{
+				result.push(" ");
+				for (let k = table[i][j].length; k<max; k++){
+					result.push(" ");
+                }
+				result.push(table[i][j]);
+                result.push(",");
+			}
+            result.pop();
+            result.push(" ],\n");
+		}
+		result.pop();
+		result.push(" ],");
+		result.push("\n]\n");
+
+		return result.join("");
+	}
+
+	private productionsLL(g: Grammar): string
+	{
+		const pl: List<Production> = g.productions;
+		const productions: string[][] = new Array(pl.size()).fill([]) as string[][];
+		let max = 0;
+		for (let i=0; i< pl.size(); i++)
+		{
+			const rhs: number[] = pl.get(i).get_rhs();
+			if (rhs.length > 0)
+			{
+				productions[i] =[];
+				for (let j=0; j< rhs.length; j++)
+				{
+					productions[i][j] = rhs[j].toString();
+					if (productions[i][j].length > max)
+						max = productions[i][j].length;
+				}
+			}
+			else
+			{
+                productions[i] = new Array<string>(1);
+				productions[i][0] = "0";
+			}
+		}
+
+        const result: string[] = [];
+
+		result.push("PRODUCTIONS = [\n");
+
+		for (let i=0; i< productions.length; i++)
+		{
+			result.push("\t[");
+			for (let j=0; j<productions[i].length; j++)
+			{
+				result.push(" ");
+				for (let k = productions[i][j].length; k<max; k++){
+					result.push(" ");
+                }
+				result.push(productions[i][j]);
+                result.push(",");
+			}
+			result.pop();
+            result.push(" ],\n");
+		}
+		result.pop();
+		result.push(" ]\n");
+		result.push("\n]\n");
+
+		return result.join("");
 	}
 
 	private productionsLR(g: Grammar): string
