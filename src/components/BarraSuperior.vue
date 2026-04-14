@@ -142,7 +142,7 @@ export default defineComponent({
 
 <template>
   <div class="barra__superior">
-    <span class="logo">WEB</span>
+  <span class="logo">WEB <span style="color: #9ed15c;">GALS</span> <span style="color: #e64545;"> BETA</span></span>
 
     <button class="botao__gerar__codigo" @click="gerarCodigo">Gerar Código</button>
 
@@ -172,17 +172,13 @@ a:hover {
   display: flex;
   align-items: center;
   text-align: center;
-
+  white-space: pre;
   color: #424242;
+  user-select: none;
 }
 
 .logo::before {
   content: '\00a0\00a0';
-  color: #9ed15c;
-}
-
-.logo::after {
-  content: '\00a0GALS';
   color: #9ed15c;
 }
 
