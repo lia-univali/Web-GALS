@@ -49,7 +49,7 @@ export default defineComponent({
   <BarraSuperior />
 
   <div class="contentor__geral">
-    <div class="contentor__esquerda dropshadow">
+    <div class="contentor__esquerda">
       <BarraEsquerda />
       <!--<div class="caixa white"></div> -->
     </div>
@@ -61,7 +61,7 @@ export default defineComponent({
           id="splitpanesHorizontal"
           @resize="layout.gramatica = $event[1].size"
         >
-          <pane :size="100 - layout.gramatica" class="dropshadow">
+          <pane :size="100 - layout.gramatica">
             <splitpanes vertival @resize="resizeLayout($event)">
               <pane :size="layout.token">
                 <AreaCodigo titulo="Tokens" />
@@ -74,7 +74,7 @@ export default defineComponent({
               </pane>
             </splitpanes>
           </pane>
-          <pane :size="layout.gramatica" class="dropshadow">
+          <pane :size="layout.gramatica">
             <AreaCodigo titulo="Gramática" />
           </pane>
         </splitpanes>
@@ -91,13 +91,8 @@ body {
   margin: 0px;
   padding: 0px;
   height: 100%;
-  background-image: url('assets/icons/bg.png');
-  background-size: 64px;
+  background-color: #aeaeae;
   overflow: hidden;
-}
-
-.dropshadow {
-	filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.5));
 }
 
 ::-webkit-scrollbar {
