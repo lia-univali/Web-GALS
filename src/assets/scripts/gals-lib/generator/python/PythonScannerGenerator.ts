@@ -80,7 +80,7 @@ export class PythonScannerGenerator
 
 			"class "+classname+":\n\n"+
 
-			`\tdef __init__(self, input: ${stream ? "StringIO" : "str"}):\n`+
+			`\tdef __init__(self, input: ${stream ? "StringIO" : "str"} = None):\n`+
 			"\t\tself.set_input(input)\n\n"+
 
 			(
