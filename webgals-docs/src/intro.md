@@ -36,7 +36,7 @@ Especificamente, a interface principal do Web GALS consiste de:
 9. **Menu de Configurações:** Este é o botão do menu de configurações do projeto.
 10. **Informações do Web GALS:** Este botão abre um *tray* que mostra informações sobre Web GALS.
 11. **Aba de Projetos**: A aba onde é possível ver os seu projetos em andamento.
-12. **Aŕea de Definições Regulares**: Nesta área de texto é escrito as definições regulares.
+12. **Área de Definições Regulares**: Nesta área de texto é escrito as definições regulares.
 
 Após finalizar um projeto no Web GALS, é possível gerar um código *template* que implementa um compilador que processa a linguagem projetada; tal serve de ponto de partida para a analise semântica, implementada pelo usuário em código.
 
