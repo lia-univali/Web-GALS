@@ -1,6 +1,6 @@
 # WEB GALS
 
-Develop with Vue 3 and Vite.
+Developed with Vue 3 and Vite.
 
 Ready-to-use: [Web GALS](https://lia-univali.github.io/Web-GALS/)
 
@@ -22,6 +22,8 @@ npm run dev
 npm run build
 ```
 
+Don't forget to recreate public/docs/.keep before commiting, as the mbdook build process deletes it.
+
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
@@ -31,10 +33,15 @@ npm run lint
 ## Deploy on Github Pages
 
 ```sh
-npm run build
-git add dist -f
-git commit -m "v0.XX"
-git subtree push --prefix dist origin gh-pages
+npm run deploy
+```
+
+## Build and Run just the Documentation
+
+```sh
+cd webgals-docs
+mdbook build
+mdbook serve --open
 ```
 
 ## Recommended IDE Setup

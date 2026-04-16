@@ -76,9 +76,9 @@ export default defineComponent({
     getLinkDocumentacaoHTML(): string {
       let url
       if (process.env.NODE_ENV === 'development') {
-        url = 'Web-GALS/files/help.html'
+        url = 'Web-GALS/docs/index.html'
       } else {
-        url = 'files/help.html'
+        url = 'docs/index.html'
       }
       return url
     },
