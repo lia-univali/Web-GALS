@@ -46,10 +46,33 @@ function parseDefsOnTokens(def: string, tok: string): string{
 
   for (let line of tknzr) {
     line = line.trim();
-    const termo = line.split(':').filter(Boolean);
+
+	const i     = line.indexOf(':');
+	const key   = line.slice(0, i);
+	let   value = line.slice(i + 1);
+
+	// DANGER: Hack cagado, o parserparser confunde comentário da linguagem com comentário do editor
+	//         Efetua o escape manualmente.
+
+	let was_slash: boolean = false;
+
+	if (value.trim() === "/") {
+		value = `"/" `
+		was_slash = true;
+	}
+
+	if (value.trim() === "//") {
+		throw new LexicalError(`A definição regular '${value.trim()}' será confundida como comentário no próprio editor, abortando.`);
+	}
+
+	const termo = [key, value].filter(Boolean)
 
     // Reuso de uma Definição Regular em outra Definição
     let defExpression : string = termo[1].trim()
+
+	// DANGER: Hack
+	if (was_slash) defExpression += " ";
+
     const existentDefs = defExpression.match(/{[a-zA-Z_][a-zA-Z0-9_]*}/g)
     if(existentDefs !== null) {
       for(const exDef of existentDefs) {
@@ -64,7 +87,6 @@ function parseDefsOnTokens(def: string, tok: string): string{
     
     defTermo.set('{' + termo[0].trim() + '}', defExpression)
   }
-
 
   for (const [key, value] of defTermo.entries()) {
     const regex = new RegExp(key, "g");
