@@ -171,7 +171,33 @@ with open('program.txt') as file:
 
 ##### Rust
 
-*TDB*
+```rust
+use std::{fs::File, io::BufReader};
+
+use crate::{
+    scanner::Lexico,
+    parser::Sintatico,
+    codegen::Semantico
+};
+
+mod token;
+mod errors;
+mod constants;
+mod scanner;
+mod parser;
+mod codegen;
+
+fn main() {
+    let file = File::open("program.txt").expect("erro ao abrir arquivo");
+    let lex = Lexico::new(BufReader::new(file));
+    let sem = Semantico::new();
+    let syn = Sintatico::new(lex, sem);
+
+    if let Err(e) = syn.parse() {
+        eprintln!("{e}");
+    }
+}
+```
 
 ## Detalhes do código
 
@@ -222,19 +248,20 @@ catch ( LexicalError e )
 }
 ```
 
-| Java                                  | C++                                     | Delphi                                          | Python                                                   | Rust |
-|---------------------------------------|-----------------------------------------|-------------------------------------------------|----------------------------------------------------------|------|
-| <pre>Lexico()</pre>                   | <pre>Lexico(void)</pre>                 | <pre>constructor create</pre>                   | <pre>def __init__(self, input: TipoEntrada = None)</pre> | ???  |
-| <pre>Lexico(TipoEntrada)</pre>        | <pre>Lexico(TipoEntrada)</pre>          | <pre>constructor create(input : TStream)</pre>  | <pre>def __init__(self, input: TipoEntrada = None)</pre> | ???  |
-| <pre>void setInput(TipoEntrada)</pre> | <pre>void setInput(TipoEntrada)</pre>   | <pre>procedure setInput(input : TStream)</pre>  | <pre>def set_input(self, input: TipoEntrada)</pre>       | ???  |
-| <pre>void setPosition(int)</pre>      | <pre>void setPosition(int)</pre>        | <pre>procedure setPosition(pos : integer)</pre> | <pre>def set_position(self, pos)</pre>                   | ???  |
-| <pre>Token nextToken()</pre>          | <pre>Token* nextToken(void)</pre>       | <pre>function nextToken : TToken</pre>          | <pre>def next_token(self)</pre>                          | ???  |
-| <pre>String getLexeme()</pre>         | <pre>std::string& getLexeme(void)</pre> | <pre>function getLexeme : string</pre>          | <pre>lexeme: str</pre>                                   | ???  |
-| <pre>int getPosition()</pre>          | <pre>int getPosition(void)</pre>        | <pre>function getPosition : integer</pre>       | <pre>position: int</pre>                                 | ???  |
-| <pre>int getId()</pre>                | <pre>TokenId getId(void)</pre>          | <pre>function getId : integer</pre>             | <pre>tkid: TokenId</pre>                                 | ???  |
+| Java                                  | C++                                     | Delphi                                          | Python                                                   | Rust                                                                            |
+|---------------------------------------|-----------------------------------------|-------------------------------------------------|----------------------------------------------------------|---------------------------------------------------------------------------------|
+| <pre>Lexico()</pre>                   | <pre>Lexico(void)</pre>                 | <pre>constructor create</pre>                   | <pre>def __init__(self, input: TipoEntrada = None)</pre> | <pre>fn new(lex: Lexico, sem: Semantico\<TipoEntrada\>) -> Self</pre>           |
+| <pre>Lexico(TipoEntrada)</pre>        | <pre>Lexico(TipoEntrada)</pre>          | <pre>constructor create(input : TStream)</pre>  | <pre>def __init__(self, input: TipoEntrada = None)</pre> | <pre>N/A</pre>                                                                  |
+| <pre>void setInput(TipoEntrada)</pre> | <pre>void setInput(TipoEntrada)</pre>   | <pre>procedure setInput(input : TStream)</pre>  | <pre>def set_input(self, input: TipoEntrada)</pre>       | <pre>N/A</pre>                                                                  |
+| <pre>void setPosition(int)</pre>      | <pre>void setPosition(int)</pre>        | <pre>procedure setPosition(pos : integer)</pre> | <pre>def set_position(self, pos)</pre>                   | <pre>N/A</pre>                                                                  |
+| <pre>Token nextToken()</pre>          | <pre>Token* nextToken(void)</pre>       | <pre>function nextToken : TToken</pre>          | <pre>def next_token(self)</pre>                          | <pre>fn next_token(&mut self) -> Option\<Result\<Token, AnalysisError\>\></pre> |
+| <pre>String getLexeme()</pre>         | <pre>std::string& getLexeme(void)</pre> | <pre>function getLexeme : string</pre>          | <pre>lexeme: str</pre>                                   | <pre>fn get_lexeme(&self) -> &String</pre>                                      |
+| <pre>int getPosition()</pre>          | <pre>int getPosition(void)</pre>        | <pre>function getPosition : integer</pre>       | <pre>position: int</pre>                                 | <pre>fn get_position(&self) -> usize</pre>                                      |
+| <pre>int getId()</pre>                | <pre>TokenId getId(void)</pre>          | <pre>function getId : integer</pre>             | <pre>tkid: TokenId</pre>                                 | <pre>fn get_id(&self) -> TokenId</pre>                                          |
 
 > [!NOTE]
-> A função Python `def set_position(self, pos)` não existe caso o tipo de entrada seja Stream.
+> A função Python `def set_position(self, pos)` não existe caso o tipo de entrada seja Stream,
+> e a implementação para Rust não expõe tal função.
 
 ### Detalhes do analisador Sintatico
 
@@ -295,7 +322,47 @@ Existem três classes concretas de exceções: `LexicalError`, `SyntacticError` 
 que são produzidas pelos analisadores léxico, sintático e semântico respectivamente. 
 Existe ainda uma quarta classe `AnalysisError`, que serve de base para as outras três.
 
-| Java                         | C++                                     | Delphi                                    | Python                   | Rust |
-|------------------------------|-----------------------------------------|-------------------------------------------|--------------------------|------|
-| <pre>int getPosition()</pre> | <pre>int getPosition(void)</pre>        | <pre>function getPosition : integer</pre> | <pre>position: int</pre> | ???  |
-| <pre>String toString()</pre> | <pre>const char* getMessage(void)</pre> | <pre>function getMessage : string</pre>   | <pre>message: str</pre>  | ???  |
+| Java                         | C++                                     | Delphi                                    | Python                   | Rust                                       |
+|------------------------------|-----------------------------------------|-------------------------------------------|--------------------------|--------------------------------------------|
+| <pre>int getPosition()</pre> | <pre>int getPosition(void)</pre>        | <pre>function getPosition : integer</pre> | <pre>position: int</pre> | <pre>fn get_position(&self) -> usize</pre> |
+| <pre>String toString()</pre> | <pre>const char* getMessage(void)</pre> | <pre>function getMessage : string</pre>   | <pre>message: str</pre>  | <pre>fn get_message(&self) -> String</pre> |
+
+O tratamento de erros em Rust é um pouco diferente. Ao invéz de se lançar uma exceção, a função deve retornar o tipo `Result<T, E>`, onde `T` é o retorno normal
+da função e `E` é o tipo do erro. 
+
+Enquanto nas outras quatro implementações, `LexicalError`, `SyntacticError` e `SemanticError` são subclasses de `AnalysisError`,
+na implementação em Rust existem somente `AnalysisError` como uma classe concreta, sendo a distinção entre as três variantes feita via uma enumeração.
+
+Em sumo, todas as funções que propagam erro retornam `Result<T, AnalysisError>`.
+
+Como conveniência, as funções `AnalysisError::lexical()`, `AnalysisError::sintatic()` e `AnalysisError::semantic()` existem para criar
+um erro do tipo correspondente.
+
+
+```rust
+fn inner() -> Result<(), AnalysisError> {
+	return Err(AnalysisError::semantic("mensagem".into(), 1));
+}
+
+
+fn outer() -> Result<i32, AnalysisError> {
+	inner()?; // o operador ? causa o retorno antecipado caso haja erro, similar a uma exceção.
+	return Ok(1234);
+}
+
+fn main() {
+	let res = match outer() {
+		Ok(r) => r,
+		Err(e) => {
+			match e.get_kind() {
+				AnalysisErrorKind::Lexical => {...},
+				AnalysisErrorKind::Syntatic => {...},
+				AnalysisErrorKind::Semantic => {...},
+			},
+		}
+	};
+
+	// ou simplesmente
+	// let res = outer()?;
+}
+```

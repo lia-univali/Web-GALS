@@ -102,6 +102,7 @@ export default defineComponent({
       else if (Options.LANG_JAVA == opcoes.language) form.linguagem.value = 'Java'
       else if (Options.LANG_DELPHI == opcoes.language) form.linguagem.value = 'Delphi'
       else if (Options.LANG_PYTHON == opcoes.language) form.linguagem.value = 'Python'
+      else if (Options.LANG_RUST == opcoes.language) form.linguagem.value = 'Rust'
 
       form.nomeLexico.value = opcoes.scannerName
       form.nomeSintatico.value = opcoes.parserName
@@ -178,9 +179,14 @@ export default defineComponent({
             </div>
 
             <div>
-				<input type="radio" id="linguagemPython" name="linguagem" value="Python" />
-				<label for="linguagemPython">Python</label>
+              <input type="radio" id="linguagemPython" name="linguagem" value="Python" />
+              <label for="linguagemPython">Python</label>
             </div>
+
+	    <div>
+              <input type="radio" id="linguagemRust" name="linguagem" value="Rust" />
+	      <label for="linguagemRust">Rust</label>
+	    </div>
 
             <!-- <div>
               <input type="radio" id="linguagemC#" name="linguagem" value="C#" />

@@ -9,7 +9,7 @@ import { LLParser } from "../parser/ll/LLParser";
 import { Command } from "../parser/lr/Command";
 import { LRGeneratorFactory } from "../parser/lr/LRGeneratorFactory";
 
-export class PythonCommonGenerator
+export class RustCommonGenerator
 {
 
     lrTable: number[][][] | null = null;
@@ -21,89 +21,223 @@ export class PythonCommonGenerator
 			throw new Error("FiniteAutomata and Grammar must not be null");
 		}
 
-		result.set("Token.py",     this.generateToken(options));
-		result.set("Constants.py", this.generateConstants(fa, g, options));
-		result.set("Errors.py",    this.generateErrors(options));
+		let pkgpath = options.pkgName !== "" ? options.pkgName + "/" : "";
+
+		result.set("Cargo.toml",                 this.generateCargotoml());
+		result.set("src/main.rs",                this.mainfunc(options));
+		result.set(`src/${pkgpath}token.rs`,     this.generateToken(options));
+		result.set(`src/${pkgpath}errors.rs`,    this.generateErrors(options));
+		result.set(`src/${pkgpath}constants.rs`, this.generateConstants(fa, g, options));
+
+		if (pkgpath !== "") {
+			result.set(`src/${pkgpath}mod.rs`,   this.generateMod(options));
+		}
 
 		return result;
 	}
 
-	mainfunc(options: Options): string
-	{
-		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
+	private generateMod(options: Options) {
 		return ""+
-		(options.generateScanner? `from ${pkgname}${options.scannerName} import ${options.scannerName}\n` : "")+
-		(options.generateParser ? `from ${pkgname}${options.parserName} import ${options.parserName}\n` : "")+
-		(options.generateParser ? `from ${pkgname}${options.semanticName} import ${options.semanticName}\n` : "")+
-
-		`from ${pkgname}Errors import AnalysisError\n\n`+
-
-		(options.input == Options.INPUT_STREAM ? "from io import StringIO\n" : "")+
-
-		this.mainfunc_lex(options) +
-		(options.generateParser  ? `syn = ${options.parserName}()\n` : "") +
-		(options.generateParser  ? `sem = ${options.semanticName}()\n` : "")+
-
-		`\ntry:\n`+
-		(options.generateParser && options.generateScanner ? "\tsyn.parse(lex, sem)\n" : "\t# syn.parse(lex, sem)\n") +
-		`except AnalysisError as e:\n`+
-		`\tprint(e)\n`;
+`
+pub mod token;
+pub mod errors;
+pub mod constants;
+${options.generateScanner ? `pub mod scanner;` : "" }
+${options.generateParser  ? `pub mod parser;`  : "" }
+${options.generateParser  ? `pub mod codegen;` : "" }
+`;
 	}
 
-	private mainfunc_lex(options: Options): string
+	private mainfunc(options: Options): string
 	{
-		switch (options.input) {
-			case Options.INPUT_STREAM:
-			{
-				return (options.generateScanner ? `stream = StringIO("")\n\nlex = ${options.scannerName}(stream)\n` : "")
-			}
-			break;
-			case Options.INPUT_STRING:
-			{
-				return (options.generateScanner ? `lex = ${options.scannerName}("")\n`  : "");
-			}
-			break;
-		}
-		return "";
+		let scannername  = options.scannerName;
+        let parsername   = options.parserName;
+        let semanticname = options.semanticName;
+		const pkgpath = options.pkgName !== "" ? options.pkgName + "::" : "";
+		const stringmd: boolean = options.input == Options.INPUT_STRING;
+
+		return ""+
+`
+#![allow(nonstandard_style)]
+
+${stringmd ? "" : `use std::{fs::File, io::BufReader};`}
+
+use crate::${pkgpath}{
+    ${options.generateScanner ? `scanner::${scannername},` : "" }
+    ${options.generateParser  ? `parser::${parsername},`   : "" }
+    ${options.generateParser  ? `codegen::${semanticname}` : "" }
+};
+${
+	options.pkgName === "" ?
+`
+mod constants;
+mod errors;
+mod token;
+${options.generateScanner ? `mod scanner;` : "" }
+${options.generateParser  ? `mod parser;`  : "" }
+${options.generateParser  ? `mod codegen;` : "" }
+`
+	:
+`
+mod ${options.pkgName};
+`
+
+}
+fn main() {
+${options.generateScanner ?
+`${stringmd ?
+`    let lex = ${scannername}::new("".into());`
+    :
+`    let file = File::open("program.txt").expect("erro ao abrir arquivo");
+    let lex = ${scannername}::new(BufReader::new(file));`
+}` : ""
+}
+    ${options.generateParser ? `let sem = ${semanticname}::new();` : ""}
+    ${options.generateParser ? `let syn = ${parsername}::new(lex, sem);` : ""}
+
+    ${options.generateParser ? `if let Err(e) = syn.parse() {
+        eprintln!("{e}");
+    }` : ""}
+}
+
+`;
+	}
+
+	private generateCargotoml() {
+		return ""+
+`
+[package]
+name = "gals-compiler-output"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+num-derive = "0.4.2"
+num-traits = "0.2.19"
+
+`;
 	}
 
 	private generateToken(options: Options): string
 	{	
-		const pkgname: string = (options.pkgName !== "") ? options.pkgName + "." : "";
-		return "\nfrom dataclasses import dataclass\n"+
-			`from ${pkgname}Constants import TokenId\n\n`+
+		let pkgpath = options.pkgName !== "" ? options.pkgName + "::" : "";
+		return ""+
+`
+use crate::${pkgpath}constants::TokenId;
 
-			"@dataclass(frozen=True)\n"+
-			"class Token:\n"+
-			"\ttkid:     TokenID = TokenId.EPSILON\n"+
-			"\tlexeme:   str     = \"\"\n"+
-			"\tposition: int     = -1\n";
+#[derive(Default, Debug)]
+pub struct Token {
+    id: TokenId,
+    lexeme: String,
+    position: usize,
+}
+
+impl Token {
+    pub fn new(id: TokenId, lexeme: String, position: usize) -> Self {
+        Token {
+            id,
+            lexeme,
+            position,
+        }
+    }
+    pub fn get_id(&self) -> TokenId {
+        self.id
+    }
+    pub fn get_lexeme(&self) -> &String {
+        &self.lexeme
+    }
+    pub fn get_position(&self) -> usize {
+        self.position
+    }
+}
+
+`;
 	}
 
 	private generateErrors(options: Options): string
 	{
-		return "from dataclasses import dataclass\n\n"+
+		return ""+
+`
+use std::{error::Error, fmt::Display};
 
-			"@dataclass\n"+
-			"class AnalysisError(Exception):\n"+
-			"\tmessage:  str\n"+
-			"\tposition: int = -1\n\n"+
+#[allow(unused)]
+#[derive(Debug, Clone, Copy)]
+pub enum AnalysisErrorKind {
+    Lexical,
+    Syntatic,
+    Semantic,
+}
 
-			"# São funcionalmente idênticos ao AnalysisError\n"+
-			"class SemanticError(AnalysisError):\n\tpass\n\n"+
-			"class SyntacticError(AnalysisError):\n\tpass\n\n"+
-			"class LexicalError(AnalysisError):\n\tpass\n";
+#[derive(Debug)]
+pub struct AnalysisError {
+    kind: AnalysisErrorKind,
+    message: String,
+    position: usize,
+}
+
+#[allow(unused)]
+impl AnalysisError {
+    pub fn new(message: String, position: usize, kind: AnalysisErrorKind) -> Self {
+        AnalysisError {
+            kind,
+            message,
+            position,
+        }
+    }
+    pub fn lexical(message: String, position: usize) -> Self {
+        AnalysisError::new(message, position, AnalysisErrorKind::Lexical)
+    }
+    pub fn syntatic(message: String, position: usize) -> Self {
+        AnalysisError::new(message, position, AnalysisErrorKind::Syntatic)
+    }
+    pub fn semantic(message: String, position: usize) -> Self {
+        AnalysisError::new(message, position, AnalysisErrorKind::Semantic)
+    }
+    pub fn get_message(&self) -> String {
+        self.message.clone()
+    }
+    pub fn get_position(&self) -> usize {
+        self.position
+    }
+    pub fn get_kind(&self) -> AnalysisErrorKind {
+        self.kind
+    }
+}
+
+impl Display for AnalysisError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use AnalysisErrorKind::*;
+        let which = match self.kind {
+            Lexical => "léxica",
+            Syntatic => "sintática",
+            Semantic => "semântica",
+        };
+        write!(
+            f,
+            "Erro de analise {which} na posição {}: {} ",
+            self.position, self.message
+        )
+    }
+}
+
+impl Error for AnalysisError {}
+
+`
+			;
 	}
 	
 	private generateConstants(fa: FiniteAutomata, g: Grammar, options: Options): string {
-		return "\nfrom enum import Enum\n\n"+
+		return "\nuse num_derive::FromPrimitive;\n\n"+
 
-			"TOKEN_DEPENDENCY   = " + (fa.specialCases.length > 0 ? "True\n" : "False\n")+
-			"CASE_INSENSITIVITY = " + (options.scannerCaseSensitive == true ? "False\n\n" : "True\n\n")+
+			"pub const CASE_INSENSITIVITY: bool  = " + (options.scannerCaseSensitive == true ? "false;\n\n" : "true;\n\n")+
+			"pub const TOKEN_DEPENDENCY  : bool  = " + (fa.specialCases.length > 0 ? "true;\n" : "false;\n")+
 
-			"class TokenId(Enum):\n"+
-			"\tEPSILON = 0\n"+
-			"\tDOLLAR  = 1\n"+
+			"#[allow(nonstandard_style)]\n"+
+			"#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, FromPrimitive)]\n"+
+			"pub enum TokenId {\n"+
+			"\t#[default]\n"+
+			"\tEPSILON = 0,\n"+
+			"\tDOLLAR  = 1,\n"+
 			this.constList(fa, g)+
 			(options.generateScanner ? this.lexDecls(fa, options) : "")+
 			(options.generateParser  ? this.syntDecls(g, options) : "");
@@ -126,12 +260,12 @@ export class PythonCommonGenerator
 		{
 			const t = tokens[i];
 			if (t.charAt(0) == '"')
-				result += ("\tt_TOKEN_"+(i+2)+" = "+(i+2)+" "+"//"+t+"\n");
+				result += ("\tt_TOKEN_"+(i+2)+" = "+(i+2)+","+"//"+t+"\n");
 			else
-				result += ("\tt_"+t+" = "+(i+2)+"\n");
+				result += ("\tt_"+t+" = "+(i+2)+",\n");
 		}
 		
-		result += ("\n");
+		result += ("\n}\n");
 		
 		return result.toString();
 	}
@@ -141,13 +275,12 @@ export class PythonCommonGenerator
 		if (fa == null)
 			return "";
 
-		let count;
+		let count = fa.transitions.size();
 		let max;
-		let result = "\nSTATES_COUNT: int = " + fa.transitions.size() + "\n\n";
+		let result = `\npub const STATES_COUNT: usize = ${count};\n\n`;
 
 		result += this.scannerTable(fa, options) + "\n";
-		result += "TOKEN_STATE = [";
-		count   = fa.transitions.size();
+		result += `pub const TOKEN_STATE: [i32; STATES_COUNT] = [`;
 		max     = count.toString().length;
 
 		if (max == 1)
@@ -161,13 +294,13 @@ export class PythonCommonGenerator
 				result += " ";
 			result += (n + ", ")
 		}
-		result  = result.slice(0, -2);
-		result += "]\n\n";
+
+		result += "];\n\n";
 
 		result += this.context(fa);
 		result += this.specialCases(fa);
 
-		result += "SCANNER_ERRORS = [\n";
+		result += "pub const SCANNER_ERRORS: [&str; STATES_COUNT] = [\n";
 		count   = fa.transitions.size();
 
 		for (let i=0; i< count; i++)
@@ -186,8 +319,7 @@ export class PythonCommonGenerator
 			result +=  ("\",\n");
 		}
 
-		result = result.slice(0, -2);
-		result += "\n]\n\n";
+		result += "];\n\n";
 
 		return result.toString();
 	}
@@ -215,15 +347,18 @@ export class PythonCommonGenerator
 
 				this.lrTable = generator.buildIntTable();
 
-				let result = "FIRST_SEMANTIC_ACTION = "+g.FIRST_SEMANTIC_ACTION()+"\n"+
+				let result = `pub const FIRST_SEMANTIC_ACTION: i32 = ${g.FIRST_SEMANTIC_ACTION()};\n`+
 					"\n"+
-					"class SLRAction:\n"+
-					"\tSHIFT  = 0\n"+
-					"\tREDUCE = 1\n"+
-					"\tACTION = 2\n"+
-					"\tACCEPT = 3\n"+
-					"\tGO_TO  = 4\n"+
-					"\tERROR  = 5\n\n"+
+					"#[allow(nonstandard_style)]\n"+
+					"#[derive(Debug, Clone, Copy, FromPrimitive)]\n"+
+					"pub enum SLRAction {\n"+
+					"    SHIFT,\n"+
+					"    REDUCE,\n"+
+					"    ACTION,\n"+
+					"    ACCEPT,\n"+
+					"    GO_TO,\n"+
+					"    ERROR,\n"+
+					"}\n\n"+
 
 					this.syntTables(g, options);
 
@@ -239,9 +374,8 @@ export class PythonCommonGenerator
 			return "";
 
 		throw new AnalysisError("CTX not false");
-
-		/*
 		
+		/*
 		let result = "";
 		
 		result += "SCANNER_CONTEXT = [\n";
@@ -260,7 +394,6 @@ export class PythonCommonGenerator
 		"\n]\n\n");
 		
 		return result.toString();
-
 		*/
 	}
 
@@ -271,7 +404,8 @@ export class PythonCommonGenerator
 
 		let result = "";
 
-		result += ("SCANNER_TABLE = [\n");
+		result += "#[rustfmt::skip]\n";
+		result += ("pub const SCANNER_TABLE: [[i32; 256]; STATES_COUNT] = [\n");
 
 		const count = fa.transitions.size();
 		let max = count.toString().length;
@@ -293,7 +427,7 @@ export class PythonCommonGenerator
 		}
 
 		result = result.slice(0, -2);
-		result += ("]\n");
+		result += ("\n];\n");
 		return result.toString();
 	}
 	
@@ -306,36 +440,34 @@ export class PythonCommonGenerator
 	
 			let result = "";
 	
-			result += `SPECIAL_CASES_INDEXES = [0 for i in range(0, ${indexes.length+1})]\n`;
+			result += `pub const SPECIAL_CASES_INDEXES: [i32; ${fa.getSpecialCasesIndexes().length+1}] = [`;
 
 			let count = indexes.length;
 			for (let i = 0; i < count; i++)
 			{
-				result += `SPECIAL_CASES_INDEXES[${i}] = ${indexes[i][0]}\n`;
+				result += `${indexes[i][0]}, `;
 			}
-			result += `SPECIAL_CASES_INDEXES[${count}] = ${indexes[count-1][1]}\n`;
+			result += `${indexes[count-1][1]} ];\n`;
 	
 			count = sc.length;
-			result += "SPECIAL_CASES_KEYS = [ ";
+			result += `pub const SPECIAL_CASES_KEYS: [&str; ${count}] = [ `;
 						
 			count = sc.length;
 			for (let i = 0; i < count; i++)
 			{
 				result += ("\"") + (sc[i].key) + ("\", ");
 			}
-			result = result.slice(0, -2);
 		
-			result += " ]\n\n";
+			result += " ];\n\n";
 			
-			result += "SPECIAL_CASES_VALUES = [ ";
+			result += `pub const SPECIAL_CASES_VALUES: [i32; ${count}] = [ `;
 	
 			for (let i = 0; i < count; i++)
 			{
 				result += (sc[i].value) + (", ");
 			}
-			result = result.slice(0, -2);
 		
-			result += (" ]\n\n");
+			result += (" ];\n\n");
 	
 			return result.toString();		
 		}
@@ -370,16 +502,16 @@ export class PythonCommonGenerator
 		const fsa   = g.symbols.length;
 
 		const syntConsts =
-			`START_SYMBOL = ${start};\n`+
+			`pub const START_SYMBOL: i32 = ${start};\n`+
 			"\n"+
-			`FIRST_NON_TERMINAL    = ${fnt};\n`+
-			`FIRST_SEMANTIC_ACTION = ${fsa};\n`;
+			`pub const FIRST_NON_TERMINAL: i32 = ${fnt};\n`+
+			`pub const FIRST_SEMANTIC_ACTION: i32 = ${fsa};\n`;
 
 		result.push(syntConsts);
 
 		result.push("\n");
 
-		result.push(this.emitLLTable(new LLParser(g)));
+		result.push(this.emitLLTable(g));
 
 		result.push("\n");
 
@@ -390,9 +522,10 @@ export class PythonCommonGenerator
 		return result.join("");
 	}
 
-	private emitLLTable(g: LLParser): string
+	private emitLLTable(g: Grammar): string
 	{
-		let tbl: number[][] = g.generateTable();
+		let llp = new LLParser(g)
+		let tbl: number[][] = llp.generateTable();
         let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
 
 		let max = 0;
@@ -409,11 +542,11 @@ export class PythonCommonGenerator
 
         const result: string[] = [];
 
-		result.push("PARSER_TABLE = [\n");
+		result.push(`pub const PARSER_TABLE: [[i32; ${g.FIRST_NON_TERMINAL-1}]; ${g.FIRST_SEMANTIC_ACTION() - g.FIRST_NON_TERMINAL}] = [\n`);
 
 		for (let i=0; i< table.length; i++)
 		{
-			result.push("\t[");
+			result.push("    [");
 			for (let j=0; j<table[i].length; j++)
 			{
 				result.push(" ");
@@ -428,7 +561,7 @@ export class PythonCommonGenerator
 		}
 		result.pop();
 		result.push(" ],");
-		result.push("\n]\n");
+		result.push("\n];\n");
 
 		return result.join("");
 	}
@@ -460,11 +593,11 @@ export class PythonCommonGenerator
 
         const result: string[] = [];
 
-		result.push("PRODUCTIONS = [\n");
+		result.push(`pub const PRODUCTIONS: [&[i32]; ${g.productions.size()}] = [\n`);
 
 		for (let i=0; i< productions.length; i++)
 		{
-			result.push("\t[");
+			result.push("    &[");
 			for (let j=0; j<productions[i].length; j++)
 			{
 				result.push(" ");
@@ -479,7 +612,7 @@ export class PythonCommonGenerator
 		}
 		result.pop();
 		result.push(" ]\n");
-		result.push("\n]\n");
+		result.push("\n];\n");
 
 		return result.join("");
 	}
@@ -487,21 +620,17 @@ export class PythonCommonGenerator
 	private productionsLR(g: Grammar): string
 	{
 		let result = "";
-		
+
 		const prods: Production[] = g.productions.toArray();
 
-		result += "PRODUCTIONS = [\n";
+		result += `pub const PRODUCTIONS: [(i32, i32); ${prods.length}] = [\n`;
 
-		for (let i=0; i<prods.length; i++)
+		for (let i = 0; i < prods.length; i++)
 		{
-			result += ("\t[ ");
-			result += (prods[i].get_lhs());
-			result += (", ");
-			result += (prods[i].get_rhs().length);
-			result += (" ],\n");
-		}		
-		result = result.slice(0, -2);
-		result += "\n]\n";
+			result += `    (${prods[i].get_lhs()}, ${prods[i].get_rhs().length}),\n`;
+		}
+
+		result += "];\n\n";
 
 		return result.toString();
 	}
@@ -521,7 +650,7 @@ export class PythonCommonGenerator
 
 		let result = "";
 
-		result += "PARSER_TABLE = [\n";
+		result += `pub const PARSER_TABLE: [[(SLRAction, i32); ${this.lrTable[0].length}]; ${this.lrTable.length}] = [\n`;
 
 		let max = this.lrTable.length;
 		if (g.productions.size() > max)
@@ -531,22 +660,22 @@ export class PythonCommonGenerator
 
 		for (let i=0; i< this.lrTable.length; i++)
 		{
-			result += ("\t[");
+			result += ("    [");
 			for (let j=0; j<this.lrTable[i].length; j++)
 			{
-				result += (" [");
-				result += "SLRAction." + (Command.CONSTANTS[this.lrTable[i][j][0]]);
+				result += (" (");
+				result += "SLRAction::" + (Command.CONSTANTS[this.lrTable[i][j][0]]);
 				result += (", ");
 				const str = ""+this.lrTable[i][j][1];
 				for (let k=str.length; k<max; k++)
 					result += (" ");
-				result += (str) + ("],");
+				result += (str) + ("),");
 			}
 			result = result.slice(0, -1);
-			result += (" ],\n");
+			result += ("    ],\n");
 		}	
         result = result.slice(0, -2);
-		result += ("\n];\n");
+		result += ("\n];\n\n");
 
 		return result.toString();
 	}
@@ -555,7 +684,9 @@ export class PythonCommonGenerator
 	{
 		const symbs: string[] = g.symbols;
 
-		let result = "\nPARSER_ERROR = [\n"+
+		let total = 2;
+
+		let result = "\npub const PARSER_ERROR: [&str; PARSER_ERROR_CT] = [\n"+
 			`\t"",\n`+
 			`\t"Era esperado fim de programa",\n`;
 
@@ -572,14 +703,18 @@ export class PythonCommonGenerator
 				}
 			}
 			result += `",\n`;
+			total++;
 		}
 
 		for (let i = g.FIRST_NON_TERMINAL; i < symbs.length; i++)
 		{
 			result += `\t"${symbs[i]} inválido",\n`;
+			total++;
 		}
 
-		result += "]";
+		result += "];\n\n";
+
+		result += `const PARSER_ERROR_CT: usize = ${total};`;
 
 		return result;
 	}
@@ -587,17 +722,16 @@ export class PythonCommonGenerator
 	private syntErrorsLR(): string
 	{
 
-        if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
+        if (this.lrTable  === null) throw new SyntacticError("Tabela LR está nula.");
 
 		let result = "";
 	
-		result += "PARSER_ERROR = [\n";
+		result += `pub const PARSER_ERROR: [&str; ${this.lrTable.length}] = [\n`;
 	
 		for (let i = 0; i < this.lrTable.length; i++)
-			result += ("\t\"Erro estado "+i+"\",\n");
+			result += ("    \"Erro estado "+i+"\",\n");
 		
-		result = result.slice(0, -2);
-		result += "\n]\n\n";
+		result += "];\n\n";
 	
 		return result.toString();
 	}

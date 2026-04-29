@@ -64,26 +64,26 @@ O diálogo de opções do analisador léxico permite o usuário configurar a ger
 
 Quanto a implementação desses sistemas, segue a tabela de classes:
 
-| Linguagem | Forma de Entrada | Classe         |
-|-----------|------------------|----------------|
-| Java      | Stream           | java.io.Reader |
-| C++       | Stream           | std::istream   |
-| Delphi    | Stream           | TStream        |
-| Python    | Stream           | io.StringIO    |
-| Rust      | Stream           | ???            |
-| --        | --               | --             |
-| Java      | String           | String         |
-| C++       | String           | std::string    |
-| Delphi    | String           | string         |
-| Python    | String           | str            |
-| Rust      | String           | ???            |
+| Linguagem | Forma de Entrada | Classe             |
+|-----------|------------------|--------------------|
+| Java      | Stream           | java.io.Reader     |
+| C++       | Stream           | std::istream       |
+| Delphi    | Stream           | TStream            |
+| Python    | Stream           | io.StringIO        |
+| Rust      | Stream           | std::fs::BufReader |
+| --        | --               | --                 |
+| Java      | String           | String             |
+| C++       | String           | std::string        |
+| Delphi    | String           | string             |
+| Python    | String           | str                |
+| Rust      | String           | String             |
 
 > [!CAUTION]
 > A implementação do modo *Stream* para C++, Java e Delphi, no momento, simplesmente
 > leem o arquivo todo e o convertem para String, quebrando a expectativa de leitura gradual
 > esperada de tal sistema.
 >
-> A implementação para Python faz uso correto das *Streams*, porém vaza memória devido a necessidade
+> A implementação para Python e Rust faz uso correto das *Streams*, porém acumula memória devido a necessidade
 > de backtracking arbitrário por parte do lexer, então em quesito de **uso de memória** ele é identico a versão modo *String*.
 
 #### Modal - Implementação do Autômato

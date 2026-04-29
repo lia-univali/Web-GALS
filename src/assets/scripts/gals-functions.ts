@@ -28,6 +28,9 @@ import { DelphiParserGenerator } from './gals-lib/generator/delphi/DelphiParserG
 import { PythonCommonGenerator } from './gals-lib/generator/python/PythonCommonGenerator'
 import { PythonScannerGenerator } from './gals-lib/generator/python/PythonScannerGenerator'
 import { PythonParserGenerator } from './gals-lib/generator/python/PythonParserGenerator'
+import { RustCommonGenerator } from './gals-lib/generator/rust/RustCommonGenerator'
+import { RustScannerGenerator } from './gals-lib/generator/rust/RustScannerGenerator'
+import { RustParserGenerator } from './gals-lib/generator/rust/RustParserGenerator'
 import { LL1ParserSimulator } from './gals-lib/simulator/LL1ParserSimulator'
 import { LLParser } from './gals-lib/generator/parser/ll/LLParser'
 
@@ -866,6 +869,11 @@ export function generateCode(
       allFiles.setAll( new PythonParserGenerator().generate(g, options) );
       makeFolders = options.pkgName !== ""
       mainfunc = pcg.mainfunc(options);
+      break;
+    case Options.LANG_RUST:
+      allFiles.setAll( new RustCommonGenerator().generate(fa, g, options) );
+      allFiles.setAll( new RustScannerGenerator().generate(fa, options) );
+      allFiles.setAll( new RustParserGenerator().generate(g, options) );
       break;
   }
 
