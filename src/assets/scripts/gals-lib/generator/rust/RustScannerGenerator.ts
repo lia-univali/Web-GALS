@@ -128,7 +128,8 @@ ${stringmd ? "" : "\t\tshadow: String::new(),"
 ${options.scannerTable == Options.SCANNER_TABLE_HARDCODE ?
 `${this.nextStateImpl(fa, options)}`
     :
-`        SCANNER_TABLE[state as usize][c as usize]`
+`        SCANNER_TABLE[state as usize][c as usize]
+`
 }    }
     fn token_for_state(&self, state: i32) -> Option<i32> {
         if (state >= 0) && ((state as usize) < STATES_COUNT) {
@@ -138,7 +139,8 @@ ${options.scannerTable == Options.SCANNER_TABLE_HARDCODE ?
         }
     }
     fn lookup_token(&self, base: i32, mut key: String) -> i32 {
-        let mut start = SPECIAL_CASES_INDEXES[base as usize];
+${(options.scannerCaseSensitive == false) || (fa.specialCases.length > 0) ?
+`        let mut start = SPECIAL_CASES_INDEXES[base as usize];
         let mut end = SPECIAL_CASES_INDEXES[base as usize + 1] - 1;
 
         if CASE_INSENSITIVITY {
@@ -162,20 +164,24 @@ ${options.scannerTable == Options.SCANNER_TABLE_HARDCODE ?
             }
         }
         return base;
-    }
+`
+	:
+`        unimplemented!()
+`
+}    }
 
     fn rewind(&mut self, pos: usize) {
         self.pos = pos;
 ${stringmd ? "" :
 `        self.input.seek(SeekFrom::Start(pos as u64));
         self.shadow.truncate(pos);
-`}   }
+`}    }
     fn substr_input(&self, start: usize, end: usize) -> &str {
 ${stringmd ?
 `        self.input.split_at(start).1.split_at(end - start).0
 `		:
 `        self.shadow.split_at(start).1.split_at(end - start).0
-`}   }
+`}    }
     fn next_char(&mut self) -> Option<u8> {
 ${stringmd ?
 `        if self.pos < self.input.len() {
@@ -195,7 +201,7 @@ ${stringmd ?
             self.pos += 1;
             Some(buf[0])
         }
-`}   }
+`}    }
 }
 
 `;
