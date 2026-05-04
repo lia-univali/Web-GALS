@@ -367,34 +367,30 @@ impl Error for AnalysisError {}
 		}
 	}
 
-	// TODO: Pesquisar do que se trata este context()
+	// TODO: Testar sistema de contexto
 	private context(fa: FiniteAutomata): string
 	{
 		if (! fa.hasContext())
 			return "";
-
-		throw new AnalysisError("CTX not false");
 		
-		/*
 		let result = "";
 		
-		result += "SCANNER_CONTEXT = [\n";
+		result += `pub const SCANNER_CONTEXT: [(i32; i32); ${fa.transitions.size()}] = [\n`;
 		
 		for (let i = 0; i < fa.transitions.size(); i++)
 		{
-			result += ("\n[");
+			result += ("\n(");
 			result += (fa.isContext(i)?"1":"0");
 			result += (", ");
 			result += (fa.getOrigin(i));
-			result += ("],\n");
+			result += ("),\n");
 		}
 		
 		result = result.slice(0, -2);
 		result += (
-		"\n]\n\n");
+		"\n];\n\n");
 		
 		return result.toString();
-		*/
 	}
 
 	private scannerTable(fa: FiniteAutomata, options: Options): string

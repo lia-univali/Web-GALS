@@ -78,7 +78,10 @@ ${stringmd ? "" : "\t\tshadow: String::new(),"
         let mut old_state: i32 = 0i32;
         let mut end_state: i32 = -1;
         let mut end = 0;
-
+${fa.hasContext() ?
+`        let mut ctxt_state: i32 = -1;
+		let mut ctxt_end: i32 = -1;
+` : ""}
         while state >= 0 {
             let Some(c) = self.next_char() else { break };
 
@@ -91,6 +94,13 @@ ${stringmd ? "" : "\t\tshadow: String::new(),"
                 end_state = state;
                 end = self.pos;
             }
+${fa.hasContext() ?
+`            if SCANNER_CONTEXT[state].0 == 1 {
+			    ctxt_state = state;
+				ctxt_end   = self.pos;
+			}
+`
+: ""}
         }
 
         if newchar.is_none() && iters == 0 {
@@ -105,6 +115,11 @@ ${stringmd ? "" : "\t\tshadow: String::new(),"
             )));
         }
 
+${fa.hasContext() ?
+`        if ctxt_state != -1 && SCANNER_CONTEXT[end_state].1 == ctxt_end {
+	        end = ctxt_end;
+		}
+`:""}
         self.rewind(end);
 
         let mut token = self.token_for_state(end_state).expect("valid token");

@@ -232,16 +232,12 @@ export class PythonCommonGenerator
 		}
 	}
 
-	// TODO: Pesquisar do que se trata este context()
+	// TODO: Testar sistema de contexto
 	private context(fa: FiniteAutomata): string
 	{
 		if (! fa.hasContext())
 			return "";
 
-		throw new AnalysisError("CTX not false");
-
-		/*
-		
 		let result = "";
 		
 		result += "SCANNER_CONTEXT = [\n";
@@ -257,11 +253,9 @@ export class PythonCommonGenerator
 		
 		result = result.slice(0, -2);
 		result += (
-		"\n]\n\n");
+		"\n];\n\n");
 		
 		return result.toString();
-
-		*/
 	}
 
 	private scannerTable(fa: FiniteAutomata, options: Options): string

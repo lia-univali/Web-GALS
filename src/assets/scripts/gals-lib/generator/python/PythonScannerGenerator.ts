@@ -112,6 +112,13 @@ export class PythonScannerGenerator
 			"\t\tendState = -1\n"+
 			"\t\tend      = -1\n\n"+
 
+			(
+				fa.hasContext() ?
+				"\t\tctxtState = -1\n"+
+				"\t\tctxtEnd   = -1\n"
+				: ""
+			)+
+
 			`\t\twhile ${stream ? "True" : "self.has_input()"}:\n\n`+
 
 			(
@@ -135,6 +142,14 @@ export class PythonScannerGenerator
 			`\t\t\t\t\tend      = ${stream ? "self.input.shadowpos" : "self.position"}\n\n`+
 
 			(
+					fa.hasContext() ?
+					"\t\t\tif SCANNER_CONTEXT[state][0] == 1:\n"+
+					"\t\t\t\tctxtStatet = state\n"+
+					`\t\t\t\tctxtEnd    = ${stream ? "self.input.shadowpos" : "self.position"}\n`
+					: ""
+			)+
+
+			(
 				stream ?
 				"\t\tif newchar == -1 and iters == 0:\n"+
 				"\t\t\tself.input.rewind(start)\n"+
@@ -144,6 +159,13 @@ export class PythonScannerGenerator
 
 			"\t\tif endState < 0 or (endState != state and self.token_for_state(oldState) == -2):\n"+
 			"\t\t\traise LexicalError(SCANNER_ERROR[oldState], start)\n\n"+
+
+			(
+				fa.hasContext() ?
+				"\t\tif ctxtState != -1 && SCANNER_CONTEXT[endState][1] == ctxtState:\n"+
+				"\t\t\tend = ctxtEnd"
+				: ""
+			)+
 
 			(stream ? "\t\tself.input.rewind(end)\n\n" : "\t\tself.position = end\n\n")+
 
