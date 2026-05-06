@@ -126,7 +126,7 @@ export class PythonCommonGenerator
 		{
 			const t = tokens[i];
 			if (t.charAt(0) == '"')
-				result += ("\tt_TOKEN_"+(i+2)+" = "+(i+2)+" "+"//"+t+"\n");
+				result += ("\tt_TOKEN_"+(i+2)+" = "+(i+2)+" "+"#"+t+"\n");
 			else
 				result += ("\tt_"+t+" = "+(i+2)+"\n");
 		}
