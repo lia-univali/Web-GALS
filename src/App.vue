@@ -22,9 +22,6 @@ export default defineComponent({
     ModalNovoArquivo,
     ModalEditarArquivo
   },
-  mounted() {
-	this.$toast.info("Nova versão do Web GALS disponível na aba de informações.",{"duration":5000})
-  },
   setup() {
     const store = projetoStore()
 
