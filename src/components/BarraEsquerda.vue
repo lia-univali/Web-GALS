@@ -15,7 +15,6 @@ import {
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
-import gifTestTheBeta from '@/assets/test_the_beta.gif'
 
 export default defineComponent({
   name: 'BarraEsquerda',
@@ -26,8 +25,7 @@ export default defineComponent({
   data() {
     return {
       paginaAberta: 'Projetos',
-      estiloDisplayConteudo: 'flex',
-      gifTestTheBeta
+      estiloDisplayConteudo: 'flex'
     }
   },
   setup() {
@@ -361,14 +359,6 @@ export default defineComponent({
         <p>
           <a href="https://univali.br/computacao" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Univali.jpg" alt="Logo Univali" width="162" /></a>
         </p>
-
-	<hr>
-
-	<p>
-		<a href="https://vsczpv.github.io/Web-GALS" target="_blank">
-			<img style="image-rendering: pixelated;" :src="gifTestTheBeta" alt="Teste o Beta!" width="172"/>
-		</a>
-	</p>
         
         <hr>
 
