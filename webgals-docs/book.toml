@@ -1,0 +1,12 @@
+[book]
+title = "Documentação Web GALS"
+authors = ["Vinícius Schütz Piva"]
+language = "pt-BR"
+
+[output.html]
+additional-css = ["theme/custom.css"]
+default-theme = "gals"
+preferred-dark-theme = "gals"
+
+[build]
+build-dir = "../public/docs"

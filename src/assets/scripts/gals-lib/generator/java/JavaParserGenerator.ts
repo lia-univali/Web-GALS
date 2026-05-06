@@ -51,8 +51,8 @@ export class JavaParserGenerator{
 		result.push(this.emitPackage(package_));
 	
 		result.push(this.emitRecursiveDecendantClass(g, parserOptions));
-	
-		return result.join("'");
+
+		return result.join("");
 	}
 
     
@@ -447,28 +447,36 @@ export class JavaParserGenerator{
 			if(f == undefined) throw new NotLLException("Gramática não é LL.");
 
 			const keys = Array.from(f.input.keys());
-					
+			let pushed: Set<number> = new Set();
+
 			for (let i = 0; i<keys.length; i++)
 			{
 				const rhs = f.input.get(keys[i]);
 				let token = keys[i];
+
+				if (pushed.has(token))
+					continue;
 	
 				result.push(
 						"            case "+token+": // "+rd.getSymbols(token)+"\n");
+
+				pushed.add(token)
+
 				for (let j=i+1; j<keys.length; j++)
 				{
 					const rhs2 = f.input.get(keys[j]);
 					if (rhs2 === rhs)
 					{
 						token = keys[j];
+						if (pushed.has(token))
+							continue;
 						result.push(
 						"            case "+token+": // "+rd.getSymbols(token)+"\n");
-						keys.slice(j, j);
-						j--;
+						pushed.add(token);
 					}
 				}
 				
-        if(rhs === undefined) throw new NotLLException("Gramática não é LL.");
+				if(rhs === undefined) throw new NotLLException("Gramática não é LL.");
 
 				if (rhs.length == 0)
 					result.push(

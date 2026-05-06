@@ -102,9 +102,9 @@ export class CppParserGenerator
 		{
 			this.rd = new RecursiveDescendent(g);
 			let tmp = "";
-			tmp += ( "    void match(int token) throw (AnalysisError);");
+			tmp += ( "    void match(int token);");
 			for (let i=g.FIRST_NON_TERMINAL; i<g.FIRST_SEMANTIC_ACTION(); i++)
-				tmp += ("    void ") + (this.rd.getSymbols(i)) + ("() throw (AnalysisError);\n");
+				tmp += ("    void ") + (this.rd.getSymbols(i)) + ("();\n");
 			recDescFuncs = tmp.toString();
 		}
 		
@@ -177,7 +177,9 @@ export class CppParserGenerator
 	private parserCppRecursiveDescendant(g: Grammar, options: Options): string
 	{
 
-		if(this.rd == null) throw new SyntacticError("RecursiveDescendent é nulo.");
+		const rd: RecursiveDescendent = new RecursiveDescendent(g);
+
+		if (rd == null) throw new SyntacticError("RecursiveDescendent é nulo.");
 
 		const scannerName  = options.scannerName;
 		const parserName   = options.parserName;
@@ -187,7 +189,7 @@ export class CppParserGenerator
 			"#include \""+parserName+".h\"\n"+			
 			"\n"+
 			this.openNamespace(options)+
-			"void "+parserName+"::parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser);\n"+// throw (AnalysisError)\n"+
+			"void "+parserName+"::parse("+scannerName+" *scanner, "+semanticName+" *semanticAnalyser)\n"+
 			"{\n"+
 			"    this->scanner = scanner;\n"+
 			"    this->semanticAnalyser = semanticAnalyser;\n"+
@@ -202,14 +204,14 @@ export class CppParserGenerator
 			"    if (currentToken == 0)\n" +
 			"        currentToken = new Token(DOLLAR, \"$\", 0);\n"+
 			"\n"+
-			"    "+this.rd.getStart()+"();\n"+
+			"    "+rd.getStart()+"();\n"+
 			"\n"+
 			"    if (currentToken->getId() != DOLLAR)\n"+
 			"        throw SyntacticError(PARSER_ERROR[DOLLAR], currentToken->getPosition());\n"+
 			"}\n"+
 			"\n"+
 			
-			"void "+parserName+"::match(int token) throw (AnalysisError)\n"+
+			"void "+parserName+"::match(int token)\n"+
 			"{\n"+
 			"    if (currentToken->getId() == token)\n"+
 			"    {\n"+
@@ -232,12 +234,12 @@ export class CppParserGenerator
 			
 		let bfr = "";
 			
-		const funcs = this.rd.build();
+		const funcs: Map<string, FunctionCustom> = rd.build();
 
 		for (let symb=g.FIRST_NON_TERMINAL; symb<g.FIRST_SEMANTIC_ACTION(); symb++)
 		{
-			const name: string = this.rd.getSymbols(symb);
-			const f: FunctionCustom | undefined = funcs.get(name); // TODO Vericiar o motivo de erro para tipagem
+			const name: string = rd.getSymbols(symb);
+			const f: FunctionCustom | undefined = funcs.get(name);
 	
             if(f == undefined) throw new SyntacticError('FunctionCustom é nulo');
 
@@ -248,30 +250,34 @@ export class CppParserGenerator
 						"    switch (currentToken->getId())\n"+
 						"    {\n" );
 
-            const keys: number[] = Object.keys(f.input).map(Number); // TODO Verificar comportamento
-			
-			
+            const keys: number[] = Array.from(f.input.keys());
+			let pushed: Set<number> = new Set();
 			
 			for (let i = 0; i<keys.length; i++)
 			{
 				const rhs: number[] | undefined =  f.input.get(keys[i]);
 				let token = keys[i];
 
+				if (pushed.has(token))
+					continue;
+
 				bfr += (
-						"        case "+token+": // "+this.rd.getSymbols(token)+"\n");
+						"        case "+token+": // "+rd.getSymbols(token)+"\n");
 				for (let j=i+1; j<keys.length; j++)
 				{
 					const rhs2: number[] | undefined = f.input.get(keys[j]);
 					
                     if(rhs == undefined || rhs2 == undefined) throw new SyntacticError('rhs é nulo');
                     
-                    if (rhs.sort().toString() == rhs2.sort().toString() )
+					if (rhs2 === rhs)
 					{
 						token = keys[j];
+						if (pushed.has(token))
+							continue;
 						bfr += (
-						"        case "+token+": // "+this.rd.getSymbols(token)+"\n");
+						"        case "+token+": // "+rd.getSymbols(token)+"\n");
 						keys.splice(j, 1)
-						j--;
+						pushed.add(token);
 					}
 				}
 	
@@ -281,18 +287,18 @@ export class CppParserGenerator
 
                 if(rhs == undefined) throw new SyntacticError('rhs é nulo');
 
-				for (let k=0; k<rhs.length; k++)
+				for (let k=0; k < rhs.length; k++)
 				{
 					const s = rhs[k];
 					if (g.isTerminal(s))
 					{
 						bfr += (
-						"            match("+s+"); // "+this.rd.getSymbols(s)+"\n");	
+						"            match("+s+"); // "+rd.getSymbols(s)+"\n");
 					}
 					else if (g.isNonTerminal(s))
 					{
 						bfr += (
-						"            "+this.rd.getSymbols(s)+"();\n");	
+						"            "+rd.getSymbols(s)+"();\n");
 					}
 					else //isSemanticAction(s)
 					{

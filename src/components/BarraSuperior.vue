@@ -31,27 +31,22 @@ export default defineComponent({
       const options: Options = projeto.optionsGals
       let linguagemString = '';
 
-      options.input = Options.INPUT_STRING
-
       switch (options.language)
       {
         case Options.LANG_CPP:		linguagemString =  ("C++"); break;
         case Options.LANG_JAVA:	  linguagemString =  ("Java"); break;
         case Options.LANG_DELPHI:	linguagemString =  ("Delphi"); break;
+        case Options.LANG_PYTHON:	linguagemString = ("Python"); break;
+	case Options.LANG_RUST:	linguagemString = ("Rust"); break;
       }
 
-      //alert(options.toString())
-
-      //let optionsTeste = new Options();
-      //optionsTeste.pkgName =  "teste";
-      //optionsTeste.parser = Options.PARSER_SLR;
-      //options.scannerTable = Options.SCANNER_TABLE_COMPACT;
-      //optionsTeste.input = Options.INPUT_STREAM
       let allFiles: TreeMap<string, string> | null = null
       let gramatica: Grammar
+      let foldered: boolean = false;
+      let mainfunc: string | null = null;
 
       try {
-        [allFiles, gramatica] = generateCode(
+        [allFiles, gramatica, foldered, mainfunc] = generateCode(
           projeto.regularDefinitions,
           projeto.tokens,
           projeto.nonTerminals,
@@ -73,9 +68,24 @@ export default defineComponent({
 
       try {
         const zip = new JSZip()
+        let fld: JSZip | null = null;
 
-        for (const [fileName, content] of allFiles.entries()) {
-          zip.file(fileName, content)
+        if (foldered) {
+          fld = zip.folder(options.pkgName);
+          if (fld == null) throw Error("FLD é nulo");
+        }
+
+        for (const [fileName, content] of allFiles.entries())
+        {
+          if (foldered && (fld != null)) {
+            fld.file(fileName, content)
+          } else {
+            zip.file(fileName, content)
+          }
+        }
+
+        if (mainfunc != null) {
+          zip.file("main.py", mainfunc)
         }
 
         zip.generateAsync({ type: 'blob' }).then((content) => {
@@ -133,7 +143,7 @@ export default defineComponent({
 
 <template>
   <div class="barra__superior">
-    <span class="logo">WEB</span>
+  <span class="logo">WEB <span style="color: #9ed15c;">GALS</span> <span style="color: #e64545;"> BETA</span></span>
 
     <button class="botao__gerar__codigo" @click="gerarCodigo">Gerar Código</button>
 
@@ -163,17 +173,13 @@ a:hover {
   display: flex;
   align-items: center;
   text-align: center;
-
+  white-space: pre;
   color: #424242;
+  user-select: none;
 }
 
 .logo::before {
   content: '\00a0\00a0';
-  color: #9ed15c;
-}
-
-.logo::after {
-  content: '\00a0GALS';
   color: #9ed15c;
 }
 

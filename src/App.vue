@@ -91,7 +91,8 @@ body {
   margin: 0px;
   padding: 0px;
   height: 100%;
-  background-color: #aeaeae;
+  background-image: url('assets/icons/bg.png');
+  background-size: 64px;
   overflow: hidden;
 }
 
@@ -120,6 +121,7 @@ body {
   margin: 0px;
   padding: 10px;
   gap: 10px;
+  filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.5));
 }
 
 .contentor__esquerda {
@@ -127,7 +129,6 @@ body {
   /* flex-shrink: 0; */
   display: flex;
   
-
   margin: 0px;
   padding: 0px;
 }

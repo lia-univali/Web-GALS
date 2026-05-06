@@ -39,10 +39,13 @@ export default defineComponent({
       return store.listaProjetos
     })
 
+	const buildDate = __BUILD_DATE__
+
     return {
       store,
       projetos,
-      selecionado
+      selecionado,
+      buildDate
     }
   },
   methods: {
@@ -73,9 +76,18 @@ export default defineComponent({
     getLinkDocumentacaoHTML(): string {
       let url
       if (process.env.NODE_ENV === 'development') {
-        url = 'Web-GALS/files/help.html'
+        url = 'Web-GALS/docs/index.html'
       } else {
-        url = 'files/help.html'
+        url = 'docs/index.html'
+      }
+      return url
+    },
+    getLinkChangelogHTML(): string {
+      let url
+      if (process.env.NODE_ENV === 'development') {
+        url = 'Web-GALS/files/changelog.html'
+      } else {
+        url = 'files/changelog.html'
       }
       return url
     },
@@ -354,7 +366,11 @@ export default defineComponent({
       <div class="container__info" v-else-if="paginaAberta == 'Informações'">
         
         <p><b>G</b>erador de <b>A</b>nalisadores<b> <br /> L</b>éxicos e <b>S</b>intáticos.</p>
+
+        <p><b>{{ buildDate }}</b></p>
+
         <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
+        <p><a class="link" :href="getLinkChangelogHTML()" target="_blank">CHANGELOG</a></p>
 
         <p>
           <a href="https://univali.br/computacao" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Univali.jpg" alt="Logo Univali" width="162" /></a>
@@ -363,7 +379,26 @@ export default defineComponent({
         <hr>
 
         <div class="container__developers">
-          <h4>Versão Web<br />(v. 2024.11.10)</h4>
+          <h4>Versão Web - 2.0<br />(v. 2026.XX.XX)</h4>
+
+          <p>
+            <em>Desenvolvedor</em><br />
+            <a href="https://github.com/vsczpv" target="_blank">Vinícius Schütz Piva</a>
+          </p>
+          <p>
+            <em>Orientador</em> <br />
+            <a href="https://linktr.ee/prof.edu" target="_blank">Prof. Eduardo Alves da Silva</a>
+          </p>
+          <p>
+            <em>Mantida em:</em><a href="https://github.com/vsczpv/Web-GALS" target="_blank">vsczpv@GitHub</a>
+          </p>
+
+        </div>
+
+        <hr>
+
+        <div class="container__developers">
+          <h4>Versão Web - 1.0<br />(v. 2024.11.10)</h4>
 
           <p>
             <em>Desenvolvedor</em><br />

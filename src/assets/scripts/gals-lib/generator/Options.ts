@@ -10,6 +10,8 @@ export class Options {
   public static readonly LANG_JAVA: number = 0
   public static readonly LANG_CPP: number = 1
   public static readonly LANG_DELPHI: number = 2
+  public static readonly LANG_PYTHON: number = 3
+  public static readonly LANG_RUST: number = 4
 
   public language: number = Options.LANG_JAVA
 
@@ -50,6 +52,12 @@ export class Options {
         break
       case Options.LANG_DELPHI:
         bfr += 'Delphi'
+        break
+      case Options.LANG_PYTHON:
+        bfr += 'Python'
+        break
+      case Options.LANG_RUST:
+	bfr += 'Rust'
         break
     }
 
@@ -137,6 +145,8 @@ export class Options {
       if (value.toUpperCase() === 'C++'.toUpperCase()) this.language = Options.LANG_CPP
       else if (value.toUpperCase() === 'Java'.toUpperCase()) this.language = Options.LANG_JAVA
       else if (value.toUpperCase() === 'Delphi'.toUpperCase()) this.language = Options.LANG_DELPHI
+      else if (value.toUpperCase() === 'Python'.toUpperCase()) this.language = Options.LANG_PYTHON
+      else if (value.toUpperCase() === 'Rust'.toUpperCase()) this.language = Options.LANG_RUST
       else throw new Error('Erro processando arquivo')
     } else if (name.toUpperCase() === 'ScannerName'.toUpperCase()) this.scannerName = value
     else if (name.toUpperCase() === 'ParserName'.toUpperCase()) this.parserName = value

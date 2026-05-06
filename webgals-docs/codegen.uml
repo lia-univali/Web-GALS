@@ -1,0 +1,28 @@
+@startuml
+
+class Lexico {
++setInput(TipoDeEntrada)
++nextToken(): Token | LexicalError
+}
+
+class Sintatico {
++parse(Lexico, Semantico): AnalysisError
+}
+
+class Semantico {
++execute_action(int, Token)
+}
+
+annotation Constantes {
+    Tokens
+    TabelasLexação
+    TabelasSintaticas
+}
+
+Sintatico -> Lexico
+Sintatico -down-> Semantico
+
+Constantes .. Lexico
+Constantes .. Sintatico
+
+@enduml

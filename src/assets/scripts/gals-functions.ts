@@ -25,6 +25,12 @@ import { CppParserGenerator } from './gals-lib/generator/cpp/CppParserGenerator'
 import { DelphiCommomGenerator } from './gals-lib/generator/delphi/DelphiCommomGenerator'
 import { DelphiScannerGenerator } from './gals-lib/generator/delphi/DelphiScannerGenerator'
 import { DelphiParserGenerator } from './gals-lib/generator/delphi/DelphiParserGenerator'
+import { PythonCommonGenerator } from './gals-lib/generator/python/PythonCommonGenerator'
+import { PythonScannerGenerator } from './gals-lib/generator/python/PythonScannerGenerator'
+import { PythonParserGenerator } from './gals-lib/generator/python/PythonParserGenerator'
+import { RustCommonGenerator } from './gals-lib/generator/rust/RustCommonGenerator'
+import { RustScannerGenerator } from './gals-lib/generator/rust/RustScannerGenerator'
+import { RustParserGenerator } from './gals-lib/generator/rust/RustParserGenerator'
 import { LL1ParserSimulator } from './gals-lib/simulator/LL1ParserSimulator'
 import { LLParser } from './gals-lib/generator/parser/ll/LLParser'
 
@@ -40,10 +46,33 @@ function parseDefsOnTokens(def: string, tok: string): string{
 
   for (let line of tknzr) {
     line = line.trim();
-    const termo = line.split(':').filter(Boolean);
+
+	const i     = line.indexOf(':');
+	const key   = line.slice(0, i);
+	let   value = line.slice(i + 1);
+
+	// DANGER: Hack cagado, o parserparser confunde comentário da linguagem com comentário do editor
+	//         Efetua o escape manualmente.
+
+	let was_slash: boolean = false;
+
+	if (value.trim() === "/") {
+		value = `"/" `
+		was_slash = true;
+	}
+
+	if (value.trim() === "//") {
+		throw new LexicalError(`A definição regular '${value.trim()}' será confundida como comentário no próprio editor, abortando.`);
+	}
+
+	const termo = [key, value].filter(Boolean)
 
     // Reuso de uma Definição Regular em outra Definição
     let defExpression : string = termo[1].trim()
+
+	// DANGER: Hack
+	if (was_slash) defExpression += " ";
+
     const existentDefs = defExpression.match(/{[a-zA-Z_][a-zA-Z0-9_]*}/g)
     if(existentDefs !== null) {
       for(const exDef of existentDefs) {
@@ -58,7 +87,6 @@ function parseDefsOnTokens(def: string, tok: string): string{
     
     defTermo.set('{' + termo[0].trim() + '}', defExpression)
   }
-
 
   for (const [key, value] of defTermo.entries()) {
     const regex = new RegExp(key, "g");
@@ -744,7 +772,7 @@ export function generateCode(
   options:Options,
   needRebuildGram: boolean,
   fa?: FiniteAutomata,
-  g?: Grammar): [TreeMap<string, string>, Grammar] {
+  g?: Grammar): [TreeMap<string, string>, Grammar, boolean, string | null] {
 
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
@@ -836,6 +864,8 @@ export function generateCode(
 
   // Produção de codigo
   const allFiles: TreeMap<string, string> = new TreeMap();
+  let makeFolders: boolean = false;
+  let mainfunc: string | null = null;
 
   switch (options.language)
   {
@@ -854,9 +884,22 @@ export function generateCode(
       allFiles.setAll( new DelphiScannerGenerator().generate(fa, options) );
       allFiles.setAll( new DelphiParserGenerator().generate(g, options));
       break;
+    case Options.LANG_PYTHON:
+      let pcg = new PythonCommonGenerator();
+      allFiles.setAll( pcg.generate(fa, g, options) );
+      allFiles.setAll( new PythonScannerGenerator().generate(fa, options) );
+      allFiles.setAll( new PythonParserGenerator().generate(g, options) );
+      makeFolders = options.pkgName !== ""
+      mainfunc = pcg.mainfunc(options);
+      break;
+    case Options.LANG_RUST:
+      allFiles.setAll( new RustCommonGenerator().generate(fa, g, options) );
+      allFiles.setAll( new RustScannerGenerator().generate(fa, options) );
+      allFiles.setAll( new RustParserGenerator().generate(g, options) );
+      break;
   }
 
-  return [allFiles, g];
+  return [allFiles, g, makeFolders, mainfunc];
 }
 
 // function transformToken(mode: Mode, inputString: string, fa?: FiniteAutomata, ): Array<string> {

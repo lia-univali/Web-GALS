@@ -605,10 +605,10 @@ export class CppCommomGenerator
 		const table: string[][] = []//new String[tbl.length][tbl[0].length];
 		
 		let max = 0;
-		for (let i = 0; i < table.length; i++)
+		for (let i = 0; i < tbl.length; i++)
 		{
 			table[i] = [];
-			for (let j = 0; j < table[i].length; j++)
+			for (let j = 0; j < tbl[i].length; j++)
 			{
 				const tmp = tbl[i][j].toString();
 				table[i][j] = tmp;
@@ -616,6 +616,8 @@ export class CppCommomGenerator
 					max = tmp.length;
 			}
 		}
+
+		console.log(table);
 		
 		let bfr = "";
 		
