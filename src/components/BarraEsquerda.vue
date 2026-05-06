@@ -390,7 +390,7 @@ export default defineComponent({
             <a href="https://linktr.ee/prof.edu" target="_blank">Prof. Eduardo Alves da Silva</a>
           </p>
           <p>
-            <em>Mantida em:</em><a href="https://github.com/vsczpv/Web-GALS" target="_blank">vsczpv@GitHub</a>
+            <em>Mantida em:</em><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
           </p>
 
         </div>

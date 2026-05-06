@@ -2,7 +2,7 @@
 
 O **(Web) GALS** é um ambiente para a geração de analisadores léxicos e sintáticos, originalmente desenvolvido por Carlos Eduardo Gesser como trabalho de conclusão de curso do Curso de Bacharelado em Ciências da Computação, da Universidade Federal de Santa Catarina, sendo desenvolvido sob a orientação do Prof. Olinto José Varela Furtado. Posteriormente, este projeto foi ampliado na forma do Web GALS, também no formato de trabalho de conclusão de curso de Ciências da Computação, pelos alunos Daniel Akira Nakamura Gullich e Vinícius Schütz Piva, ambos orientados pelo Prof. Eduardo Alves da Silva, na Universidade do Vale do Itajaí.
 
-Esta ferramenta pode ser usada em [https://lia-univali.github.io/Web-GALS/](https://lia-univali.github.io/Web-GALS/) (v2024) e [https://vsczpv.github.io/Web-GALS/](https://vsczpv.github.io/Web-GALS/) (v2026).
+Esta ferramenta pode ser usada em [https://lia-univali.github.io/Web-GALS/](https://lia-univali.github.io/Web-GALS/).
 
 O Web GALS é uma ferramenta de Software Livre. Seu código fonte é liberado sob a Licença Publica GNU. ([http://www.gnu.org/](http://www.gnu.org/))
 
@@ -43,7 +43,7 @@ Após finalizar um projeto no Web GALS, é possível gerar um código *template*
 ![Exemplo de Projeto Gerado](./projexample.png)
 <center><i>Exemplo de projeto gerado pelo Web GALS.</i></center>
 
-Tendo de exemplo [o seguinte arquivo de projeto](https://vsczpv.github.io/Web-GALS/files/exemplo.gals), com a seguinte entrada de simulação, o estado do Web GALS se encontra como no da figura:
+Tendo de exemplo [o seguinte arquivo de projeto](https://lia-univali.github.io/Web-GALS/files/exemplo.gals), com a seguinte entrada de simulação, o estado do Web GALS se encontra como no da figura:
 ```rust
 {
 	let a = b * (1 + 2) - c;

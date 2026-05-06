@@ -29,7 +29,7 @@ Estas opções permitem o usuário escolher a **linguagem de implementação** d
 - **C++**
 - **Delphi**
 - **Python**
-- **Rust** (Não Finalizado)
+- **Rust**
 
 > [!WARNING]
 > A implementação em linguagem Delphi não tem suporte para todas as funcionalidades providas pelo Web GALS.

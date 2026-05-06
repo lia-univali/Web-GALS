@@ -143,7 +143,7 @@ export default defineComponent({
 
 <template>
   <div class="barra__superior">
-  <span class="logo">WEB <span style="color: #9ed15c;">GALS</span> <span style="color: #e64545;"> BETA</span></span>
+  <span class="logo">WEB <span style="color: #9ed15c;">GALS</span></span>
 
     <button class="botao__gerar__codigo" @click="gerarCodigo">Gerar Código</button>
 
