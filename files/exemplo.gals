@@ -1,0 +1,60 @@
+#Options
+GenerateScanner = true
+GenerateParser = true
+Language = Python
+ScannerName = Lexico
+ParserName = Sintatico
+SemanticName = Semantico
+Package = fibra
+ScannerCaseSensitive = true
+ScannerTable = Full
+Input = String
+Parser = SLR
+#RegularDefinitions
+
+#Tokens
+:[\n\r\s\t]*
+
+NUMBER : [0-9]+
+IDENT  : [a-zA-Z_][0-9a-zA-Z_]*
+
+LET = IDENT : "let"
+
+O_ASSIGN : "="
+
+O_PLUS : "+"
+O_MINUS: "-"
+O_TIMES: "*"
+O_DIV  : "/"
+
+OPEN : "("
+CLOSE: ")"
+
+SEMI : ";"
+
+BLOCK : "{"
+KCOLB : "}"
+#NonTerminals
+<scope>
+<statement>
+<block>
+<let>
+<term>
+<expr1>
+<expr2>
+<optr1>
+<optr2>
+#Grammar
+<scope> ::= <statement> SEMI | <statement> SEMI <scope>;
+
+<statement> ::= <let> | <expr1> | <block>;
+
+<block> ::= BLOCK #3 <scope> KCOLB;
+<let>   ::= LET IDENT O_ASSIGN <expr1>;
+
+<term>  ::= NUMBER | IDENT | OPEN <expr1> CLOSE;
+<expr1> ::= <expr2> | <expr2> #1 <optr1> <expr1>;
+<expr2> ::= <term>  | <term>  #2 <optr2> <expr2>;
+
+<optr1> ::= O_PLUS  | O_MINUS;
+<optr2> ::= O_TIMES | O_DIV;
