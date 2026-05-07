@@ -45,16 +45,16 @@ const bnfLanguage = StreamLanguage.define({
     if (stream.match(/"(?:\\.|[^\\"\r\n])*"/)) return 'string'
     
     // Epsilon (î)
-    if (stream.match(/î/)) return 'atom'
+    if (stream.match(/î/)) return 'escape'
     
     // Non-terminal <...>
     if (stream.match(/<[^<>\r\n\t]+>/)) return 'keyword'
     
     // Semantic action #\d+
-    if (stream.match(/#\d+/)) return 'variable'
+    if (stream.match(/#\d+/)) return 'strong'
     
     // Operadores BNF (::=, |, ;)
-    if (stream.match(/::=|\||;/)) return 'operator'
+    if (stream.match(/::=|\||;/)) return 'namespace'
     
     // Espaços
     if (stream.eatSpace()) return null
