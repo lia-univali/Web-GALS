@@ -37,7 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-b3a8b005.js";
+            window.path_to_searchindex_js = "searchindex-6f16e72f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -178,7 +178,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="introdução"><a class="header" href="#introdução">Introdução</a></h1>
-<p>O <strong>(Web) GALS</strong> é um ambiente para a geração de analisadores léxicos e sintáticos, originalmente desenvolvido por Carlos Eduardo Gesser como trabalho de conclusão de curso do Curso de Bacharelado em Ciências da Computação, da Universidade Federal de Santa Catarina, sendo desenvolvido sob a orientação do Prof. Olinto José Varela Furtado. Posteriormente, este projeto foi ampliado na forma do Web GALS, também no formato de trabalho de conclusão de curso de Ciências da Computação, pelos alunos Daniel Akira Nakamura Gullich e Vinícius Schütz Piva, ambos orientados pelo Prof. Eduardo Alves da Silva, na Universidade do Vale do Itajaí.</p>
+<p>O Gerador de Analisadores Léxico e Sintático – <strong>GALS</strong> (desktop) – foi desenvolvido por Carlos Eduardo Gesser como Trabalho de Conclusão de Curso do Curso de bacharelado em Ciências da Computação da Universidade Federal de Santa Catarina sob a orientação do Prof. Olinto José Varela Furtado. Posteriormente, o GALS foi redesenhado para o ambiente Web e ampliado, passando a ser chamado de <strong>Web GALS</strong>. A versão Web também foi desenvolvida em Trabalhos de Conclusão de Curso de Ciência da Computação. O Web GALS foi desenvolvido pelos alunos Daniel Akira Nakamura Gullich e Vinícius Schütz Piva, orientados pelo Prof. Eduardo Alves da Silva na Universidade do Vale do Itajaí.</p>
 <p>Esta ferramenta pode ser usada em <a href="https://lia-univali.github.io/Web-GALS/">https://lia-univali.github.io/Web-GALS/</a>.</p>
 <p>O Web GALS é uma ferramenta de Software Livre. Seu código fonte é liberado sob a Licença Publica GNU. (<a href="http://www.gnu.org/">http://www.gnu.org/</a>)</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
@@ -189,29 +189,28 @@
 <p>O Web GALS apresenta uma área de trabalho com quatro janelas, um gerenciador de projetos e um menu de configurações.</p>
 <p><img src="galsinterface.png" alt="Interface do Web GALS"></p>
 <center><i>Screenshot da interface principal do Web GALS.</i></center>
-<p>De modo geral, usa-se as janelas para definir-se as regras de lexação e análise sintática da linguagem a ser projetada, com
-definições mais específicas como algorítmos de escolha ou linguagem de implementação sendo escolhidas via o menu de configurações.</p>
+<p>A interface é utilizada para definir as regras de análise léxica e sintática da linguagem a ser projetada. O Web GALS possui suporte a algoritmos de análise descendente e ascendente, bem como, permite a escolha de linguagem de implementação alvo do compilador via o menu de configurações. Essa interface é ilustrada e detalhada a seguir.</p>
 <p><img src="galsinterfaceannotated.png" alt="Interface do Web GALS, anotada">
 <img src="galsinterfaceannotated2.png" alt="Interface do Web GALS, anotada"></p>
 <center><i>Interface do Web GALS, anotada.</i></center>
-<p>Especificamente, a interface principal do Web GALS consiste de:</p>
+<p>A interface principal do Web GALS possui:</p>
 <ol>
-<li><strong>Área da Gramática:</strong> Nesta área de texto é escrito as regras gramáticais da linguagem sendo projetada. Acima do editor há um campo para especificar o símbolo inicial da linguagem.</li>
-<li><strong>Área dos Tokens:</strong> Nesta área de texto é escrito os Tokens reconhecidos pelo scanner e suas regras de lexação.</li>
-<li><strong>Área da Simulação:</strong> Nesta área de texto é escrito um programa de exemplo, que será analisado pelo simulador segundo as regras descritas nas duas áreas anteriores.</li>
-<li><strong>Saída da Simulação:</strong> Nesta área é mostrado a saída de tanto o scanner léxico (lista de Tokens) quanto do analísador sintático (árvore de derivação), dependendo da escolha do usuário.</li>
-<li><strong>Botão de gerar código:</strong> Este botão, após clicá-lo, o Web GALS irá gerar um código fonte de compilador da linguagem projetada.</li>
-<li><strong>Diálogo de Layout:</strong> Este dialogo permite o usuário mudar o layout da área de trabalho do Web GALS.</li>
-<li><strong>Gerenciador de Projetos:</strong> Este quatro botões, junto ao seu <em>tray</em>, permitem o usuário gerenciar múltiplos projetos ao mesmo tempo.</li>
-<li><strong>Visualizador de Constantes:</strong> Este botão abre um <em>tray</em> que oferece várias opções de visualização quanto as constantes internas dos analisadores gerados.</li>
-<li><strong>Menu de Configurações:</strong> Este é o botão do menu de configurações do projeto.</li>
-<li><strong>Informações do Web GALS:</strong> Este botão abre um <em>tray</em> que mostra informações sobre Web GALS.</li>
-<li><strong>Aba de Projetos</strong>: A aba onde é possível ver os seu projetos em andamento.</li>
-<li><strong>Área de Definições Regulares</strong>: Nesta área de texto é escrito as definições regulares.</li>
+<li><strong>Gramática:</strong> Área de texto para escrita das regras gramaticais por meio de uma Gramática Livre de Contexto (GLC) em notação BNF (Backus-Naur Formalism). Na parte superior do editor há um campo para especificar o símbolo inicial da gramática.</li>
+<li><strong>Tokens:</strong> Área de texto para a definição de Tokens a serem reconhecidos pelo Analisador Léxico (<em>scanner</em>).</li>
+<li><strong>Simulação:</strong> Área de texto dedicada aos testes das definições de Tokens e Gramática.</li>
+<li><strong>Saída da Simulação:</strong> Local de exibição da saída dos testes do analisador léxico (lista de Tokens) e do analísador sintático (árvore de derivação), dependendo da escolha do usuário.</li>
+<li><strong>Gerar código:</strong> Botão para gerar o código-fonte dos analisadores e construção de compilador da linguagem projetada.</li>
+<li><strong>Menu Layout:</strong> Este menu permite o usuário mudar o layout da área de trabalho do Web GALS.</li>
+<li><strong>Gerenciador de Projetos:</strong> Opções que permitem o usuário trabalhar em múltiplos projetos (arquivos) ao mesmo tempo.</li>
+<li><strong>Tabelas e Documentação do projeto:</strong> Menu com opções de visualização das tabelas dos analisadores de acordo com as definições do projeto selecionado.</li>
+<li><strong>Menu de Configurações:</strong> abrir menu de configurações do projeto selecionado.</li>
+<li><strong>Informações do Web GALS:</strong> Exibir as informações do Web GALS.</li>
+<li><strong>Espaço de Projetos</strong>: Espaço para selecionar o projeto a ser trabalhado no WebGALS.</li>
+<li><strong>Definições Regulares</strong>: Área de texto para escrita das definições regulares e posterior aproveitamento na definição de Tokens.</li>
 </ol>
-<p>Após finalizar um projeto no Web GALS, é possível gerar um código <em>template</em> que implementa um compilador que processa a linguagem projetada; tal serve de ponto de partida para a analise semântica, implementada pelo usuário em código.</p>
+<p>Após finalizar um projeto no Web GALS, é possível gerar um código <em>template</em> que implementa os analisadores léxico e sintático que processam o autômato de reconhecimento da linguagem projetada; Isso serve como ponto de partida para o desenvolvimento do analisador semântico e implementação de um compilador via programação nas linguagens-alvo disponíveis no Web GALS.</p>
 <p><img src="projexample.png" alt="Exemplo de Projeto Gerado"></p>
-<center><i>Exemplo de projeto gerado pelo Web GALS.</i></center>
+<center><i>Exemplo de projeto (arquivos de código-fonte) gerado pelo Web GALS.</i></center>
 <p>Tendo de exemplo <a href="https://lia-univali.github.io/Web-GALS/files/exemplo.gals">o seguinte arquivo de projeto</a>, com a seguinte entrada de simulação, o estado do Web GALS se encontra como no da figura:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
@@ -225,25 +224,24 @@ definições mais específicas como algorítmos de escolha ou linguagem de imple
 <center><i>Estado do Web GALS após simulação sintática.</i></center>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="opções"><a class="header" href="#opções">Opções</a></h1>
-<p>O Web GALS oferece uma gama de opções quanto a configuração do projeto. Estas estão apresentadas em três abas, no menu de configurações acessível
-na barra lateral esquerda da interface.</p>
+<p>O Web GALS oferece opções para configuração de cada projeto. As configuraçõe são apresentadas em três abas no menu de configurações acessível na barra lateral esquerda da interface.</p>
 <h2 id="opções-gerais"><a class="header" href="#opções-gerais">Opções Gerais</a></h2>
-<p>O dialogo de configurações gerais permite o usuário escolher o quê será gerado e em qual linguagem, junto a escolhas de nomeamento.</p>
+<p>A janela de configurações gerais permite o usuário escolher o quê será gerado e em qual linguagem-alvo, junto às escolhas de nomes de arquivos específicos do projeto.</p>
 <center><img src="confg.png" alt="Diálogo de Configurações Gerais"></center>
 <center><i>Diálogo das Configurações Gerais.</i></center>
 <h4 id="modal---gerar"><a class="header" href="#modal---gerar">Modal - Gerar</a></h4>
-<p>Estas opções permitem ao usuário escolher quais <strong>partes</strong> do compilador devem ser geradas, tendo como opção:</p>
+<p>Estas opções permitem ao usuário escolher quais analisadores devem ser gerados:</p>
 <ul>
-<li><strong>Analisador Léxico:</strong> Será gerado somente o analisador léxico.</li>
-<li><strong>Analisador Sintático:</strong> Será gerado somente o analisador sintático.</li>
-<li><strong>Analisadores Léxico e Sintático:</strong> Serão gerado ambos.</li>
+<li><strong>Analisador Léxico:</strong> Somente o analisador léxico.</li>
+<li><strong>Analisador Sintático:</strong> Somente o analisador sintático.</li>
+<li><strong>Analisadores Léxico e Sintático:</strong> Analisadores Léxico e Sintático combinados.</li>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>Para o caso de somente gerar o analisador sintático, o usuário tera que implementar manualmente uma forma de fornecer Tokens ao analisador sintático.</p>
+<p>Para a opção de somente gerar o Analisador Sintático, o usuário terá que implementar manualmente o fornecimento de Tokens ao analisador sintático.</p>
 </blockquote>
 <h4 id="modal---linguagem"><a class="header" href="#modal---linguagem">Modal - Linguagem</a></h4>
-<p>Estas opções permitem o usuário escolher a <strong>linguagem de implementação</strong> do compilador gerado, tendo como opção:</p>
+<p>Estas opções permitem o usuário escolher a <strong>linguagem-alvo</strong> para implementação do compilador, dentre:</p>
 <ul>
 <li><strong>Java</strong></li>
 <li><strong>C++</strong></li>
@@ -253,7 +251,7 @@ na barra lateral esquerda da interface.</p>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-warning">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
-<p>A implementação em linguagem Delphi não tem suporte para todas as funcionalidades providas pelo Web GALS.</p>
+<p>A implementação em linguagem Delphi não tem suporte testato para todas as funcionalidades providas pelo Web GALS.</p>
 </blockquote>
 <h4 id="entrada---classes"><a class="header" href="#entrada---classes">Entrada - Classes</a></h4>
 <p>Estas opções permitem o usuário escolher <strong>o nome das classes e da hierarquía</strong> do código gerado.</p>
@@ -264,16 +262,16 @@ na barra lateral esquerda da interface.</p>
 <li><strong>Package / Namespace / Module</strong></li>
 </ul>
 <p>Para Java e C++ pode-se especificar a <em>package</em> e o <em>namespace</em> respectivamente onde serão geradas as classes.
-Para Python e Rust é possível especificar o <em>module</em> das classes, onde é criado a hierarquía de diretórios correspondente.</p>
+Para Python e Rust é possível especificar o <em>module</em> das classes, onde é criada a hierarquia de diretórios correspondente.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Não foi implementado para Delphi suporte para o sistema de nomeamento e hierarquia.</p>
 </blockquote>
 <h2 id="opções-do-analisador-léxico"><a class="header" href="#opções-do-analisador-léxico">Opções do Analisador Léxico</a></h2>
-<p>O diálogo de opções do analisador léxico permite o usuário configurar a geração do mesmo, provendo dois modais de configuração.</p>
+<p>A aba de opções do analisador léxico permite o usuário configurar a forma de entrada e a implementação do autômato de reconhecimento léxico.</p>
 <center><img src="confl.png" alt="Diálogo da Configurações Léxicas"></center>
 <center><i>Diálogo das Configurações Léxicas.</i></center>
-<h4 id="modal---forma-de-entrada"><a class="header" href="#modal---forma-de-entrada">Modal - Forma de Entrada</a></h4>
+<h4 id="forma-de-entrada"><a class="header" href="#forma-de-entrada">Forma de Entrada</a></h4>
 <ul>
 <li><strong>Stream:</strong> Esta opção faz com que o Lexer seja implementado com o equivalente de uma <em>Stream</em> contínua. <em>Streams</em> carregam contínuamente a sua entrada ao invéz de tudo de uma véz só, e são propícios para a leitura de arquivos em disco, por exemplo.</li>
 <li><strong>String:</strong> Esta opção faz com que o Lexer seja implementado com o equivalente de uma <em>String</em> de tamanho fixo e conhecido. Esta é a opção de mais simples implementação, porém terá dificuldades em carregar arquivos muito grandes devido a necessidade de manter todo o arquivo em memória; é porém proprícia para editores interativos, por exemplo.</li>
@@ -301,51 +299,49 @@ Para Python e Rust é possível especificar o <em>module</em> das classes, onde 
 </div>
 <blockquote class="blockquote-tag blockquote-tag-caution">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</p>
-<p>A implementação do modo <em>Stream</em> para C++, Java e Delphi, no momento, simplesmente
-leem o arquivo todo e o convertem para String, quebrando a expectativa de leitura gradual
-esperada de tal sistema.</p>
-<p>A implementação para Python e Rust faz uso correto das <em>Streams</em>, porém acumula memória devido a necessidade
-de backtracking arbitrário por parte do lexer, então em quesito de <strong>uso de memória</strong> ele é identico a versão modo <em>String</em>.</p>
+<p>A implementação do modo <em>Stream</em> para C++, Java e Delphi, no momento, simplesmente leem o arquivo todo e o convertem para String, quebrando a expectativa de leitura gradual esperada desse modo.</p>
+<p>A implementação para Python e Rust faz uso correto dos <em>Streams</em>, porém acumulam memória devido a necessidade de backtracking arbitrário por parte do Lexer. Então em quesito de <strong>uso de memória</strong> ele é identico a versão modo <em>String</em>.</p>
 </blockquote>
-<h4 id="modal---implementação-do-autômato"><a class="header" href="#modal---implementação-do-autômato">Modal - Implementação do Autômato</a></h4>
-<p>O analisador léxico é implementado sobre um autômato finito,
-e este modal permite selecionar a implementação da função <code>next_state()</code> do autômato, tendo como escolha:</p>
+<h4 id="implementação-do-autômato"><a class="header" href="#implementação-do-autômato">Implementação do Autômato</a></h4>
+<p>O analisador léxico é implementado sobre um autômato finito, e é possível selecionar a implementação da função <code>next_state()</code> do autômato, tendo como escolha:</p>
 <ul>
 <li><strong>Tabela Completa:</strong> Um <em>lookup</em> em tabela pré-gerada.</li>
-<li><strong>Tabela Compactada:</strong> (Java) Similar a anterior; utiliza um <em>HashMap</em> para usar menos memória, porém é mais lerdo.</li>
+<li><strong>Tabela Compactada:</strong> (Java) Similar a anterior; utiliza um <em>HashMap</em> para usar menos memória, porém é mais lento.</li>
 <li><strong>Específica:</strong> O comportamento da função é codificada de forma explícita usando condicionais.</li>
 </ul>
-<h4 id="checkbox---diferencias-maiúsculaminúscula-em-casos-especiais"><a class="header" href="#checkbox---diferencias-maiúsculaminúscula-em-casos-especiais">Checkbox - Diferencias maiúscula/minúscula em casos especiais</a></h4>
+<h4 id="checkbox---diferenciar-maiúsculaminúscula-em-casos-especiais"><a class="header" href="#checkbox---diferenciar-maiúsculaminúscula-em-casos-especiais">Checkbox - Diferenciar maiúscula/minúscula em casos especiais</a></h4>
 <p>O analisador gerado sempre passa os tokens ao sintático (que passa ao semântico) exatamente como eles estavam no texto original, sem qualquer conversão entre maiúsculas e minúsculas.</p>
-<p>Se se pretende gerar um analisador que não faça diferenciação entre maiúsculas minúsculas para os identificadores, esta capacidade deve ser programada em nível semântico.</p>
+<p>Se o analisador léxico não deve ser sensível à caixa nos casos de definições especiais de tokens, ou seja, não diferenciar maiúsculas de minúsculas, o que significa postergar esse tipo de verificação para outra etapa da compilação, esta opção permite configurar isso.</p>
 <p>Então para que serve esta opção?</p>
-<p>Esta opção tem a ver com casos especiais, utilizados (geralmente) para a definição de palavras chave. Com esta opçào desabilitada, tanto <code>Begin</code> quanto <code>begin</code> quanto <code>BEGIN</code> seriam reconhecidos como o mesmo token, caso se tenha um caso especial de identificador com a representação igual a <code>begin</code>.</p>
+<p>Esta opção tem a ver com casos especiais, utilizados (geralmente) para a definição de palavras chave. Com esta opção desabilitada, tanto <code>Begin</code> quanto <code>begin</code> quanto <code>BEGIN</code> seriam reconhecidos como o mesmo token, caso se tenha um caso especial de identificador com a representação igual a <code>begin</code>.</p>
 <h2 id="opções-do-analisador-sintático"><a class="header" href="#opções-do-analisador-sintático">Opções do Analisador Sintático</a></h2>
-<p>O diálogo de opções do analisador sintático permite o usuário configurar qual tipo de analisador sintático será usado.</p>
+<p>A aba de opções do Analisador Sintático permite o usuário configurar qual algoritmo de análise será gerado/utilizado.</p>
 <center><img src="confs.png" alt="Diálogo de Configurações Sintáticas"></center>
 <center><i>Diálogo das Configurações Sintáticas.</i></center>
 <h4 id="classe-do-analisador-sintático"><a class="header" href="#classe-do-analisador-sintático">Classe do Analisador Sintático</a></h4>
+<h5 id="descendentes"><a class="header" href="#descendentes">Descendentes</a></h5>
 <ul>
 <li><strong>Descendente Recursivo:</strong> Analisador descendente via chamadas de funções recursivas. Muito popular entre compiladores implementados a mão.</li>
 <li><strong>LL(1):</strong> A versão tabelada do descendente recursivo.</li>
+</ul>
+<h5 id="ascendentes"><a class="header" href="#ascendentes">Ascendentes</a></h5>
+<ul>
 <li><strong>SLR(1):</strong> Uma implementação do <em>Simple LR(1)</em>, parser ascendente tabelado e que utiliza esquema <em>Shift-Reduce</em>.</li>
 <li><strong>LALR(1)</strong> (Não Finalizado)</li>
 <li><strong>LR(1) Canônico</strong> (Não Finalizado)</li>
 </ul>
-<p>Algumas classes impõem restrições sobre a gramática que aceitam, que devem ser observadas quando se for descrevê-la.</p>
+<p>Algumas classes impõem restrições na construção da gramática que devem ser observadas quando for descrevê-la.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Os analisadores <code>LALR(1)</code> e <code>LR(1)</code> não estão disponíveis para Delphi.</p>
 </blockquote>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="definição-de-aspectos-léxicos"><a class="header" href="#definição-de-aspectos-léxicos">Definição de Aspectos Léxicos</a></h1>
-<p>Os aspectos léxicos de um projeto no Web GALS são definidos pela declaração
-dos Tokens e suas expressões regulares.</p>
-<p>O analisador léxico gerado utilizará as expressões regulares dos Tokens para
-a criação de um Autômato Finito com múltiplos estados finais, cada um deles correspondendo a um dos Tokens declarados.</p>
+<h1 id="aspectos-léxicos"><a class="header" href="#aspectos-léxicos">Aspectos Léxicos</a></h1>
+<p>Os aspectos léxicos de um projeto no Web GALS são definidos pela declaração dos Tokens e suas expressões regulares.</p>
+<p>O analisador léxico gerado utilizará as expressões regulares dos Tokens para a criação de um Autômato Finito com múltiplos estados finais, cada um deles correspondendo a um dos Tokens declarados.</p>
 <h2 id="expressões-regulares"><a class="header" href="#expressões-regulares">Expressões Regulares</a></h2>
-<p>O coração de todo analisador léxico está nas expressões regulares. Uma expressão regular é uma regra que define uma sequência de passos a casar com uma entrada, retornando se sim ou não a entrada está de acordo com a regra.</p>
-<p>Esta tabela ilustra as possibilidades de expressões regulares suportadas pela ferramenta. Quaisquer combinações entre estes padrões é possível. Espaços em branco são ignorados (exceto entre aspas).</p>
+<p>Uma expressão regular é uma regra que define um padrão de reconhecimento para um sequência de entrada. A analisador léxico é construído principalmente a partir da criação de expressões regulares. O objetivo do analisador é verificar se há correspondência com alguma definição regular dentre os tokens definidos.</p>
+<p>A tabela a seguir ilustra elementos de expressões regulares suportadas pelo Web GALS. Quaisquer combinações entre estes padrões é permitida. Espaços em branco são ignorados (exceto entre aspas).</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -367,8 +363,8 @@ a criação de um Autômato Finito com múltiplos estados finais, cada um deles 
 </tbody>
 </table>
 </div>
-<p>Os operadores posfixos <code>*</code>, <code>+</code> e <code>?</code> tem a maior prioridade. Em seguida está a concatenação e por fim a união <code>|</code>. Parênteses podem ser utilizador para agrupar símbolos.</p>
-<p>Os caracteres <code>"</code> <code>\</code> <code>|</code> <code>*</code> <code>+</code> <code>?</code> <code>(</code> <code>)</code> <code>[</code> <code>]</code> <code>{</code> <code>}</code> <code>.</code> <code>^</code> <code>-</code> possuem significado especial. Para utilizá-los como caracteres normais deve-se precedê-los por , ou colocá-los entre aspas. Qualquer seqüência de caracteres entre aspas é tratada como caracteres ordinários.</p>
+<p>Os operadores posfixos, ou metacaracteres quantificadores, <code>*</code>, <code>+</code> e <code>?</code> têm a maior prioridade. Em seguida está a concatenação e por fim a união <code>|</code>. Parênteses podem ser utilizador para agrupar símbolos.</p>
+<p>Os caracteres <code>"</code> <code>\</code> <code>|</code> <code>*</code> <code>+</code> <code>?</code> <code>(</code> <code>)</code> <code>[</code> <code>]</code> <code>{</code> <code>}</code> <code>.</code> <code>^</code> <code>-</code> possuem significado especial. Para utilizá-los como caracteres normais deve-se precedê-los por \, ou colocá-los entre aspas (ex. “\”). Qualquer sequência de caracteres entre aspas é tratada como caracteres ordinários ou do tipo representante para a expressão regular.</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -399,15 +395,14 @@ a criação de um Autômato Finito com múltiplos estados finais, cada um deles 
 </tbody>
 </table>
 </div>
-<p>Todas as regras listadas acima podem ser concatenadas em uma unica e longa regra. Por exemplo, <code>[a-zA-Z_][0-9a-z&amp;]+</code> irá reconhecer qualquer palavra que começe com uma letra (tanto maiúscula como minúscula) ou <em>underline</em>,
-seguido de qualquer número, letra minúscula ou o caractére ‘&amp;’, zero ou mais vezes, como <code>Z0a02be&amp;</code> ou <code>_aazz</code>, mas não <code>00ABC</code>.</p>
+<p>Todas as regras listadas acima podem ser concatenadas em uma única e longa definição. Por exemplo, <code>[a-zA-Z_][0-9a-z&amp;]+</code> irá reconhecer qualquer palavra que começe com uma letra (tanto maiúscula como minúscula) ou <em>undescore</em>,
+seguido de qualquer número, letra minúscula ou o caractére ‘&amp;’, uma ou mais vezes, como <code>Z0a02be&amp;</code> ou <code>_aazz</code>, mas não <code>00ABC</code>.</p>
 <h2 id="tokens"><a class="header" href="#tokens">Tokens</a></h2>
-<p>Antes de se mostrar como são declarados os Tokens é preciso se dar uma pequena explicação sobre o funcionamento do analisador léxico.</p>
-<p>O analisador gerado funciona simulando um autômato finito, rodando em cima de uma tabela de transições. O analisador verifica o próximo caractere da entrada e o estado atual do autômato (inicialmente zero) e move o autômato para seu próximo estado.
+<p>O analisador gerado funciona simulando um autômato finito determinístico, rodando em cima de uma tabela de transições. O analisador verifica o próximo caractere da entrada e o estado atual do autômato (inicialmente zero) e move o autômato para seu próximo estado.
 Se eventualmente o autômato chegar a um estado final, sempre correspondente a um token, ele ainda não pode dar a análise deste token como concluída, pois é preciso tentar identificar a sequência de caracteres mais longa possível (um analisador para Pascal não pode identificar o token <code>:</code> no momento que encontrar este caractere, ele precisa continuar, pois pode ser que o token seja <code>:=</code>).</p>
 <center><img src="produc.png" alt="Autômato descrevido acima"></center>
-<center><i>Autômato descrevido acima.</i></center>
-<p>Assim, o analisador somente para quando não consegue mais prosseguir na tabela de transições. Se durante este processo ele encontrou algum token, ele produz o token correspondente ao último estado final alcançado (a seqüência mais longa de caracteres). Se nenhum token foi encontrado então um erro léxico é gerado.</p>
+<center><i>Autômato descrito acima.</i></center>
+<p>Assim, o analisador somente para quando não consegue mais prosseguir na tabela de transições. Se durante este processo ele encontrou algum token, ele produz o token correspondente ao último estado final alcançado (a sequência mais longa de caracteres). Se nenhum token foi encontrado então um erro léxico é gerado.</p>
 <h4 id="token-a-partir-de-uma-expressão-regular"><a class="header" href="#token-a-partir-de-uma-expressão-regular">Token a partir de uma Expressão Regular</a></h4>
 <p>As expressõs a seguir devem ser digitadas na janela de “Tokens” do Web GALS.</p>
 <p>Esta é a forma mais genérica de se definir um token. Ela consiste em por um identificador, que irá representar o Token, ao lado de uma expressão regular, separados por <code>:</code>.</p>
@@ -416,26 +411,24 @@ Se eventualmente o autômato chegar a um estado final, sempre correspondente a u
 <h4 id="token-com-contexto"><a class="header" href="#token-com-contexto">Token com Contexto</a></h4>
 <p>Pode-se especificar para um token uma segunda expressão regular, chamada neste caso de contexto.</p>
 <p><code>[identificador] : [expressão regular] ^ [expressão de contexto]</code></p>
-<p>Se um contexto for especificado, sempre que o token vier a ser identificado, o analisador tenta analisar a expressão de contexto. Se a expressão não puder ser encontrada após o token o analisador considera este token como inválido (como se chegasse a um ponto sem transição possível na tabela de transições).
+<p>Se um contexto for especificado, sempre que o token vier a ser identificado, o analisador tenta analisar a expressão de contexto. Se a expressão não puder ser encontrada após o token, o analisador considera este token como inválido (como se chegasse a um ponto sem transição possível na tabela de transições).
 Esta construção pode ser entendida como: somente identifique este token se, depois dele, for possível identificar a expressão de contexto.
 O contexto é analisado, porém não é consumido pelo analisador léxico.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>A expressão de contexto também precisa ser um Token válido, já que ela não é consumida pelo Token definido pela expressão principal,
-e é processado posteriormente uma segunda vez.</p>
-<p>Ou seja, um Token <code>M : "a"^"b"</code> precisa ser acompanhado de um segundo Token <code>N : "b"</code> para que a entrada <code>abab</code> seja reconhecida como <code>MBMB</code>.</p>
-<p>Caso o Token <code>N</code>  ou algo equivalente não seja definido, após processar <code>ab</code>, o autômato irá consumir somente <code>a</code>, deixando <code>b</code> na fita de entrada, porém
-com <code>b</code> sem um Token definido isto gerará um erro de caractére inesperado.</p>
+<p>A expressão de contexto também precisa ser um Token válido, já que ela não é consumida pelo Token definido pela expressão principal, e é processado posteriormente uma segunda vez.</p>
+<p>Ou seja, um Token <code>M : "a"^"b"</code> precisa ser acompanhado de um segundo Token <code>N : "b"</code> para que a entrada <code>abab</code> seja reconhecida como <code>MNMN</code>.</p>
+<p>Caso o Token <code>N</code>  ou algo equivalente não seja definido, após processar <code>ab</code>, o autômato irá consumir somente <code>a</code>, deixando <code>b</code> na fita de entrada, porém com <code>b</code> sem um Token definido isto gerará um erro de caractere inesperado.</p>
 </blockquote>
 <blockquote class="blockquote-tag blockquote-tag-warning">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
-<p>Não é recomendado o uso de negação quanto no contexto (eg.: <code>M : "a" ^ [^b]</code>), pois não funciona corretamente.</p>
+<p>Não é recomendado o uso de negação no contexto (eg.: <code>M : "a" ^ [^b]</code>), pois não funciona corretamente.</p>
 </blockquote>
 <h4 id="token-não-retrocedente"><a class="header" href="#token-não-retrocedente">Token Não-Retrocedente</a></h4>
 <p>Podem existir casos em que ao ser encontrado um erro (nenhuma transição possível), este deve ser reportado de qualquer forma, mesmo que durante a análise deste token tenha-se encontrado outros tokens validos possíveis.
-Por exemplo: em uma linguagem com comentários delimitados por <code>(*</code> e <code>*)</code>, um comentário não fechado seria um erro. Este erro fará com que o analisador verifique se durante a análise ele não encontrou nenhum outro token valido. Se a linguagem também possuir a declaração de um token correspondente a <code>(</code>, o analisador o teria encontrado nesse processo, o retornaria, continuando a análise a partir do <code>*</code> do comentário. Para prevenir isto, o token correspondente ao comentário deveria ser declarado desta forma:</p>
+Por exemplo: em uma linguagem com comentários delimitados por <code>(*</code> e <code>*)</code>, um comentário não fechado seria um erro. Este erro fará com que o analisador verifique se durante a análise ele não encontrou nenhum outro token válido. Se a linguagem também possuir a declaração de um token correspondente a <code>(</code>, o analisador o teria encontrado nesse processo, o retornaria, continuando a análise a partir do <code>*</code> do comentário. Para prevenir isto, o token correspondente ao comentário deveria ser declarado desta forma:</p>
 <p><code>[identificador] :! [expressão regular]</code></p>
-<p>Um token declarado deste modo não verifica outros tokens validos encontrados antes em caso de erro.</p>
+<p>Um token declarado deste modo não verifica outros tokens válidos encontrados antes em caso de erro.</p>
 <p>Por exemplo, considere as seguintes regras de lexação:</p>
 <pre><code>TEXT    : "loremipsum"
 OPEN    : "("
@@ -444,13 +437,11 @@ MUL     : "*"
 COMMENT : "(*" [^ "*" ]* "*)"
 WS      : [\s\t\r\n]*
 </code></pre>
-<p>Se analisarmos a entrada <code>(loremipsum)(* loremipsum loremipsum * )</code>, o analisador léxico irá reconhecer os Tokens <code>OPEN TEXT CLOSE OPEN MUL WS TEXT WS TEXT WS MUL WS CLOSE</code>, ao ínves
-de lançar um erro de lexação devido a um comentário não fechado. Porém se mudarmos a linha 5 para <code>COMMENT :! "(*" [^ "*" ]* "*)"</code>, somente <code>OPEN TEXT CLOSE</code> serão reconhecidos, seguido de um
-erro, já que após ver <code>(*</code>, o lexador ira se forçar a reconhecer um <code>COMMENT</code>, e não tentara reconhecer algum outro token com base nessa entrada caso haja falha.</p>
+<p>Se analisarmos a entrada <code>(loremipsum)(* loremipsum loremipsum * )</code>, o analisador léxico irá reconhecer os Tokens <code>OPEN TEXT CLOSE OPEN MUL WS TEXT WS TEXT WS MUL WS CLOSE</code>, ao invés de lançar um erro de tokenização devido a um comentário não fechado. Porém se mudarmos a linha 5 para <code>COMMENT :! "(*" [^ "*" ]* "*)"</code>, somente <code>OPEN TEXT CLOSE</code> serão reconhecidos, seguido de um erro, já que após ver <code>(*</code>, o tokenizador irá forçar o reconhecimento de um <code>COMMENT</code>, e não tentará reconhecer algum outro token com base nessa entrada caso haja falha.</p>
 <h4 id="token-ignorado"><a class="header" href="#token-ignorado">Token Ignorado</a></h4>
 <p>Nos três casos, o identificador pode ser omitido (a declaração começa diretamente pelo <code>:</code> ou <code>:!</code>).
 Quando o identificador não é fornecido, o analisador gerado passa a ignorar tokens gerados pela expressão regular correspondente.
-Deste modo pode-se fornecer expressões para comentários e caracteres de espaço em branco (espaço, quebra de linha, tabulação, etc.) para que o analisador gerado ignore.</p>
+Deste modo, pode-se fornecer expressões para comentários e caracteres de espaço em branco (espaço, quebra de linha, tabulação, etc.) para que o analisador ignore esses casos.</p>
 <h4 id="token-a-partir-do-identificador"><a class="header" href="#token-a-partir-do-identificador">Token a partir do identificador</a></h4>
 <p>Pode-se declarar um token apenas declarando um identificador para ele. Esta é a forma mais simples de se declarar um token, porém a menos flexível.
 Pode-se utilizar duas formas de identificadores:</p>
@@ -465,26 +456,26 @@ Pode-se utilizar duas formas de identificadores:</p>
 Nestes casos, sempre que o analisador identifica o token base, ele procura pelo valor do token em uma lista de casos especiais. Se for encontrado, o caso especial é retornado, senão é produzido o token base. Esta declaração é feita da seguinte forma:</p>
 <p><code>[identificador] = [token base] : [valor]</code></p>
 <p>onde token base é um token declarado previamente, e valor é uma sequência de caracteres entre aspas.</p>
-<p>Como pode-se deduzir, esta construção é especialmente útil para a declaração das palavras reservadas de uma linguagem. Em geral, as palavras reservadas seguem o mesmo padrão dos identificadores.
+<p>Esta construção é especialmente útil para a declaração das palavras reservadas de uma linguagem. Em geral, as palavras reservadas seguem o mesmo padrão dos identificadores.
 Utilizar esta construção faz com que o autômato gerado seja bem menor de que se cada caso especial fosse declarado como um token comum. A lista dos casos é gerada em ordem, e a localização de um caso é feita por busca binária.</p>
 <h4 id="definições-regulares"><a class="header" href="#definições-regulares">Definições Regulares</a></h4>
 <p>Também é possível predefinir uma expressão regular e usa-la posteriormente. No mesmo painel onde se encontra o gerenciador de projetos, há um campo de texto
-onde é possível escrever definições regulares.</p>
+onde é possível escrever <code>Definições Regulares</code>.</p>
 <p>Uma definição sempre segue a forma:</p>
 <p><code>[identificador] : [expressão regular]</code></p>
 <p>Cada linha do campo de definições pode conter apenas uma definição regular.
-As definições aqui declaradas poderão ser utilizadas em outras expressões regulares, utilizando seu identificador entre <code>{</code> e <code>}</code>.</p>
+As definições declaradas poderão ser utilizadas em outras expressões regulares, utilizando seu identificador entre <code>{</code> e <code>}</code>.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Não é possível usar definições regulares dentro de listas (eg.: <code>[{A}{B}]</code>).</p>
 </blockquote>
 <h2 id="exemplos"><a class="header" href="#exemplos">Exemplos</a></h2>
-<p>Segue então um exemplo de definições regulares e Tokens característicos de um pequeno projeto de linguagem.</p>
+<p>Segue um exemplo do uso de definições regulares em Tokens.</p>
 <h5 id="definições-regulares-1"><a class="header" href="#definições-regulares-1">Definições Regulares</a></h5>
-<pre><code>L       : [A-Za-z]
-D       : [0-9]
-WS      : [\ \t\n\r]
-COMMENT : "(*" [^ "*" ]* "*)"
+<pre><code>LETTER     : [A-Za-z]
+DIGIT      : [0-9]
+WHITESPACE : [\ \t\n\r]
+COMMENT    : "(*" [^ "*" ]* "*)"
 </code></pre>
 <h5 id="tokens-1"><a class="header" href="#tokens-1">Tokens</a></h5>
 <pre><code>//pontuação
@@ -493,8 +484,8 @@ COMMENT : "(*" [^ "*" ]* "*)"
 ";"
 
 //tokens
-ID  : {L} ( {L} | {D} | _ )*
-NUM : {D}+
+ID  : {LETTER} ( {LETTER} | {DIGIT} | _ )*
+NUM : {DIGIT}+
 
 //palavras chave
 BEGIN = ID : "begin"
@@ -507,15 +498,15 @@ DO    = ID : "do"
 WRITE = ID : "write"
 
 //ignorar espaços em branco e comentários
- : {WS}*
+ : {WHITESPACE}*
  :! {COMMENT}
 </code></pre>
 <p>Estas definições léxicas reconhecem:</p>
 <ul>
-<li><code>id</code>: identificadores alfanúmericos que não começam com números e <em>underline</em>.</li>
+<li><code>id</code>: identificadores alfanúmericos que não começam com números e <em>underscore</em>.</li>
 <li><code>num</code>: números de múltiplos dígitos.</li>
-<li>Tokens de palavra chave, que são um caso especial do Token <code>id</code>.</li>
-<li>Whitespace e comentários são reconhecidos mas ignorados.</li>
+<li>Tokens de palavra chave, que são um caso especial do Token <code>id</code> (BEGIN, END, IF, …).</li>
+<li>Espaços em branco e comentários são reconhecidos mas ignorados.</li>
 </ul>
 <p>Se analisarmos com estas definições a seguinte entrada:</p>
 <pre><code>begin
@@ -554,47 +545,34 @@ end
 </table>
 </div>
 <div style="break-before: page; page-break-before: always;"></div>
-<h1 id="definição-de-aspectos-sintáticos"><a class="header" href="#definição-de-aspectos-sintáticos">Definição de Aspectos Sintáticos</a></h1>
-<p>Os Aspectos Sintáticos são compostos pela declaração de Símbolos Terminais (Tokens), Símbolos Não-Terminais e Produções.</p>
+<h1 id="aspectos-sintáticos"><a class="header" href="#aspectos-sintáticos">Aspectos Sintáticos</a></h1>
+<p>Os Aspectos Sintáticos são compostos pela declaração de Símbolos Terminais (Tokens), Símbolos Não-Terminais, Produções e Símbolo Inicial.</p>
 <h3 id="símbolos-terminais-não-terminais-e-produções"><a class="header" href="#símbolos-terminais-não-terminais-e-produções">Símbolos Terminais, Não-Terminais e Produções</a></h3>
-<p>Símbolos terminais é o nome dado aos Tokens dentro do analisador sintático, já simbolos não terminais
-vem a ser produções compostas de múltiplos simbolos terminais e outros não terminais (isto inclúi recursão).</p>
-<p>Uma produção é uma regra gramatical que relaciona simbolos terminais e não terminais de certa forma que possam
-ser reconhecidos em uma frase. O Web GALS usa a notação BNF para especificar produções. Por exemplo:</p>
+<p>Símbolos terminais é o nome dado aos Tokens dentro do analisador sintático, já símbolos não-terminais são gerados pelas produções compostas de múltiplos itens dentre terminais e não-terminais (isto incluí recursão).</p>
+<p>Uma produção é uma regra gramatical que relaciona símbolos terminais e não-terminais de forma que possam ser reconhecidos em uma frase. O Web GALS usa a notação BNF para especificar produções. Por exemplo:</p>
 <pre><code>&lt;A&gt; ::= &lt;B&gt; &lt;C&gt; | &lt;D&gt;;
 </code></pre>
-<p>seria uma produção onde <code>&lt;A&gt;</code> é um não terminal produzido ou pela sequência de <code>&lt;B&gt;</code> com <code>&lt;C&gt;</code>, ou somente <code>&lt;D&gt;</code>.</p>
-<p>Poderiamos então definir <code>&lt;B&gt;</code>, <code>&lt;C&gt;</code> e <code>&lt;D&gt;</code>:</p>
+<p>é uma produção onde <code>&lt;A&gt;</code> é um não-terminal produzido ou pela sequência de <code>&lt;B&gt;</code> com <code>&lt;C&gt;</code>, ou somente <code>&lt;D&gt;</code>.</p>
+<p>Podemos então definir <code>&lt;B&gt;</code>, <code>&lt;C&gt;</code> e <code>&lt;D&gt;</code>:</p>
 <pre><code>&lt;B&gt; ::= CALL_STMT IDENTIFIER;
 &lt;C&gt; ::= OPEN_PARENTHESIS &lt;D&gt; CLOSE_PARENTHESIS; 
 &lt;D&gt; ::= NUMBER PLUS_OPTR NUMBER;
 </code></pre>
-<p>onde <code>B</code> é um não terminal produzido pela sequência do terminais <code>CALL_STMT</code> seguido de <code>IDENTIFIER</code>, que poderiam, por exemplo, ser um Token “call” e um Token de identificador alfanumérico,
-<code>C</code> é um não terminal produzido pela sequência do terminal <code>OPEN_PARENTHESIS</code> seguido do não terminal <code>&lt;D&gt;</code> seguido de <code>CLOSE_PARENTHESIS</code>, representando o corpo de chamada de uma função,
-e <code>D</code> representando a soma de dois números.</p>
-<p>Um programa válido segundo esta linguagem, dando <code>&lt;A&gt;</code> como símbolo inicial seria:</p>
+<p>onde <code>B</code> é um não-terminal produzido pela sequência do terminais <code>CALL_STMT</code> seguido de <code>IDENTIFIER</code>, que poderiam, por exemplo, ser um Token “call” e um Token de identificador alfanumérico. <code>C</code> é um não terminal produzido pela sequência do terminal <code>OPEN_PARENTHESIS</code> seguido do não-terminal <code>&lt;D&gt;</code> seguido de <code>CLOSE_PARENTHESIS</code>, representando o corpo de chamada de uma função, por exemplo. E <code>D</code> poderia representar a soma de dois números.</p>
+<p>Um programa válido segundo esta linguagem, dando <code>&lt;A&gt;</code> como símbolo inicial é:</p>
 <pre><code>call myfunc(1 + 2)
 </code></pre>
-<p>Outro programa válido seria <code>55 + 44</code>.</p>
-<p>Em geral, terminais são representados pelo seu nome (definido na janela de Tokens), e não terminais são
-representados da mesma maneira, mas envoltos por <code>&lt;&gt;</code>.</p>
-<p>Como visto nos exemplos, um não terminal é definido via o operador <code>::=</code> na janela de Gramática, e a notação BNF suporta
-também o operador <code>|</code>, que permite a gramática fazer uma escolha entre duas ou mais opções.</p>
+<p>Outro programa válido é <code>55 + 44</code>.</p>
+<p>Em geral, terminais são representados pelo seu nome (definido na janela de Tokens), e não-terminais são representados da mesma maneira, mas envoltos por <code>&lt;&gt;</code>.</p>
+<p>Como visto nos exemplos, um não-terminal é definido com o operador <code>::=</code> na janela de Gramática, e a notação BNF suporta também o operador <code>|</code>, que permite a gramática fazer uma escolha entre duas ou mais regras de derivação para uma produção.</p>
 <h3 id="restrições"><a class="header" href="#restrições">Restrições</a></h3>
-<p>Existem restrições impostas à forma das produções, de acordo com a classe de analisador
-sintático que se pretende gerar. Para Analisadores Descendentes (LL e Descendente Recursivo)
-não é permitido que a gramática possua recursão à esquerda ou que não esteja na sua forma fatorada.
-A tentativa de se gerar um analisador com uma gramática neste estado resultará em erro.</p>
-<p>A terceira restrição para gramáticas LL é checada, mas não impede que seja gerado o analisador.
-Enquanto as duas outras restrições podem ser facilmente removidas aplicando-se algoritmos de transformação à gramática,
-esta ultima não o é. Gramáticas com este problema são ambíguas, e durante a geração do analisador será pedido ao usuário para
-indicar qual produção deve ser escolhida para eliminar a ambiguidade.</p>
-<p>Analisadores Ascendentes (LR, LALR e SLR) não possuem problemas com recursão à esquerda
-ou fatoração, mas mesmo assim não conseguem tratar gramáticas ambiguas. Neste caso, assim como nas analisadores descendentes,
-o usuário deverá escolher em casos de ambiguidade entre empilhar um símbolo ou reduzir por uma produção,
-ou então entre duas produções atraves das quais se pode reduzir.</p>
+<p>Existem restrições impostas à forma das produções, de acordo com a classe de analisador sintático que se pretende gerar. Para Analisadores Descendentes (LL e Descendente Recursivo) não é permitido que a gramática possua recursão à esquerda ou que não esteja na sua forma fatorada.
+A tentativa de gerar um analisador com uma gramática neste estado resultará em erro.</p>
+<p>As duas restrições podem ser facilmente removidas aplicando-se algoritmos de transformação à gramática. Gramáticas com este problema são ambíguas, e durante a geração do analisador será informado ao usuário que não é possível gerar o analisador.</p>
+<p>Analisadores Ascendentes (LR, LALR e SLR) não possuem restrições na construção da gramática. Ou seja, têm suporte à recursão à esquerda e gramática não fatoradas. Mesmo assim não conseguem tratar gramáticas ambíguas. Neste caso, o usuário deverá escolher qual ação tomar em casos de ambiguidade entre empilhar um símbolo (operação de shift) ou reduzir (operação reduce) por uma produção,
+ou então entre duas produções por meio das quais se pode reduzir. Em outras palavras, fica a cargo do projetista da linguagem de programação resolver a ambiguidade manualmente na geração dos autômatos.</p>
 <h3 id="exemplo"><a class="header" href="#exemplo">Exemplo</a></h3>
-<p>Segue um exemplo simples de uma linguagem de programação, feita para análise ascendente:</p>
+<p>Segue um exemplo de uma linguagem de programação, feita para análise ascendente:</p>
 <h5 id="tokens-2"><a class="header" href="#tokens-2">Tokens</a></h5>
 <pre><code>:[\n\r\s\t]*
 
@@ -636,20 +614,13 @@ KCOLB : "}"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="ações-semânticas-e-de-geração-de-código"><a class="header" href="#ações-semânticas-e-de-geração-de-código">Ações Semânticas e de Geração de Código</a></h1>
-<h2 id="definição-dos-aspectos-semânticos"><a class="header" href="#definição-dos-aspectos-semânticos">Definição dos Aspectos Semânticos</a></h2>
-<p>Aspectos Semânticos são definidos atraves da introdução de Ações Semânticas
-dentro das produções da especificação sintática. Estas ações são da forma <code>#&lt;número&gt;</code>.</p>
-<p>Durante a analise sintática, ação semânticas instruem o analisador sintático a envocar
-o analisador semântico, passando-lhe como parâmetros o número da ação, e o mais recente
-token produzido pelo analisador léxico. Cabe ao usuário implementar as ações semânticas,
-na linguagem de destino.</p>
-<p>Estas ações podem ser responsáveis por tarefas de análise semântica (adicionar algum
-símbolo à tabela de símbolos, checar tipos, verificar se um símbolo ja foi declarado,
-etc) ou pela geração de código (fazendo-se com que a ação semântica chame o gerador de
-código).</p>
+<h2 id="aspectos-semânticos"><a class="header" href="#aspectos-semânticos">Aspectos Semânticos</a></h2>
+<p>Aspectos Semânticos são definidos com a introdução de Ações Semânticas nas produções gramaticais da especificação sintática. Estas ações são criadas na forma de <code>#&lt;número&gt;</code>. Isso faz com que a análise semântica siga uma abordagem dirigida pela sintaxe.</p>
+<p>Durante a análise sintática, as ações semânticas instruem o analisador sintático a invocar o analisador semântico, passando-lhe como parâmetros o número da ação, e o mais recente token produzido pelo analisador léxico. Cabe ao usuário implementar o comportamento das ações semânticas na linguagem-alvo.</p>
+<p>Estas ações podem ser responsáveis por tarefas de análise semântica, tais como: (i) adicionar um símbolo na tabela de símbolos; (ii) verificar a compatibilidade de tipos em expressões e/ou atribuições; (iii) verificar se um símbolo sendo utilizado foi declarado e existe. Além disso, as ações semânticas também podem ser utilizadas para o processo de geração de código de máquina, casos em que o tratamento da ação semântica serve para acionamento do gerador de código).</p>
 <hr>
-<p>Foram colocadas na gramática do exemplo a seguir algumas ações. Cabe ao usuário dar sentido a elas, implementando-as.</p>
-<p>A ação 2 poderia ser resposável por checar o tipo da expressão e gerar o código para imprimir seu valor.</p>
+<p>Foram colocadas na gramática do exemplo a seguir algumas ações. Cabe ao usuário dar sentido a elas, implementando-as na linguagem-alvo.</p>
+<p>Por exemplo, a ação <code>#1</code> pode ser utilizada para verificar se o tipo resultante na expressão é booleano e pode ser usado como condição no IF. A ação <code>#2</code> pode ser resposável por checar o tipo da expressão e gerar o código para imprimir seu valor. As ações <code>#3</code> e <code>#4</code> para capturar o tipo dos operandos na expressão.</p>
 <pre><code>&lt;C&gt; ::= &lt;IF&gt;
       | &lt;WHILE&gt;
       | &lt;WRITE&gt;
@@ -667,14 +638,12 @@ código).</p>
       | num #4;
 </code></pre>
 <h2 id="geração-de-código-e-uso-geral"><a class="header" href="#geração-de-código-e-uso-geral">Geração de Código e Uso Geral</a></h2>
-<p>O código gerado pelo Web GALS é padronizado entre todas as linguagens suportadas e seguem
-o seguinte formato:</p>
+<p>O código gerado pelo Web GALS é padronizado entre todas as linguagens suportadas e seguem o formato:</p>
 <center><img src="uml.png" alt="Diagrama de classes do código gerado."></center>
 <center><i>Diagrama de classes do código gerado.</i></center>
-<p>Em geral, o código gira em torno da classe <code>Sintatico</code>, que provêm o <em>mainloop</em> do programa com a função <code>parse()</code>. Esta função
-consume tokens da classe <code>Lexico</code> chamando a função <code>nextToken()</code> efetuado ambas analise léxica e sintática.
-Quando apropriado, esta função chama <code>execute_action()</code> da classe <code>Semantico</code>.</p>
-<p>A implementação da classe <code>Semantico</code> não é provida pelo Web GALS, mas somente seu esqueleto; a implementação vem do usuário.</p>
+<p>Em geral, o código gira em torno da classe <code>Sintatico</code>, que possui o <em>loop</em> principal da análise com a função <code>parse()</code>. Essa função consome tokens da classe <code>Lexico</code> chamando a função <code>nextToken()</code> efetuando a análise léxica e sintática.
+Quando houver ação semântica, esta função chama <code>execute_action()</code> da classe <code>Semantico</code>.</p>
+<p>A implementação da classe <code>Semantico</code> não é provida pelo Web GALS, mas somente seu esqueleto; a implementação fica a cargo do usuário projetista do compilador/linguagem de programação.</p>
 <hr>
 <p>Segue a implementação de uma função main apropriada para cada linguagem:</p>
 <h5 id="java"><a class="header" href="#java">Java</a></h5>
@@ -806,8 +775,8 @@ fn main() {
     }
 }</code></pre>
 <h2 id="detalhes-do-código"><a class="header" href="#detalhes-do-código">Detalhes do código</a></h2>
-<p>Dado a semelhança entre as implementações, será somente exemplificado trechos de código em Java.
-Quaisqueres diferenças podem ser inferidas lendo o código fonte.</p>
+<p>Dada a semelhança entre as implementações, será somente exemplificado trechos de código em Java.
+Quaisquer diferenças podem ser inferidas via leitura do código-fonte gerado pelo Web GALS.</p>
 <h3 id="detalhes-do-analisador-léxico"><a class="header" href="#detalhes-do-analisador-léxico">Detalhes do analisador Léxico</a></h3>
 <p>Um analisador léxico possui os seguintes métodos:</p>
 <ul>
@@ -817,9 +786,9 @@ Quaisqueres diferenças podem ser inferidas lendo o código fonte.</p>
 <li><code>void setPosition(int pos)</code>: Método para indicar a posição a partir da qual o próximo token deve ser procurado</li>
 <li><code>Token nextToken() throws LexicalError</code>: Método chamado para se obter o próximo token da entrada</li>
 </ul>
-<p><code>TipoEntrada</code> refere-se ao tipo específicado na documentação de opções “Modal - Forma de Entrada”.</p>
+<p><code>TipoEntrada</code> refere-se ao tipo específicado na documentação de opções “Forma de Entrada”.</p>
 <p>O método <code>nextToken()</code> é o pricipal desta classe.
-A cada chamada o analisador tenta identificar um token a partir da posição atual na entrada. Existem três resultados possíveis:</p>
+A cada chamada, o analisador tenta identificar um token a partir da posição atual na entrada. Existem três resultados possíveis:</p>
 <ul>
 <li><strong>Um token é encontrado</strong>: Neste caso, é retornado um novo objeto da classe Token.</li>
 <li><strong>A posição de leitura era o fim da entrada</strong>: Neste caso é retornado nulo ao chamador, indicando o fim do fluxo de tokens.</li>
@@ -944,16 +913,15 @@ catch ( LexicalError e )
 </div>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>A função Python <code>def set_position(self, pos)</code> não existe caso o tipo de entrada seja Stream,
-e a implementação para Rust não expõe tal função.</p>
+<p>A função Python <code>def set_position(self, pos)</code> não existe caso o tipo de entrada seja Stream, e a implementação para Rust não expõe tal função.</p>
 </blockquote>
-<h3 id="detalhes-do-analisador-sintatico"><a class="header" href="#detalhes-do-analisador-sintatico">Detalhes do analisador Sintatico</a></h3>
+<h3 id="detalhes-do-analisador-sintático"><a class="header" href="#detalhes-do-analisador-sintático">Detalhes do analisador Sintático</a></h3>
 <p>O analisador sintático possui apenas um método público (além de seu construtor padrão):</p>
 <pre><code class="language-java">void parse(Lexico scanner, Semantico semanticAnalyser) throws LexicalError, SyntacticError, SemanticError
 </code></pre>
 <p>Para este método é passado um analisador léxico e um semântico.
 Se nenhum erro for detectado, o método termina de forma normal (o analisador semântico deve ser programado de forma que ele guarde os resultados finais da análise, se houverem).</p>
-<p>Este método é o “coração” do processo de análise, e os erros detectados durante esta devem ser tratados pelo chamador deste método.
+<p>Este método é o núcleo do processo de análise, e os erros detectados devem ser tratados pelo chamador deste método.
 Erros léxicos vem do analisador léxico na forma da exceção LexicalError. Erros semânticos serão reportados via a exceção SemanticError. O próprio analisador sintático detecta erros, e lança a exceção SyntacticError quando os encontra.</p>
 <div class="table-wrapper">
 <table>
@@ -977,23 +945,22 @@ Erros léxicos vem do analisador léxico na forma da exceção LexicalError. Err
 <p>Sempre que um novo Token for preciso, o método <code>nextToken()</code> do analisador léxico é invocado. É esperado que este método retorne nulo quando não houverem mais Tokens para serem processados, e que lance uma exceção <code>LexicalError</code> quando encontre um erro léxico.
 Em C++ e em Delphi, é esperado que a cada chamada o token retornado seja alocado dinâmicamente, pois o mesmo será desalocado posteriormente (via delete/Destroy);</p>
 <h4 id="interface-com-o-analisador-semântico"><a class="header" href="#interface-com-o-analisador-semântico">Interface com o Analisador Semântico</a></h4>
-<p>Sempre que uma ação semântica for necessária, o analisador semântico será chamado, pelo método <code>executeAction()</code>, que recebe de parâmetro o número da ação atual, e o mais recente token produzido pelo léxico.
+<p>Sempre que uma ação semântica existir, o analisador semântico será chamado, pelo método <code>executeAction()</code> da classe <code>Semantico</code>, que recebe os parâmetros: <code>número da ação atual</code>, e o <code>token mais recente</code> produzido pelo léxico.
 É esperado que o analisador semântico lance um <code>SemanticError</code> quando encontrar uma situação de erro semântico.</p>
-<h3 id="detalhes-do-analisador-semantico"><a class="header" href="#detalhes-do-analisador-semantico">Detalhes do analisador Semantico</a></h3>
+<h3 id="detalhes-do-analisador-semântico"><a class="header" href="#detalhes-do-analisador-semântico">Detalhes do Analisador Semântico</a></h3>
 <p>O Analisador Semântico é sempre implementado pelo usuário. Sua interface consiste do método:</p>
 <pre><code class="language-java">void executeAction(int action, Token token) throws SemanticError
 </code></pre>
 <p>Os parâmetros indicam a ação semântica que deve ser executada e o mais recente Token produzido pelo analisador léxico (em c++ ele é passado via ponteiro).</p>
-<p>Pode-se implementar de varios modos este método. Para gramáticas com poucas açãoes semânticas, pode-se construir um switch/case em função do parametro action e colocar o código da ação diretamente dentro deste comando, ou delegar um outro método para executá-la (com certeza mais recomendado).
+<p>Para gramáticas com poucas açãoes semânticas, pode-se construir um switch/case em função do parâmetro <code>action</code> e colocar o código da ação diretamente dentro de cada <code>case</code>, ou delegar um outro método para executá-la (mais recomendado para fins de organização).
 Em gramáticas com muitas ações, pode ser mais interessante criar um array de callbacks, indexado pelo número da ação semântica.</p>
-<p>Se um erro semântico for detectado, ele deve ser informado ao analisador sintático lançando uma excessão do tipo SemanticError. Isto é importante para manter a uniformidade na detecção de erros.</p>
+<p>Se um erro semântico for detectado, ele deve ser informado ao analisador sintático lançando uma excessão do tipo <code>SemanticError</code>. Isto é importante para manter a uniformidade na detecção de erros e interromper o processo de análise/compilação.</p>
 <h3 id="detalhes-das-tabelas-de-erro"><a class="header" href="#detalhes-das-tabelas-de-erro">Detalhes das tabelas de Erro</a></h3>
-<p>As exceções geradas pelos analisadores léxico e sintático utilizam como mensagens de erro constates literais declaradas nos arquivos <code>ScannerConstants.java</code> e <code>ParserConstants.java</code>, <code>Constants.cpp</code>, <code>UConstants.pas</code>, <code>Constants.py</code> ou ainda <code>Constants.rs</code> dependendo da linguagem objeto.</p>
-<p>São geradas mensagens padrão, mas na maioria dos casos mensagens personalisadas irão identificar melhor os erros para o usuário final da aplicação.</p>
+<p>As exceções geradas pelos analisadores léxico e sintático utilizam como mensagens de erro constates literais declaradas nos arquivos <code>ScannerConstants.java</code> e <code>ParserConstants.java</code>, <code>Constants.cpp</code>, <code>UConstants.pas</code>, <code>Constants.py</code> ou ainda <code>Constants.rs</code> dependendo da linguagem-alvo.</p>
+<p>Mensagens padrões são geradas, mas o usuário deve editar e personalisar as mensagens para auxiliar o usuário na identificação de erros ao utilizar o compilador.</p>
 <h3 id="detalhes-das-exceções"><a class="header" href="#detalhes-das-exceções">Detalhes das Exceções</a></h3>
 <p>As exceções utilizados no GALS possuem dois atributos: uma mensagem de erro e a posição (na entrada) onde o erro aconteceu.
-Existem três classes concretas de exceções: <code>LexicalError</code>, <code>SyntacticError</code> e <code>SemanticError</code>,
-que são produzidas pelos analisadores léxico, sintático e semântico respectivamente.
+Existem três classes concretas de exceções: <code>LexicalError</code>, <code>SyntacticError</code> e <code>SemanticError</code>, que são produzidas pelos analisadores léxico, sintático e semântico, respectivamente.
 Existe ainda uma quarta classe <code>AnalysisError</code>, que serve de base para as outras três.</p>
 <div class="table-wrapper">
 <table>
@@ -1028,9 +995,8 @@ Existe ainda uma quarta classe <code>AnalysisError</code>, que serve de base par
 </div>
 <p>O tratamento de erros em Rust é um pouco diferente. Ao invéz de se lançar uma exceção, a função deve retornar o tipo <code>Result&lt;T, E&gt;</code>, onde <code>T</code> é o retorno normal
 da função e <code>E</code> é o tipo do erro.</p>
-<p>Enquanto nas outras quatro implementações, <code>LexicalError</code>, <code>SyntacticError</code> e <code>SemanticError</code> são subclasses de <code>AnalysisError</code>,
-na implementação em Rust existem somente <code>AnalysisError</code> como uma classe concreta, sendo a distinção entre as três variantes feita via uma enumeração.</p>
-<p>Em sumo, todas as funções que propagam erro retornam <code>Result&lt;T, AnalysisError&gt;</code>.</p>
+<p>Enquanto nas outras quatro implementações, <code>LexicalError</code>, <code>SyntacticError</code> e <code>SemanticError</code> são subclasses de <code>AnalysisError</code>, na implementação em Rust existe somente <code>AnalysisError</code> como uma classe concreta, sendo a distinção entre as três variantes feita via uma enumeração.</p>
+<p>Em suma, todas as funções que propagam erro retornam <code>Result&lt;T, AnalysisError&gt;</code>.</p>
 <p>Como conveniência, as funções <code>AnalysisError::lexical()</code>, <code>AnalysisError::sintatic()</code> e <code>AnalysisError::semantic()</code> existem para criar
 um erro do tipo correspondente.</p>
 <pre class="playground"><code class="language-rust">fn inner() -&gt; Result&lt;(), AnalysisError&gt; {

@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-b3a8b005.js";
+            window.path_to_searchindex_js = "searchindex-6f16e72f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -177,7 +177,7 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="introdução"><a class="header" href="#introdução">Introdução</a></h1>
-<p>O <strong>(Web) GALS</strong> é um ambiente para a geração de analisadores léxicos e sintáticos, originalmente desenvolvido por Carlos Eduardo Gesser como trabalho de conclusão de curso do Curso de Bacharelado em Ciências da Computação, da Universidade Federal de Santa Catarina, sendo desenvolvido sob a orientação do Prof. Olinto José Varela Furtado. Posteriormente, este projeto foi ampliado na forma do Web GALS, também no formato de trabalho de conclusão de curso de Ciências da Computação, pelos alunos Daniel Akira Nakamura Gullich e Vinícius Schütz Piva, ambos orientados pelo Prof. Eduardo Alves da Silva, na Universidade do Vale do Itajaí.</p>
+<p>O Gerador de Analisadores Léxico e Sintático – <strong>GALS</strong> (desktop) – foi desenvolvido por Carlos Eduardo Gesser como Trabalho de Conclusão de Curso do Curso de bacharelado em Ciências da Computação da Universidade Federal de Santa Catarina sob a orientação do Prof. Olinto José Varela Furtado. Posteriormente, o GALS foi redesenhado para o ambiente Web e ampliado, passando a ser chamado de <strong>Web GALS</strong>. A versão Web também foi desenvolvida em Trabalhos de Conclusão de Curso de Ciência da Computação. O Web GALS foi desenvolvido pelos alunos Daniel Akira Nakamura Gullich e Vinícius Schütz Piva, orientados pelo Prof. Eduardo Alves da Silva na Universidade do Vale do Itajaí.</p>
 <p>Esta ferramenta pode ser usada em <a href="https://lia-univali.github.io/Web-GALS/">https://lia-univali.github.io/Web-GALS/</a>.</p>
 <p>O Web GALS é uma ferramenta de Software Livre. Seu código fonte é liberado sob a Licença Publica GNU. (<a href="http://www.gnu.org/">http://www.gnu.org/</a>)</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
@@ -188,29 +188,28 @@
 <p>O Web GALS apresenta uma área de trabalho com quatro janelas, um gerenciador de projetos e um menu de configurações.</p>
 <p><img src="./galsinterface.png" alt="Interface do Web GALS"></p>
 <center><i>Screenshot da interface principal do Web GALS.</i></center>
-<p>De modo geral, usa-se as janelas para definir-se as regras de lexação e análise sintática da linguagem a ser projetada, com
-definições mais específicas como algorítmos de escolha ou linguagem de implementação sendo escolhidas via o menu de configurações.</p>
+<p>A interface é utilizada para definir as regras de análise léxica e sintática da linguagem a ser projetada. O Web GALS possui suporte a algoritmos de análise descendente e ascendente, bem como, permite a escolha de linguagem de implementação alvo do compilador via o menu de configurações. Essa interface é ilustrada e detalhada a seguir.</p>
 <p><img src="./galsinterfaceannotated.png" alt="Interface do Web GALS, anotada">
 <img src="./galsinterfaceannotated2.png" alt="Interface do Web GALS, anotada"></p>
 <center><i>Interface do Web GALS, anotada.</i></center>
-<p>Especificamente, a interface principal do Web GALS consiste de:</p>
+<p>A interface principal do Web GALS possui:</p>
 <ol>
-<li><strong>Área da Gramática:</strong> Nesta área de texto é escrito as regras gramáticais da linguagem sendo projetada. Acima do editor há um campo para especificar o símbolo inicial da linguagem.</li>
-<li><strong>Área dos Tokens:</strong> Nesta área de texto é escrito os Tokens reconhecidos pelo scanner e suas regras de lexação.</li>
-<li><strong>Área da Simulação:</strong> Nesta área de texto é escrito um programa de exemplo, que será analisado pelo simulador segundo as regras descritas nas duas áreas anteriores.</li>
-<li><strong>Saída da Simulação:</strong> Nesta área é mostrado a saída de tanto o scanner léxico (lista de Tokens) quanto do analísador sintático (árvore de derivação), dependendo da escolha do usuário.</li>
-<li><strong>Botão de gerar código:</strong> Este botão, após clicá-lo, o Web GALS irá gerar um código fonte de compilador da linguagem projetada.</li>
-<li><strong>Diálogo de Layout:</strong> Este dialogo permite o usuário mudar o layout da área de trabalho do Web GALS.</li>
-<li><strong>Gerenciador de Projetos:</strong> Este quatro botões, junto ao seu <em>tray</em>, permitem o usuário gerenciar múltiplos projetos ao mesmo tempo.</li>
-<li><strong>Visualizador de Constantes:</strong> Este botão abre um <em>tray</em> que oferece várias opções de visualização quanto as constantes internas dos analisadores gerados.</li>
-<li><strong>Menu de Configurações:</strong> Este é o botão do menu de configurações do projeto.</li>
-<li><strong>Informações do Web GALS:</strong> Este botão abre um <em>tray</em> que mostra informações sobre Web GALS.</li>
-<li><strong>Aba de Projetos</strong>: A aba onde é possível ver os seu projetos em andamento.</li>
-<li><strong>Área de Definições Regulares</strong>: Nesta área de texto é escrito as definições regulares.</li>
+<li><strong>Gramática:</strong> Área de texto para escrita das regras gramaticais por meio de uma Gramática Livre de Contexto (GLC) em notação BNF (Backus-Naur Formalism). Na parte superior do editor há um campo para especificar o símbolo inicial da gramática.</li>
+<li><strong>Tokens:</strong> Área de texto para a definição de Tokens a serem reconhecidos pelo Analisador Léxico (<em>scanner</em>).</li>
+<li><strong>Simulação:</strong> Área de texto dedicada aos testes das definições de Tokens e Gramática.</li>
+<li><strong>Saída da Simulação:</strong> Local de exibição da saída dos testes do analisador léxico (lista de Tokens) e do analísador sintático (árvore de derivação), dependendo da escolha do usuário.</li>
+<li><strong>Gerar código:</strong> Botão para gerar o código-fonte dos analisadores e construção de compilador da linguagem projetada.</li>
+<li><strong>Menu Layout:</strong> Este menu permite o usuário mudar o layout da área de trabalho do Web GALS.</li>
+<li><strong>Gerenciador de Projetos:</strong> Opções que permitem o usuário trabalhar em múltiplos projetos (arquivos) ao mesmo tempo.</li>
+<li><strong>Tabelas e Documentação do projeto:</strong> Menu com opções de visualização das tabelas dos analisadores de acordo com as definições do projeto selecionado.</li>
+<li><strong>Menu de Configurações:</strong> abrir menu de configurações do projeto selecionado.</li>
+<li><strong>Informações do Web GALS:</strong> Exibir as informações do Web GALS.</li>
+<li><strong>Espaço de Projetos</strong>: Espaço para selecionar o projeto a ser trabalhado no WebGALS.</li>
+<li><strong>Definições Regulares</strong>: Área de texto para escrita das definições regulares e posterior aproveitamento na definição de Tokens.</li>
 </ol>
-<p>Após finalizar um projeto no Web GALS, é possível gerar um código <em>template</em> que implementa um compilador que processa a linguagem projetada; tal serve de ponto de partida para a analise semântica, implementada pelo usuário em código.</p>
+<p>Após finalizar um projeto no Web GALS, é possível gerar um código <em>template</em> que implementa os analisadores léxico e sintático que processam o autômato de reconhecimento da linguagem projetada; Isso serve como ponto de partida para o desenvolvimento do analisador semântico e implementação de um compilador via programação nas linguagens-alvo disponíveis no Web GALS.</p>
 <p><img src="./projexample.png" alt="Exemplo de Projeto Gerado"></p>
-<center><i>Exemplo de projeto gerado pelo Web GALS.</i></center>
+<center><i>Exemplo de projeto (arquivos de código-fonte) gerado pelo Web GALS.</i></center>
 <p>Tendo de exemplo <a href="https://lia-univali.github.io/Web-GALS/files/exemplo.gals">o seguinte arquivo de projeto</a>, com a seguinte entrada de simulação, o estado do Web GALS se encontra como no da figura:</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {

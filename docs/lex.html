@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-b3a8b005.js";
+            window.path_to_searchindex_js = "searchindex-6f16e72f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -176,14 +176,12 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="definição-de-aspectos-léxicos"><a class="header" href="#definição-de-aspectos-léxicos">Definição de Aspectos Léxicos</a></h1>
-<p>Os aspectos léxicos de um projeto no Web GALS são definidos pela declaração
-dos Tokens e suas expressões regulares.</p>
-<p>O analisador léxico gerado utilizará as expressões regulares dos Tokens para
-a criação de um Autômato Finito com múltiplos estados finais, cada um deles correspondendo a um dos Tokens declarados.</p>
+                        <h1 id="aspectos-léxicos"><a class="header" href="#aspectos-léxicos">Aspectos Léxicos</a></h1>
+<p>Os aspectos léxicos de um projeto no Web GALS são definidos pela declaração dos Tokens e suas expressões regulares.</p>
+<p>O analisador léxico gerado utilizará as expressões regulares dos Tokens para a criação de um Autômato Finito com múltiplos estados finais, cada um deles correspondendo a um dos Tokens declarados.</p>
 <h2 id="expressões-regulares"><a class="header" href="#expressões-regulares">Expressões Regulares</a></h2>
-<p>O coração de todo analisador léxico está nas expressões regulares. Uma expressão regular é uma regra que define uma sequência de passos a casar com uma entrada, retornando se sim ou não a entrada está de acordo com a regra.</p>
-<p>Esta tabela ilustra as possibilidades de expressões regulares suportadas pela ferramenta. Quaisquer combinações entre estes padrões é possível. Espaços em branco são ignorados (exceto entre aspas).</p>
+<p>Uma expressão regular é uma regra que define um padrão de reconhecimento para um sequência de entrada. A analisador léxico é construído principalmente a partir da criação de expressões regulares. O objetivo do analisador é verificar se há correspondência com alguma definição regular dentre os tokens definidos.</p>
+<p>A tabela a seguir ilustra elementos de expressões regulares suportadas pelo Web GALS. Quaisquer combinações entre estes padrões é permitida. Espaços em branco são ignorados (exceto entre aspas).</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -205,8 +203,8 @@ a criação de um Autômato Finito com múltiplos estados finais, cada um deles 
 </tbody>
 </table>
 </div>
-<p>Os operadores posfixos <code>*</code>, <code>+</code> e <code>?</code> tem a maior prioridade. Em seguida está a concatenação e por fim a união <code>|</code>. Parênteses podem ser utilizador para agrupar símbolos.</p>
-<p>Os caracteres <code>"</code> <code>\</code> <code>|</code> <code>*</code> <code>+</code> <code>?</code> <code>(</code> <code>)</code> <code>[</code> <code>]</code> <code>{</code> <code>}</code> <code>.</code> <code>^</code> <code>-</code> possuem significado especial. Para utilizá-los como caracteres normais deve-se precedê-los por , ou colocá-los entre aspas. Qualquer seqüência de caracteres entre aspas é tratada como caracteres ordinários.</p>
+<p>Os operadores posfixos, ou metacaracteres quantificadores, <code>*</code>, <code>+</code> e <code>?</code> têm a maior prioridade. Em seguida está a concatenação e por fim a união <code>|</code>. Parênteses podem ser utilizador para agrupar símbolos.</p>
+<p>Os caracteres <code>"</code> <code>\</code> <code>|</code> <code>*</code> <code>+</code> <code>?</code> <code>(</code> <code>)</code> <code>[</code> <code>]</code> <code>{</code> <code>}</code> <code>.</code> <code>^</code> <code>-</code> possuem significado especial. Para utilizá-los como caracteres normais deve-se precedê-los por \, ou colocá-los entre aspas (ex. “\”). Qualquer sequência de caracteres entre aspas é tratada como caracteres ordinários ou do tipo representante para a expressão regular.</p>
 <div class="table-wrapper">
 <table>
 <thead>
@@ -237,15 +235,14 @@ a criação de um Autômato Finito com múltiplos estados finais, cada um deles 
 </tbody>
 </table>
 </div>
-<p>Todas as regras listadas acima podem ser concatenadas em uma unica e longa regra. Por exemplo, <code>[a-zA-Z_][0-9a-z&amp;]+</code> irá reconhecer qualquer palavra que começe com uma letra (tanto maiúscula como minúscula) ou <em>underline</em>,
-seguido de qualquer número, letra minúscula ou o caractére ‘&amp;’, zero ou mais vezes, como <code>Z0a02be&amp;</code> ou <code>_aazz</code>, mas não <code>00ABC</code>.</p>
+<p>Todas as regras listadas acima podem ser concatenadas em uma única e longa definição. Por exemplo, <code>[a-zA-Z_][0-9a-z&amp;]+</code> irá reconhecer qualquer palavra que começe com uma letra (tanto maiúscula como minúscula) ou <em>undescore</em>,
+seguido de qualquer número, letra minúscula ou o caractére ‘&amp;’, uma ou mais vezes, como <code>Z0a02be&amp;</code> ou <code>_aazz</code>, mas não <code>00ABC</code>.</p>
 <h2 id="tokens"><a class="header" href="#tokens">Tokens</a></h2>
-<p>Antes de se mostrar como são declarados os Tokens é preciso se dar uma pequena explicação sobre o funcionamento do analisador léxico.</p>
-<p>O analisador gerado funciona simulando um autômato finito, rodando em cima de uma tabela de transições. O analisador verifica o próximo caractere da entrada e o estado atual do autômato (inicialmente zero) e move o autômato para seu próximo estado.
+<p>O analisador gerado funciona simulando um autômato finito determinístico, rodando em cima de uma tabela de transições. O analisador verifica o próximo caractere da entrada e o estado atual do autômato (inicialmente zero) e move o autômato para seu próximo estado.
 Se eventualmente o autômato chegar a um estado final, sempre correspondente a um token, ele ainda não pode dar a análise deste token como concluída, pois é preciso tentar identificar a sequência de caracteres mais longa possível (um analisador para Pascal não pode identificar o token <code>:</code> no momento que encontrar este caractere, ele precisa continuar, pois pode ser que o token seja <code>:=</code>).</p>
 <center><img src="./produc.png" alt="Autômato descrevido acima"></center>
-<center><i>Autômato descrevido acima.</i></center>
-<p>Assim, o analisador somente para quando não consegue mais prosseguir na tabela de transições. Se durante este processo ele encontrou algum token, ele produz o token correspondente ao último estado final alcançado (a seqüência mais longa de caracteres). Se nenhum token foi encontrado então um erro léxico é gerado.</p>
+<center><i>Autômato descrito acima.</i></center>
+<p>Assim, o analisador somente para quando não consegue mais prosseguir na tabela de transições. Se durante este processo ele encontrou algum token, ele produz o token correspondente ao último estado final alcançado (a sequência mais longa de caracteres). Se nenhum token foi encontrado então um erro léxico é gerado.</p>
 <h4 id="token-a-partir-de-uma-expressão-regular"><a class="header" href="#token-a-partir-de-uma-expressão-regular">Token a partir de uma Expressão Regular</a></h4>
 <p>As expressõs a seguir devem ser digitadas na janela de “Tokens” do Web GALS.</p>
 <p>Esta é a forma mais genérica de se definir um token. Ela consiste em por um identificador, que irá representar o Token, ao lado de uma expressão regular, separados por <code>:</code>.</p>
@@ -254,26 +251,24 @@ Se eventualmente o autômato chegar a um estado final, sempre correspondente a u
 <h4 id="token-com-contexto"><a class="header" href="#token-com-contexto">Token com Contexto</a></h4>
 <p>Pode-se especificar para um token uma segunda expressão regular, chamada neste caso de contexto.</p>
 <p><code>[identificador] : [expressão regular] ^ [expressão de contexto]</code></p>
-<p>Se um contexto for especificado, sempre que o token vier a ser identificado, o analisador tenta analisar a expressão de contexto. Se a expressão não puder ser encontrada após o token o analisador considera este token como inválido (como se chegasse a um ponto sem transição possível na tabela de transições).
+<p>Se um contexto for especificado, sempre que o token vier a ser identificado, o analisador tenta analisar a expressão de contexto. Se a expressão não puder ser encontrada após o token, o analisador considera este token como inválido (como se chegasse a um ponto sem transição possível na tabela de transições).
 Esta construção pode ser entendida como: somente identifique este token se, depois dele, for possível identificar a expressão de contexto.
 O contexto é analisado, porém não é consumido pelo analisador léxico.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>A expressão de contexto também precisa ser um Token válido, já que ela não é consumida pelo Token definido pela expressão principal,
-e é processado posteriormente uma segunda vez.</p>
-<p>Ou seja, um Token <code>M : "a"^"b"</code> precisa ser acompanhado de um segundo Token <code>N : "b"</code> para que a entrada <code>abab</code> seja reconhecida como <code>MBMB</code>.</p>
-<p>Caso o Token <code>N</code>  ou algo equivalente não seja definido, após processar <code>ab</code>, o autômato irá consumir somente <code>a</code>, deixando <code>b</code> na fita de entrada, porém
-com <code>b</code> sem um Token definido isto gerará um erro de caractére inesperado.</p>
+<p>A expressão de contexto também precisa ser um Token válido, já que ela não é consumida pelo Token definido pela expressão principal, e é processado posteriormente uma segunda vez.</p>
+<p>Ou seja, um Token <code>M : "a"^"b"</code> precisa ser acompanhado de um segundo Token <code>N : "b"</code> para que a entrada <code>abab</code> seja reconhecida como <code>MNMN</code>.</p>
+<p>Caso o Token <code>N</code>  ou algo equivalente não seja definido, após processar <code>ab</code>, o autômato irá consumir somente <code>a</code>, deixando <code>b</code> na fita de entrada, porém com <code>b</code> sem um Token definido isto gerará um erro de caractere inesperado.</p>
 </blockquote>
 <blockquote class="blockquote-tag blockquote-tag-warning">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
-<p>Não é recomendado o uso de negação quanto no contexto (eg.: <code>M : "a" ^ [^b]</code>), pois não funciona corretamente.</p>
+<p>Não é recomendado o uso de negação no contexto (eg.: <code>M : "a" ^ [^b]</code>), pois não funciona corretamente.</p>
 </blockquote>
 <h4 id="token-não-retrocedente"><a class="header" href="#token-não-retrocedente">Token Não-Retrocedente</a></h4>
 <p>Podem existir casos em que ao ser encontrado um erro (nenhuma transição possível), este deve ser reportado de qualquer forma, mesmo que durante a análise deste token tenha-se encontrado outros tokens validos possíveis.
-Por exemplo: em uma linguagem com comentários delimitados por <code>(*</code> e <code>*)</code>, um comentário não fechado seria um erro. Este erro fará com que o analisador verifique se durante a análise ele não encontrou nenhum outro token valido. Se a linguagem também possuir a declaração de um token correspondente a <code>(</code>, o analisador o teria encontrado nesse processo, o retornaria, continuando a análise a partir do <code>*</code> do comentário. Para prevenir isto, o token correspondente ao comentário deveria ser declarado desta forma:</p>
+Por exemplo: em uma linguagem com comentários delimitados por <code>(*</code> e <code>*)</code>, um comentário não fechado seria um erro. Este erro fará com que o analisador verifique se durante a análise ele não encontrou nenhum outro token válido. Se a linguagem também possuir a declaração de um token correspondente a <code>(</code>, o analisador o teria encontrado nesse processo, o retornaria, continuando a análise a partir do <code>*</code> do comentário. Para prevenir isto, o token correspondente ao comentário deveria ser declarado desta forma:</p>
 <p><code>[identificador] :! [expressão regular]</code></p>
-<p>Um token declarado deste modo não verifica outros tokens validos encontrados antes em caso de erro.</p>
+<p>Um token declarado deste modo não verifica outros tokens válidos encontrados antes em caso de erro.</p>
 <p>Por exemplo, considere as seguintes regras de lexação:</p>
 <pre><code>TEXT    : "loremipsum"
 OPEN    : "("
@@ -282,13 +277,11 @@ MUL     : "*"
 COMMENT : "(*" [^ "*" ]* "*)"
 WS      : [\s\t\r\n]*
 </code></pre>
-<p>Se analisarmos a entrada <code>(loremipsum)(* loremipsum loremipsum * )</code>, o analisador léxico irá reconhecer os Tokens <code>OPEN TEXT CLOSE OPEN MUL WS TEXT WS TEXT WS MUL WS CLOSE</code>, ao ínves
-de lançar um erro de lexação devido a um comentário não fechado. Porém se mudarmos a linha 5 para <code>COMMENT :! "(*" [^ "*" ]* "*)"</code>, somente <code>OPEN TEXT CLOSE</code> serão reconhecidos, seguido de um
-erro, já que após ver <code>(*</code>, o lexador ira se forçar a reconhecer um <code>COMMENT</code>, e não tentara reconhecer algum outro token com base nessa entrada caso haja falha.</p>
+<p>Se analisarmos a entrada <code>(loremipsum)(* loremipsum loremipsum * )</code>, o analisador léxico irá reconhecer os Tokens <code>OPEN TEXT CLOSE OPEN MUL WS TEXT WS TEXT WS MUL WS CLOSE</code>, ao invés de lançar um erro de tokenização devido a um comentário não fechado. Porém se mudarmos a linha 5 para <code>COMMENT :! "(*" [^ "*" ]* "*)"</code>, somente <code>OPEN TEXT CLOSE</code> serão reconhecidos, seguido de um erro, já que após ver <code>(*</code>, o tokenizador irá forçar o reconhecimento de um <code>COMMENT</code>, e não tentará reconhecer algum outro token com base nessa entrada caso haja falha.</p>
 <h4 id="token-ignorado"><a class="header" href="#token-ignorado">Token Ignorado</a></h4>
 <p>Nos três casos, o identificador pode ser omitido (a declaração começa diretamente pelo <code>:</code> ou <code>:!</code>).
 Quando o identificador não é fornecido, o analisador gerado passa a ignorar tokens gerados pela expressão regular correspondente.
-Deste modo pode-se fornecer expressões para comentários e caracteres de espaço em branco (espaço, quebra de linha, tabulação, etc.) para que o analisador gerado ignore.</p>
+Deste modo, pode-se fornecer expressões para comentários e caracteres de espaço em branco (espaço, quebra de linha, tabulação, etc.) para que o analisador ignore esses casos.</p>
 <h4 id="token-a-partir-do-identificador"><a class="header" href="#token-a-partir-do-identificador">Token a partir do identificador</a></h4>
 <p>Pode-se declarar um token apenas declarando um identificador para ele. Esta é a forma mais simples de se declarar um token, porém a menos flexível.
 Pode-se utilizar duas formas de identificadores:</p>
@@ -303,26 +296,26 @@ Pode-se utilizar duas formas de identificadores:</p>
 Nestes casos, sempre que o analisador identifica o token base, ele procura pelo valor do token em uma lista de casos especiais. Se for encontrado, o caso especial é retornado, senão é produzido o token base. Esta declaração é feita da seguinte forma:</p>
 <p><code>[identificador] = [token base] : [valor]</code></p>
 <p>onde token base é um token declarado previamente, e valor é uma sequência de caracteres entre aspas.</p>
-<p>Como pode-se deduzir, esta construção é especialmente útil para a declaração das palavras reservadas de uma linguagem. Em geral, as palavras reservadas seguem o mesmo padrão dos identificadores.
+<p>Esta construção é especialmente útil para a declaração das palavras reservadas de uma linguagem. Em geral, as palavras reservadas seguem o mesmo padrão dos identificadores.
 Utilizar esta construção faz com que o autômato gerado seja bem menor de que se cada caso especial fosse declarado como um token comum. A lista dos casos é gerada em ordem, e a localização de um caso é feita por busca binária.</p>
 <h4 id="definições-regulares"><a class="header" href="#definições-regulares">Definições Regulares</a></h4>
 <p>Também é possível predefinir uma expressão regular e usa-la posteriormente. No mesmo painel onde se encontra o gerenciador de projetos, há um campo de texto
-onde é possível escrever definições regulares.</p>
+onde é possível escrever <code>Definições Regulares</code>.</p>
 <p>Uma definição sempre segue a forma:</p>
 <p><code>[identificador] : [expressão regular]</code></p>
 <p>Cada linha do campo de definições pode conter apenas uma definição regular.
-As definições aqui declaradas poderão ser utilizadas em outras expressões regulares, utilizando seu identificador entre <code>{</code> e <code>}</code>.</p>
+As definições declaradas poderão ser utilizadas em outras expressões regulares, utilizando seu identificador entre <code>{</code> e <code>}</code>.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Não é possível usar definições regulares dentro de listas (eg.: <code>[{A}{B}]</code>).</p>
 </blockquote>
 <h2 id="exemplos"><a class="header" href="#exemplos">Exemplos</a></h2>
-<p>Segue então um exemplo de definições regulares e Tokens característicos de um pequeno projeto de linguagem.</p>
+<p>Segue um exemplo do uso de definições regulares em Tokens.</p>
 <h5 id="definições-regulares-1"><a class="header" href="#definições-regulares-1">Definições Regulares</a></h5>
-<pre><code>L       : [A-Za-z]
-D       : [0-9]
-WS      : [\ \t\n\r]
-COMMENT : "(*" [^ "*" ]* "*)"
+<pre><code>LETTER     : [A-Za-z]
+DIGIT      : [0-9]
+WHITESPACE : [\ \t\n\r]
+COMMENT    : "(*" [^ "*" ]* "*)"
 </code></pre>
 <h5 id="tokens-1"><a class="header" href="#tokens-1">Tokens</a></h5>
 <pre><code>//pontuação
@@ -331,8 +324,8 @@ COMMENT : "(*" [^ "*" ]* "*)"
 ";"
 
 //tokens
-ID  : {L} ( {L} | {D} | _ )*
-NUM : {D}+
+ID  : {LETTER} ( {LETTER} | {DIGIT} | _ )*
+NUM : {DIGIT}+
 
 //palavras chave
 BEGIN = ID : "begin"
@@ -345,15 +338,15 @@ DO    = ID : "do"
 WRITE = ID : "write"
 
 //ignorar espaços em branco e comentários
- : {WS}*
+ : {WHITESPACE}*
  :! {COMMENT}
 </code></pre>
 <p>Estas definições léxicas reconhecem:</p>
 <ul>
-<li><code>id</code>: identificadores alfanúmericos que não começam com números e <em>underline</em>.</li>
+<li><code>id</code>: identificadores alfanúmericos que não começam com números e <em>underscore</em>.</li>
 <li><code>num</code>: números de múltiplos dígitos.</li>
-<li>Tokens de palavra chave, que são um caso especial do Token <code>id</code>.</li>
-<li>Whitespace e comentários são reconhecidos mas ignorados.</li>
+<li>Tokens de palavra chave, que são um caso especial do Token <code>id</code> (BEGIN, END, IF, …).</li>
+<li>Espaços em branco e comentários são reconhecidos mas ignorados.</li>
 </ul>
 <p>Se analisarmos com estas definições a seguinte entrada:</p>
 <pre><code>begin

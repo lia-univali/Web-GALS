@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-b3a8b005.js";
+            window.path_to_searchindex_js = "searchindex-6f16e72f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -176,47 +176,34 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="definição-de-aspectos-sintáticos"><a class="header" href="#definição-de-aspectos-sintáticos">Definição de Aspectos Sintáticos</a></h1>
-<p>Os Aspectos Sintáticos são compostos pela declaração de Símbolos Terminais (Tokens), Símbolos Não-Terminais e Produções.</p>
+                        <h1 id="aspectos-sintáticos"><a class="header" href="#aspectos-sintáticos">Aspectos Sintáticos</a></h1>
+<p>Os Aspectos Sintáticos são compostos pela declaração de Símbolos Terminais (Tokens), Símbolos Não-Terminais, Produções e Símbolo Inicial.</p>
 <h3 id="símbolos-terminais-não-terminais-e-produções"><a class="header" href="#símbolos-terminais-não-terminais-e-produções">Símbolos Terminais, Não-Terminais e Produções</a></h3>
-<p>Símbolos terminais é o nome dado aos Tokens dentro do analisador sintático, já simbolos não terminais
-vem a ser produções compostas de múltiplos simbolos terminais e outros não terminais (isto inclúi recursão).</p>
-<p>Uma produção é uma regra gramatical que relaciona simbolos terminais e não terminais de certa forma que possam
-ser reconhecidos em uma frase. O Web GALS usa a notação BNF para especificar produções. Por exemplo:</p>
+<p>Símbolos terminais é o nome dado aos Tokens dentro do analisador sintático, já símbolos não-terminais são gerados pelas produções compostas de múltiplos itens dentre terminais e não-terminais (isto incluí recursão).</p>
+<p>Uma produção é uma regra gramatical que relaciona símbolos terminais e não-terminais de forma que possam ser reconhecidos em uma frase. O Web GALS usa a notação BNF para especificar produções. Por exemplo:</p>
 <pre><code>&lt;A&gt; ::= &lt;B&gt; &lt;C&gt; | &lt;D&gt;;
 </code></pre>
-<p>seria uma produção onde <code>&lt;A&gt;</code> é um não terminal produzido ou pela sequência de <code>&lt;B&gt;</code> com <code>&lt;C&gt;</code>, ou somente <code>&lt;D&gt;</code>.</p>
-<p>Poderiamos então definir <code>&lt;B&gt;</code>, <code>&lt;C&gt;</code> e <code>&lt;D&gt;</code>:</p>
+<p>é uma produção onde <code>&lt;A&gt;</code> é um não-terminal produzido ou pela sequência de <code>&lt;B&gt;</code> com <code>&lt;C&gt;</code>, ou somente <code>&lt;D&gt;</code>.</p>
+<p>Podemos então definir <code>&lt;B&gt;</code>, <code>&lt;C&gt;</code> e <code>&lt;D&gt;</code>:</p>
 <pre><code>&lt;B&gt; ::= CALL_STMT IDENTIFIER;
 &lt;C&gt; ::= OPEN_PARENTHESIS &lt;D&gt; CLOSE_PARENTHESIS; 
 &lt;D&gt; ::= NUMBER PLUS_OPTR NUMBER;
 </code></pre>
-<p>onde <code>B</code> é um não terminal produzido pela sequência do terminais <code>CALL_STMT</code> seguido de <code>IDENTIFIER</code>, que poderiam, por exemplo, ser um Token “call” e um Token de identificador alfanumérico,
-<code>C</code> é um não terminal produzido pela sequência do terminal <code>OPEN_PARENTHESIS</code> seguido do não terminal <code>&lt;D&gt;</code> seguido de <code>CLOSE_PARENTHESIS</code>, representando o corpo de chamada de uma função,
-e <code>D</code> representando a soma de dois números.</p>
-<p>Um programa válido segundo esta linguagem, dando <code>&lt;A&gt;</code> como símbolo inicial seria:</p>
+<p>onde <code>B</code> é um não-terminal produzido pela sequência do terminais <code>CALL_STMT</code> seguido de <code>IDENTIFIER</code>, que poderiam, por exemplo, ser um Token “call” e um Token de identificador alfanumérico. <code>C</code> é um não terminal produzido pela sequência do terminal <code>OPEN_PARENTHESIS</code> seguido do não-terminal <code>&lt;D&gt;</code> seguido de <code>CLOSE_PARENTHESIS</code>, representando o corpo de chamada de uma função, por exemplo. E <code>D</code> poderia representar a soma de dois números.</p>
+<p>Um programa válido segundo esta linguagem, dando <code>&lt;A&gt;</code> como símbolo inicial é:</p>
 <pre><code>call myfunc(1 + 2)
 </code></pre>
-<p>Outro programa válido seria <code>55 + 44</code>.</p>
-<p>Em geral, terminais são representados pelo seu nome (definido na janela de Tokens), e não terminais são
-representados da mesma maneira, mas envoltos por <code>&lt;&gt;</code>.</p>
-<p>Como visto nos exemplos, um não terminal é definido via o operador <code>::=</code> na janela de Gramática, e a notação BNF suporta
-também o operador <code>|</code>, que permite a gramática fazer uma escolha entre duas ou mais opções.</p>
+<p>Outro programa válido é <code>55 + 44</code>.</p>
+<p>Em geral, terminais são representados pelo seu nome (definido na janela de Tokens), e não-terminais são representados da mesma maneira, mas envoltos por <code>&lt;&gt;</code>.</p>
+<p>Como visto nos exemplos, um não-terminal é definido com o operador <code>::=</code> na janela de Gramática, e a notação BNF suporta também o operador <code>|</code>, que permite a gramática fazer uma escolha entre duas ou mais regras de derivação para uma produção.</p>
 <h3 id="restrições"><a class="header" href="#restrições">Restrições</a></h3>
-<p>Existem restrições impostas à forma das produções, de acordo com a classe de analisador
-sintático que se pretende gerar. Para Analisadores Descendentes (LL e Descendente Recursivo)
-não é permitido que a gramática possua recursão à esquerda ou que não esteja na sua forma fatorada.
-A tentativa de se gerar um analisador com uma gramática neste estado resultará em erro.</p>
-<p>A terceira restrição para gramáticas LL é checada, mas não impede que seja gerado o analisador.
-Enquanto as duas outras restrições podem ser facilmente removidas aplicando-se algoritmos de transformação à gramática,
-esta ultima não o é. Gramáticas com este problema são ambíguas, e durante a geração do analisador será pedido ao usuário para
-indicar qual produção deve ser escolhida para eliminar a ambiguidade.</p>
-<p>Analisadores Ascendentes (LR, LALR e SLR) não possuem problemas com recursão à esquerda
-ou fatoração, mas mesmo assim não conseguem tratar gramáticas ambiguas. Neste caso, assim como nas analisadores descendentes,
-o usuário deverá escolher em casos de ambiguidade entre empilhar um símbolo ou reduzir por uma produção,
-ou então entre duas produções atraves das quais se pode reduzir.</p>
+<p>Existem restrições impostas à forma das produções, de acordo com a classe de analisador sintático que se pretende gerar. Para Analisadores Descendentes (LL e Descendente Recursivo) não é permitido que a gramática possua recursão à esquerda ou que não esteja na sua forma fatorada.
+A tentativa de gerar um analisador com uma gramática neste estado resultará em erro.</p>
+<p>As duas restrições podem ser facilmente removidas aplicando-se algoritmos de transformação à gramática. Gramáticas com este problema são ambíguas, e durante a geração do analisador será informado ao usuário que não é possível gerar o analisador.</p>
+<p>Analisadores Ascendentes (LR, LALR e SLR) não possuem restrições na construção da gramática. Ou seja, têm suporte à recursão à esquerda e gramática não fatoradas. Mesmo assim não conseguem tratar gramáticas ambíguas. Neste caso, o usuário deverá escolher qual ação tomar em casos de ambiguidade entre empilhar um símbolo (operação de shift) ou reduzir (operação reduce) por uma produção,
+ou então entre duas produções por meio das quais se pode reduzir. Em outras palavras, fica a cargo do projetista da linguagem de programação resolver a ambiguidade manualmente na geração dos autômatos.</p>
 <h3 id="exemplo"><a class="header" href="#exemplo">Exemplo</a></h3>
-<p>Segue um exemplo simples de uma linguagem de programação, feita para análise ascendente:</p>
+<p>Segue um exemplo de uma linguagem de programação, feita para análise ascendente:</p>
 <h5 id="tokens"><a class="header" href="#tokens">Tokens</a></h5>
 <pre><code>:[\n\r\s\t]*
 

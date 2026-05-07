@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-b3a8b005.js";
+            window.path_to_searchindex_js = "searchindex-6f16e72f.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -177,25 +177,24 @@
                 <div id="mdbook-content" class="content">
                     <main>
                         <h1 id="opções"><a class="header" href="#opções">Opções</a></h1>
-<p>O Web GALS oferece uma gama de opções quanto a configuração do projeto. Estas estão apresentadas em três abas, no menu de configurações acessível
-na barra lateral esquerda da interface.</p>
+<p>O Web GALS oferece opções para configuração de cada projeto. As configuraçõe são apresentadas em três abas no menu de configurações acessível na barra lateral esquerda da interface.</p>
 <h2 id="opções-gerais"><a class="header" href="#opções-gerais">Opções Gerais</a></h2>
-<p>O dialogo de configurações gerais permite o usuário escolher o quê será gerado e em qual linguagem, junto a escolhas de nomeamento.</p>
+<p>A janela de configurações gerais permite o usuário escolher o quê será gerado e em qual linguagem-alvo, junto às escolhas de nomes de arquivos específicos do projeto.</p>
 <center><img src="./confg.png" alt="Diálogo de Configurações Gerais"></center>
 <center><i>Diálogo das Configurações Gerais.</i></center>
 <h4 id="modal---gerar"><a class="header" href="#modal---gerar">Modal - Gerar</a></h4>
-<p>Estas opções permitem ao usuário escolher quais <strong>partes</strong> do compilador devem ser geradas, tendo como opção:</p>
+<p>Estas opções permitem ao usuário escolher quais analisadores devem ser gerados:</p>
 <ul>
-<li><strong>Analisador Léxico:</strong> Será gerado somente o analisador léxico.</li>
-<li><strong>Analisador Sintático:</strong> Será gerado somente o analisador sintático.</li>
-<li><strong>Analisadores Léxico e Sintático:</strong> Serão gerado ambos.</li>
+<li><strong>Analisador Léxico:</strong> Somente o analisador léxico.</li>
+<li><strong>Analisador Sintático:</strong> Somente o analisador sintático.</li>
+<li><strong>Analisadores Léxico e Sintático:</strong> Analisadores Léxico e Sintático combinados.</li>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>Para o caso de somente gerar o analisador sintático, o usuário tera que implementar manualmente uma forma de fornecer Tokens ao analisador sintático.</p>
+<p>Para a opção de somente gerar o Analisador Sintático, o usuário terá que implementar manualmente o fornecimento de Tokens ao analisador sintático.</p>
 </blockquote>
 <h4 id="modal---linguagem"><a class="header" href="#modal---linguagem">Modal - Linguagem</a></h4>
-<p>Estas opções permitem o usuário escolher a <strong>linguagem de implementação</strong> do compilador gerado, tendo como opção:</p>
+<p>Estas opções permitem o usuário escolher a <strong>linguagem-alvo</strong> para implementação do compilador, dentre:</p>
 <ul>
 <li><strong>Java</strong></li>
 <li><strong>C++</strong></li>
@@ -205,7 +204,7 @@ na barra lateral esquerda da interface.</p>
 </ul>
 <blockquote class="blockquote-tag blockquote-tag-warning">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
-<p>A implementação em linguagem Delphi não tem suporte para todas as funcionalidades providas pelo Web GALS.</p>
+<p>A implementação em linguagem Delphi não tem suporte testato para todas as funcionalidades providas pelo Web GALS.</p>
 </blockquote>
 <h4 id="entrada---classes"><a class="header" href="#entrada---classes">Entrada - Classes</a></h4>
 <p>Estas opções permitem o usuário escolher <strong>o nome das classes e da hierarquía</strong> do código gerado.</p>
@@ -216,16 +215,16 @@ na barra lateral esquerda da interface.</p>
 <li><strong>Package / Namespace / Module</strong></li>
 </ul>
 <p>Para Java e C++ pode-se especificar a <em>package</em> e o <em>namespace</em> respectivamente onde serão geradas as classes.
-Para Python e Rust é possível especificar o <em>module</em> das classes, onde é criado a hierarquía de diretórios correspondente.</p>
+Para Python e Rust é possível especificar o <em>module</em> das classes, onde é criada a hierarquia de diretórios correspondente.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Não foi implementado para Delphi suporte para o sistema de nomeamento e hierarquia.</p>
 </blockquote>
 <h2 id="opções-do-analisador-léxico"><a class="header" href="#opções-do-analisador-léxico">Opções do Analisador Léxico</a></h2>
-<p>O diálogo de opções do analisador léxico permite o usuário configurar a geração do mesmo, provendo dois modais de configuração.</p>
+<p>A aba de opções do analisador léxico permite o usuário configurar a forma de entrada e a implementação do autômato de reconhecimento léxico.</p>
 <center><img src="./confl.png" alt="Diálogo da Configurações Léxicas"></center>
 <center><i>Diálogo das Configurações Léxicas.</i></center>
-<h4 id="modal---forma-de-entrada"><a class="header" href="#modal---forma-de-entrada">Modal - Forma de Entrada</a></h4>
+<h4 id="forma-de-entrada"><a class="header" href="#forma-de-entrada">Forma de Entrada</a></h4>
 <ul>
 <li><strong>Stream:</strong> Esta opção faz com que o Lexer seja implementado com o equivalente de uma <em>Stream</em> contínua. <em>Streams</em> carregam contínuamente a sua entrada ao invéz de tudo de uma véz só, e são propícios para a leitura de arquivos em disco, por exemplo.</li>
 <li><strong>String:</strong> Esta opção faz com que o Lexer seja implementado com o equivalente de uma <em>String</em> de tamanho fixo e conhecido. Esta é a opção de mais simples implementação, porém terá dificuldades em carregar arquivos muito grandes devido a necessidade de manter todo o arquivo em memória; é porém proprícia para editores interativos, por exemplo.</li>
@@ -253,38 +252,38 @@ Para Python e Rust é possível especificar o <em>module</em> das classes, onde 
 </div>
 <blockquote class="blockquote-tag blockquote-tag-caution">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</p>
-<p>A implementação do modo <em>Stream</em> para C++, Java e Delphi, no momento, simplesmente
-leem o arquivo todo e o convertem para String, quebrando a expectativa de leitura gradual
-esperada de tal sistema.</p>
-<p>A implementação para Python e Rust faz uso correto das <em>Streams</em>, porém acumula memória devido a necessidade
-de backtracking arbitrário por parte do lexer, então em quesito de <strong>uso de memória</strong> ele é identico a versão modo <em>String</em>.</p>
+<p>A implementação do modo <em>Stream</em> para C++, Java e Delphi, no momento, simplesmente leem o arquivo todo e o convertem para String, quebrando a expectativa de leitura gradual esperada desse modo.</p>
+<p>A implementação para Python e Rust faz uso correto dos <em>Streams</em>, porém acumulam memória devido a necessidade de backtracking arbitrário por parte do Lexer. Então em quesito de <strong>uso de memória</strong> ele é identico a versão modo <em>String</em>.</p>
 </blockquote>
-<h4 id="modal---implementação-do-autômato"><a class="header" href="#modal---implementação-do-autômato">Modal - Implementação do Autômato</a></h4>
-<p>O analisador léxico é implementado sobre um autômato finito,
-e este modal permite selecionar a implementação da função <code>next_state()</code> do autômato, tendo como escolha:</p>
+<h4 id="implementação-do-autômato"><a class="header" href="#implementação-do-autômato">Implementação do Autômato</a></h4>
+<p>O analisador léxico é implementado sobre um autômato finito, e é possível selecionar a implementação da função <code>next_state()</code> do autômato, tendo como escolha:</p>
 <ul>
 <li><strong>Tabela Completa:</strong> Um <em>lookup</em> em tabela pré-gerada.</li>
-<li><strong>Tabela Compactada:</strong> (Java) Similar a anterior; utiliza um <em>HashMap</em> para usar menos memória, porém é mais lerdo.</li>
+<li><strong>Tabela Compactada:</strong> (Java) Similar a anterior; utiliza um <em>HashMap</em> para usar menos memória, porém é mais lento.</li>
 <li><strong>Específica:</strong> O comportamento da função é codificada de forma explícita usando condicionais.</li>
 </ul>
-<h4 id="checkbox---diferencias-maiúsculaminúscula-em-casos-especiais"><a class="header" href="#checkbox---diferencias-maiúsculaminúscula-em-casos-especiais">Checkbox - Diferencias maiúscula/minúscula em casos especiais</a></h4>
+<h4 id="checkbox---diferenciar-maiúsculaminúscula-em-casos-especiais"><a class="header" href="#checkbox---diferenciar-maiúsculaminúscula-em-casos-especiais">Checkbox - Diferenciar maiúscula/minúscula em casos especiais</a></h4>
 <p>O analisador gerado sempre passa os tokens ao sintático (que passa ao semântico) exatamente como eles estavam no texto original, sem qualquer conversão entre maiúsculas e minúsculas.</p>
-<p>Se se pretende gerar um analisador que não faça diferenciação entre maiúsculas minúsculas para os identificadores, esta capacidade deve ser programada em nível semântico.</p>
+<p>Se o analisador léxico não deve ser sensível à caixa nos casos de definições especiais de tokens, ou seja, não diferenciar maiúsculas de minúsculas, o que significa postergar esse tipo de verificação para outra etapa da compilação, esta opção permite configurar isso.</p>
 <p>Então para que serve esta opção?</p>
-<p>Esta opção tem a ver com casos especiais, utilizados (geralmente) para a definição de palavras chave. Com esta opçào desabilitada, tanto <code>Begin</code> quanto <code>begin</code> quanto <code>BEGIN</code> seriam reconhecidos como o mesmo token, caso se tenha um caso especial de identificador com a representação igual a <code>begin</code>.</p>
+<p>Esta opção tem a ver com casos especiais, utilizados (geralmente) para a definição de palavras chave. Com esta opção desabilitada, tanto <code>Begin</code> quanto <code>begin</code> quanto <code>BEGIN</code> seriam reconhecidos como o mesmo token, caso se tenha um caso especial de identificador com a representação igual a <code>begin</code>.</p>
 <h2 id="opções-do-analisador-sintático"><a class="header" href="#opções-do-analisador-sintático">Opções do Analisador Sintático</a></h2>
-<p>O diálogo de opções do analisador sintático permite o usuário configurar qual tipo de analisador sintático será usado.</p>
+<p>A aba de opções do Analisador Sintático permite o usuário configurar qual algoritmo de análise será gerado/utilizado.</p>
 <center><img src="./confs.png" alt="Diálogo de Configurações Sintáticas"></center>
 <center><i>Diálogo das Configurações Sintáticas.</i></center>
 <h4 id="classe-do-analisador-sintático"><a class="header" href="#classe-do-analisador-sintático">Classe do Analisador Sintático</a></h4>
+<h5 id="descendentes"><a class="header" href="#descendentes">Descendentes</a></h5>
 <ul>
 <li><strong>Descendente Recursivo:</strong> Analisador descendente via chamadas de funções recursivas. Muito popular entre compiladores implementados a mão.</li>
 <li><strong>LL(1):</strong> A versão tabelada do descendente recursivo.</li>
+</ul>
+<h5 id="ascendentes"><a class="header" href="#ascendentes">Ascendentes</a></h5>
+<ul>
 <li><strong>SLR(1):</strong> Uma implementação do <em>Simple LR(1)</em>, parser ascendente tabelado e que utiliza esquema <em>Shift-Reduce</em>.</li>
 <li><strong>LALR(1)</strong> (Não Finalizado)</li>
 <li><strong>LR(1) Canônico</strong> (Não Finalizado)</li>
 </ul>
-<p>Algumas classes impõem restrições sobre a gramática que aceitam, que devem ser observadas quando se for descrevê-la.</p>
+<p>Algumas classes impõem restrições na construção da gramática que devem ser observadas quando for descrevê-la.</p>
 <blockquote class="blockquote-tag blockquote-tag-note">
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Os analisadores <code>LALR(1)</code> e <code>LR(1)</code> não estão disponíveis para Delphi.</p>
