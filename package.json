@@ -2,9 +2,10 @@
   "name": "web-gals",
   "version": "2.0.0",
   "description": "Versão Web do GALS - Gerador de Analisadores Léxico e Sintáticos",
-  "author": "Daniel Akira Nakamura Gullich <daniel.gullich@edu.univali.br> (https://github.com/Dangaki)",
+  "author": "Eduardo Alves da Silva <eas@univali.br> (https://github.com/edualvss)",
   "contributors": [
-    "Eduardo Alves da Silva <eas@univali.br> (https://github.com/edualvss)"
+    "Daniel Akira Nakamura Gullich <daniel.gullich@edu.univali.br> (https://github.com/Dangaki)",
+    "Vinicius Schutz Piva <vinicius.vsczpv@edu.univali.br> (https://github.com/vsczpv)"
   ],
   "homepage": "https://lia-univali.github.io/Web-GALS/",
   "license": "GPL-3.0-only",
