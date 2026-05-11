@@ -51,8 +51,8 @@ function parseDefsOnTokens(def: string, tok: string): string{
 	const key   = line.slice(0, i);
 	let   value = line.slice(i + 1);
 
-	// DANGER: Hack cagado, o parserparser confunde comentário da linguagem com comentário do editor
-	//         Efetua o escape manualmente.
+	// HACK: Hack cagado, o parserparser confunde comentário da linguagem com comentário do editor
+	//       Efetua o escape manualmente.
 
 	let was_slash: boolean = false;
 
@@ -70,7 +70,7 @@ function parseDefsOnTokens(def: string, tok: string): string{
     // Reuso de uma Definição Regular em outra Definição
     let defExpression : string = termo[1].trim()
 
-	// DANGER: Hack
+	// HACK
 	if (was_slash) defExpression += " ";
 
     const existentDefs = defExpression.match(/{[a-zA-Z_][a-zA-Z0-9_]*}/g)
@@ -394,7 +394,7 @@ export function syntacticSimulation(
   }
 
   return [root, g, lrSim, ll1Sim] ;
-}
+} // FIM syntacticSimulation
 
 export function syntacticTable(
   definitions: string,

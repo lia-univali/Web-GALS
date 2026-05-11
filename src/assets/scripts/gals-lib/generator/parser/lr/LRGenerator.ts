@@ -21,14 +21,10 @@ export abstract class LRGenerator {
 		this.semanticStart = g.FIRST_SEMANTIC_ACTION();
 		this.firstSementicAction = g.FIRST_SEMANTIC_ACTION();// g.SEMANTIC_ACTION_COUNT;
 
-		//console.log("semanticStart: " +this.semanticStart+ " | firstSementicAction: " + this.firstSementicAction);
-
 		this.g = g.asNormalLR();
 
 		this.itemList = this.computeItems();
 	}
-
-
 
 	public getErrors(table: Command[][]): List<string> {
 		const result = new List<string>();
@@ -58,46 +54,6 @@ export abstract class LRGenerator {
 			result.add(bfr.toString());
 		}
 
-		/*
-			for (Iterator iter = itemList.iterator(); iter.hasNext();)
-			{
-				List items = (List) iter.next();
-			
-				BitSet first = new BitSet();			
-				for (Iterator i = items.iterator(); i.hasNext(); )
-				{
-					LRItem item = (LRItem)i.next();
-					Production p = item.getProduction();
-				
-					first.or(g.first(p.get_rhs(), item.getPosition()));
-					if (first.get(0))
-					{
-						first.clear(0);
-						if (item.getLookahead() != 0)
-							first.set(item.getLookahead());
-						else
-							first.or(g.followSet[p.get_lhs()]);
-					}
-					
-				}
-				
-				StringBuffer bfr = new StringBuffer();
-				int total = first.cardinality();
-				for (int i = first.nextSetBit(0), count = 0; i>=0; i = first.nextSetBit(i+1), ++count)
-				{
-					if (i == 1)//DOLAR
-						bfr += "fim de sentença");
-					else
-						bfr += g.getSymbols()[i]);
-						
-					if (total - count == 2)
-						bfr += " ou ");
-					else if (total - count > 2)
-					bfr += ", ");
-				}
-				result.add(bfr.toString());
-			}*/
-
 		return result;
 	}
 
@@ -109,9 +65,83 @@ export abstract class LRGenerator {
 		return this.firstSementicAction;
 	}
 
+	/*
+	 * Estas são as funções que um gerador LR precisam implementar.
+	 **/
+
+	/**
+	 * A função closure recebe a lista de itens de um estado e retorna a nova
+	 * versão deste estado, unido a estados equivalentes.
+	 *
+	 * Considere a produção A → a.By
+	 *
+	 * Esta produção, na versão não determinística do autômato, implicará
+	 * em um estado com a produção B → .b, onde há uma ε-transição A → B que,
+	 * quando convertido a umm autômato determinístico, ambos A e B serão unidos
+	 * em um único estado.
+	 *
+	 * A função closure recebe o estado original e retorna a versão dele unido com
+	 * todas suas ε-transições, ou seja, entra:
+	 *
+	 *     A → a.By | c.Dn | ...
+	 *
+	 * sai:
+	 *
+	 *     A → a.By | c.Dn | ...
+	 *     B → .b
+	 *     D → .d
+	 *     ...
+	 *
+	 * @param items Lista de itens LR do estado
+	 * @returns Nova lista de itens do estado
+	 */
 	protected abstract closure(items: List<LRItem>): List<LRItem>;
+
+	/**
+	 * A função goTo calcula os estados de transição quando é efetuado a leitura
+	 * de uma sequência.
+	 *
+	 * Por exemplo, tendo um estado E com produção A → a.By | c.Dn | ..., a função
+	 * goTo considerará todos os estados que representam a leitura de uma sequência
+	 * no qual o item anterior esteja presente em E; entra:
+	 *
+	 *     A → a.By | c.Dn | ...,   com s = B
+	 *
+	 * sai:
+	 *
+	 *     CLOSURE(A → aB.y)
+	 *
+	 * Então este resultado deve ser usado para criar as transições no autômato:
+	 *
+	 *       B
+	 *     A → goTo(A, B)
+	 *
+	 * @param items Lista de itens LR do estado
+	 * @param s Terminal/Não-terminal de transição.
+	 * @returns Estados no qual `items` transiciona via `s`.
+	 */
 	protected abstract goTo(items: List<LRItem>, s: number): List<LRItem>;
+
+	/**
+	 * Este é o função principal para a geração do autômato.
+	 *
+	 * Ele cria todos os estados no autômato gerados via goTo().
+	 *
+	 * Notavelmente, o nome `computeItems` é um tanto confuso, já que ele computa
+	 * estados, não itens.
+	 *
+	 * As transições são calculadas na função buildTable().
+	 *
+	 * @returns Estados do autômato.
+	 */
 	protected abstract computeItems(): List<List<LRItem>>;
+
+	/**
+	 * Esta função transforma finaliza autômato aplicando a regra algorítmica
+	 * implementada e gerando a tabela.
+	 *
+	 * @returns Tabela de comandos LR.
+	 */
 	public abstract buildTable(): Command[][];
 
 	public buildIntTable(): number[][][] {
@@ -178,8 +208,6 @@ export abstract class LRGenerator {
 			return cmds[lrConflictSolver.resolve(this.g, input)];
 		}
 	}
-
-
 
 	public tableAsHTML(): string {
 		let result = "";
@@ -336,10 +364,5 @@ export abstract class LRGenerator {
 
 		return -1;
 	}
-
-	// private indexOfLRItem(: List<LRItem>): number{
-
-	// 	return -1;
-	// }
 
 }

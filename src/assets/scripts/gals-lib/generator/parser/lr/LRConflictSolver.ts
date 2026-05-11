@@ -6,8 +6,8 @@ import { Command } from "./Command";
 /**
  * @author Gesser
  *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * O propósito desta classe é apresentar ao usuário a opção de resolver
+ * um conflíto gramatical de forma interativa.
  */
 export interface ConflictModel{
     label: string,

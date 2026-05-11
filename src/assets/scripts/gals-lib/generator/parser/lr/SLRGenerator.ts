@@ -11,11 +11,11 @@ export class SLRGenerator extends LRGenerator
 	{	
 		super(g);
 	}
-	
+
 	protected closure(items: List<LRItem>): List<LRItem> {
     	const result = new List<LRItem>();
-    	//items.toArray().forEach(i => result.add(i));
-			result.setItems(items.toArray());
+
+		result.setItems(items.toArray());
 
     	for (let i=0; i<result.size(); i++) {
     		const it: LRItem = result.get(i);
@@ -67,61 +67,56 @@ export class SLRGenerator extends LRGenerator
 			return this.closure(result);
     }
     
-    /**
-     * Calcula os itens LR
-     * @return List
-     */
 	protected computeItems(): List<List<LRItem>>
     {
-      // //console.log("_____________Compute Items SLR___________");
-      const s: List<LRItem> = new List()
-      const sp: OrderedIntegerSet = this.g.productionsFor(this.g.startSymbol)
-      //const f: number =  sp.list()[0];//new BitSetIterator(sp).nextInt();
-      const f: number = sp.first(); //new BitSetIterator(sp).nextInt();
-      s.add(new LRItem(this.g.productions.get(f), 0))
-      const c: List<List<LRItem>> = new List()
-      c.add(this.closure(s))
+        /* s é o estado inicial */
+        const s: List<LRItem> = new List()
 
-      let repeat = true
-      //let teste = 0;
-      while (repeat) {
-        start: {
-          repeat = false
+        const sp: OrderedIntegerSet = this.g.productionsFor(this.g.startSymbol)
+        const f: number = sp.first();
+        s.add(new LRItem(this.g.productions.get(f), 0))
 
-          ////console.log("Teste Start ___________________");
+        /* c é uma lista de estados (?) */
+        const c: List<List<LRItem>> = new List()
+        c.add(this.closure(s))
 
-          for (const items of c.toArray()) {
-            // let items: List<LRItem> = it.get(0);
+        let repeat = true
 
-            for (let i = 0; i < items.size(); i++) {
-              const m: LRItem = items.get(i)
-              // //console.log("i: " + i + " item size: " + items.size());
-              const p: Production = m.production
-              if (p.get_rhs().length > m.position) {
-                // //console.log(p.get_rhs().length +" > " + m.position);
-                ////console.log("indice: " + teste++);
-                ////console.log("items: " + items.toString() + "  |  p.get_rhs: " + p.get_rhs()[m.position]);
-                const gt: List<LRItem> = this.goTo(items, p.get_rhs()[m.position])
-                ////console.log("gt: " + gt.toString());
-                //if (gt.size() != 0 && ! c.contains(gt))
-                //teste++;
-                // //console.log("gt.size(): " + gt.size() +" | containsList: " + this.containsList(c, gt));
-                if (gt.size() != 0 && !this.containsList(c, gt)) {
-                  c.add(gt)
-                  repeat = true
-                  ////console.log("Final Saida Start ___________________")
-                  break start
+        while (repeat) {
+            start: {
+
+                repeat = false
+
+                /* para estado  */
+                for (const items of c.toArray()) {
+                    /* para cada item no estado */
+                    for (let i = 0; i < items.size(); i++) {
+
+                        const m: LRItem = items.get(i)
+                        const p: Production = m.production
+
+                        /* A → a.Xb   len(A) > posição do ponto (implica ! A → aX.b com b != î)*/
+                        if (p.get_rhs().length > m.position) {
+
+                            /* T = GOTO(I, X) */
+                            const gt: List<LRItem> = this.goTo(items, p.get_rhs()[m.position])
+
+                            /* if T != ø && T ∉ c */
+                            if (gt.size() != 0 && !this.containsList(c, gt)) {
+
+                                /* C := C ∪ T */
+                                c.add(gt)
+                                repeat = true
+                                break start
+
+                            }
+                        }
+                    }
                 }
-              }
             }
-          }
         }
-        //if(teste == 10) break;
-      }
 
-      // //console.log("teste: " + teste);
-
-      return c
+        return c
     }
 
 
@@ -131,14 +126,8 @@ export class SLRGenerator extends LRGenerator
 		// TODO Revisar comparador
 		const itemArray = item.toArray();
 		for(const pivot of list){
-      // Com String - implementação inicial
-			/*
-      const item1String = pivot.toString()
-      const item2String = item.toString()
-      if (item1String === item2String) {
-        return true
-      }
-			*/
+
+
       // Ajustada - melhorar desempenho
 			const pivotArray = pivot.toArray()
 			if(pivotArray.length !== itemArray.length) {
@@ -163,36 +152,19 @@ export class SLRGenerator extends LRGenerator
 		return false;
 	}
 
-
-
-
-	// private containsList(list: List<List<LRItem>>, item: List<LRItem>): boolean
-	// {
-	// 	for(let pivot of list){
-
-	// 		let item1: LRItem[] = pivot.toArray();;
-	// 		let item2: LRItem[] = item.toArray();
-		
-	// 		if (item1.length !== item2.length) return false;
-			
-	// 		return item1.every((value, index) => value.equals(item2[index]));
-	// 	}
-
-	// 	return false;
-	// }
-	
-    
     /**
      * Cria a tabale de parse SLR
-     * 
      * */
 
-	public buildTable(): Command[][] 
+	public buildTable(): Command[][]
 	{
 
-    	//Command[][] result = new Command[itemList.size()][g.getSymbols().length-1];
 		const result: Map<number, Command>[][]  = [];
-    	
+
+        /*
+         * Para cada estado existente do autômato. Criar N entradas na tabela,
+         * um para cada símbolo.
+         */
     	for (let i=0; i< this.itemList.size(); i++)
     	{
 			result[i] = [];
@@ -201,24 +173,37 @@ export class SLRGenerator extends LRGenerator
     			result[i][j] = new Map<number, Command>();
     		}
     	}
-    	
+
+    	/* Para cada estado do autômato (tabela) */
     	for (let i=0; i<result.length; i++)
     	{
+            /* Estado */
     		const items: List<LRItem> = this.itemList.get(i);
-    		
+
+            /* Para cada item deste estado */
     		for (let j=0; j<items.size(); j++)
     		{
+                /* Item */
     			const item: LRItem = items.get(j);
-    			
+
     			const p: Production = item.production;
     			const rhs: number[] = p.get_rhs();
-    			
+
+                /* A → a.Xb   len(A) > posição do ponto (implica ! A → aX.b com b != î) */
     			if (rhs.length > item.position)
     			{
     				const s: number = rhs[item.position];
     				const next: List<LRItem> = this.goTo(items, s);
-    				
-    				if (this.g.isTerminal(s))        
+
+                    /*
+                     * 1. Se o estado `s` contiver um item da forma A → α.Xβ onde X é um
+                     * terminal, e X for a marca seguinte na cadeia de entrada, então a ação
+                     * é carregar a maca de entrada corrente para a pilha, e o novo estado a
+                     * ser colocado na pilha é o estado que contém o item A → αX.β.
+                     *
+                     * C. Lounden, Kenneth. Compiladores: princípios e práticas. 1ed. ISBN: 85-221-0422-0
+                     */
+    				if (this.g.isTerminal(s))
     				{
 						const cmd = Command.createShift(this.indexOfListLRItem(this.itemList, next));
     					result[i][s-1].set( cmd.hashCode(), cmd);
@@ -228,11 +213,11 @@ export class SLRGenerator extends LRGenerator
 						const cmd = Command.createGoTo((this.indexOfListLRItem(this.itemList, next)))
     					result[i][s-1].set( cmd.hashCode(), cmd);
     				}
-    			}
+                }
     			else
     			{
     				const lhs = p.get_lhs();
-    				
+
     				if (lhs == this.g.startSymbol)
     				{
 						const cmd = Command.createAccept();
@@ -240,6 +225,22 @@ export class SLRGenerator extends LRGenerator
     				}
     				else
     				{
+                        /*
+                         * 2. Se o estado `s` contiver o item completo A → γ·, e a marca seguinte
+                         * na cadeia de entrada estiver em FOLLOW(A), então a ação é reduzir pela
+                         * regra A → γ· Uma redução pela regra S' → S, onde S é o estado inicial,
+                         * é equivalente a aceitaçã; isso ocorrerá apenas se a marca de entrada
+                         * seguinte for $. Em todos os outros casos, o novo estado é computado da
+                         * maneira descrita a seguir.
+                         *
+                         * Remova a cadeia γ e todos os estados correspondentes da pilha de análise
+                         * sintática. De forma correspondente, retorne no DFA para o estado do início
+                         * da construção de γ. Por construção, esse estado deve conter um item da forma
+                         * B → α·Bβ. Coloque A na pilha, e também coloque o estado que contém o item
+                         * B → αB·β.
+                         *
+                         * C. Lounden, Kenneth. Compiladores: princípios e práticas. 1ed. ISBN: 85-221-0422-0
+                         */
 						const follow: OrderedIntegerSet = this.g.followSet[lhs];
 	    				for (const a of follow.list() )
 	    				{
@@ -247,7 +248,7 @@ export class SLRGenerator extends LRGenerator
 	    					if (lhs < this.semanticStart)
 	    						cmd = Command.createReduce(this.g.productions.indexOf(p));
 	    					else
-	    						cmd = Command.createAction(lhs-this.semanticStart);		
+	    						cmd = Command.createAction(lhs-this.semanticStart);
 
 	    					result[i][a-1].set(cmd.hashCode(),cmd);
 	    				}
@@ -255,16 +256,6 @@ export class SLRGenerator extends LRGenerator
     			}
     		}
     	}
-    	
-		//Print Table
-		// //console.log("_______________buildTable_______________");
-
-		// for (let i = 0; i < result.length; i++) {
-		// 	for (let j = 0; j < result[i].length; j++) {
-		// 	  	//console.log("I: " + i + " | J: " + j);
-		// 		result[i][j].forEach(item => //console.log(item.toString()));
-		// 	}
-		// }
 
 		const resultSet: Set<Command>[][] = result.map(	row => row.map(map => new Set(map.values())));
 
@@ -273,38 +264,31 @@ export class SLRGenerator extends LRGenerator
 
 	private indexOfListLRItem(list: List<List<LRItem>>, item: List<LRItem>): number
 	{
-    // TODO Revisar comparador
-    const itemArray = item.toArray()
-    for (let i = 0; i < list.size(); i++) {
-      // Com String - implementação inicial
-      /*
-      const item1String = pivot.toString()
-      const item2String = item.toString()
-      if (item1String === item2String) {
-        return true
-      }
-			*/
-      // Ajustada - melhorar desempenho
-      const pivotArray = list.get(i).toArray();
-      if (pivotArray.length !== itemArray.length) {
-        continue;
-      }
+        // TODO Revisar comparador
+        const itemArray = item.toArray()
+        for (let i = 0; i < list.size(); i++) {
 
-      let contained = true
+            // Ajustada - melhorar desempenho
+            const pivotArray = list.get(i).toArray();
+            if (pivotArray.length !== itemArray.length) {
+                continue;
+            }
 
-      for (let x = 0; x < pivotArray.length; x++) {
-        const pivotItem: LRItem = pivotArray[x]
-        const it: LRItem = itemArray[x]
-        if (!pivotItem.equals(it)) {
-          contained = false
-          break
+            let contained = true
+
+            for (let x = 0; x < pivotArray.length; x++) {
+                const pivotItem: LRItem = pivotArray[x]
+                const it: LRItem = itemArray[x]
+                if (!pivotItem.equals(it)) {
+                    contained = false
+                    break
+                }
+            }
+
+            if (contained) return i;
         }
-      }
 
-      if (contained) return i;
+        return -1
     }
-
-    return -1
-  }
 
 }
