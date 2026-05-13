@@ -15,9 +15,6 @@ export class RustParserGenerator
 		{
 			if (g != null)
 			{
-
-//				const classname: string = options.parserName;
-
 				result.set(`src/${pkgpath}parser.rs`, this.parser(g, options));
 				result.set(`src/${pkgpath}codegen.rs`, this.semantic(options));
 			}
@@ -59,11 +56,11 @@ impl ${name} {
 				return this.llParser(g, options);
 
 			default: //slr, lalr, lr
-                return this.slrParser(g, options);
+                return this.lrParser(g, options);
         }
     }
 
-    private slrParser(g: Grammar, options: Options): string
+    private lrParser(g: Grammar, options: Options): string
     {
         const name = options.parserName;
         const pkgpath = options.pkgName !== "" ? options.pkgName + "::" : "";

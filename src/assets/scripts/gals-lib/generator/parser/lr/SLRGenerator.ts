@@ -12,6 +12,10 @@ export class SLRGenerator extends LRGenerator
 		super(g);
 	}
 
+	protected initCaches() {
+		/* deliberadamente vazio */
+	}
+
 	protected closure(items: List<LRItem>): List<LRItem> {
     	const result = new List<LRItem>();
 

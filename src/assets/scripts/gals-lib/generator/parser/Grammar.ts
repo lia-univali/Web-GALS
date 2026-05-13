@@ -1685,4 +1685,13 @@ export class Grammar {
         this.fillFollowSet();
     }
 
+    public id_for_production(p: Production): number | null {
+		if (this._productions.contains(p))
+			return this._productions.indexOf(p);
+		else
+			return null;
+	}
+	public production_for_id(id: number) {
+		return this._productions[id];
+	}
 }

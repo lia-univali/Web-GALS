@@ -3,6 +3,7 @@ import { LRItem } from '../lr/LRItem'
 import { List } from '../../../DataStructures'
 import { LRCanonicGenerator } from '../../parser/lr/LRCanonicGenerator'
 import { Production } from '../../../util/Production';
+import { SyntacticError } from '../../../analyser/SystemErros';
 
 
 export class LALRGenerator extends LRCanonicGenerator
@@ -10,10 +11,15 @@ export class LALRGenerator extends LRCanonicGenerator
 
   private compress: boolean = false; // TODO Observar comportamento
 
-  public constructor(g: Grammar)
-  {
-    super(g);
-  }
+    public constructor(g: Grammar)
+    {
+        throw new SyntacticError("LALR NOT IMPL");
+        super(g);
+    }
+
+    protected initCaches() {
+		/* deliberadamente vazio */
+	}
 
   private core( state: LRItem[]): Set<LRItem>
   {

@@ -17,9 +17,9 @@ export class LRGeneratorFactory
 	{
 		switch (lrParserOption)
 		{
-			case Options.PARSER_SLR: return new SLRGenerator(g);
-			case Options.PARSER_LR: return new LRCanonicGenerator(g);
-			case Options.PARSER_LALR : return new LALRGenerator(g);
+			case Options.PARSER_SLR:  return new SLRGenerator(g);
+			case Options.PARSER_LR:   return new LRCanonicGenerator(g);
+			case Options.PARSER_LALR: return new LALRGenerator(g);
 			default: return null;
 		}
 	}

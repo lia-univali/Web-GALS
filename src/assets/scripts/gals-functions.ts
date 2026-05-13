@@ -335,6 +335,7 @@ export function syntacticSimulation(
     nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
 
     g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
+
     // //console.log("______________________________GRAMAR IS PARSED______________________________");
   }
 
@@ -344,12 +345,8 @@ export function syntacticSimulation(
 
   if(g === undefined) throw new SyntacticError("Grammar is Undefined");
 
-  //let lrSim: LRParserSimulator | null = null;
-  //let ll1Sim: LL1ParserSimulator | null = null;
   let parserResult: LRGenerator | null = null;
   let parserResultLL: LLParser | null = null;
-
-  console.log('Teste 1')
 
   switch (parser)
   {
@@ -998,7 +995,6 @@ function simulateLR(
     parser = LRGeneratorFactory.createGenerator(g, parserEnum);
     if(parser === null) throw new SyntacticError("Parser is Null");
     if(lrSim === undefined) lrSim = new LRParserSimulator(parser);
-    // //console.log(parser.tableAsHTML());
   }else throw new SyntacticError("Grammar is Null");
 
   return [lrSim, faSim, parser];

@@ -325,8 +325,8 @@ export default defineComponent({
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" disabled />
-                <label for="sintaticoLRCanonico">LR(1)</label>
+                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR"/>
+                <label for="sintaticoLRCanonico">LR(1) <span style="color: red;">demora para processar gramáticas grandes</span></label>
               </div>
             </fieldset>
           </fieldset>

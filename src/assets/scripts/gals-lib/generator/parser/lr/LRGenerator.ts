@@ -23,8 +23,11 @@ export abstract class LRGenerator {
 
 		this.g = g.asNormalLR();
 
+		this.initCaches();
 		this.itemList = this.computeItems();
 	}
+
+	abstract protected initCaches();
 
 	public getErrors(table: Command[][]): List<string> {
 		const result = new List<string>();
@@ -73,7 +76,7 @@ export abstract class LRGenerator {
 	 * A função closure recebe a lista de itens de um estado e retorna a nova
 	 * versão deste estado, unido a estados equivalentes.
 	 *
-	 * Considere a produção A → a.By
+	 * Por exemplo, considere a produção A → a.By
 	 *
 	 * Esta produção, na versão não determinística do autômato, implicará
 	 * em um estado com a produção B → .b, onde há uma ε-transição A → B que,
@@ -363,6 +366,27 @@ export abstract class LRGenerator {
 		}
 
 		return -1;
+	}
+
+	/**
+	 * Função canonizar. Usada para converter um estado do tipo List<LRItem> para string.
+	 *
+	 * Usado para funções de cache.
+	 *
+	 * @param s Estado a ser canonizado.
+	 * @returns String, que serve de identificador único da entrada
+	 */
+	protected canonize(s: List<LRItem>): string {
+
+		let z = [...s];
+
+		let resl: string[] = [];
+		for (let i of z) {
+			resl.push(`${this.g.id_for_production(i.production)}:${i.position}:${i.lookahead}`);
+		}
+		resl = [...new Set(resl)].sort();
+		let res = resl.join("|")
+		return res;
 	}
 
 }

@@ -405,7 +405,6 @@ export class JavaCommonGenerator {
 		
 		result.push("\n");
     	
-//		result.push(this.emitLRTable(g));
 		result.push(this.emitModifiedLRTable(g));
 		
 		result.push("\n");
@@ -490,10 +489,10 @@ export class JavaCommonGenerator {
 
 	private emitModifiedLRTable(g: Grammar): string
 	{
-    const result: string[] = [];
+        const result: string[] = [];
 		if(this.lrTable  === null ) throw new SyntacticError("Tabela LR está nula.");
 		const tbl: number[][][] = this.lrTable;
-		// //console.log(this.lrTable);
+
 		result.push('    int[][][] PARSER_TABLE = new LRTableAdapter().table;\n')
 		
 		let max = tbl.length;
@@ -523,7 +522,7 @@ export class JavaCommonGenerator {
 					result.push(' ')
 
 				result.push(str)
-        result.push('},')
+                result.push('},')
 			}
 
 			result.pop();
