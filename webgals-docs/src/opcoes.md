@@ -115,9 +115,17 @@ A aba de opções do Analisador Sintático permite o usuário configurar qual al
 ##### Ascendentes
 - **SLR(1):** Uma implementação do *Simple LR(1)*, parser ascendente tabelado e que utiliza esquema *Shift-Reduce*.
 - **LALR(1)** (Não Finalizado)
-- **LR(1) Canônico** (Não Finalizado)
+- **LR(1) Canônico:** A versão "correta" do algorítmo *Shift-Reduce*. O seu problema é a explosão na quantidade de estados em função da complexidade da gramática.
+
+> [!CAUTION]
+> O LR(1) Canônico pode travar o Web GALS caso a gramática seja muito complexa.
 
 Algumas classes impõem restrições na construção da gramática que devem ser observadas quando for descrevê-la.
 
+<!-- Levando em consideração minha descoberta que a unica diferença entre o SLR(1), LALR(1) e LR(1)
+     é a tabela gerada, é muito provável que o Delphi tem suporte sim ao LALR(1) e LR(1). Só não vou
+     testar pois não estou com vontade de comprar uma licença de Delphi (principalmente já que tal nem
+     suporta Linux para começo de conversa, e acho um insulto ter que rodar um compilador via Wine.)
 > [!NOTE]
 > Os analisadores `LALR(1)` e `LR(1)` não estão disponíveis para Delphi.
+-->
