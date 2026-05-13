@@ -1691,7 +1691,7 @@ export class Grammar {
 		else
 			return null;
 	}
-	public production_for_id(id: number) {
-		return this._productions[id];
+	public production_for_id(id: number): Production {
+		return this._productions.get(id);
 	}
 }

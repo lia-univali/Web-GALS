@@ -27,7 +27,7 @@ export abstract class LRGenerator {
 		this.itemList = this.computeItems();
 	}
 
-	abstract protected initCaches();
+	protected abstract initCaches(): void;
 
 	public getErrors(table: Command[][]): List<string> {
 		const result = new List<string>();
