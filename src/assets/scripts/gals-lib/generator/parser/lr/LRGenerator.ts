@@ -17,14 +17,21 @@ export abstract class LRGenerator {
 	protected semanticStart: number;
 	protected firstSementicAction: number;
 
+
+	private lalrgotocache: Map<string, List<LRItem>> = new Map();
+
 	constructor(g: Grammar) {
 		this.semanticStart = g.FIRST_SEMANTIC_ACTION();
-		this.firstSementicAction = g.FIRST_SEMANTIC_ACTION();// g.SEMANTIC_ACTION_COUNT;
+		this.firstSementicAction = g.FIRST_SEMANTIC_ACTION();
 
 		this.g = g.asNormalLR();
 
 		this.initCaches();
 		this.itemList = this.computeItems();
+	}
+
+	protected getLalrGotoCache() {
+		return this.lalrgotocache;
 	}
 
 	protected abstract initCaches(): void;
@@ -190,7 +197,7 @@ export abstract class LRGenerator {
 	private solve(set: Set<Command>, state: number, input: number): Command {
 		const cmds: Command[] = [];
 		let i = 0;
-		//for (Iterator iter = set.iterator(); iter.hasNext();)
+
 		for (const iter of set) {
 			cmds[i] = iter; //TODO VERIFY MODIFICATION
 			i++;
@@ -343,7 +350,7 @@ export abstract class LRGenerator {
 
 		const itemArray : LRItem[] = item.toArray()
 
-		for(let i = 0; i < listArray.length; i++){
+		for(let i = 0; i < listArray.length; i++) {
 			const pivot = listArray[i];
 			
 			if (pivot.size() !== item.size()) {
@@ -378,10 +385,8 @@ export abstract class LRGenerator {
 	 */
 	protected canonize(s: List<LRItem>): string {
 
-		let z = [...s];
-
 		let resl: string[] = [];
-		for (let i of z) {
+		for (let i of s) {
 			resl.push(`${this.g.id_for_production(i.production)}:${i.position}:${i.lookahead}`);
 		}
 		resl = [...new Set(resl)].sort();

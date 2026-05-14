@@ -114,11 +114,11 @@ A aba de opções do Analisador Sintático permite o usuário configurar qual al
 - **LL(1):** A versão tabelada do descendente recursivo.
 ##### Ascendentes
 - **SLR(1):** Uma implementação do *Simple LR(1)*, parser ascendente tabelado e que utiliza esquema *Shift-Reduce*.
-- **LALR(1)** (Não Finalizado)
+- **LALR(1):** Uma versão do LR(1) Canônico onde estados identicos mas com lookaheads diferentes são juntos em um só estado. Maior poder do que o SLR(1) mas menor poder do que o LR(1) canônico.
 - **LR(1) Canônico:** A versão "correta" do algorítmo *Shift-Reduce*. O seu problema é a explosão na quantidade de estados em função da complexidade da gramática.
 
 > [!CAUTION]
-> O LR(1) Canônico pode travar o Web GALS caso a gramática seja muito complexa.
+> O LR(1) Canônico e por consequência o LALR(1) podem travar o Web GALS caso a gramática seja muito complexa.
 
 Algumas classes impõem restrições na construção da gramática que devem ser observadas quando for descrevê-la.
 

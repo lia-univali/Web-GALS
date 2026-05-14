@@ -14,15 +14,18 @@ export class LRCanonicGenerator extends LRGenerator
     constructor(g: Grammar)
     {
         super(g);
-		if (this.closurecache == undefined)
-			this.closurecache = new Map();
+		this.initCaches();
     }
 
     protected initCaches() {
-		this.closurecache = new Map();
+		if (this.closurecache == undefined)
+			this.closurecache = new Map();
+
 	}
 
     protected closure(items: List<LRItem>): List<LRItem> {
+
+        this.initCaches();
 
 		let stringver = this.canonize(items);
 
@@ -62,6 +65,11 @@ export class LRCanonicGenerator extends LRGenerator
 			}
 		}
 
+		if (this.itemList == undefined)
+            this.itemList = new List();
+
+		this.itemList.add(items);
+
         stringver = this.canonize(items);
 
         this.closurecache!.set(stringver, items);
@@ -92,7 +100,9 @@ export class LRCanonicGenerator extends LRGenerator
         const resultList = new List<LRItem>();
         resultList.setItems(result)
 
-        return this.closure(resultList);
+		let clo = this.closure(resultList);
+
+        return clo;
     }
 
 	protected computeItems(): List<List<LRItem>>
@@ -142,7 +152,7 @@ export class LRCanonicGenerator extends LRGenerator
         return false;
     }
 
-	protected containsList(list: List<List<LRItem>>, item: List<LRItem>, debug?: boolean): boolean
+	protected containsList(list: List<List<LRItem>>, item: List<LRItem>): boolean
 	{
 
 		const itemArray = item.toArray();
@@ -198,10 +208,12 @@ export class LRCanonicGenerator extends LRGenerator
 
     for (let i=0; i<result.length; i++)
     {
+
       const items: List<LRItem> = this.itemList.get(i);
 
       for (let j=0; j<items.size(); j++)
       {
+
         const item: LRItem = items.get(j);
 
         const p: Production = item.production;
@@ -249,7 +261,9 @@ export class LRCanonicGenerator extends LRGenerator
 
     const resultSet: Set<Command>[][] = result.map(	row => row.map(map => new Set(map.values())));
 
-    return this.resolveConflicts(resultSet);
+    let cft = this.resolveConflicts(resultSet);
+
+    return cft;
   }
 
 }
