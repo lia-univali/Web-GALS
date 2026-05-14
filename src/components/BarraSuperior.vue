@@ -10,6 +10,12 @@ import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar
 export default defineComponent({
   name: 'BarraSuperior',
   components: {},
+  isEmitting: false,
+  data() {
+    return {
+      isEmitting: false,
+    }
+  },
   setup() {
     const store = projetoStore()
 
@@ -19,91 +25,81 @@ export default defineComponent({
 
     return {
       store,
-      layout
+      layout,
     }
   },
   methods: {
+   /*
+    * TODO: Não é possível mandar a gramática atravéz de workers
+    * devido a uma referencia circular; consertar.
+    */
     gerarCodigo() {
+
+      this.isEmitting = true;
 
       const selecionado = this.store.selecionado
       if (selecionado == -1) return
       const projeto = this.store.listaProjetos[selecionado]
       const options: Options = projeto.optionsGals
-      let linguagemString = '';
+
+      let linguagemString = "";
 
       switch (options.language)
       {
-        case Options.LANG_CPP:		linguagemString =  ("C++"); break;
-        case Options.LANG_JAVA:	  linguagemString =  ("Java"); break;
-        case Options.LANG_DELPHI:	linguagemString =  ("Delphi"); break;
-        case Options.LANG_PYTHON:	linguagemString = ("Python"); break;
-	case Options.LANG_RUST:	linguagemString = ("Rust"); break;
+        case Options.LANG_CPP:    linguagemString =  ("C++");    break;
+        case Options.LANG_JAVA:	  linguagemString =  ("Java");   break;
+        case Options.LANG_DELPHI: linguagemString =  ("Delphi"); break;
+        case Options.LANG_PYTHON: linguagemString =  ("Python"); break;
+        case Options.LANG_RUST:	  linguagemString =  ("Rust");   break;
       }
 
-      let allFiles: TreeMap<string, string> | null = null
-      let gramatica: Grammar
-      let foldered: boolean = false;
-      let mainfunc: string | null = null;
+      const worker = new Worker(
+        new URL('@/workers/emitcode.worker.ts', import.meta.url),
+        { type: 'module' }
+      );
 
-      try {
-        [allFiles, gramatica, foldered, mainfunc] = generateCode(
-          projeto.regularDefinitions,
-          projeto.tokens,
-          projeto.nonTerminals,
-          projeto.grammar,
-          options,
-          this.store.necessarioRecriar,
-          undefined,
-          this.store.gramatica as Grammar | undefined
-        )
+      worker.postMessage({
+        regularDefinitions: projeto.regularDefinitions,
+        tokens:             projeto.tokens,
+        nonTerminals:       projeto.nonTerminals,
+        grammar:            projeto.grammar,
+        options:            JSON.stringify(options),
+        necessarioRecriar:  true,
+        fa:                 undefined,
+        g:                  undefined,
+        fileName:           projeto.fileName,
+      });
 
-        this.store.gramatica = gramatica;
+      worker.onmessage = (event) => {
+        const data = event.data;
 
-      } catch (error) {
-        console.log(error)
-        this.$toast.error((error as Error).message,{"duration":0})
-      }
+        if (data.success) {
 
-      if (allFiles == null) return
+          /*
+           * Eu não consigo acreditar que é ASSIM que se emite um arquivo no
+           * javascript.
+           *
+           * Bravo, Brendan Eich.
+           */
 
-      try {
-        const zip = new JSZip()
-        let fld: JSZip | null = null;
+          const link    = document.createElement('a')
+          link.href     = data.result;
+          link.download = projeto.fileName.slice(0, -5) + " - " + linguagemString + ".zip";
 
-        if (foldered) {
-          fld = zip.folder(options.pkgName);
-          if (fld == null) throw Error("FLD é nulo");
-        }
-
-        for (const [fileName, content] of allFiles.entries())
-        {
-          if (foldered && (fld != null)) {
-            fld.file(fileName, content)
-          } else {
-            zip.file(fileName, content)
-          }
-        }
-
-        if (mainfunc != null) {
-          zip.file("main.py", mainfunc)
-        }
-
-        zip.generateAsync({ type: 'blob' }).then((content) => {
-          const link = document.createElement('a')
-          const url = URL.createObjectURL(content)
-          link.href = url;
-          link.download = projeto.fileName.slice(0, -5) + " - " + linguagemString + '.zip'
           document.body.appendChild(link)
           link.click()
           document.body.removeChild(link)
-          URL.revokeObjectURL(url)
-        });
 
-        this.$toast.success('Arquivos Gerados!')
-      } catch (error) {
-        console.error(error)
-        this.$toast.error((error as Error).message,{"duration":0})
-      }
+          URL.revokeObjectURL(data.result)
+
+          this.$toast.success("Arquivos Gerados!");
+        } else {
+          this.$toast.error(data.error, {"duration":0});
+        }
+
+        this.isEmitting = false;
+        worker.terminate();
+      };
     },
     mudaLayout(perfil: number) {
       switch (perfil) {
@@ -145,7 +141,20 @@ export default defineComponent({
   <div class="barra__superior">
   <span class="logo">WEB <span style="color: #9ed15c;">GALS</span></span>
 
-    <button class="botao__gerar__codigo" @click="gerarCodigo">Gerar Código</button>
+        <button
+          class="botao__gerar__codigo"
+          :class="{ emitindo: isEmitting }"
+          :disabled="isEmitting"
+          @click="gerarCodigo"
+        >
+          <span v-if="isEmitting">
+            Gerando...
+          </span>
+
+          <span v-else>
+            Gerar Código
+          </span>
+        </button>
 
     <div class="dropdown">
       <button class="dropbtn">Layout</button>
@@ -219,6 +228,17 @@ a:hover {
   background-color: #749a43;
   box-shadow: 0 1px #666;
   transform: translateY(1px);
+}
+.emitindo.botao__gerar__codigo::before {
+  content: url(@/assets/icons/spinner.svg);
+  filter: invert(100%);
+  transform: translateY(1pt) translateX(-2pt);
+}
+
+.emitindo.botao__gerar__codigo {
+  background-color: #738b53;
+  transform: none;
+  box-shadow: none;
 }
 
 .barra__superior {

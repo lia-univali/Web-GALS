@@ -10,6 +10,7 @@ import { LRParserSimulator } from '@/assets/scripts/gals-lib/simulator/LRParserS
 import { LL1ParserSimulator } from '@/assets/scripts/gals-lib/simulator/LL1ParserSimulator'
 
 export default defineComponent({
+  isSimulating: false,
   name: 'SimuladorJanela',
   components: {
     TreeBrowser
@@ -18,7 +19,8 @@ export default defineComponent({
     return {
       resultadoLexico: new Map<Token, string>(),
       resultadoSintatico: new TreeNode<string>(),
-      tipoSimulacao: 'Lexico'
+      tipoSimulacao: 'Lexico',
+      isSimulating: false,
     }
   },
   setup() {
@@ -68,48 +70,78 @@ export default defineComponent({
         projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
     },
+    queueSyntacticSimulation(projeto: any) {
+
+      this.isSimulating = true;
+
+      const worker = new Worker(
+        new URL('@/workers/syntactic.worker.ts', import.meta.url),
+        { type: 'module' }
+      );
+
+      worker.postMessage({
+        textSimulator: projeto.textSimulator,
+        regularDefinitions: projeto.regularDefinitions,
+        tokens: projeto.tokens,
+        nonTerminals: projeto.nonTerminals,
+        grammar: projeto.grammar,
+        parser: projeto.optionsGals.parser,
+        necessarioRecriar: this.store.necessarioRecriar,
+        gramatica: undefined,
+        lrSim: undefined,
+        ll1Sim: undefined
+      // gramatica: this.store.gramatica,
+      // lrSim: this.store.lrSim,
+      // ll1Sim: this.store.ll1Sim
+      });
+
+      worker.onmessage = (event) => {
+        const data = event.data;
+
+        if (data.success) {
+          const [
+            resultadoSintatico,
+            novaGramatica,
+            novoLRSim,
+            novoLL1Sim
+          ] = data.result;
+
+          this.resultadoSintatico = Object.assign(new TreeNode(), JSON.parse(resultadoSintatico));
+      //  this.store.gramatica = novaGramatica;
+      //  this.store.lrSim = novoLRSim;
+      //  this.store.ll1Sim = novoLL1Sim;
+
+          this.$toast.default("Simulação Sintática Concluída");
+          projeto.consoleExit = 'Simulação Concluida';
+        } else {
+          console.log(data.error);
+
+          this.$toast.error(
+            "Erro Léxico/Sintático: " +
+            this.translateHTMLTags(data.error),
+            { duration: 0 }
+          );
+
+          projeto.consoleExit = 'Erro Léxico/Sintático: ' + data.error;
+        }
+        worker.terminate();
+        this.isSimulating = false;
+      }
+    },
     simularSintatico() {
-      this.tipoSimulacao = 'Sintático'
-      const selecionado = this.store.selecionado
-      if (selecionado == -1) return
+        this.tipoSimulacao = 'Sintático'
+        const selecionado = this.store.selecionado
+        if (selecionado == -1) return
 
-      const projeto = this.store.listaProjetos[selecionado]
+        const projeto = this.store.listaProjetos[selecionado]
 
-      if(!projeto.textSimulator) {
-        projeto.consoleExit = 'A entrada do simulador está vazia!'
-        this.$toast.warning("A entrada do simulador está vazia.");
-        return;
-      }
-      try {
-        const result = syntacticSimulation(
-          projeto.textSimulator,
-          projeto.regularDefinitions,
-          projeto.tokens,
-          projeto.nonTerminals,
-          projeto.grammar,
-          projeto.optionsGals.parser,
-          this.store.necessarioRecriar,
-          undefined,
-          undefined,
-          this.store.gramatica as Grammar | undefined,
-          this.store.lrSim as LRParserSimulator | undefined,
-          this.store.ll1Sim as LL1ParserSimulator | undefined
-        )
-        let [resultadoSintatico,  novaGramatica, novoLRSim, novoLL1Sim] = result
+        if(!projeto.textSimulator) {
+            projeto.consoleExit = 'A entrada do simulador está vazia!'
+            this.$toast.warning("A entrada do simulador está vazia.");
+            return;
+        }
+        this.queueSyntacticSimulation(projeto)
 
-        this.resultadoSintatico = resultadoSintatico
-        this.store.gramatica = novaGramatica;
-        this.store.lrSim = novoLRSim;
-        this.store.ll1Sim = novoLL1Sim;
-
-        this.$toast.default("Simulação Sintática Concluída")
-        
-        projeto.consoleExit = 'Simulação Concluida'
-      } catch (error) {
-        console.log(error)
-        this.$toast.error("Erro Léxico/Sintático: "+ this.translateHTMLTags((error as Error).message), {"duration":0});
-        projeto.consoleExit = 'Erro Léxico/Sintático: ' + (error as Error).message
-      }
     },
     translateHTMLTags(line: string): string{
       return line.replace('<', '&lt').replace('>', '&gt');
@@ -155,7 +187,20 @@ export default defineComponent({
       </div>
       <div class="container__botao__simular">
         <button class="botao__simular" @click="simularLexico">Simular Lexico</button>
-        <button class="botao__simular" @click="simularSintatico">Simular Sintático</button>
+        <button
+          class="botao__simular"
+          :class="{ simulando: isSimulating }"
+          :disabled="isSimulating"
+          @click="simularSintatico"
+        >
+          <span v-if="isSimulating">
+            Simulando...
+          </span>
+
+          <span v-else>
+            Simular Sintático
+          </span>
+        </button>
       </div>
       <div class="container__botao__simular">
         <span class="material-icons customizado"  title="Habilitado: o autômato é reconstruído a cada simulação. Desativado: o autômato da última simulação é reutilizado para simulações subsequentes. Útil para simular gramáticas ambíguas. Alteração nas definições regulares, tokens, símbolo inicial ou gramática requerem que um novo autômato seja criado." style="font-size: 22px;">restart_alt</span>
@@ -363,7 +408,17 @@ tr:hover {
   transform: translateY(1px);
 }
 
+.simulando.botao__simular::before {
+  content: url(@/assets/icons/spinner.svg);
+  filter: invert(100%);
+  transform: translateY(1pt) translateX(-2pt);
+}
 
+.simulando.botao__simular {
+  background-color: #738b53;
+  transform: none;
+  box-shadow: none;
+}
 
 .switch {
   position: relative;

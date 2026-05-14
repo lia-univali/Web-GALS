@@ -340,50 +340,51 @@ export class OrderedIntegerSet {
 
 export class TreeNode<T> {
 
-  private _value: T | null;
-  private _parent: TreeNode<T> | null;
-  private _children: TreeNode<T>[];
+    private _value: T | null;
+    private _parent: TreeNode<T> | null;
+    private _children: TreeNode<T>[];
 
-  constructor(value?: T, parent?: TreeNode<T>) {
-    this._value = (value === undefined? null : value);
-    this._parent = (parent === undefined? null : parent);
-    this._children = [];
-  }
-
-  add(child: TreeNode<T>): TreeNode<T> {
-    child.parent = this;
-    this._children.push(child);
-    return child;
-  }
-
-  get value(): T | null {
-    return this._value;
-  }
-
-  get parent(): TreeNode<T> | null{
-    return this._parent;
-  }
-
-  get children(): TreeNode<T>[]{
-    return this._children;
-  }
-
-  set value(value: T | null) {
-    this._value = value;
-  }
-
-  set parent(parent: TreeNode<T> | null){
-    this._parent = parent;
-  }
-
-  set children(children: TreeNode<T>[]){
-    this._children = children;
-  }
-
-  toJSON() {
-    return { 
-      "value": this.value,
-      "children": this.children
+    constructor(value?: T, parent?: TreeNode<T>) {
+        this._value = (value === undefined? null : value);
+        this._parent = (parent === undefined? null : parent);
+        this._children = [];
     }
-  }
+
+    add(child: TreeNode<T>): TreeNode<T> {
+        child.parent = this;
+        this._children.push(child);
+        return child;
+    }
+
+
+    get value(): T | null {
+        return this._value;
+    }
+
+    get parent(): TreeNode<T> | null{
+        return this._parent;
+    }
+
+    get children(): TreeNode<T>[]{
+        return this._children;
+    }
+
+    set value(value: T | null) {
+        this._value = value;
+    }
+
+    set parent(parent: TreeNode<T> | null){
+        this._parent = parent;
+    }
+
+    set children(children: TreeNode<T>[]){
+        this._children = children;
+    }
+
+    toJSON() {
+        return {
+            "value": this.value,
+            "children": this.children
+        }
+    }
 }
