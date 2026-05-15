@@ -37,7 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-6f16e72f.js";
+            window.path_to_searchindex_js = "searchindex-307003dd.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -327,14 +327,21 @@ Para Python e Rust é possível especificar o <em>module</em> das classes, onde 
 <h5 id="ascendentes"><a class="header" href="#ascendentes">Ascendentes</a></h5>
 <ul>
 <li><strong>SLR(1):</strong> Uma implementação do <em>Simple LR(1)</em>, parser ascendente tabelado e que utiliza esquema <em>Shift-Reduce</em>.</li>
-<li><strong>LALR(1)</strong> (Não Finalizado)</li>
-<li><strong>LR(1) Canônico</strong> (Não Finalizado)</li>
+<li><strong>LALR(1):</strong> Uma versão do LR(1) Canônico onde estados identicos mas com lookaheads diferentes são juntos em um só estado. Maior poder do que o SLR(1) mas menor poder do que o LR(1) canônico.</li>
+<li><strong>LR(1) Canônico:</strong> A versão “correta” do algorítmo <em>Shift-Reduce</em>. O seu problema é a explosão na quantidade de estados em função da complexidade da gramática.</li>
 </ul>
-<p>Algumas classes impõem restrições na construção da gramática que devem ser observadas quando for descrevê-la.</p>
-<blockquote class="blockquote-tag blockquote-tag-note">
-<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
-<p>Os analisadores <code>LALR(1)</code> e <code>LR(1)</code> não estão disponíveis para Delphi.</p>
+<blockquote class="blockquote-tag blockquote-tag-caution">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</p>
+<p>O LR(1) Canônico e por consequência o LALR(1) podem travar o Web GALS caso a gramática seja muito complexa.</p>
 </blockquote>
+<p>Algumas classes impõem restrições na construção da gramática que devem ser observadas quando for descrevê-la.</p>
+<!-- Levando em consideração minha descoberta que a unica diferença entre o SLR(1), LALR(1) e LR(1)
+     é a tabela gerada, é muito provável que o Delphi tem suporte sim ao LALR(1) e LR(1). Só não vou
+     testar pois não estou com vontade de comprar uma licença de Delphi (principalmente já que tal nem
+     suporta Linux para começo de conversa, e acho um insulto ter que rodar um compilador via Wine.)
+> [!NOTE]
+> Os analisadores `LALR(1)` e `LR(1)` não estão disponíveis para Delphi.
+-->
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="aspectos-léxicos"><a class="header" href="#aspectos-léxicos">Aspectos Léxicos</a></h1>
 <p>Os aspectos léxicos de um projeto no Web GALS são definidos pela declaração dos Tokens e suas expressões regulares.</p>
