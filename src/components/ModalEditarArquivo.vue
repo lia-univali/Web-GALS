@@ -20,7 +20,7 @@ export default defineComponent({
     editarProjeto() {
       const input = document.getElementById('nomeProjetoEditar') as HTMLInputElement
       if (input != null) {
-        let nome: string = input.value.trim() + '.gals'
+        let nome: string = input.value.trim() + '.vgls'
 
         const selecionado = this.store.selecionado
         if (selecionado == -1) return

@@ -16,6 +16,8 @@ import { Options } from '@/assets/scripts/gals-lib/generator/Options'
 import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
+import { parseFileFromString, saveFile } from '@/assets/scripts/gals-lib/loadnsave_utils'
+
 export default defineComponent({
   name: 'BarraEsquerda',
   components: {
@@ -111,41 +113,22 @@ export default defineComponent({
             reader.readAsText(file, fileInfo.encoding.toString())
           }
 
-          reader.onload = function () {
-            const splitResultado: string[] = (reader.result as string).split(
-              /#Options\n|\n#RegularDefinitions\n|\n#Tokens\n|\n#NonTerminals\n|\n#Grammar\n/
-            )
-            const newProject = {
-              id: thatStore.totalProjetos,
-              fileName: file.name,
-              options: splitResultado[1] == undefined ? '' : splitResultado[1],
-              regularDefinitions: splitResultado[2] == undefined ? '' : splitResultado[2],
-              tokens: splitResultado[3] == undefined ? '' : splitResultado[3],
-              nonTerminals:
-                splitResultado[4] == undefined
-                  ? ''
-                  : splitResultado[4]
-                      .split('\n')
-                      .filter((str) => !str.startsWith('//'))[0]
-                      .trim(),
-              grammar: splitResultado[5] == undefined ? '' : splitResultado[5],
-              textSimulator: '',
-              consoleExit: '',
-              optionsGals:
-                splitResultado[1] == undefined
-                  ? new Options()
-                  : new Options().constructorFromString(
-                      splitResultado[1] == undefined ? '' : splitResultado[1]
-                    )
+          reader.onload = () => {
+            const content = reader.result as string;
+
+            try {
+              const newProject = parseFileFromString(file.name, thatStore.totalProjetos, content);
+
+              thatStore.addProject(newProject)
+              thatStore.selectLastProject()
+
+              input.value = ''
+              this.$toast.info('Arquivo carregado!')
+            } catch (e) {
+              this.$toast.error((e as Error).message);
             }
-
-            thatStore.addProject(newProject)
-            thatStore.selectLastProject()
           }
-
-          input.value = ''
         });
-        this.$toast.info('Arquivo carregado!')
       }).catch(error => {
         console.error('Error importing DetectFileEncodingAndLanguage:', error);
       });
@@ -157,7 +140,10 @@ export default defineComponent({
       const input = document.getElementById('nomeProjeto') as HTMLInputElement
       if (input != null) input.value = ''
     },
-    abrirModalEditarArquivo() {
+    abrirModalEditarArquivo(pid: number) {
+
+      this.store.changeSelected(pid)
+
       const formulario = document.getElementById('modal__arquivo__editar')
       if (formulario != null) formulario.style.display = 'flex'
 
@@ -168,28 +154,7 @@ export default defineComponent({
       if (this.selecionado == -1) {
         this.$toast.error('Nenhum projeto selecionado!')
       } else {
-        const options = this.projetos[this.selecionado].options
-        const objOptions = this.projetos[this.selecionado].optionsGals
-        const regularDefinitions = this.projetos[this.selecionado].regularDefinitions
-        const tokens = this.projetos[this.selecionado].tokens
-        const nonTerminals = this.projetos[this.selecionado].nonTerminals
-        const grammar = this.projetos[this.selecionado].grammar
-
-        let codigo = ''
-        //codigo += '#Options\n' + (options == undefined ? '' : options) + '\n\n' // TODO mudar para  objeto
-        codigo += '#Options\n' + (options == undefined ? '' : objOptions.toString()) + '\n' // <orientador> Tentativa de mudança
-        codigo +=
-          '#RegularDefinitions\n' +
-          (regularDefinitions == undefined ? '' : regularDefinitions) +
-          '\n'
-        codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n'
-        codigo +=
-          '#NonTerminals\n' +
-          (nonTerminals == undefined ? '' : nonTerminalsFromGrammar(nonTerminals, grammar)) +
-          '\n'
-        codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar)
-
-        salvador.download(codigo, this.projetos[this.selecionado].fileName, '.gals')
+        saveFile(this.projetos[this.selecionado])
         this.$toast.success('Projeto salvo!')
       }
     },
@@ -307,7 +272,7 @@ export default defineComponent({
       ></button>
       <button class="botao novo__projeto" @click="abrirModalNovoArquivo"></button>
       <label class="botao__input" @change="abrirArquivo">
-        <input name="file" type="file" id="file" ref="myFiles" accept=".gals" />
+        <input name="file" type="file" id="file" ref="myFiles" accept=".gals,.vgls" />
         Custom Upload
       </label>
       <button class="botao salvar" @click="salvarArquivo"></button>
@@ -336,9 +301,11 @@ export default defineComponent({
               v-bind:class="selecionado == projeto.id ? 'selecionado__projeto' : ''"
             >
               {{ projeto.fileName }}
+              <span class="projeto__modified" v-if="projeto.dirty">•</span>
             </button>
+
             <div class="botao__conjunto__projeto" >
-              <span @click="abrirModalEditarArquivo" class="material-icons customizado"  title="Editar Projeto" style="font-size: 14px;">edit_square</span>
+              <span @click="abrirModalEditarArquivo(projeto.id)" class="material-icons customizado"  title="Editar Projeto" style="font-size: 14px;">edit_square</span>
               <button @click="store.deleteProject(projeto.id)" class="botao__excluir__projeto" title="Excluir Projeto">
                 X
               </button>
@@ -724,6 +691,10 @@ input[type='file'] {
   display: flex;
   gap: 15px;
   align-items: center;
+}
+
+.projeto__modified {
+  font-size: 14pt;
 }
 
 </style>

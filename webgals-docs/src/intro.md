@@ -42,7 +42,7 @@ Após finalizar um projeto no Web GALS, é possível gerar um código *template*
 ![Exemplo de Projeto Gerado](./projexample.png)
 <center><i>Exemplo de projeto (arquivos de código-fonte) gerado pelo Web GALS.</i></center>
 
-Tendo de exemplo [o seguinte arquivo de projeto](https://lia-univali.github.io/Web-GALS/files/exemplo.gals), com a seguinte entrada de simulação, o estado do Web GALS se encontra como no da figura:
+Tendo de exemplo [o seguinte arquivo de projeto](https://lia-univali.github.io/Web-GALS/files/exemplo.vgls), com a seguinte entrada de simulação, o estado do Web GALS se encontra como no da figura:
 ```rust
 {
 	let a = b * (1 + 2) - c;

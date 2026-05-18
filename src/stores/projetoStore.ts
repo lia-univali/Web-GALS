@@ -16,6 +16,7 @@ export interface Projeto {
   textSimulator: string
   consoleExit: string
   optionsGals: Options
+  dirty: boolean
 }
 
 export interface Layout {
@@ -31,6 +32,7 @@ let linhaProjetoNovo: string = '';
 export const projetoStore = defineStore('projetos', {
   state: () => {
     return {
+      version: 2,
       listaProjetos: [
         {
           'id': 0,
@@ -43,6 +45,7 @@ export const projetoStore = defineStore('projetos', {
           'textSimulator': '',
           'consoleExit': '',
           'optionsGals': new Options(),
+          'dirty': false,
         },
       ] as Projeto[],
       selecionado: 0,
@@ -62,6 +65,40 @@ export const projetoStore = defineStore('projetos', {
     totalProjetos: (state) => state.listaProjetos.length
   },
   actions: {
+    loadPersistedState() {
+        const saved = localStorage.getItem("webgals-projects")
+
+        if (!saved) return
+
+        const parsed = JSON.parse(saved)
+
+        if (parsed.version !== 2) {
+          return;
+        }
+
+        parsed.listaProjetos.forEach((p: Projeto) => {
+            p.optionsGals = Object.assign(
+                new Options(),
+                p.optionsGals
+            )
+        })
+
+        parsed.listaProjetos = parsed.listaProjetos.filter((item: any)=> item !== null)
+
+        this.$patch(parsed)
+    },
+
+    persistState() {
+        localStorage.setItem(
+            "webgals-projects",
+            JSON.stringify({
+                version: this.version,
+                listaProjetos: this.listaProjetos,
+                selecionado: this.selecionado,
+                layout: this.layout
+            })
+        )
+    },
     changeSelected(newSelected: number) {
       this.selecionado = newSelected
       this.necessarioRecriar  = true
@@ -116,10 +153,14 @@ export const projetoStore = defineStore('projetos', {
 
       if(linhaProjetoNovo === linhaProjetoAntigo)
         this.necessarioRecriar = false
-      else{
+      else {
+        this.listaProjetos[this.selecionado].dirty = true;
         this.necessarioRecriar = true
         linhaProjetoAntigo = linhaProjetoNovo
       }
+    },
+    markDirty(): void {
+      this.listaProjetos[this.selecionado].dirty = true;
     }
   }
 })

@@ -25,6 +25,12 @@ export default defineComponent({
   setup() {
     const store = projetoStore()
 
+	store.loadPersistedState()
+
+    store.$subscribe(() => {
+        store.persistState()
+    })
+
     const layout = computed(() => {
       return store.layout
     })
