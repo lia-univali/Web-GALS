@@ -1,3 +1,20 @@
+
+
+export function langIdToString(value: number) {
+  if      (value === Options.LANG_CPP)    return 'C++';
+  else if (value === Options.LANG_JAVA)   return 'Java';
+  else if (value === Options.LANG_DELPHI) return 'Delphi';
+  else if (value === Options.LANG_PYTHON) return 'Python';
+  else if (value === Options.LANG_RUST)   return 'Rust';
+  else throw new Error('Erro convertendo idtostring')
+}
+
+export function scnrIdToString(value: number) {
+  if      (value === Options.SCANNER_TABLE_FULL)     return 'Full';
+  else if (value === Options.SCANNER_TABLE_COMPACT)  return 'Compact'
+  else if (value === Options.SCANNER_TABLE_HARDCODE) return 'Hardcode';
+}
+
 export class Options {
   public scannerName: string = 'Lexico'
   public parserName: string = 'Sintatico'

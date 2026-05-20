@@ -68,6 +68,7 @@ export default defineComponent({
 
       if (modalConfiguracoesRef && modalConfiguracoesRef.enviarForms) {
         modalConfiguracoesRef.preencherModal()
+        modalConfiguracoesRef.resetShadowStates()
         modal.style.display = 'flex'
       }
     },

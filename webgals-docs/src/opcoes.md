@@ -46,7 +46,7 @@ Para Java e C++ pode-se especificar a *package* e o *namespace* respectivamente 
 Para Python e Rust é possível especificar o *module* das classes, onde é criada a hierarquia de diretórios correspondente.
 
 > [!NOTE]
-> Não foi implementado para Delphi suporte para o sistema de nomeamento e hierarquia.
+> Não foi implementado para Delphi suporte para o sistema de nomeamento de hierarquia (namespace).
 
 ## Opções do Analisador Léxico
 

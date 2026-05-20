@@ -4,17 +4,25 @@ import { defineComponent } from 'vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import { Options } from '@/assets/scripts/gals-lib/generator/Options'
+import { langIdToString, scnrIdToString } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
   name: 'ModalConfiguracoes',
   components: {},
+  lang: '',
+  scnr: '',
   props: {
     options: Options
   },
   data() {
+    const store =  projetoStore()
+    const X = store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.language     : -1;
+    const Y = store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.scannerTable : -1;
     return {
       activeTab: 'Geral',
-      namespace: true
+      namespace: true,
+      lang: store.selecionado !== -1 ? langIdToString(X) : '',
+      scnr: store.selecionado !== -1 ? scnrIdToString(Y) : '',
     }
   },
   setup() {
@@ -31,10 +39,30 @@ export default defineComponent({
     return {
       store,
       projetos,
-      selecionado
+      selecionado,
+    }
+  },
+  watch: {
+    selecionado() {
+      const store = projetoStore();
+      if (store.selecionado == -1)
+        return
+      const X = store.listaProjetos[store.selecionado].optionsGals.language
+      const Y = store.listaProjetos[store.selecionado].optionsGals.scannerTable
+      this.lang = langIdToString(X);
+      this.scnr = scnrIdToString(Y);
+      this.activeTab = 'Geral'
+      this.changeTab(this.activeTab)
     }
   },
   methods: {
+    resetShadowStates() {
+      const store =  projetoStore()
+      const X = store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.language     : -1;
+      const Y = store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.scannerTable : -1;
+      this.lang = store.selecionado !== -1 ? langIdToString(X) : '';
+      this.scnr = store.selecionado !== -1 ? scnrIdToString(Y) : '';
+    },
     fecharModal() {
       const modal = document.getElementById('modal__configuracoes')
       if (modal != null) modal.style.display = 'none'
@@ -53,6 +81,30 @@ export default defineComponent({
         tablinks[2].className += ' active'
       }
       this.activeTab = tab
+    },
+    autoChanged(e: Event) {
+      const form = e.target as HTMLFormElement;
+
+      if (form == null)
+        return;
+
+      this.scnr = form.value;
+    },
+    langChanged(e: Event) {
+      const form = e.target as HTMLFormElement;
+
+      if (form == null)
+        return;
+
+      this.lang = form.value;
+
+
+      if (this.scnr === 'Compact' && this.lang !== 'Java')
+      {
+        const form: any = this.$refs.form
+        form.automato.value = 'Full'
+        this.scnr = 'Full'
+      }
     },
     enviarForms(e: Event) {
       if (e == null) return
@@ -92,8 +144,6 @@ export default defineComponent({
       const form: any = this.$refs.form
       const opcoes: Options = this.projetos[this.selecionado].optionsGals
 
-      //alert(opcoes.toString())
-
       if (opcoes.generateScanner && opcoes.generateParser) form.gerar.value = '3'
       else if (opcoes.generateParser) form.gerar.value = '2'
       else if (opcoes.generateScanner) form.gerar.value = '1'
@@ -130,7 +180,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="modal__configuracoes" id="modal__configuracoes">
+  <div :key="store.selecionado" class="modal__configuracoes" id="modal__configuracoes">
     <h2>Configurações</h2>
     <div class="modal__configuracoes__inner" id="modal__configuracoes__inner">
       <span id="close" v-on:click="fecharModal"></span>
@@ -161,7 +211,7 @@ export default defineComponent({
             </div>
           </fieldset>
 
-          <fieldset>
+          <fieldset @change='langChanged'>
             <legend>Linguagem</legend>
             <div>
               <input type="radio" id="linguagemJava" name="linguagem" value="Java" checked />
@@ -183,10 +233,10 @@ export default defineComponent({
               <label for="linguagemPython">Python</label>
             </div>
 
-	    <div>
+            <div>
               <input type="radio" id="linguagemRust" name="linguagem" value="Rust" />
-	      <label for="linguagemRust">Rust</label>
-	    </div>
+              <label for="linguagemRust">Rust</label>
+            </div>
 
             <!-- <div>
               <input type="radio" id="linguagemC#" name="linguagem" value="C#" />
@@ -232,16 +282,20 @@ export default defineComponent({
                 </tr>
                 <tr>
                   <td>
-                    <!-- <input
-                      type="checkbox"
-                      id="arquivoNamespace"
-                      name="namespace"
-                      v-model="namespace"
-                    /> -->
-                    <label for="arquivoNamespace">Package / Namespace</label>
+                    <label for="arquivoNamespace">
+                      <span v-if='lang === "Java"'>
+                        Pacote
+                      </span>
+                      <span v-if='lang === "C++" || lang === "Delphi"' :class='{ disabled__label: lang === "Delphi"}'>
+                        Namespace
+                      </span>
+                      <span v-if='lang === "Rust" || lang === "Python"'>
+                        Módulo
+                      </span>
+                    </label>
                   </td>
                   <td>
-                    <input type="input" id="arquivoNamespace" name="nameNamespace" value="" />
+                    <input :disabled='lang === "Delphi"' type="input" id="arquivoNamespace" name="nameNamespace" value="" />
                   </td>
                 </tr>
               </tbody>
@@ -269,7 +323,7 @@ export default defineComponent({
             </div>
           </fieldset>
 
-          <fieldset>
+          <fieldset @change='autoChanged'>
             <legend>Implementação do Autômato</legend>
             <div>
               <input type="radio" id="automatoCompleto" name="automato" value="Full" checked />
@@ -277,7 +331,7 @@ export default defineComponent({
             </div>
 
             <div>
-              <input type="radio" id="automatoCompactado" name="automato" value="Compact" />
+              <input :disabled='lang !== "Java"' type="radio" id="automatoCompactado" name="automato" value="Compact" />
               <label for="automatoCompactado">Tabela Compactada (Só para Java)</label>
             </div>
 
@@ -521,5 +575,9 @@ legend {
 
 #close:after {
   transform: rotate(-45deg);
+}
+
+.disabled__label {
+  color: #808080;
 }
 </style>
