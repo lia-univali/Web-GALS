@@ -76,15 +76,15 @@ export function parseFileFromString(fileName: string, id: number, content: strin
   }
   else
   {
-    let namesplit = fileName.split(/\./);
-
-    if (namesplit[namesplit.length - 1] === "gals")
-    {
-      fileName = ""
-      for (let i = 0; i <= namesplit.length - 2; i++)
-        fileName += namesplit[i] + ".";
-      fileName += "vgls"
-    }
+//  let namesplit = fileName.split(/\./);
+//
+//  if (namesplit[namesplit.length - 1] === "gals")
+//  {
+//      fileName = ""
+//      for (let i = 0; i <= namesplit.length - 2; i++)
+//        fileName += namesplit[i] + ".";
+//      fileName += "vgls"
+//    }
 
     return parseV1(fileName, id, content);
   }
@@ -102,7 +102,7 @@ export function saveFile(project: Projeto) {
 
   let codigo = '';
 
-  codigo += "%%%VERSION 2%%%\n"
+//codigo += "%%%VERSION 2%%%\n"
 
   codigo += '#Options\n' + (options == undefined ? '' : objOptions.toString()) + '\n'
 
@@ -116,7 +116,7 @@ export function saveFile(project: Projeto) {
 
   codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar) + '\n'
 
-  codigo += "#SimulatorText\n" + btoa(project.textSimulator)
+//codigo += "#SimulatorText\n" + btoa(project.textSimulator)
 
   salvador.download(codigo, project.fileName, '.vgls')
 
