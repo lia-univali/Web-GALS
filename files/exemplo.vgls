@@ -1,3 +1,4 @@
+%%%VERSION 2%%%
 #Options
 GenerateScanner = true
 GenerateParser = true
