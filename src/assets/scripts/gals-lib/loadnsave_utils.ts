@@ -118,7 +118,7 @@ export function saveFile(project: Projeto) {
 
 //codigo += "#SimulatorText\n" + btoa(project.textSimulator)
 
-  salvador.download(codigo, project.fileName, '.vgls')
+  salvador.download(codigo, project.fileName, '.gals')
 
   project.dirty = false;
 }
