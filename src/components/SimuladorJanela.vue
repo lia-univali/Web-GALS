@@ -8,6 +8,7 @@ import TreeBrowser from '@/components/TreeBrowser.vue'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 import { LRParserSimulator } from '@/assets/scripts/gals-lib/simulator/LRParserSimulator'
 import { LL1ParserSimulator } from '@/assets/scripts/gals-lib/simulator/LL1ParserSimulator'
+import * as UIBridge from '@/workers/UIBridge'
 
 export default defineComponent({
   isSimulating: false,
@@ -79,6 +80,43 @@ export default defineComponent({
         { type: 'module' }
       );
 
+      worker.onmessage = (event) => {
+        const data = event.data;
+
+        if (data.type === 'rpc_request') {
+          UIBridge.uibridgeimpl(this, worker, data);
+        } else {
+          if (data.success) {
+          const [
+            resultadoSintatico,
+            novaGramatica,
+            novoLRSim,
+            novoLL1Sim
+          ] = data.result;
+
+          this.resultadoSintatico = Object.assign(new TreeNode(), JSON.parse(resultadoSintatico));
+          //  this.store.gramatica = novaGramatica;
+          //  this.store.lrSim = novoLRSim;
+          //  this.store.ll1Sim = novoLL1Sim;
+
+          this.$toast.default("Simulação Sintática Concluída");
+          projeto.consoleExit = 'Simulação Concluida';
+          } else {
+          console.log(data.error);
+
+          this.$toast.error(
+            "Erro Léxico/Sintático: " +
+            this.translateHTMLTags(data.error),
+            { duration: 0 }
+          );
+
+          projeto.consoleExit = 'Erro Léxico/Sintático: ' + data.error;
+          }
+          worker.terminate();
+          this.isSimulating = false;
+        }
+      }
+
       worker.postMessage({
         textSimulator: projeto.textSimulator,
         regularDefinitions: projeto.regularDefinitions,
@@ -94,39 +132,6 @@ export default defineComponent({
       // lrSim: this.store.lrSim,
       // ll1Sim: this.store.ll1Sim
       });
-
-      worker.onmessage = (event) => {
-        const data = event.data;
-
-        if (data.success) {
-          const [
-            resultadoSintatico,
-            novaGramatica,
-            novoLRSim,
-            novoLL1Sim
-          ] = data.result;
-
-          this.resultadoSintatico = Object.assign(new TreeNode(), JSON.parse(resultadoSintatico));
-      //  this.store.gramatica = novaGramatica;
-      //  this.store.lrSim = novoLRSim;
-      //  this.store.ll1Sim = novoLL1Sim;
-
-          this.$toast.default("Simulação Sintática Concluída");
-          projeto.consoleExit = 'Simulação Concluida';
-        } else {
-          console.log(data.error);
-
-          this.$toast.error(
-            "Erro Léxico/Sintático: " +
-            this.translateHTMLTags(data.error),
-            { duration: 0 }
-          );
-
-          projeto.consoleExit = 'Erro Léxico/Sintático: ' + data.error;
-        }
-        worker.terminate();
-        this.isSimulating = false;
-      }
     },
     simularSintatico() {
         this.tipoSimulacao = 'Sintático'

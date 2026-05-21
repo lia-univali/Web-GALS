@@ -26,9 +26,10 @@ export class LRParserSimulator
 	
 	public static DOLLAR = 1;
 	
-	public constructor(parser: LRGenerator)
+	public constructor(table: Command[][], parser: LRGenerator)
 	{
-		this.table = parser.buildTable();
+//		this.table = parser.buildTable();
+		this.table = table;
 		this.semanticStart = parser.firstSemanticAction;
 		const pl: List<Production> = parser.grammar.productions;
 		this.productions = []; //int[pl.size()][2];

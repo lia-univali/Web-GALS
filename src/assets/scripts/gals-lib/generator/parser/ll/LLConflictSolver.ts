@@ -2,13 +2,17 @@ import { List, OrderedIntegerSet } from '../../../DataStructures'
 import { ConflictSolver } from "../ConflictSolver";
 import { Grammar } from "../Grammar";
 import { Production } from "../../../util/Production";
+import { installRPCHandler } from '@/workers/workerRPC';
+import * as UIBridge from '@/workers/UIBridge';
+
+installRPCHandler()
 
 export class LLConflictSolver extends ConflictSolver{
 
     private conflict: OrderedIntegerSet | null = null;
     private stackTop: number | null = null;
 
-    resolve(g: Grammar, input: number): number{
+    async resolve(g: Grammar, input: number): Promise<number> {
         let inText: string;
 
         if (this.stackTop == null) throw SyntaxError("Stack de Não terminais é nulo");
@@ -42,9 +46,9 @@ export class LLConflictSolver extends ConflictSolver{
         let result: string | null = null
 
         try {
-            result = prompt(header, '1')
+            result = await UIBridge.prompt(header, '1')
         } catch {
-            console.log('Prompt não encontrado')
+            console.log("Prompt não encontrado")
         }
 
         if(result == null)

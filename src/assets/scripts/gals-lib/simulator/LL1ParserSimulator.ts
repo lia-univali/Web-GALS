@@ -31,11 +31,12 @@ export class LL1ParserSimulator
 
     public nodeCount: Stack<any> = new Stack();
 	
-	public constructor(parser: LLParser) 
+	public constructor(table: number[][], parser: LLParser)
 	{
 
 		this.grammar = parser.getGrammar() || (() => { throw new Error('Grammar is undefined'); })();;
-		this.table = parser.generateTable();
+//		this.table = parser.generateTable();
+		this.table = table;
 		this.FIRST_NON_TERMINAL = this.grammar.FIRST_NON_TERMINAL;
 		this.FIRST_SEMANTIC_ACTION = this.grammar.FIRST_SEMANTIC_ACTION();
 		this.LAST_SEMANTIC_ACTION = this.grammar.LAST_SEMANTIC_ACTION();

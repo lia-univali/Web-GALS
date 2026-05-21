@@ -1,5 +1,4 @@
 import { List } from "../../DataStructures";
-import { AnalysisError } from "../../analyser/AnalysisError";
 import { SyntacticError } from "../../analyser/SystemErros";
 import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
@@ -8,13 +7,14 @@ import { Grammar } from "../parser/Grammar";
 import { LLParser } from "../parser/ll/LLParser";
 import { Command } from "../parser/lr/Command";
 import { LRGeneratorFactory } from "../parser/lr/LRGeneratorFactory";
+import { installRPCHandler } from "@/workers/workerRPC";
 
 export class RustCommonGenerator
 {
 
     lrTable: number[][][] | null = null;
 	
-    generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Map<string, string> {
+    async generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Promise<Map<string, string>> {
         const result: Map<string, string> = new Map;
 
 		if (fa === null || g === null) {
@@ -23,11 +23,11 @@ export class RustCommonGenerator
 
 		let pkgpath = options.pkgName !== "" ? options.pkgName + "/" : "";
 
-		result.set("Cargo.toml",                 this.generateCargotoml());
-		result.set("src/main.rs",                this.mainfunc(options));
-		result.set(`src/${pkgpath}token.rs`,     this.generateToken(options));
-		result.set(`src/${pkgpath}errors.rs`,    this.generateErrors(options));
-		result.set(`src/${pkgpath}constants.rs`, this.generateConstants(fa, g, options));
+		result.set("Cargo.toml",                       this.generateCargotoml());
+		result.set("src/main.rs",                      this.mainfunc(options));
+		result.set(`src/${pkgpath}token.rs`,           this.generateToken(options));
+		result.set(`src/${pkgpath}errors.rs`,          this.generateErrors(options));
+		result.set(`src/${pkgpath}constants.rs`, await this.generateConstants(fa, g, options));
 
 		if (pkgpath !== "") {
 			result.set(`src/${pkgpath}mod.rs`,   this.generateMod(options));
@@ -226,7 +226,7 @@ impl Error for AnalysisError {}
 			;
 	}
 	
-	private generateConstants(fa: FiniteAutomata, g: Grammar, options: Options): string {
+	private async generateConstants(fa: FiniteAutomata, g: Grammar, options: Options): Promise<string> {
 		return "\nuse num_derive::FromPrimitive;\n\n"+
 
 			"pub const CASE_INSENSITIVITY: bool  = " + (options.scannerCaseSensitive == true ? "false;\n\n" : "true;\n\n")+
@@ -239,8 +239,8 @@ impl Error for AnalysisError {}
 			"\tEPSILON = 0,\n"+
 			"\tDOLLAR  = 1,\n"+
 			this.constList(fa, g)+
-			(options.generateScanner ? this.lexDecls(fa, options) : "")+
-			(options.generateParser  ? this.syntDecls(g, options) : "");
+			(options.generateScanner ?       this.lexDecls(fa, options) : "")+
+			(options.generateParser  ? await this.syntDecls(g, options) : "");
 	}
 
 	private constList(fa: FiniteAutomata, g: Grammar): string
@@ -324,7 +324,7 @@ impl Error for AnalysisError {}
 		return result.toString();
 	}
 	
-	private syntDecls(g: Grammar, options: Options): string
+	private async syntDecls(g: Grammar, options: Options): Promise<string>
 	{
 		if (g == null)
 			return "";
@@ -337,7 +337,7 @@ impl Error for AnalysisError {}
 			}
 			case Options.PARSER_LL:
 			{
-				return this.syntTables(g, options) + this.syntErrorsLL(g);
+				return await this.syntTables(g, options) + this.syntErrorsLL(g);
 			}
 			default: //SLR, LALR, LR
 			{
@@ -345,7 +345,7 @@ impl Error for AnalysisError {}
 
 				if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
-				this.lrTable = generator.buildIntTable();
+				this.lrTable = await generator.buildIntTable();
 
 				let result = `pub const FIRST_SEMANTIC_ACTION: i32 = ${g.FIRST_SEMANTIC_ACTION()};\n`+
 					"\n"+
@@ -360,7 +360,7 @@ impl Error for AnalysisError {}
 					"    ERROR,\n"+
 					"}\n\n"+
 
-					this.syntTables(g, options);
+					await this.syntTables(g, options);
 
 				return result;
 			}
@@ -471,7 +471,7 @@ impl Error for AnalysisError {}
 			return "";
 	}
 
-	private syntTables(g: Grammar, options: Options): string // TODO throws NotLLException
+	private async syntTables(g: Grammar, options: Options): Promise<string> // TODO throws NotLLException
 	{
 		if (g == null)
 			return "";
@@ -481,7 +481,7 @@ impl Error for AnalysisError {}
 			case Options.PARSER_REC_DESC:
 				throw new SyntacticError("REC_DESC DOES NOT USE SYNTTABLES");
 			case Options.PARSER_LL:
-				return this.genLLSyntTables(g);
+				return await this.genLLSyntTables(g);
 			default: //slr, lalr, lr
 				return  this.syntTransTable(g)+
 					    this.productionsLR(g)+
@@ -489,7 +489,7 @@ impl Error for AnalysisError {}
 		}
 	}
 
-	private genLLSyntTables(g: Grammar): string
+	private async genLLSyntTables(g: Grammar): Promise<string>
 	{
 		const result: string[] = [];
 
@@ -507,7 +507,7 @@ impl Error for AnalysisError {}
 
 		result.push("\n");
 
-		result.push(this.emitLLTable(g));
+		result.push(await this.emitLLTable(g));
 
 		result.push("\n");
 
@@ -518,10 +518,10 @@ impl Error for AnalysisError {}
 		return result.join("");
 	}
 
-	private emitLLTable(g: Grammar): string
+	private async emitLLTable(g: Grammar): Promise<string>
 	{
 		let llp = new LLParser(g)
-		let tbl: number[][] = llp.generateTable();
+		let tbl: number[][] = await llp.generateTable();
         let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
 
 		let max = 0;

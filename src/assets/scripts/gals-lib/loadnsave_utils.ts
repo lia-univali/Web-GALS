@@ -64,7 +64,6 @@ export function parseFileFromString(fileName: string, id: number, content: strin
   if (content[0] == "%" && content[1] == "%" && content[2] == "%")
   {
     version = getVersion(content);
-    console.log(version);
 
     switch (version) {
       case 1:

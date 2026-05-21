@@ -152,10 +152,10 @@ export abstract class LRGenerator {
 	 *
 	 * @returns Tabela de comandos LR.
 	 */
-	public abstract buildTable(): Command[][];
+	public abstract buildTable(): Promise<Command[][]>;
 
-	public buildIntTable(): number[][][] {
-		const commands: Command[][] = this.buildTable();
+	public async buildIntTable(): Promise<number[][][]> {
+		const commands: Command[][] = await this.buildTable();
 
 		const result: number[][][] = [];
 
@@ -170,7 +170,7 @@ export abstract class LRGenerator {
 		return result;
 	}
 
-	protected resolveConflicts(table: Set<Command>[][]): Command[][] {
+	protected async resolveConflicts(table: Set<Command>[][]): Promise<Command[][]> {
 		const result: Command[][] = [];
 
 		const error: Command = Command.createError();
@@ -185,7 +185,7 @@ export abstract class LRGenerator {
 						result[i][j] = table[i][j].values().next().value! //.iterator().next();
 						break;
 					default:
-						result[i][j] = this.solve(table[i][j], i, j);
+						result[i][j] = await this.solve(table[i][j], i, j);
 						break;
 				}
 			}
@@ -194,7 +194,7 @@ export abstract class LRGenerator {
 		return result;
 	}
 
-	private solve(set: Set<Command>, state: number, input: number): Command {
+	private async solve(set: Set<Command>, state: number, input: number): Promise<Command> {
 		const cmds: Command[] = [];
 		let i = 0;
 
@@ -215,11 +215,11 @@ export abstract class LRGenerator {
 		else {
 			const lrConflictSolver: LRConflictSolver = new LRConflictSolver();
 			lrConflictSolver.setup(cmds, state);
-			return cmds[lrConflictSolver.resolve(this.g, input)];
+			return cmds[await lrConflictSolver.resolve(this.g, input)];
 		}
 	}
 
-	public tableAsHTML(): string {
+	public async tableAsHTML(): Promise<string> {
 		let result = "";
 
 		result +=
@@ -230,7 +230,7 @@ export abstract class LRGenerator {
 			"<BODY><FONT face=\"Verdana, Arial, Helvetica, sans-serif\">" +
 			"<TABLE border=1 cellspacing=0>";
 
-		const table: Command[][] = this.buildTable();
+		const table: Command[][] = await this.buildTable();
 
 		result += "<TR>";
 		result += "<TD  align=center rowspan=2 bgcolor=black nowrap><FONT color=white><B>ESTADO</B></FONT></TD>";

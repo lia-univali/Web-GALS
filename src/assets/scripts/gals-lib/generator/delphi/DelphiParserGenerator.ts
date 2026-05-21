@@ -2,10 +2,11 @@ import { NotLLException, SyntacticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
 import type { Grammar } from "../parser/Grammar";
 import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
+import { LLParser } from "../parser/ll/LLParser";
 
 export class DelphiParserGenerator
 {
-	generate(g: Grammar, options: Options): Map<string, string> // throws NotLLException
+	async generate(g: Grammar, options: Options): Promise<Map<string, string>> // throws NotLLException
 	{
 		const result: Map<string, string> = new Map();
 		
@@ -19,7 +20,7 @@ export class DelphiParserGenerator
 			switch(options.parser)
 			{
 				case Options.PARSER_REC_DESC:
-					parser = this.buildRecursiveDescendantParser(g, options);
+					parser = await this.buildRecursiveDescendantParser(g, options);
 					break;
 				case Options.PARSER_LL:
 					parser = this.buildLLParser(g, options);
@@ -43,13 +44,14 @@ export class DelphiParserGenerator
 		return result;
 	}
 	
-	private buildRecursiveDescendantParser(g: Grammar, options: Options): string // throws NotLLException
+	private async buildRecursiveDescendantParser(g: Grammar, options: Options): Promise<string> // throws NotLLException
 	{
 		const classname: string = options.parserName;
 		const scanner: string = options.scannerName;
 		const semantic: string = options.semanticName;
 
-		const rd: RecursiveDescendent = new RecursiveDescendent(g);
+		const tables = await new LLParser(g).generateTable();
+		const rd: RecursiveDescendent = new RecursiveDescendent(tables, g);
 		const funcs: Map<string, FunctionCustom> = rd.build();
 
 		let bfr = "";

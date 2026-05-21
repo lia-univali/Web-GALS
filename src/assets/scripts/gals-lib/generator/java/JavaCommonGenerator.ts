@@ -13,7 +13,7 @@ export class JavaCommonGenerator {
 
     lrTable: number[][][] | null = null;
   
-    generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Map<string, string> {
+    async generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Promise<Map<string, string>> {
       const result: Map<string, string> = new Map;
   
       result.set('Token.java', this.generateToken(options));
@@ -22,7 +22,7 @@ export class JavaCommonGenerator {
         result.set('ScannerConstants.java', this.generateScannerConstants(fa, options));
       }
       if (g !== null) {
-        result.set('ParserConstants.java', this.generateParserConstants(g, options));
+        result.set('ParserConstants.java', await this.generateParserConstants(g, options));
       }
   
       result.set('AnalysisError.java', this.generateAnalysisError(options));
@@ -252,7 +252,7 @@ export class JavaCommonGenerator {
         return result.join('');
     }
 
-    private generateParserConstants(g: Grammar | null, options: Options): string {
+    private async generateParserConstants(g: Grammar | null, options: Options): Promise<string> {
         const result: string[] = [];
       
         const packageName = options.pkgName;
@@ -266,7 +266,7 @@ export class JavaCommonGenerator {
 
         if(g === null) throw new SyntacticError("Gramatica é nulo")
 
-        const table = this.genSyntTables(g, options)
+        const table = await this.genSyntTables(g, options)
 
         if(table === null) throw new SyntacticError("Tabela Sintatica é nula")
 
@@ -367,29 +367,29 @@ export class JavaCommonGenerator {
     }
 
     
-	private genSyntTables(g: Grammar , options: Options): string | null 
+	private async genSyntTables(g: Grammar , options: Options): Promise<string | null >
 	{
 		switch (options.parser)
 		{
 			case Options.PARSER_REC_DESC:
 			case Options.PARSER_LL:
-				return this.genLLSyntTables(g, options.parser);
+				return await this.genLLSyntTables(g, options.parser);
 			case Options.PARSER_SLR:
 			case Options.PARSER_LALR:
 			case Options.PARSER_LR:
-				return this.genLRSyntTables(g, options.parser);
+				return await this.genLRSyntTables(g, options.parser);
 			default:
 				return null;
 		}
 	}
 
-    private genLRSyntTables(g: Grammar,  lrParserOption: number): string
+    private async genLRSyntTables(g: Grammar,  lrParserOption: number): Promise<string>
 	{
         const generator = LRGeneratorFactory.createGenerator(g, lrParserOption);
 
         if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
-				this.lrTable = generator.buildIntTable();
+        this.lrTable = await generator.buildIntTable();
 
         const result: string[] = [];
 
@@ -537,7 +537,7 @@ export class JavaCommonGenerator {
 		return result.join("");
 	}
 
-  private genLLSyntTables(g: Grammar, type: number)
+  private async genLLSyntTables(g: Grammar, type: number): Promise<string | null>
 	{
     const result: string[] = [];
 		
@@ -557,7 +557,7 @@ export class JavaCommonGenerator {
 	    	
 	    	result.push("\n");
 	    	
-	    	result.push(this.emitLLTable(new LLParser(g)));
+	    	result.push(await this.emitLLTable(new LLParser(g)));
 				
 			result.push("\n");
 			
@@ -660,7 +660,7 @@ export class JavaCommonGenerator {
 		result.pop();
 		result.push("}");
 		result.push("\n    };\n");	
-		
+
 		return result.join("");
 	}
 	
@@ -831,9 +831,9 @@ export class JavaCommonGenerator {
 		return result.join("");
 	}
 
-    private emitLLTable(g: LLParser): string
+    private async emitLLTable(g: LLParser): Promise<string>
 	{
-	    let tbl: number[][] = g.generateTable();
+	    let tbl: number[][] = await g.generateTable();
         let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
 
 		let max = 0;

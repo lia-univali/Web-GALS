@@ -12,21 +12,21 @@ export class CppCommomGenerator
 
     lrTable: number[][][] | null = null;
 	
-    generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Map<string, string> {
+    async generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Promise<Map<string, string>> {
         const result: Map<string, string> = new Map;
 		
 		if (fa === null || g === null) {
 			throw new Error("FiniteAutomata and Grammar must not be null");
 		}
 				
-		result.set("Token.h", this.generateToken(options));
-		result.set("Constants.h", this.generateConstantsH(fa, g, options));
-		result.set("Constants.cpp", this.generateConstantsCpp(fa, g, options));
+		result.set("Token.h",             this.generateToken(options));
+		result.set("Constants.h",   await this.generateConstantsH(fa, g, options));
+		result.set("Constants.cpp", await this.generateConstantsCpp(fa, g, options));
 				
-		result.set("AnalysisError.h", this.generateAnalysisError(options));
-		result.set("LexicalError.h", this.generateLexicalError(options));
-		result.set("SyntacticError.h", this.generateSyntacticError(options));
-		result.set("SemanticError.h", this.generateSemanticError(options));	
+		result.set("AnalysisError.h",     this.generateAnalysisError(options));
+		result.set("LexicalError.h",      this.generateLexicalError(options));
+		result.set("SyntacticError.h",    this.generateSyntacticError(options));
+		result.set("SemanticError.h",     this.generateSemanticError(options));
 		
 		return result;
 	}
@@ -179,7 +179,7 @@ export class CppCommomGenerator
 			"";
 	}
 	
-	private generateConstantsH(fa: FiniteAutomata, g: Grammar, options: Options): string
+	private async generateConstantsH(fa: FiniteAutomata, g: Grammar, options: Options): Promise<string>
 	{
 		return "#ifndef CONSTANTS_H\n"+
 			"#define CONSTANTS_H\n"+
@@ -193,7 +193,7 @@ export class CppCommomGenerator
 			"};\n"+
 			"\n"+
 			this.lexDecls(fa, options)+			
-			this.syntDecls(g, options)+
+			await this.syntDecls(g, options)+
 			this.closeNamespace(options)+
 			"#endif\n"+
 			"";
@@ -254,7 +254,7 @@ export class CppCommomGenerator
 			"\n";
 	}
 	
-	private syntDecls(g: Grammar, options: Options): string
+	private async syntDecls(g: Grammar, options: Options): Promise<string>
 	{
 		if (g == null)
 			return "";
@@ -297,7 +297,7 @@ export class CppCommomGenerator
 
         if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
-				this.lrTable = generator.buildIntTable();
+				this.lrTable = await generator.buildIntTable();
 
 				return "const int FIRST_SEMANTIC_ACTION = "+g.FIRST_SEMANTIC_ACTION()+";\n"+
 					"\n"+
@@ -318,16 +318,16 @@ export class CppCommomGenerator
 		}
 	}
 	
-	private generateConstantsCpp(
+	private async generateConstantsCpp(
 		fa: FiniteAutomata,
 		g: Grammar,
-		options: Options): string // TODO throws NotLLException
+		options: Options): Promise<string> // TODO throws NotLLException
 	{
 		return "#include \"Constants.h\"\n"+
 			"\n"+
 			this.openNamespace(options)+
 			this.lexTables(fa, options)+
-			this.syntTables(g, options)+
+			await this.syntTables(g, options)+
 			this.closeNamespace(options)+
 			"";
 	}
@@ -510,7 +510,7 @@ export class CppCommomGenerator
 			return "";
 	}
 
-	private syntTables(g: Grammar, options: Options): string // TODO throws NotLLException
+	private async syntTables(g: Grammar, options: Options): Promise<string> // TODO throws NotLLException
 	{
 		if (g == null)
 			return "";
@@ -520,11 +520,11 @@ export class CppCommomGenerator
 			case Options.PARSER_REC_DESC:
 				return this.syntErrorsLL(g);	
 			case Options.PARSER_LL:
-				return  this.syntTransTable(new LLParser(g))+
+				return  await this.syntTransTable(new LLParser(g))+
 					    this.productionsLL(g)+
 					    this.syntErrorsLL(g);	
 			default: //slr, lalr, lr
-				return  this.syntTransTable(g)+
+				return  await this.syntTransTable(g)+
 					    this.productionsLR(g)+
 					    this.syntErrorsLR();
 		}
@@ -553,12 +553,12 @@ export class CppCommomGenerator
 		return result.toString();
 	}
 	
-	private syntTransTable(g: Grammar | LLParser){
+	private async syntTransTable(g: Grammar | LLParser): Promise<string> {
 
 		if(g instanceof Grammar){
 			return this.syntTransTableGrammar(g);
 		}else{
-			return this.syntTransTableLL(g);
+			return await this.syntTransTableLL(g);
 		}
 	}
 
@@ -599,9 +599,9 @@ export class CppCommomGenerator
 		return result.toString();
 	}
 
-	private syntTransTableLL(g: LLParser): string
+	private async syntTransTableLL(g: LLParser): Promise<string>
 	{
-		const tbl: number[][] = g.generateTable();
+		const tbl: number[][] = await g.generateTable();
 		const table: string[][] = []//new String[tbl.length][tbl[0].length];
 		
 		let max = 0;
@@ -616,8 +616,6 @@ export class CppCommomGenerator
 					max = tmp.length;
 			}
 		}
-
-		console.log(table);
 		
 		let bfr = "";
 		

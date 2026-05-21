@@ -21,7 +21,7 @@ export default defineComponent({
     adicionarProjeto() {
       const input = document.getElementById('nomeProjeto') as HTMLInputElement
       if (input != null) {
-        let nome: string = input.value.trim() + '.gals'
+        let nome: string = input.value.trim() + '.vgls'
 
         const newProject = {
           id: this.store.totalProjetos,

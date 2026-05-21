@@ -98,7 +98,6 @@ export default defineComponent({
 
       this.lang = form.value;
 
-
       if (this.scnr === 'Compact' && this.lang !== 'Java')
       {
         const form: any = this.$refs.form
@@ -332,7 +331,7 @@ export default defineComponent({
 
             <div>
               <input :disabled='lang !== "Java"' type="radio" id="automatoCompactado" name="automato" value="Compact" />
-              <label for="automatoCompactado">Tabela Compactada (Só para Java)</label>
+              <label :class='{ disabled__label: lang !== "Java"}' for="automatoCompactado">Tabela Compactada (Só para Java)</label>
             </div>
 
             <div>

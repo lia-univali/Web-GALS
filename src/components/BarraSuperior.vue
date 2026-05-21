@@ -6,6 +6,7 @@ import JSZip from 'jszip'
 import type TreeMap from 'ts-treemap'
 import { computed, defineComponent } from 'vue'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
+import * as UIBridge from '@/workers/UIBridge'
 
 export default defineComponent({
   name: 'BarraSuperior',
@@ -73,32 +74,36 @@ export default defineComponent({
       worker.onmessage = (event) => {
         const data = event.data;
 
-        if (data.success) {
-
-          /*
-           * Eu não consigo acreditar que é ASSIM que se emite um arquivo no
-           * javascript.
-           *
-           * Bravo, Brendan Eich.
-           */
-
-          const link    = document.createElement('a')
-          link.href     = data.result;
-          link.download = projeto.fileName.slice(0, -5) + " - " + linguagemString + ".zip";
-
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-
-          URL.revokeObjectURL(data.result)
-
-          this.$toast.success("Arquivos Gerados!");
+        if (data.type === 'rpc_request') {
+          UIBridge.uibridgeimpl(this, worker, data);
         } else {
-          this.$toast.error(data.error, {"duration":0});
-        }
+          if (data.success) {
 
-        this.isEmitting = false;
-        worker.terminate();
+            /*
+            * Eu não consigo acreditar que é ASSIM que se emite um arquivo no
+            * javascript.
+            *
+            * Bravo, Brendan Eich.
+            */
+
+            const link    = document.createElement('a')
+            link.href     = data.result;
+            link.download = projeto.fileName.slice(0, -5) + " - " + linguagemString + ".zip";
+
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            URL.revokeObjectURL(data.result)
+
+            this.$toast.success("Arquivos Gerados!");
+          } else {
+            this.$toast.error(data.error, {"duration":0});
+          }
+
+          this.isEmitting = false;
+          worker.terminate();
+        }
       };
     },
     mudaLayout(perfil: number) {

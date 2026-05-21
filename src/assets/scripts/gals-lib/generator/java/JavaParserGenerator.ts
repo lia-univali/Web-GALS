@@ -2,10 +2,11 @@ import { NotLLException, SyntacticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
 import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
 import { Grammar } from "../parser/Grammar";
+import { LLParser } from "../parser/ll/LLParser";
 
 export class JavaParserGenerator{
 
-	public generate(g: Grammar, options: Options): Map<string, string> // throws NotLLException
+	public async generate(g: Grammar, options: Options): Promise<Map<string, string>> // throws NotLLException
 	{
 		const result: Map<string, string> = new Map();
 		
@@ -18,7 +19,7 @@ export class JavaParserGenerator{
 			switch (options.parser)
 			{
 				case Options.PARSER_REC_DESC:
-					parser = this.buildRecursiveDecendantParser(g, options);
+					parser = await this.buildRecursiveDecendantParser(g, options);
 					break;
 				case Options.PARSER_LL:
 					parser = this.buildLLParser(g, options);
@@ -42,7 +43,7 @@ export class JavaParserGenerator{
 		return result;
 	}
 
-    private buildRecursiveDecendantParser(g: Grammar, parserOptions: Options) : string //throws NotLLException
+    private async buildRecursiveDecendantParser(g: Grammar, parserOptions: Options) : Promise<string> //throws NotLLException
 	{
         const result: string[] = [];
 	
@@ -50,7 +51,7 @@ export class JavaParserGenerator{
 	
 		result.push(this.emitPackage(package_));
 	
-		result.push(this.emitRecursiveDecendantClass(g, parserOptions));
+		result.push(await this.emitRecursiveDecendantClass(g, parserOptions));
 
 		return result.join("");
 	}
@@ -372,9 +373,10 @@ export class JavaParserGenerator{
     )
 	}
 	
-	private emitRecursiveDecendantClass(g: Grammar , parserOptions: Options ): string // throws NotLLException
+	private async emitRecursiveDecendantClass(g: Grammar , parserOptions: Options ): Promise<string> // throws NotLLException
 	{
-		const rd: RecursiveDescendent = new RecursiveDescendent(g);
+		const tables = await new LLParser(g).generateTable();
+		const rd: RecursiveDescendent = new RecursiveDescendent(tables, g);
 		
 		const result: string[] = [];
 

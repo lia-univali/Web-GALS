@@ -2,12 +2,13 @@ import { SyntacticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
 import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
 import { Grammar } from "../parser/Grammar";
+import { LLParser } from "../parser/ll/LLParser";
 
 export class CppParserGenerator
 {
 	private rd: RecursiveDescendent | undefined;
 	
-	public generate(g: Grammar, options: Options): Map<string, string> //throws NotLLException
+	public async generate(g: Grammar, options: Options): Promise<Map<string, string>> //throws NotLLException
 	{
 		const result: Map<string, string> = new Map();
 		
@@ -16,8 +17,8 @@ export class CppParserGenerator
 		
 			const classname: string = options.parserName;
 			
-			result.set(classname+".h", this.parserH(g, options));
-			result.set(classname+".cpp", this.parserCpp(g, options));			
+			result.set(classname+".h",   await this.parserH(g, options));
+			result.set(classname+".cpp", await this.parserCpp(g, options));
 			
 			result.set(options.semanticName + ".cpp", this.semanticAnalyserCpp(options));
 			result.set(options.semanticName + ".h", this.semanticAnalyserH(options));
@@ -87,7 +88,7 @@ export class CppParserGenerator
 			"";
 	}
 	
-	private parserH(g: Grammar, options: Options): string //throws NotLLException
+	private async parserH(g: Grammar, options: Options): Promise<string> //throws NotLLException
 	{
 		const scannerName: string = options.scannerName;
 		const parserName: string = options.parserName;
@@ -100,7 +101,8 @@ export class CppParserGenerator
 		
 		if (descendant)
 		{
-			this.rd = new RecursiveDescendent(g);
+			const tables = await new LLParser(g).generateTable();
+			this.rd = new RecursiveDescendent(tables, g);
 			let tmp = "";
 			tmp += ( "    void match(int token);");
 			for (let i=g.FIRST_NON_TERMINAL; i<g.FIRST_SEMANTIC_ACTION(); i++)
@@ -159,12 +161,12 @@ export class CppParserGenerator
 		return parser;
 	}
 	
-	private parserCpp(g: Grammar, options: Options): string
+	private async parserCpp(g: Grammar, options: Options): Promise<string>
 	{
 		switch (options.parser)
 		{
 			case Options.PARSER_REC_DESC:
-				return this.parserCppRecursiveDescendant(g, options);
+				return await this.parserCppRecursiveDescendant(g, options);
 						
 			case Options.PARSER_LL:
 				return this.parserCppLL(g, options);
@@ -174,10 +176,11 @@ export class CppParserGenerator
 		}
 	}
 	
-	private parserCppRecursiveDescendant(g: Grammar, options: Options): string
+	private async parserCppRecursiveDescendant(g: Grammar, options: Options): Promise<string>
 	{
 
-		const rd: RecursiveDescendent = new RecursiveDescendent(g);
+		const tables = await new LLParser(g).generateTable();
+		const rd: RecursiveDescendent = new RecursiveDescendent(tables, g);
 
 		if (rd == null) throw new SyntacticError("RecursiveDescendent é nulo.");
 

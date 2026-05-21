@@ -56,7 +56,7 @@ export class LLParser
 		return result;
 	}
 
-	public generateTable(): number[][]
+	public async generateTable(): Promise<number[][]>
 	{
 		if(this.g == null) throw new SyntacticError("Gramatica é nula");
 
@@ -84,10 +84,10 @@ export class LLParser
 
 		const conflict: LLConflictSolver = new LLConflictSolver();
 
-		return this.resolveConflicts(table, conflict);
+		return await this.resolveConflicts(table, conflict);
 	}
 
-	private resolveConflicts(table: OrderedIntegerSet[][], cs: LLConflictSolver): number[][]
+	private async resolveConflicts(table: OrderedIntegerSet[][], cs: LLConflictSolver): Promise<number[][]>
 	{
 
 		if(this.g == null) throw new SyntacticError("Gramatica é nula");
@@ -109,7 +109,7 @@ export class LLParser
 						break;
 					default:
 						cs.setup(table[i][j], i);
-						result[i][j] = cs.resolve(this.g, j);
+						result[i][j] = await cs.resolve(this.g, j);
 						break;
 				}
 			}
@@ -117,12 +117,12 @@ export class LLParser
 		return result;
 	}
 
-	public tableAsHTML(): string
+	public async tableAsHTML(): Promise<string>
 	{
 
 		if(this.g == null) throw new SyntacticError("Gramatica é nula");
 
-		const tbl: number[][] = this.generateTable();
+		const tbl: number[][] = await this.generateTable();
 		let result = "";
 
 		result +=(

@@ -186,7 +186,7 @@ export default defineComponent({
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const [html, gramatica] = syntacticTable(
+      syntacticTable(
         projeto.regularDefinitions,
         projeto.tokens,
         projeto.nonTerminals,
@@ -195,23 +195,23 @@ export default defineComponent({
         this.store.necessarioRecriar,
         undefined,
         this.store.gramatica as Grammar | undefined
-      )
+      ).then(([html, gramatica]) => {
+        this.store.gramatica = gramatica;
 
-      this.store.gramatica = gramatica;
-
-      const newTab = window.open()
-      if (newTab) {
-        newTab.document.write(html)
-        newTab.document.close()
-      }
-      projeto.consoleExit = 'Tabela criada com Sucesso!'
-      this.$toast.info("Tabela Sintática criada com Sucesso!")
+        const newTab = window.open()
+        if (newTab) {
+          newTab.document.write(html)
+          newTab.document.close()
+        }
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+        this.$toast.info("Tabela Sintática criada com Sucesso!")
+      })
     },
     mostrarTabelaConjuntoSintatico() {
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const [html, gramatica] = syntacticSetTable(
+      syntacticSetTable(
         projeto.regularDefinitions,
         projeto.tokens,
         projeto.nonTerminals,
@@ -220,17 +220,17 @@ export default defineComponent({
         this.store.necessarioRecriar,
         undefined,
         this.store.gramatica as Grammar | undefined
-      )
+      ).then(([html, gramatica]) => {
+        this.store.gramatica = gramatica;
 
-      this.store.gramatica = gramatica;
-
-      const newTab = window.open()
-      if (newTab) {
-        newTab.document.write(html)
-        newTab.document.close()       
-      }
-      projeto.consoleExit = 'Tabela criada com Sucesso!'
-      this.$toast.info('Tabela do Conjunto de Itens criada com sucesso.')
+        const newTab = window.open()
+        if (newTab) {
+          newTab.document.write(html)
+          newTab.document.close()
+        }
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+        this.$toast.info('Tabela do Conjunto de Itens criada com sucesso.')
+      })
     },
     mostrarTabelaFirstFollowSintatico() {
       const selecionado = this.store.selecionado

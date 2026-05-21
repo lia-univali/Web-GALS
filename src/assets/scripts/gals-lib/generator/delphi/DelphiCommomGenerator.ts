@@ -17,7 +17,7 @@ export class DelphiCommomGenerator
 {
     lrTable: number[][][] | null = null;
 	
-    generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Map<string, string> {
+    async generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Promise<Map<string, string>> {
 
 		if (fa === null || g === null) {
 			throw new Error("FiniteAutomata and Grammar must not be null");
@@ -26,7 +26,7 @@ export class DelphiCommomGenerator
         const result: Map<string, string> = new Map;
 				
 		result.set("UToken.pas", this.generateToken());
-		result.set("UConstants.pas", this.generateConstants(fa, g, options));	
+		result.set("UConstants.pas", await this.generateConstants(fa, g, options));
 
 		result.set("UAnalysisError.pas", this.generateAnalysisError());
 		result.set("ULexicalError.pas",  this.generateLexicalError());
@@ -229,7 +229,7 @@ export class DelphiCommomGenerator
 			"";
 	}
 	
-	private generateConstants(fa: FiniteAutomata, g: Grammar, options: Options): string //throws NotLLException
+	private async generateConstants(fa: FiniteAutomata, g: Grammar, options: Options): Promise<string> //throws NotLLException
 	{
 		return "unit UConstants;\n"+
 			"\n"+
@@ -239,7 +239,7 @@ export class DelphiCommomGenerator
 			"\n"+
 			this.constants(fa, g)+
 			this.lexTables(fa, options)+
-			this.syntTables(g, options)+
+			await this.syntTables(g, options)+
 			"implementation\n"+
 			"\n"+
 			"end.\n"+
@@ -477,7 +477,7 @@ export class DelphiCommomGenerator
 		return result.toString();
 	}
 	
-	private syntTables(g: Grammar, options: Options): string //throws NotLLException
+	private async syntTables(g: Grammar, options: Options): Promise<string>//throws NotLLException
 	{
 		if (g == null)
 			return "";
@@ -492,7 +492,7 @@ export class DelphiCommomGenerator
 					"    FIRST_NON_TERMINAL    = "+g.FIRST_NON_TERMINAL+";\n"+
 					"    FIRST_SEMANTIC_ACTION = "+g.FIRST_SEMANTIC_ACTION()+";\n"+
 					"\n"+
-					this.transTablesLL(new LLParser(g))+
+					await this.transTablesLL(new LLParser(g))+
 					this.prodsLL(g)+
 					this.errorLL(g)+
 					"";
@@ -508,7 +508,7 @@ export class DelphiCommomGenerator
 					"    GO_TO  = 4;\n"+
 					"    ERROR  = 5;\n"+
 					"\n"+
-					this.transTablesLR(g)+
+					await this.transTablesLR(g)+
 					"\n"+
 					this.prodsLR(g)+
 					"\n"+
@@ -518,14 +518,14 @@ export class DelphiCommomGenerator
 		}
 	}
 
-	private transTablesLR(g: Grammar): string
+	private async transTablesLR(g: Grammar): Promise<string>
 	{
 
-		const generator = LRGeneratorFactory.createGenerator(g, Options.PARSER_SLR); // TODO Change based on Options
+		const generator = LRGeneratorFactory.createGenerator(g, Options.PARSER_SLR); // DANGER TODO Change based on Options
 
 		if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
-		this.lrTable = generator.buildIntTable();
+		this.lrTable = await generator.buildIntTable();
 		
 		let result = "";
 				
@@ -583,15 +583,16 @@ export class DelphiCommomGenerator
 		return result.toString();
 	}
 
-	private transTablesLL(g: LLParser): string
+	private async transTablesLL(g: LLParser): Promise<string>
 	{
-		const tbl: number[][] = g.generateTable();
+		const tbl: number[][] = await g.generateTable();
 		const table: string[][] = [];// new String[tbl.length][tbl[0].length];
 		
 		let max = 0;
 		for (let i = 0; i < tbl.length; i++)
 		{
-			for (let j = 0; j < table[i].length; j++)
+			table[i] = []
+			for (let j = 0; j < tbl[i].length; j++)
 			{
 				const tmp = tbl[i][j].toString();
 				table[i][j] = tmp;
@@ -636,9 +637,9 @@ export class DelphiCommomGenerator
 				longest = rhs.length;
 			if (rhs.length > 0)
 			{
-				productions[i] = [];
+				productions[i] =  [];
 				productions[i][0] = rhs.length.toString();
-				for (let j=0; j<rhs.length+1; j++)
+				for (let j=0; j<rhs.length; j++)
 				{
 					productions[i][j+1] = rhs[j].toString();
 					if (productions[i][j+1].length > max)
@@ -647,7 +648,7 @@ export class DelphiCommomGenerator
 			}
 			else
 			{
-				productions[i] =  new Array(2);
+				productions[i] = [];
 				productions[i][0] = "1";
 				productions[i][1] = "0";
 			}

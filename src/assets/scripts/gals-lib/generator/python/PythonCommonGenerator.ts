@@ -1,5 +1,4 @@
 import { List } from "../../DataStructures";
-import { AnalysisError } from "../../analyser/AnalysisError";
 import { SyntacticError } from "../../analyser/SystemErros";
 import { Production } from "../../util/Production";
 import { FiniteAutomata, KeyValuePar } from "../FiniteAutomata";
@@ -14,16 +13,16 @@ export class PythonCommonGenerator
 
     lrTable: number[][][] | null = null;
 	
-    generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Map<string, string> {
+    async generate(fa: FiniteAutomata | null, g: Grammar | null, options: Options): Promise<Map<string, string>> {
         const result: Map<string, string> = new Map;
 
 		if (fa === null || g === null) {
 			throw new Error("FiniteAutomata and Grammar must not be null");
 		}
 
-		result.set("Token.py",     this.generateToken(options));
-		result.set("Constants.py", this.generateConstants(fa, g, options));
-		result.set("Errors.py",    this.generateErrors(options));
+		result.set("Token.py",           this.generateToken(options));
+		result.set("Constants.py", await this.generateConstants(fa, g, options));
+		result.set("Errors.py",          this.generateErrors(options));
 
 		return result;
 	}
@@ -95,7 +94,7 @@ export class PythonCommonGenerator
 			"class LexicalError(AnalysisError):\n\tpass\n";
 	}
 	
-	private generateConstants(fa: FiniteAutomata, g: Grammar, options: Options): string {
+	private async generateConstants(fa: FiniteAutomata, g: Grammar, options: Options): Promise<string> {
 		return "\nfrom enum import Enum\n\n"+
 
 			"TOKEN_DEPENDENCY   = " + (fa.specialCases.length > 0 ? "True\n" : "False\n")+
@@ -105,8 +104,8 @@ export class PythonCommonGenerator
 			"\tEPSILON = 0\n"+
 			"\tDOLLAR  = 1\n"+
 			this.constList(fa, g)+
-			(options.generateScanner ? this.lexDecls(fa, options) : "")+
-			(options.generateParser  ? this.syntDecls(g, options) : "");
+			(options.generateScanner ?       this.lexDecls(fa, options) : "")+
+			(options.generateParser  ? await this.syntDecls(g, options) : "");
 	}
 
 	private constList(fa: FiniteAutomata, g: Grammar): string
@@ -192,7 +191,7 @@ export class PythonCommonGenerator
 		return result.toString();
 	}
 	
-	private syntDecls(g: Grammar, options: Options): string
+	private async syntDecls(g: Grammar, options: Options): Promise<string>
 	{
 		if (g == null)
 			return "";
@@ -205,7 +204,7 @@ export class PythonCommonGenerator
 			}
 			case Options.PARSER_LL:
 			{
-				return this.syntTables(g, options) + this.syntErrorsLL(g);
+				return await this.syntTables(g, options) + this.syntErrorsLL(g);
 			}
 			default: //SLR, LALR, LR
 			{
@@ -213,7 +212,7 @@ export class PythonCommonGenerator
 
 				if(generator == null) throw new SyntacticError("Gerador de Tabela é nulo.");
 
-				this.lrTable = generator.buildIntTable();
+				this.lrTable = await generator.buildIntTable();
 
 				let result = "FIRST_SEMANTIC_ACTION = "+g.FIRST_SEMANTIC_ACTION()+"\n"+
 					"\n"+
@@ -225,7 +224,7 @@ export class PythonCommonGenerator
 					"\tGO_TO  = 4\n"+
 					"\tERROR  = 5\n\n"+
 
-					this.syntTables(g, options);
+					await this.syntTables(g, options);
 
 				return result;
 			}
@@ -337,7 +336,7 @@ export class PythonCommonGenerator
 			return "";
 	}
 
-	private syntTables(g: Grammar, options: Options): string // TODO throws NotLLException
+	private async syntTables(g: Grammar, options: Options): Promise<string> // TODO throws NotLLException
 	{
 		if (g == null)
 			return "";
@@ -347,7 +346,7 @@ export class PythonCommonGenerator
 			case Options.PARSER_REC_DESC:
 				throw new SyntacticError("REC_DESC DOES NOT USE SYNTTABLES");
 			case Options.PARSER_LL:
-				return this.genLLSyntTables(g);
+				return await this.genLLSyntTables(g);
 			default: //slr, lalr, lr
 				return  this.syntTransTable(g)+
 					    this.productionsLR(g)+
@@ -355,7 +354,7 @@ export class PythonCommonGenerator
 		}
 	}
 
-	private genLLSyntTables(g: Grammar): string
+	private async genLLSyntTables(g: Grammar): Promise<string>
 	{
 		const result: string[] = [];
 
@@ -373,7 +372,7 @@ export class PythonCommonGenerator
 
 		result.push("\n");
 
-		result.push(this.emitLLTable(new LLParser(g)));
+		result.push(await this.emitLLTable(new LLParser(g)));
 
 		result.push("\n");
 
@@ -384,9 +383,9 @@ export class PythonCommonGenerator
 		return result.join("");
 	}
 
-	private emitLLTable(g: LLParser): string
+	private async emitLLTable(g: LLParser): Promise<string>
 	{
-		let tbl: number[][] = g.generateTable();
+		let tbl: number[][] = await g.generateTable();
         let table: string[][] = new Array(tbl.length).fill([]).map(() => new Array(tbl[0].length));
 
 		let max = 0;

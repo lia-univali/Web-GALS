@@ -1,7 +1,10 @@
 import { ConflictSolver } from "../ConflictSolver";
 import { Grammar } from "../Grammar";
 import { Command } from "./Command";
+import { installRPCHandler } from "@/workers/workerRPC";
+import * as UIBridge from "@/workers/UIBridge"
 
+installRPCHandler()
 
 /**
  * @author Gesser
@@ -27,7 +30,7 @@ export class LRConflictSolver extends ConflictSolver
         this._conflictListModel = new Array<ConflictModel>();
     }
 
-    resolve(g: Grammar, input: number): number{
+    async resolve(g: Grammar, input: number): Promise<number> {
         
         let inText: string;
         
@@ -69,9 +72,9 @@ export class LRConflictSolver extends ConflictSolver
         header += "\n\nOBS: Se cancelar ou digitar opção inválida,\na opção 1 será escolhida como padrão."
 
         //TODO change to choose conflict resolver and not the first rule
-        
+
         //alert(header)
-        
+
         // if (confirm(header)) {
         //     op = 1
         //     console.log('Thing was saved to the database.');
@@ -84,9 +87,9 @@ export class LRConflictSolver extends ConflictSolver
         let result: string | null = null
 
         try {
-            result = prompt(header, '1')
-        } catch {
-            console.log('Prompt não encontrado')
+			result = await UIBridge.prompt(header, '1');
+        } catch (e) {
+            console.log(e, 'Prompt não encontrado')
         }
 
         if(result == null)

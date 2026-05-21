@@ -2,11 +2,12 @@ import { NotLLException, SyntacticError } from "../../analyser/SystemErros";
 import { Options } from "../Options";
 import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
 import { Grammar } from "../parser/Grammar";
+import { LLParser } from "../parser/ll/LLParser";
 
 export class RustParserGenerator
 {
 	
-	public generate(g: Grammar, options: Options): Map<string, string> //throws NotLLException
+	public async generate(g: Grammar, options: Options): Promise<Map<string, string>> //throws NotLLException
 	{
 		const result: Map<string, string> = new Map();
         const pkgpath = options.pkgName !== "" ? options.pkgName + "/" : "";
@@ -15,8 +16,8 @@ export class RustParserGenerator
 		{
 			if (g != null)
 			{
-				result.set(`src/${pkgpath}parser.rs`, this.parser(g, options));
-				result.set(`src/${pkgpath}codegen.rs`, this.semantic(options));
+				result.set(`src/${pkgpath}parser.rs`,  await this.parser(g, options));
+				result.set(`src/${pkgpath}codegen.rs`,       this.semantic(options));
 			}
 		}
 		
@@ -46,11 +47,11 @@ impl ${name} {
         ;
 	}
 
-	private parser(g: Grammar, options: Options): string
+	private async parser(g: Grammar, options: Options): Promise<string>
     {
 		switch (options.parser) {
             case Options.PARSER_REC_DESC:
-				return this.redDecParser(g, options);
+				return await this.redDecParser(g, options);
 
 			case Options.PARSER_LL:
 				return this.llParser(g, options);
@@ -188,9 +189,10 @@ impl${stringmd ? "" : "<T: Read + Seek>"} ${name}${stringmd ? "" : "<T>"} {
         ;
     }
 
-	private redDecParser(g: Grammar, options: Options): string
+	private async redDecParser(g: Grammar, options: Options): Promise<string>
 	{
-		const rd: RecursiveDescendent = new RecursiveDescendent(g);
+        const tables = await new LLParser(g).generateTable();
+		const rd: RecursiveDescendent = new RecursiveDescendent(tables, g);
 
 		let scannername  = options.scannerName;
         let parsername   = options.parserName;

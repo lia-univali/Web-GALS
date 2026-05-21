@@ -23,10 +23,11 @@ export class RecursiveDescendent
 	
 	private _functions: Map<string, FunctionCustom> = new Map();
 	
-	public constructor(grammar: Grammar) //throws NotLLException
+	public constructor(lltable: number[][], grammar: Grammar) //throws NotLLException
 	{
 		this._grammar = grammar;
-		this._llTable = new LLParser(grammar).generateTable();
+//		this._llTable = new LLParser(grammar).generateTable();
+		this._llTable = lltable;
 		this._symbols = grammar.symbols;
 		for (let i=0; i < this._symbols.length; i++)
 			if (this._symbols[i].charAt(0) == '<')

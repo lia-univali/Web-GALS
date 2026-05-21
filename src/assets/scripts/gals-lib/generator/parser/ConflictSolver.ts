@@ -35,7 +35,7 @@ export abstract class ConflictSolver // extends Box (Swing Java)
 
     }
 
-    public abstract resolve(g: Grammar, input: number): number;
+    public abstract resolve(g: Grammar, input: number): Promise<number>;
     
     // export class ProductionItem
     // {

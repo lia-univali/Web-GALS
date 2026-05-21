@@ -193,7 +193,7 @@ export class LRCanonicGenerator extends LRGenerator
   /* (non-Javadoc)
    * @see gesser.gals.generator.parser.lr.LRGenerator#buildTable()
    */
-  public buildTable(): Command[][] {
+  public async buildTable(): Promise<Command[][]> {
 
     const result: Map<number, Command>[][]  = [];
 
@@ -261,7 +261,7 @@ export class LRCanonicGenerator extends LRGenerator
 
     const resultSet: Set<Command>[][] = result.map(	row => row.map(map => new Set(map.values())));
 
-    let cft = this.resolveConflicts(resultSet);
+    let cft = await this.resolveConflicts(resultSet);
 
     return cft;
   }

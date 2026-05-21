@@ -160,7 +160,7 @@ export class SLRGenerator extends LRGenerator
      * Cria a tabale de parse SLR
      * */
 
-	public buildTable(): Command[][]
+	public async buildTable(): Promise<Command[][]>
 	{
 
 		const result: Map<number, Command>[][]  = [];
@@ -263,7 +263,7 @@ export class SLRGenerator extends LRGenerator
 
 		const resultSet: Set<Command>[][] = result.map(	row => row.map(map => new Set(map.values())));
 
-    	return this.resolveConflicts(resultSet);
+    	return await this.resolveConflicts(resultSet);
     }
 
 	private indexOfListLRItem(list: List<List<LRItem>>, item: List<LRItem>): number

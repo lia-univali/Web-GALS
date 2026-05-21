@@ -235,7 +235,7 @@ export function lexicalTable(
   return fa.asHTML();
 }
 
-export function syntacticSimulation(
+export async function syntacticSimulation(
   input: string,
   definitions: string,
   tokens: string,
@@ -248,7 +248,7 @@ export function syntacticSimulation(
   g?: Grammar,
   lrSim?: LRParserSimulator,
   ll1Sim?: LL1ParserSimulator
-): [TreeNode<string>, Grammar, LRParserSimulator | undefined, LL1ParserSimulator | undefined] {
+): Promise<[TreeNode<string>, Grammar, LRParserSimulator | undefined, LL1ParserSimulator | undefined]> {
 
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
@@ -352,12 +352,12 @@ export function syntacticSimulation(
   {
     case Options.PARSER_REC_DESC:
     case Options.PARSER_LL:
-      [ll1Sim, faSim, parserResultLL] = simulateLL(fa, g,  terminals, faSim, sensitive, ll1Sim);
+      [ll1Sim, faSim, parserResultLL] = await simulateLL(fa, g,  terminals, faSim, sensitive, ll1Sim);
       break;
     case Options.PARSER_SLR:
     case Options.PARSER_LALR:
     case Options.PARSER_LR:
-      [lrSim, faSim, parserResult] = simulateLR(fa, g,  terminals, faSim, sensitive, parser, lrSim);
+      [lrSim, faSim, parserResult] = await simulateLR(fa, g,  terminals, faSim, sensitive, parser, lrSim);
       break;
   }
 
@@ -393,7 +393,7 @@ export function syntacticSimulation(
   return [root, g, lrSim, ll1Sim] ;
 } // FIM syntacticSimulation
 
-export function syntacticTable(
+export async function syntacticTable(
   definitions: string,
   tokens: string,
   startSymbol: string,
@@ -402,7 +402,7 @@ export function syntacticTable(
   needRebuildGram: boolean,
   fa?: FiniteAutomata,
   g?: Grammar
-): [string, Grammar] {
+): Promise<[string, Grammar]> {
 
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
@@ -505,13 +505,13 @@ export function syntacticTable(
   }
 
   if(parserResultLR !== null)
-    return [parserResultLR.tableAsHTML(), g];
+    return [await parserResultLR.tableAsHTML(), g];
   else if(parserResultLL !== null)
-    return [parserResultLL.tableAsHTML(), g];
+    return [await parserResultLL.tableAsHTML(), g];
   else throw new SyntacticError("Erro na criação do Parser Sintático");
 }
 
-export function syntacticSetTable(
+export async function syntacticSetTable(
   definitions: string,
   tokens: string,
   startSymbol: string,
@@ -520,7 +520,7 @@ export function syntacticSetTable(
   needRebuildGram: boolean,
   fa?: FiniteAutomata,
   g?: Grammar
-): [string, Grammar] {
+): Promise<[string, Grammar]> {
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
@@ -626,7 +626,7 @@ export function syntacticSetTable(
   if(parserResultLR != null)
     return [parserResultLR.itemsAsHTML(), g];
   if(parserResultLL != null)
-    return [parserResultLL.tableAsHTML(), g];
+    return [await parserResultLL.tableAsHTML(), g];
 
   return ['ERROR', g]
 }
@@ -761,7 +761,7 @@ export function nonTerminalsFromGrammar(  startSymbol: string, grammar: string,)
   return resultsArray.join("\n");
 }
 
-export function generateCode(
+export async function generateCode(
   definitions: string,
   tokens: string,
   startSymbol: string,
@@ -769,7 +769,7 @@ export function generateCode(
   options:Options,
   needRebuildGram: boolean,
   fa?: FiniteAutomata,
-  g?: Grammar): [TreeMap<string, string>, Grammar, boolean, string | null] {
+  g?: Grammar): Promise<[TreeMap<string, string>, Grammar, boolean, string | null]> {
 
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
@@ -867,32 +867,32 @@ export function generateCode(
   switch (options.language)
   {
     case Options.LANG_JAVA:
-      allFiles.setAll( new JavaCommonGenerator().generate(fa, g, options) );
-      allFiles.setAll( new JavaScannerGenerator().generate(fa, options) );
-      allFiles.setAll( new JavaParserGenerator().generate(g, options));
+      allFiles.setAll( await new JavaCommonGenerator().generate(fa, g, options) );
+      allFiles.setAll(       new JavaScannerGenerator().generate(fa, options) );
+      allFiles.setAll( await new JavaParserGenerator().generate(g, options));
       break;
     case Options.LANG_CPP:
-      allFiles.setAll( new CppCommomGenerator().generate(fa, g, options) );
-      allFiles.setAll( new CppScannerGeneretor().generate(fa, options) );
-      allFiles.setAll( new CppParserGenerator().generate(g, options) );
+      allFiles.setAll( await new CppCommomGenerator().generate(fa, g, options) );
+      allFiles.setAll(       new CppScannerGeneretor().generate(fa, options) );
+      allFiles.setAll( await new CppParserGenerator().generate(g, options) );
       break;
     case Options.LANG_DELPHI:
-      allFiles.setAll( new DelphiCommomGenerator().generate(fa, g, options) );
-      allFiles.setAll( new DelphiScannerGenerator().generate(fa, options) );
-      allFiles.setAll( new DelphiParserGenerator().generate(g, options));
+      allFiles.setAll( await new DelphiCommomGenerator().generate(fa, g, options) );
+      allFiles.setAll(       new DelphiScannerGenerator().generate(fa, options) );
+      allFiles.setAll( await new DelphiParserGenerator().generate(g, options));
       break;
     case Options.LANG_PYTHON:
       let pcg = new PythonCommonGenerator();
-      allFiles.setAll( pcg.generate(fa, g, options) );
-      allFiles.setAll( new PythonScannerGenerator().generate(fa, options) );
-      allFiles.setAll( new PythonParserGenerator().generate(g, options) );
+      allFiles.setAll( await pcg.generate(fa, g, options) );
+      allFiles.setAll(       new PythonScannerGenerator().generate(fa, options) );
+      allFiles.setAll( await new PythonParserGenerator().generate(g, options) );
       makeFolders = options.pkgName !== ""
       mainfunc = pcg.mainfunc(options);
       break;
     case Options.LANG_RUST:
-      allFiles.setAll( new RustCommonGenerator().generate(fa, g, options) );
-      allFiles.setAll( new RustScannerGenerator().generate(fa, options) );
-      allFiles.setAll( new RustParserGenerator().generate(g, options) );
+      allFiles.setAll( await new RustCommonGenerator().generate(fa, g, options) );
+      allFiles.setAll(       new RustScannerGenerator().generate(fa, options) );
+      allFiles.setAll( await new RustParserGenerator().generate(g, options) );
       break;
   }
 
@@ -929,14 +929,14 @@ export function generateCode(
 //   return result;
 // }
 
-function simulateLL(
+async function simulateLL(
   fa: FiniteAutomata,
   g: Grammar,
   tokenNameList: Array<string>,
   faSim: BasicScanner | undefined, 
   sensitive: boolean,
   llSim: LL1ParserSimulator | undefined
-): [LL1ParserSimulator, BasicScanner, LLParser]
+): Promise<[LL1ParserSimulator, BasicScanner, LLParser]>
 {
   if (fa != undefined)
   {
@@ -956,14 +956,17 @@ function simulateLL(
 
     if(parser === null) throw new SyntacticError("Parser is Null");
 
-    if(llSim === undefined) llSim = new LL1ParserSimulator(parser);
+    if(llSim === undefined) {
+      const table = await parser.generateTable();
+      llSim = new LL1ParserSimulator(table, parser);
+    }
 
   }else throw new SyntacticError("Grammar is Null");
 
   return [llSim, faSim, parser];
 }
 
-function simulateLR(
+async function simulateLR(
   fa: FiniteAutomata,
   g: Grammar,
   tokenNameList: Array<string>,
@@ -971,7 +974,7 @@ function simulateLR(
   sensitive: boolean,
   parserEnum: number,
   lrSim: LRParserSimulator | undefined)
-  : [LRParserSimulator, BasicScanner, LRGenerator]
+  : Promise<[LRParserSimulator, BasicScanner, LRGenerator]>
 {
   // //console.log("___________________________simulateSLR___________________________");
   // lex.setEnabled(fa != null);
@@ -994,8 +997,12 @@ function simulateLR(
   {
     parser = LRGeneratorFactory.createGenerator(g, parserEnum);
     if(parser === null) throw new SyntacticError("Parser is Null");
-    if(lrSim === undefined) lrSim = new LRParserSimulator(parser);
-  }else throw new SyntacticError("Grammar is Null");
+    if(lrSim === undefined)
+	{
+		const table = await parser.buildTable();
+		lrSim = new LRParserSimulator(table, parser);
+	}
+  } else throw new SyntacticError("Grammar is Null");
 
   return [lrSim, faSim, parser];
   // show();
