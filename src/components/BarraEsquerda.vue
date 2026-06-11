@@ -172,15 +172,19 @@ export default defineComponent({
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const html: string = lexicalTable(projeto.regularDefinitions, projeto.tokens)
+      try {
+        const html: string = lexicalTable(projeto.regularDefinitions, projeto.tokens)
 
-      const newTab = window.open()
-      if (newTab) {
-        newTab.document.write(html)
-        newTab.document.close()
+        const newTab = window.open()
+        if (newTab) {
+          newTab.document.write(html)
+          newTab.document.close()
+        }
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+        this.$toast.info("Tabela Léxica criada com Sucesso!")
+      } catch (error) {
+        this.$toast.error("Erro Léxico: "+(error as Error).message,{"duration":0})
       }
-      projeto.consoleExit = 'Tabela criada com Sucesso!'
-      this.$toast.info("Tabela Léxica criada com Sucesso!")
     },
     mostrarTabelaSintatico() {
       const selecionado = this.store.selecionado
@@ -205,7 +209,9 @@ export default defineComponent({
         }
         projeto.consoleExit = 'Tabela criada com Sucesso!'
         this.$toast.info("Tabela Sintática criada com Sucesso!")
-      })
+      }).catch((error) => {
+        this.$toast.error("Erro Léxico: "+(error as Error).message,{"duration":0})
+      });
     },
     mostrarTabelaConjuntoSintatico() {
       const selecionado = this.store.selecionado
@@ -230,32 +236,38 @@ export default defineComponent({
         }
         projeto.consoleExit = 'Tabela criada com Sucesso!'
         this.$toast.info('Tabela do Conjunto de Itens criada com sucesso.')
+      }).catch((error) => {
+        this.$toast.error("Erro Sintático: "+(error as Error).message,{"duration":0})
       })
     },
     mostrarTabelaFirstFollowSintatico() {
       const selecionado = this.store.selecionado
       const projeto = this.store.listaProjetos[selecionado]
 
-      const [html, gramatica] = syntacticFirstFollowTable(
-        projeto.regularDefinitions,
-        projeto.tokens,
-        projeto.nonTerminals,
-        projeto.grammar,
-        projeto.optionsGals.parser,
-        this.store.necessarioRecriar,
-        undefined,
-        this.store.gramatica as Grammar | undefined
-      )
+      try {
+        const [html, gramatica] = syntacticFirstFollowTable(
+          projeto.regularDefinitions,
+          projeto.tokens,
+          projeto.nonTerminals,
+          projeto.grammar,
+          projeto.optionsGals.parser,
+          this.store.necessarioRecriar,
+          undefined,
+          this.store.gramatica as Grammar | undefined
+        )
 
-      this.store.gramatica = gramatica;
+        this.store.gramatica = gramatica;
 
-      const newTab = window.open()
-      if (newTab) {
-        newTab.document.write(html)
-        newTab.document.close()
+        const newTab = window.open()
+        if (newTab) {
+          newTab.document.write(html)
+          newTab.document.close()
+        }
+        projeto.consoleExit = 'Tabela criada com Sucesso!'
+        this.$toast.info("Tabela First Follow criada com sucesso!")
+      } catch (error) {
+        this.$toast.error("Erro Sintático: "+(error as Error).message,{"duration":0})
       }
-      projeto.consoleExit = 'Tabela criada com Sucesso!'
-      this.$toast.info("Tabela First Follow criada com sucesso!")
     }
   }
 })
