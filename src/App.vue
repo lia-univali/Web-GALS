@@ -6,6 +6,7 @@ import SimuladorJanela from './components/SimuladorJanela.vue'
 import BarraEsquerda from './components/BarraEsquerda.vue'
 import ModalNovoArquivo from './components/ModalNovoArquivo.vue'
 import ModalEditarArquivo from './components/ModalEditarArquivo.vue'
+import RailroadJanela from './components/RailroadJanela.vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import { projetoStore } from './stores/projetoStore'
@@ -20,7 +21,8 @@ export default defineComponent({
     SimuladorJanela,
     BarraEsquerda,
     ModalNovoArquivo,
-    ModalEditarArquivo
+    ModalEditarArquivo,
+    RailroadJanela
   },
   setup() {
     const store = projetoStore()
@@ -68,7 +70,7 @@ export default defineComponent({
           @resize="layout.gramatica = $event[1].size"
         >
           <pane :size="100 - layout.gramatica">
-            <splitpanes vertival @resize="resizeLayout($event)">
+            <splitpanes vertical @resize="resizeLayout($event)">
               <pane :size="layout.token">
                 <AreaCodigo titulo="Tokens" />
               </pane>
@@ -81,7 +83,17 @@ export default defineComponent({
             </splitpanes>
           </pane>
           <pane :size="layout.gramatica">
-            <AreaCodigo titulo="Gramática" />
+            <splitpanes
+              vertical
+              id="lowerSplitpanes"
+            >
+              <pane>
+                <AreaCodigo titulo="Gramática" />
+              </pane>
+              <pane>
+                <RailroadJanela titulo="Rairoad"/>
+              </pane>
+            </splitpanes>
           </pane>
         </splitpanes>
       </div>
