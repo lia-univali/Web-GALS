@@ -10,6 +10,7 @@ import RailroadJanela from './components/RailroadJanela.vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import { projetoStore } from './stores/projetoStore'
+import '@/vendor/railroad.css'
 
 export default defineComponent({
   name: 'GalsWeb',

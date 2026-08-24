@@ -2,15 +2,22 @@
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
 import { defineComponent } from 'vue'
+import { onMounted } from 'vue'
+import { ref } from 'vue'
 import { Codemirror } from 'vue-codemirror'
 import { EditorView } from '@codemirror/view'
 import { StreamLanguage } from '@codemirror/language'
 import { EditorSelection } from '@codemirror/state'
 import type { LanguageSupport } from '@codemirror/language'
 
+import {Diagram, Choice} from "@/vendor/railroad.js";
+
 
 export default defineComponent({
   name: 'AreaCodigo',
+  mounted() {
+    this.regenerateDiagram()
+  },
   setup() {
     const store = projetoStore()
 
@@ -25,8 +32,22 @@ export default defineComponent({
     return {
       store,
       projetos,
-      selecionado
+      selecionado,
     }
+  },
+  methods: {
+    regenerateDiagram() {
+      const d = new Diagram(
+          "qux",
+          new Choice(0, "foo", "bar")
+      ).toSVG();
+
+      d.style.maxWidth = "500px"
+      d.style.width    = "100%";
+      d.style.height   = "auto";
+
+      this.$refs.diagramContainer.replaceChildren(d);
+    },
   },
 })
 </script>
@@ -40,9 +61,7 @@ export default defineComponent({
       <div class="producao">
         <label>Produção: &lt;Placeholder&gt;</label>
       </div>
-      <div class="caixa__interna__gramatica">
-        Placeholder
-      </div>
+      <div class="diagrama__railroad" ref="diagramContainer"></div>
     </div>
   </div>
 </template>
@@ -88,5 +107,12 @@ export default defineComponent({
   font-weight: 500;
   padding: 4px;
   width: calc(100% - 6px);
+}
+.diagrama__railroad {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>
