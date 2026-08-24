@@ -85,7 +85,7 @@ function make_diagram(prod_to_process: string, grammar: Grammar): Diagram {
     }
   }
 
-  const rootChoice = new Choice(0, ...sequences);
+  const rootChoice = new Choice(Math.trunc(sequences.length/2), ...sequences);
 
   const d = new Diagram(
       rootChoice
@@ -128,7 +128,8 @@ export default defineComponent({
   },
   data() {
     return {
-      prodName: 'ε'
+      prodName: 'ε',
+      producaoFalha: true,
     };
   },
   watch: {
@@ -150,8 +151,8 @@ export default defineComponent({
         const fa = parse_lexingrules(prj.regularDefinitions, prj.tokens, undefined);
         g = parse_grammar(prj.nonTerminals, prj.grammar, fa);
       } catch (_error) {
-        this.$refs.diagramContainer.innerHTML = '';
         this.prodName = "ε";
+        this.producaoFalha = true;
         return;
       }
 
@@ -171,8 +172,8 @@ export default defineComponent({
 
       /* TODO: Checar se estas condições e quer ocorrem */
       if (production === "" || !line.includes("::=")) {
-        this.$refs.diagramContainer.innerHTML = '';
         this.prodName = "ε";
+        this.producaoFalha = true;
         return;
       }
 
@@ -181,8 +182,8 @@ export default defineComponent({
         d = make_diagram(production, g);
       } catch (error) {
         this.$toast.error("Erro na visualização do grafo sintático:  "+(error as Error).message,{"duration":0})
-        this.$refs.diagramContainer.innerHTML = '';
         this.prodName = "ε";
+        this.producaoFalha = true;
         return;
       }
 
@@ -193,6 +194,8 @@ export default defineComponent({
 
       this.$refs.diagramContainer.replaceChildren(d);
       this.prodName = production;
+
+      this.producaoFalha = false;
     },
   },
 })
@@ -204,7 +207,7 @@ export default defineComponent({
       <p class="caixa__titulo">Diagrama Sintático</p>
     </div>
     <div style="width: 100%; height: 100%;" class="caixa__interna__railroad">
-      <div class="producao">
+      <div class="producao" :class="{ producao_falha: producaoFalha }">
         <label>Produção: {{ prodName }}</label>
       </div>
       <div class="diagrama__railroad" ref="diagramContainer"></div>
@@ -254,9 +257,14 @@ export default defineComponent({
   padding: 4px;
   width: calc(100% - 6px);
 }
+
+.producao_falha {
+  background-color: #ffb1b1;
+}
+
 .diagrama__railroad {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 32px);
   display: flex;
   justify-content: center;
   align-items: center;
