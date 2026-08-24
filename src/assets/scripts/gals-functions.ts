@@ -34,13 +34,13 @@ import { RustParserGenerator } from './gals-lib/generator/rust/RustParserGenerat
 import { LL1ParserSimulator } from './gals-lib/simulator/LL1ParserSimulator'
 import { LLParser } from './gals-lib/generator/parser/ll/LLParser'
 
-enum Mode {
+export enum Mode {
   LEXICAL,
   SYNTATIC,
   BOTH
 }
 
-function parseDefsOnTokens(def: string, tok: string): string{
+export function parseDefsOnTokens(def: string, tok: string): string{
   const tknzr: string[] = def.split('\n').filter(Boolean)
   const defTermo : Map<string, string> = new Map()
 

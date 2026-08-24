@@ -65,11 +65,23 @@ const bnfLanguage = StreamLanguage.define({
   }
 })
 
+function cursorListener(callback) {
+  return EditorView.updateListener.of((update) => {
+    if (!update.selectionSet)
+      return
+
+    const pos = update.state.selection.main.head
+    const line = update.state.doc.lineAt(pos)
+
+    callback(line.number)
+  })
+}
 
 export default defineComponent({
   name: 'AreaCodigo',
   props: {
-    titulo: String
+    titulo: String,
+    currentLine: -1,
   },
   data() {
     return {
@@ -79,7 +91,7 @@ export default defineComponent({
       // Extensões base para todos os editores
       baseExtensions: [
         EditorView.lineWrapping
-      ] as any[]
+      ] as any[],
     }
   },
   components: {
@@ -145,7 +157,7 @@ export default defineComponent({
     },
     // Extensões com linguagem BNF para gramática
     extensionsBNF(): (LanguageSupport | any)[] {
-      return [...this.baseExtensions, bnfLanguage] as any
+      return [...this.baseExtensions, bnfLanguage, cursorListener(this.onGrammarLineChanged)] as any
     },
     // Extensões sem linguagem para simulador
     extensionsDefault(): any[] {
@@ -153,6 +165,10 @@ export default defineComponent({
     }
   },
   methods: {
+    onGrammarLineChanged(line: number) {
+      console.log(line)
+      this.store.currGrammarLine = line
+    },
     onSimulatorReady(view: any) {
       this.simulatorView = view
       // Armazenar globalmente para acesso externo

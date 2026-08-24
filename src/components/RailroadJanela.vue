@@ -9,14 +9,95 @@ import { EditorView } from '@codemirror/view'
 import { StreamLanguage } from '@codemirror/language'
 import { EditorSelection } from '@codemirror/state'
 import type { LanguageSupport } from '@codemirror/language'
+import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
+import { Diagram, Choice, Sequence, NonTerminal, Terminal, Comment } from "@/vendor/railroad.js";
+import { parse_lexingrules, parse_grammar, is_token_grammar_pair_valid } from '@/assets/scripts/gals-functions2'
 
-import {Diagram, Choice} from "@/vendor/railroad.js";
+function make_diagram(prod_to_process: string, grammar: Grammar): Diagram {
 
+  prod_to_process = prod_to_process.trim();
+
+  let name_to_id_map = [];
+  let unique_lens    = [];
+  let unique_indices = [];
+  {
+    let copy_of_productions = [...grammar.productions];
+
+    let last_seen   = -1;
+    let last_len    =  0;
+    let last_index  =  0;
+
+    const unique_productions = copy_of_productions.filter((p) => {
+      if (p.lhs != last_seen) {
+        unique_lens   [last_seen] = last_len;
+        unique_indices[last_seen] = last_index;
+        last_seen = p.lhs;
+        last_index += last_len;
+        last_len  = 1;
+        return true;
+      } else {
+        last_len++;
+        return false;
+      }
+    });
+
+    unique_lens   [last_seen] = last_len;
+    unique_indices[last_seen] = last_index;
+
+    let index = 0;
+
+
+    for (let nt of grammar.nonTerminals) {
+      name_to_id_map[nt] = unique_productions[index++].lhs;
+    }
+
+    index = 2;
+    for (let tt of grammar.terminals) {
+      name_to_id_map[tt] = index++;
+    }
+  };
+
+  const prodid = name_to_id_map[prod_to_process];
+
+  if (prodid == undefined) {
+    throw new Error("PRODID UNDEFINED");
+  }
+
+  let sequences = [];
+
+  for (let i = 0; i < unique_lens[prodid]; i++) {
+    let real_i = unique_indices[prodid] + i;
+    let sequence = [];
+    const prodseq = grammar.productions.get(real_i).get_rhs();
+    for (let psi of prodseq) {
+      if (psi >= grammar.FIRST_SEMANTIC_ACTION()) {
+        sequence.push(new Comment(`#${psi - grammar.FIRST_SEMANTIC_ACTION()}`));
+      } else if (psi >= grammar.FIRST_NON_TERMINAL) {
+        sequence.push(new NonTerminal(grammar.symbols[psi]));
+      } else {
+        sequence.push(new Terminal(grammar.symbols[psi]));
+      }
+    }
+    if (sequence.length == 0) {
+      sequences.push(new Terminal("ε"));
+    } else {
+      sequences.push(new Sequence(...sequence));
+    }
+  }
+
+  const rootChoice = new Choice(0, ...sequences);
+
+  const d = new Diagram(
+      rootChoice
+  ).toSVG();
+
+  return d;
+}
 
 export default defineComponent({
   name: 'AreaCodigo',
   mounted() {
-    this.regenerateDiagram()
+    this.regenerateDiagram(0)
   },
   setup() {
     const store = projetoStore()
@@ -29,24 +110,89 @@ export default defineComponent({
       return store.listaProjetos
     })
 
+    const currGrammarLine = computed(() => {
+      return store.currGrammarLine
+    })
+
+    const grammarTexto = computed(() => {
+      return store.listaProjetos[store.selecionado].grammar
+    })
+
     return {
       store,
       projetos,
       selecionado,
+      currGrammarLine,
+      grammarTexto
+    }
+  },
+  data() {
+    return {
+      prodName: 'ε'
+    };
+  },
+  watch: {
+    currGrammarLine() {
+      this.regenerateDiagram(this.store.currGrammarLine)
+    },
+    grammarTexto() {
+      this.regenerateDiagram(this.store.currGrammarLine)
     }
   },
   methods: {
     regenerateDiagram() {
-      const d = new Diagram(
-          "qux",
-          new Choice(0, "foo", "bar")
-      ).toSVG();
 
-      d.style.maxWidth = "500px"
-      d.style.width    = "100%";
-      d.style.height   = "auto";
+      const prj = this.projetos[this.selecionado];
+
+      let g: Grammar | undefined = undefined;
+
+      try {
+        const fa = parse_lexingrules(prj.regularDefinitions, prj.tokens, undefined);
+        g = parse_grammar(prj.nonTerminals, prj.grammar, fa);
+      } catch (_error) {
+        this.$refs.diagramContainer.innerHTML = '';
+        this.prodName = "ε";
+        return;
+      }
+
+      const splitgrammar = prj.grammar.split(/\r?\n/);
+      let linenum = this.store.currGrammarLine - 1;
+      let line    = splitgrammar[linenum].trim();
+
+      while (line.includes("::=") == false) {
+        linenum--;
+        if (linenum < 0)
+          break;
+        line = splitgrammar[linenum].trim();
+      }
+
+      let linesplit  = line.split(/::=/);
+      const production = linesplit[0];
+
+      /* TODO: Checar se estas condições e quer ocorrem */
+      if (production === "" || !line.includes("::=")) {
+        this.$refs.diagramContainer.innerHTML = '';
+        this.prodName = "ε";
+        return;
+      }
+
+      let d;
+      try {
+        d = make_diagram(production, g);
+      } catch (error) {
+        this.$toast.error("Erro na visualização do grafo sintático:  "+(error as Error).message,{"duration":0})
+        this.$refs.diagramContainer.innerHTML = '';
+        this.prodName = "ε";
+        return;
+      }
+
+      d.style.maxWidth  = "500px"
+      d.style.maxHeight = "75%";
+      d.style.width     = "100%";
+      d.style.height    = "auto";
 
       this.$refs.diagramContainer.replaceChildren(d);
+      this.prodName = production;
     },
   },
 })
@@ -59,7 +205,7 @@ export default defineComponent({
     </div>
     <div style="width: 100%; height: 100%;" class="caixa__interna__railroad">
       <div class="producao">
-        <label>Produção: &lt;Placeholder&gt;</label>
+        <label>Produção: {{ prodName }}</label>
       </div>
       <div class="diagrama__railroad" ref="diagramContainer"></div>
     </div>
@@ -116,3 +262,8 @@ export default defineComponent({
   align-items: center;
 }
 </style>
+
+
+<!-- Modelines; ponha a sua aqui -->
+
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

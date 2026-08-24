@@ -58,7 +58,8 @@ export const projetoStore = defineStore('projetos', {
       necessarioRecriar: true,
       gramatica: undefined as Grammar | undefined,
       lrSim: undefined as LRParserSimulator | undefined,
-      ll1Sim:  undefined as LL1ParserSimulator | undefined
+      ll1Sim:  undefined as LL1ParserSimulator | undefined,
+      currGrammarLine: 1,
     }
   },
   getters: {
@@ -102,6 +103,7 @@ export const projetoStore = defineStore('projetos', {
     changeSelected(newSelected: number) {
       this.selecionado = newSelected
       this.necessarioRecriar  = true
+      this.currGrammarLine = 1
     },
     deleteProject(id: number) {
       const selecionadoAntigo = this.selecionado
