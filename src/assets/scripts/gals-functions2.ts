@@ -28,25 +28,24 @@ import { parseDefsOnTokens } from './gals-functions'
  */
 export function parse_lexingrules(
   definitions: string,
-  tokens:      string,
-  fa?:         FiniteAutomata
+  tokens: string,
+  fa?: FiniteAutomata
 ): FiniteAutomata {
-
-  const sensitive: boolean = true;
+  const sensitive: boolean = true
 
   try {
-    tokens = parseDefsOnTokens(definitions, tokens);
+    tokens = parseDefsOnTokens(definitions, tokens)
   } catch (error) {
-    throw new LexicalError((error as LexicalError).message);
+    throw new LexicalError((error as LexicalError).message)
   }
 
-  const lp: LineParser = new LineParser();
+  const lp: LineParser = new LineParser()
 
-  if(fa == undefined){
-    fa = lp.parseFA('', tokens, sensitive);
+  if (fa == undefined) {
+    fa = lp.parseFA('', tokens, sensitive)
   }
 
-  return fa;
+  return fa
 }
 
 /** parse_grammar
@@ -56,70 +55,64 @@ export function parse_lexingrules(
  * @param fa Automato finito do lexer associado a gramática.
  * @returns Grammar a gramática.
  */
-export function parse_grammar(
-  startSymbol: string,
-  grammar:     string,
-  fa:  FiniteAutomata,
-): Grammar {
-
+export function parse_grammar(startSymbol: string, grammar: string, fa: FiniteAutomata): Grammar {
   // Pega não terminais direto do grammar
-  const lines   = grammar.split('\n');
-  const results = new Set<string>();
+  const lines = grammar.split('\n')
+  const results = new Set<string>()
 
   lines.forEach((line) => {
-    const matches = line.match(/^[^:]+(?=\s*::=)/);
+    const matches = line.match(/^[^:]+(?=\s*::=)/)
     if (matches) {
-      results.add(matches[0].trim());
+      results.add(matches[0].trim())
     }
-  });
+  })
 
-  const resultsArray     = Array.from(results)
+  const resultsArray = Array.from(results)
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1)
-    throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
+  if (startSymbolIndex == -1)
+    throw new SyntacticError('Símbolo inicial da Gramática não encontrado.')
 
-  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
+  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0]
 
-  resultsArray.splice(0, 0, itemToMove);;
+  resultsArray.splice(0, 0, itemToMove)
 
-  const tokensList: List<string> =  new List;
+  const tokensList: List<string> = new List()
 
-  const tokenModelsList = fa.tokens;
-  for (let i = 0 ; i < tokenModelsList.size() ; i++){
-    tokensList.add(tokenModelsList.get(i));
-    tokensList.add("\n");
+  const tokenModelsList = fa.tokens
+  for (let i = 0; i < tokenModelsList.size(); i++) {
+    tokensList.add(tokenModelsList.get(i))
+    tokensList.add('\n')
   }
 
   // TODO: RETIRAR OS NÃO TERMINAIS DIRETO DA GRAMATICA
-  const nonTerminalDivided:     string[]     = resultsArray;
-  const nonTerminalDividedList: List<string> = new List();
+  const nonTerminalDivided: string[] = resultsArray
+  const nonTerminalDividedList: List<string> = new List()
 
-  nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
+  nonTerminalDivided.forEach((i) => nonTerminalDividedList.add(i))
 
-  const g = new Parser().parse(tokensList, nonTerminalDividedList, grammar);
+  const g = new Parser().parse(tokensList, nonTerminalDividedList, grammar)
 
-  return g;
+  return g
 }
 
 /** Funções auxíliares */
 
 export function is_token_grammar_pair_valid(
   definitions: string,
-  tokens:      string,
+  tokens: string,
   startSymbol: string,
-  grammar:     string,
+  grammar: string
 ): boolean {
-
   // Isso é no que da usar execções...
   try {
-    const fa = parse_lexingrules(definitions, tokens, undefined);
-    parse_grammar(startSymbol, grammar, fa);
+    const fa = parse_lexingrules(definitions, tokens, undefined)
+    parse_grammar(startSymbol, grammar, fa)
   } catch (_error) {
-    return false;
+    return false
   }
 
-  return true;
+  return true
 }
 
 /** Modelines; ponha a sua aqui */

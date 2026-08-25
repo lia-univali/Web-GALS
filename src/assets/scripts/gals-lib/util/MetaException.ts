@@ -10,16 +10,20 @@ enum Mode {
 export class MetaException extends Error {
   static readonly Mode = Mode
 
-  public _mode: Mode;
-  public _index: number;
-  public _cause: AnalysisError;
+  public _mode: Mode
+  public _index: number
+  public _cause: AnalysisError
 
   constructor(mode: Mode, index: number, cause: AnalysisError) {
     super(cause.message) // TODO Verify real equivalency
-    this._cause = cause;
+    this._cause = cause
     this._index = index
     this._mode = mode
 
     Object.setPrototypeOf(this, MetaException.prototype) // TODO Verify real equivalency
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

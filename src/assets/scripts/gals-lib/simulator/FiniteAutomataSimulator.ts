@@ -124,3 +124,7 @@ export class FiniteAutomataSimulator implements BasicScanner {
     return str1.length - str2.length
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

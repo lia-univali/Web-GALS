@@ -26,7 +26,7 @@ export default defineComponent({
         if (selecionado == -1) return
         const projeto = this.store.listaProjetos[selecionado]
 
-        projeto.fileName = nome;
+        projeto.fileName = nome
 
         this.fecharModal()
         this.$toast.info('Nome do Projeto Modificado!')
@@ -175,3 +175,7 @@ button:active {
   transform: rotate(-45deg);
 }
 </style>
+
+<!-- Modelines; ponha a sua aqui -->
+
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

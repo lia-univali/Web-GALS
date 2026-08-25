@@ -14,7 +14,7 @@ export default defineComponent({
   isEmitting: false,
   data() {
     return {
-      isEmitting: false,
+      isEmitting: false
     }
   },
   setup() {
@@ -26,69 +26,75 @@ export default defineComponent({
 
     return {
       store,
-      layout,
+      layout
     }
   },
   methods: {
-   /*
-    * TODO: Não é possível mandar a gramática atravéz de workers
-    * devido a uma referencia circular; consertar.
-    */
+    /*
+     * TODO: Não é possível mandar a gramática atravéz de workers
+     * devido a uma referencia circular; consertar.
+     */
     gerarCodigo() {
-
-      this.isEmitting = true;
+      this.isEmitting = true
 
       const selecionado = this.store.selecionado
       if (selecionado == -1) return
       const projeto = this.store.listaProjetos[selecionado]
       const options: Options = projeto.optionsGals
 
-      let linguagemString = "";
+      let linguagemString = ''
 
-      switch (options.language)
-      {
-        case Options.LANG_CPP:    linguagemString =  ("C++");    break;
-        case Options.LANG_JAVA:	  linguagemString =  ("Java");   break;
-        case Options.LANG_DELPHI: linguagemString =  ("Delphi"); break;
-        case Options.LANG_PYTHON: linguagemString =  ("Python"); break;
-        case Options.LANG_RUST:	  linguagemString =  ("Rust");   break;
+      switch (options.language) {
+        case Options.LANG_CPP:
+          linguagemString = 'C++'
+          break
+        case Options.LANG_JAVA:
+          linguagemString = 'Java'
+          break
+        case Options.LANG_DELPHI:
+          linguagemString = 'Delphi'
+          break
+        case Options.LANG_PYTHON:
+          linguagemString = 'Python'
+          break
+        case Options.LANG_RUST:
+          linguagemString = 'Rust'
+          break
       }
 
-      const worker = new Worker(
-        new URL('@/workers/emitcode.worker.ts', import.meta.url),
-        { type: 'module' }
-      );
+      const worker = new Worker(new URL('@/workers/emitcode.worker.ts', import.meta.url), {
+        type: 'module'
+      })
 
       worker.postMessage({
         regularDefinitions: projeto.regularDefinitions,
-        tokens:             projeto.tokens,
-        nonTerminals:       projeto.nonTerminals,
-        grammar:            projeto.grammar,
-        options:            JSON.stringify(options),
-        necessarioRecriar:  true,
-        fa:                 undefined,
-        g:                  undefined,
-        fileName:           projeto.fileName,
-      });
+        tokens: projeto.tokens,
+        nonTerminals: projeto.nonTerminals,
+        grammar: projeto.grammar,
+        options: JSON.stringify(options),
+        necessarioRecriar: true,
+        fa: undefined,
+        g: undefined,
+        fileName: projeto.fileName
+      })
 
       worker.onmessage = (event) => {
-        const data = event.data;
+        const data = event.data
 
         if (data.type === 'rpc_request') {
-          UIBridge.uibridgeimpl(this, worker, data);
+          UIBridge.uibridgeimpl(this, worker, data)
         } else {
           if (data.success) {
-
             /*
-            * Eu não consigo acreditar que é ASSIM que se emite um arquivo no
-            * javascript.
-            *
-            * Bravo, Brendan Eich.
-            */
+             * Eu não consigo acreditar que é ASSIM que se emite um arquivo no
+             * javascript.
+             *
+             * Bravo, Brendan Eich.
+             */
 
-            const link    = document.createElement('a')
-            link.href     = data.result;
-            link.download = projeto.fileName.slice(0, -5) + " - " + linguagemString + ".zip";
+            const link = document.createElement('a')
+            link.href = data.result
+            link.download = projeto.fileName.slice(0, -5) + ' - ' + linguagemString + '.zip'
 
             document.body.appendChild(link)
             link.click()
@@ -96,15 +102,15 @@ export default defineComponent({
 
             URL.revokeObjectURL(data.result)
 
-            this.$toast.success("Arquivos Gerados!");
+            this.$toast.success('Arquivos Gerados!')
           } else {
-            this.$toast.error(data.error, {"duration":0});
+            this.$toast.error(data.error, { duration: 0 })
           }
 
-          this.isEmitting = false;
-          worker.terminate();
+          this.isEmitting = false
+          worker.terminate()
         }
-      };
+      }
     },
     mudaLayout(perfil: number) {
       switch (perfil) {
@@ -144,22 +150,18 @@ export default defineComponent({
 
 <template>
   <div class="barra__superior">
-  <span class="logo">WEB <span style="color: #9ed15c;">GALS</span></span>
+    <span class="logo">WEB <span style="color: #9ed15c">GALS</span></span>
 
-        <button
-          class="botao__gerar__codigo"
-          :class="{ emitindo: isEmitting }"
-          :disabled="isEmitting"
-          @click="gerarCodigo"
-        >
-          <span v-if="isEmitting">
-            Gerando...
-          </span>
+    <button
+      class="botao__gerar__codigo"
+      :class="{ emitindo: isEmitting }"
+      :disabled="isEmitting"
+      @click="gerarCodigo"
+    >
+      <span v-if="isEmitting"> Gerando... </span>
 
-          <span v-else>
-            Gerar Código
-          </span>
-        </button>
+      <span v-else> Gerar Código </span>
+    </button>
 
     <div class="dropdown">
       <button class="dropbtn">Layout</button>
@@ -174,9 +176,8 @@ export default defineComponent({
 </template>
 
 <style scoped>
-
 a:hover {
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .logo {
@@ -312,3 +313,7 @@ a:hover {
   background-color: #9ed15c;
 }
 </style>
+
+<!-- Modelines; ponha a sua aqui -->
+
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

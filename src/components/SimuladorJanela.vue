@@ -21,26 +21,25 @@ export default defineComponent({
       resultadoLexico: new Map<Token, string>(),
       resultadoSintatico: new TreeNode<string>(),
       tipoSimulacao: 'Lexico',
-      isSimulating: false,
+      isSimulating: false
     }
   },
   setup() {
     const store = projetoStore()
 
     const toggleNecessarioRecriar = () => {
-      store.changeNecessarioRecriar();
-    };
+      store.changeNecessarioRecriar()
+    }
 
     const necessarioRecriar = computed({
       get: () => store.necessarioRecriar,
-      set: (value: boolean) => store.setNecessarioRecriar(value),
-    });
+      set: (value: boolean) => store.setNecessarioRecriar(value)
+    })
 
     return {
       store,
       necessarioRecriar
     }
-
   },
   methods: {
     simularLexico() {
@@ -50,10 +49,10 @@ export default defineComponent({
       if (selecionado == -1) return
 
       const projeto = this.store.listaProjetos[selecionado]
-      if(!projeto.textSimulator) {
+      if (!projeto.textSimulator) {
         projeto.consoleExit = 'A entrada do simulador está vazia!'
-        this.$toast.warning("A entrada do simulador está vazia.");
-        return;
+        this.$toast.warning('A entrada do simulador está vazia.')
+        return
       }
       try {
         this.resultadoLexico = lexicalSimulation(
@@ -62,58 +61,49 @@ export default defineComponent({
           projeto.tokens
         )
 
-        this.$toast.default("Simulação Léxica Concluída");
+        this.$toast.default('Simulação Léxica Concluída')
 
         projeto.consoleExit = 'Simulação Léxica Concluida'
       } catch (error) {
         console.warn(error)
-        this.$toast.error("Erro Léxico: "+(error as Error).message,{"duration":0})
+        this.$toast.error('Erro Léxico: ' + (error as Error).message, { duration: 0 })
         projeto.consoleExit = 'Erro Léxico: ' + (error as Error).message
       }
     },
     queueSyntacticSimulation(projeto: any) {
+      this.isSimulating = true
 
-      this.isSimulating = true;
-
-      const worker = new Worker(
-        new URL('@/workers/syntactic.worker.ts', import.meta.url),
-        { type: 'module' }
-      );
+      const worker = new Worker(new URL('@/workers/syntactic.worker.ts', import.meta.url), {
+        type: 'module'
+      })
 
       worker.onmessage = (event) => {
-        const data = event.data;
+        const data = event.data
 
         if (data.type === 'rpc_request') {
-          UIBridge.uibridgeimpl(this, worker, data);
+          UIBridge.uibridgeimpl(this, worker, data)
         } else {
           if (data.success) {
-          const [
-            resultadoSintatico,
-            novaGramatica,
-            novoLRSim,
-            novoLL1Sim
-          ] = data.result;
+            const [resultadoSintatico, novaGramatica, novoLRSim, novoLL1Sim] = data.result
 
-          this.resultadoSintatico = Object.assign(new TreeNode(), JSON.parse(resultadoSintatico));
-          //  this.store.gramatica = novaGramatica;
-          //  this.store.lrSim = novoLRSim;
-          //  this.store.ll1Sim = novoLL1Sim;
+            this.resultadoSintatico = Object.assign(new TreeNode(), JSON.parse(resultadoSintatico))
+            //  this.store.gramatica = novaGramatica;
+            //  this.store.lrSim = novoLRSim;
+            //  this.store.ll1Sim = novoLL1Sim;
 
-          this.$toast.default("Simulação Sintática Concluída");
-          projeto.consoleExit = 'Simulação Concluida';
+            this.$toast.default('Simulação Sintática Concluída')
+            projeto.consoleExit = 'Simulação Concluida'
           } else {
-          console.log(data.error);
+            console.log(data.error)
 
-          this.$toast.error(
-            "Erro Léxico/Sintático: " +
-            this.translateHTMLTags(data.error),
-            { duration: 0 }
-          );
+            this.$toast.error('Erro Léxico/Sintático: ' + this.translateHTMLTags(data.error), {
+              duration: 0
+            })
 
-          projeto.consoleExit = 'Erro Léxico/Sintático: ' + data.error;
+            projeto.consoleExit = 'Erro Léxico/Sintático: ' + data.error
           }
-          worker.terminate();
-          this.isSimulating = false;
+          worker.terminate()
+          this.isSimulating = false
         }
       }
 
@@ -128,30 +118,29 @@ export default defineComponent({
         gramatica: undefined,
         lrSim: undefined,
         ll1Sim: undefined
-      // gramatica: this.store.gramatica,
-      // lrSim: this.store.lrSim,
-      // ll1Sim: this.store.ll1Sim
-      });
+        // gramatica: this.store.gramatica,
+        // lrSim: this.store.lrSim,
+        // ll1Sim: this.store.ll1Sim
+      })
     },
     simularSintatico() {
-        this.tipoSimulacao = 'Sintático'
-        const selecionado = this.store.selecionado
-        if (selecionado == -1) return
+      this.tipoSimulacao = 'Sintático'
+      const selecionado = this.store.selecionado
+      if (selecionado == -1) return
 
-        const projeto = this.store.listaProjetos[selecionado]
+      const projeto = this.store.listaProjetos[selecionado]
 
-        if(!projeto.textSimulator) {
-            projeto.consoleExit = 'A entrada do simulador está vazia!'
-            this.$toast.warning("A entrada do simulador está vazia.");
-            return;
-        }
-        this.queueSyntacticSimulation(projeto)
-
+      if (!projeto.textSimulator) {
+        projeto.consoleExit = 'A entrada do simulador está vazia!'
+        this.$toast.warning('A entrada do simulador está vazia.')
+        return
+      }
+      this.queueSyntacticSimulation(projeto)
     },
-    translateHTMLTags(line: string): string{
-      return line.replace('<', '&lt').replace('>', '&gt');
+    translateHTMLTags(line: string): string {
+      return line.replace('<', '&lt').replace('>', '&gt')
     },
-    tokenSelect(lexeme:string, position:number) {
+    tokenSelect(lexeme: string, position: number) {
       // Chama o método do AreaCodigo para fazer a seleção no editor do simulador
       const selectFunc = (window as any)._selectTextInSimulator
       if (selectFunc) {
@@ -177,7 +166,11 @@ export default defineComponent({
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(valor, chave) in resultadoLexico" :key="chave" v-on:click="tokenSelect(valor[0].lexeme,valor[0].position)">
+            <tr
+              v-for="(valor, chave) in resultadoLexico"
+              :key="chave"
+              v-on:click="tokenSelect(valor[0].lexeme, valor[0].position)"
+            >
               <td>{{ valor[1] }}</td>
               <td>{{ valor[0].lexeme }}</td>
               <td>{{ valor[0].position }}</td>
@@ -198,19 +191,20 @@ export default defineComponent({
           :disabled="isSimulating"
           @click="simularSintatico"
         >
-          <span v-if="isSimulating">
-            Simulando...
-          </span>
+          <span v-if="isSimulating"> Simulando... </span>
 
-          <span v-else>
-            Simular Sintático
-          </span>
+          <span v-else> Simular Sintático </span>
         </button>
       </div>
       <div class="container__botao__simular">
-        <span class="material-icons customizado"  title="Habilitado: o autômato é reconstruído a cada simulação. Desativado: o autômato da última simulação é reutilizado para simulações subsequentes. Útil para simular gramáticas ambíguas. Alteração nas definições regulares, tokens, símbolo inicial ou gramática requerem que um novo autômato seja criado." style="font-size: 22px;">restart_alt</span>
+        <span
+          class="material-icons customizado"
+          title="Habilitado: o autômato é reconstruído a cada simulação. Desativado: o autômato da última simulação é reutilizado para simulações subsequentes. Útil para simular gramáticas ambíguas. Alteração nas definições regulares, tokens, símbolo inicial ou gramática requerem que um novo autômato seja criado."
+          style="font-size: 22px"
+          >restart_alt</span
+        >
         <label class="switch">
-          <input type="checkbox" title="Reconstruir Gramática" v-model="necessarioRecriar"/>-
+          <input type="checkbox" title="Reconstruir Gramática" v-model="necessarioRecriar" />-
           <span title="Reconstruir Gramática" class="slider round"></span>
         </label>
       </div>
@@ -449,28 +443,28 @@ tr:hover {
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 .slider:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 13px;
   width: 13px;
   left: 2px;
   bottom: 2px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #2196f3;
 }
 
 input:checked + .slider:before {
@@ -488,8 +482,11 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-.material-icons.customizado{
+.material-icons.customizado {
   cursor: default;
 }
-
 </style>
+
+<!-- Modelines; ponha a sua aqui -->
+
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

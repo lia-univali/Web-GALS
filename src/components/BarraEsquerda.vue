@@ -41,7 +41,7 @@ export default defineComponent({
       return store.listaProjetos
     })
 
-	const buildDate = __BUILD_DATE__
+    const buildDate = __BUILD_DATE__
 
     return {
       store,
@@ -105,34 +105,35 @@ export default defineComponent({
       const thatStore = this.store
       const reader = new FileReader()
 
-      import('detect-file-encoding-and-language').then(({ default: DetectFileEncodingAndLanguage }) => {
-        DetectFileEncodingAndLanguage(file).then((fileInfo) => {
-
-          if(fileInfo.encoding == null) {
-            reader.readAsText(file, 'ISO-8859-4')
-          } else{
-            reader.readAsText(file, fileInfo.encoding.toString())
-          }
-
-          reader.onload = () => {
-            const content = reader.result as string;
-
-            try {
-              const newProject = parseFileFromString(file.name, thatStore.totalProjetos, content);
-
-              thatStore.addProject(newProject)
-              thatStore.selectLastProject()
-
-              input.value = ''
-              this.$toast.info('Arquivo carregado!')
-            } catch (e) {
-              this.$toast.error((e as Error).message);
+      import('detect-file-encoding-and-language')
+        .then(({ default: DetectFileEncodingAndLanguage }) => {
+          DetectFileEncodingAndLanguage(file).then((fileInfo) => {
+            if (fileInfo.encoding == null) {
+              reader.readAsText(file, 'ISO-8859-4')
+            } else {
+              reader.readAsText(file, fileInfo.encoding.toString())
             }
-          }
-        });
-      }).catch(error => {
-        console.error('Error importing DetectFileEncodingAndLanguage:', error);
-      });
+
+            reader.onload = () => {
+              const content = reader.result as string
+
+              try {
+                const newProject = parseFileFromString(file.name, thatStore.totalProjetos, content)
+
+                thatStore.addProject(newProject)
+                thatStore.selectLastProject()
+
+                input.value = ''
+                this.$toast.info('Arquivo carregado!')
+              } catch (e) {
+                this.$toast.error((e as Error).message)
+              }
+            }
+          })
+        })
+        .catch((error) => {
+          console.error('Error importing DetectFileEncodingAndLanguage:', error)
+        })
     },
     abrirModalNovoArquivo() {
       const formulario = document.getElementById('modal__arquivo')
@@ -142,7 +143,6 @@ export default defineComponent({
       if (input != null) input.value = ''
     },
     abrirModalEditarArquivo(pid: number) {
-
       this.store.changeSelected(pid)
 
       const formulario = document.getElementById('modal__arquivo__editar')
@@ -181,9 +181,9 @@ export default defineComponent({
           newTab.document.close()
         }
         projeto.consoleExit = 'Tabela criada com Sucesso!'
-        this.$toast.info("Tabela Léxica criada com Sucesso!")
+        this.$toast.info('Tabela Léxica criada com Sucesso!')
       } catch (error) {
-        this.$toast.error("Erro Léxico: "+(error as Error).message,{"duration":0})
+        this.$toast.error('Erro Léxico: ' + (error as Error).message, { duration: 0 })
       }
     },
     mostrarTabelaSintatico() {
@@ -199,19 +199,21 @@ export default defineComponent({
         this.store.necessarioRecriar,
         undefined,
         this.store.gramatica as Grammar | undefined
-      ).then(([html, gramatica]) => {
-        this.store.gramatica = gramatica;
+      )
+        .then(([html, gramatica]) => {
+          this.store.gramatica = gramatica
 
-        const newTab = window.open()
-        if (newTab) {
-          newTab.document.write(html)
-          newTab.document.close()
-        }
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-        this.$toast.info("Tabela Sintática criada com Sucesso!")
-      }).catch((error) => {
-        this.$toast.error("Erro Léxico: "+(error as Error).message,{"duration":0})
-      });
+          const newTab = window.open()
+          if (newTab) {
+            newTab.document.write(html)
+            newTab.document.close()
+          }
+          projeto.consoleExit = 'Tabela criada com Sucesso!'
+          this.$toast.info('Tabela Sintática criada com Sucesso!')
+        })
+        .catch((error) => {
+          this.$toast.error('Erro Léxico: ' + (error as Error).message, { duration: 0 })
+        })
     },
     mostrarTabelaConjuntoSintatico() {
       const selecionado = this.store.selecionado
@@ -226,19 +228,21 @@ export default defineComponent({
         this.store.necessarioRecriar,
         undefined,
         this.store.gramatica as Grammar | undefined
-      ).then(([html, gramatica]) => {
-        this.store.gramatica = gramatica;
+      )
+        .then(([html, gramatica]) => {
+          this.store.gramatica = gramatica
 
-        const newTab = window.open()
-        if (newTab) {
-          newTab.document.write(html)
-          newTab.document.close()
-        }
-        projeto.consoleExit = 'Tabela criada com Sucesso!'
-        this.$toast.info('Tabela do Conjunto de Itens criada com sucesso.')
-      }).catch((error) => {
-        this.$toast.error("Erro Sintático: "+(error as Error).message,{"duration":0})
-      })
+          const newTab = window.open()
+          if (newTab) {
+            newTab.document.write(html)
+            newTab.document.close()
+          }
+          projeto.consoleExit = 'Tabela criada com Sucesso!'
+          this.$toast.info('Tabela do Conjunto de Itens criada com sucesso.')
+        })
+        .catch((error) => {
+          this.$toast.error('Erro Sintático: ' + (error as Error).message, { duration: 0 })
+        })
     },
     mostrarTabelaFirstFollowSintatico() {
       const selecionado = this.store.selecionado
@@ -256,7 +260,7 @@ export default defineComponent({
           this.store.gramatica as Grammar | undefined
         )
 
-        this.store.gramatica = gramatica;
+        this.store.gramatica = gramatica
 
         const newTab = window.open()
         if (newTab) {
@@ -264,9 +268,9 @@ export default defineComponent({
           newTab.document.close()
         }
         projeto.consoleExit = 'Tabela criada com Sucesso!'
-        this.$toast.info("Tabela First Follow criada com sucesso!")
+        this.$toast.info('Tabela First Follow criada com sucesso!')
       } catch (error) {
-        this.$toast.error("Erro Sintático: "+(error as Error).message,{"duration":0})
+        this.$toast.error('Erro Sintático: ' + (error as Error).message, { duration: 0 })
       }
     }
   }
@@ -317,9 +321,19 @@ export default defineComponent({
               <span class="projeto__modified" v-if="projeto.dirty">•</span>
             </button>
 
-            <div class="botao__conjunto__projeto" >
-              <span @click="abrirModalEditarArquivo(projeto.id)" class="material-icons customizado"  title="Editar Projeto" style="font-size: 14px;">edit_square</span>
-              <button @click="store.deleteProject(projeto.id)" class="botao__excluir__projeto" title="Excluir Projeto">
+            <div class="botao__conjunto__projeto">
+              <span
+                @click="abrirModalEditarArquivo(projeto.id)"
+                class="material-icons customizado"
+                title="Editar Projeto"
+                style="font-size: 14px"
+                >edit_square</span
+              >
+              <button
+                @click="store.deleteProject(projeto.id)"
+                class="botao__excluir__projeto"
+                title="Excluir Projeto"
+              >
                 X
               </button>
             </div>
@@ -338,25 +352,41 @@ export default defineComponent({
       <div v-else-if="paginaAberta == 'Documentação'">
         <button class="btn" @click="mostrarTabelaLexico">Tabela de Análise Léxica</button>
         <button class="btn" @click="mostrarTabelaSintatico">Tabela de Análise Sintática</button>
-        <div v-if="(projetos[selecionado].optionsGals.parser != 3 && projetos[selecionado].optionsGals.parser != 4)">
+        <div
+          v-if="
+            projetos[selecionado].optionsGals.parser != 3 &&
+            projetos[selecionado].optionsGals.parser != 4
+          "
+        >
           <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
         </div>
         <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
       <div class="container__info" v-else-if="paginaAberta == 'Informações'">
-        
-        <p><b>G</b>erador de <b>A</b>nalisadores<b> <br /> L</b>éxicos e <b>S</b>intáticos.</p>
+        <p>
+          <b>G</b>erador de <b>A</b>nalisadores<b>
+            <br />
+            L</b
+          >éxicos e <b>S</b>intáticos.
+        </p>
 
-        <p><b>{{ buildDate }}</b></p>
+        <p>
+          <b>{{ buildDate }}</b>
+        </p>
 
         <p><a class="link" :href="getLinkDocumentacaoHTML()" target="_blank">DOCUMENTAÇÃO</a></p>
         <p><a class="link" :href="getLinkChangelogHTML()" target="_blank">CHANGELOG</a></p>
 
         <p>
-          <a href="https://univali.br/computacao" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Univali.jpg" alt="Logo Univali" width="162" /></a>
+          <a href="https://univali.br/computacao" target="_blank"
+            ><img
+              src="https://upload.wikimedia.org/wikipedia/commons/a/a6/Univali.jpg"
+              alt="Logo Univali"
+              width="162"
+          /></a>
         </p>
-        
-        <hr>
+
+        <hr />
 
         <div class="container__developers">
           <h4>Versão Web - 2.0<br />(v. 2026.XX.XX)</h4>
@@ -370,12 +400,12 @@ export default defineComponent({
             <a href="https://linktr.ee/prof.edu" target="_blank">Prof. Eduardo Alves da Silva</a>
           </p>
           <p>
-            <em>Mantida em:</em><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
+            <em>Mantida em:</em
+            ><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
           </p>
-
         </div>
 
-        <hr>
+        <hr />
 
         <div class="container__developers">
           <h4>Versão Web - 1.0<br />(v. 2024.11.10)</h4>
@@ -385,16 +415,16 @@ export default defineComponent({
             <a href="https://github.com/Dangaki" target="_blank">Daniel Akira Nakamura Gullich</a>
           </p>
           <p>
-            <em>Orientador</em> <br /> 
+            <em>Orientador</em> <br />
             <a href="https://linktr.ee/prof.edu" target="_blank">Prof. Eduardo Alves da Silva</a>
           </p>
           <p>
-            <em>Mantida em:</em><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
+            <em>Mantida em:</em
+            ><a href="https://github.com/lia-univali/Web-GALS" target="_blank">LIA@GitHub</a>
           </p>
-          
         </div>
 
-        <hr>
+        <hr />
 
         <div class="container__developers">
           <h4>Versão Desktop <br />(v. 2003.10.03)</h4>
@@ -403,14 +433,16 @@ export default defineComponent({
             <a href="https://github.com/cegesser/gals" target="_blank">Carlos Eduardo Gesser</a>
           </p>
           <p>
-            <em>Orientador</em> <br /> 
-            <a href="https://www.inf.ufsc.br/~olinto.furtado/" target="_blank">Prof. Olinto José V. Furtado</a>
+            <em>Orientador</em> <br />
+            <a href="https://www.inf.ufsc.br/~olinto.furtado/" target="_blank"
+              >Prof. Olinto José V. Furtado</a
+            >
           </p>
           <p>
-            <em>Mantida em:</em><a href="https://gals.sourceforge.net/" target="_blank">SOURCEFORGE</a>
+            <em>Mantida em:</em
+            ><a href="https://gals.sourceforge.net/" target="_blank">SOURCEFORGE</a>
           </p>
         </div>
-        
       </div>
     </div>
   </div>
@@ -695,12 +727,12 @@ input[type='file'] {
   border-right: 3px solid #ffffff;
 }
 
-.material-icons.customizado{
+.material-icons.customizado {
   margin-left: 30px;
   cursor: pointer;
 }
 
-.botao__conjunto__projeto{
+.botao__conjunto__projeto {
   display: flex;
   gap: 15px;
   align-items: center;
@@ -709,6 +741,9 @@ input[type='file'] {
 .projeto__modified {
   font-size: 14pt;
 }
-
 </style>
 @/assets/scripts/salvador@/assets/scripts/saver
+
+<!-- Modelines; ponha a sua aqui -->
+
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

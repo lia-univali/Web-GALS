@@ -55,3 +55,7 @@ export const PARSER_ERROR: string[] = [
 
   'Era esperado -, ], ou um caractere'
 ]
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

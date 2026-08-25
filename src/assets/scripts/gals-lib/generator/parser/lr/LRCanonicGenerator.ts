@@ -5,265 +5,219 @@ import { Production } from '../../../util/Production'
 import { OrderedIntegerSet, List } from '../../../DataStructures'
 import { Command } from './../lr/Command'
 
+export class LRCanonicGenerator extends LRGenerator {
+  private closurecache: Map<string, List<LRItem>> | undefined
 
-export class LRCanonicGenerator extends LRGenerator
-{
+  constructor(g: Grammar) {
+    super(g)
+    this.initCaches()
+  }
 
-    private closurecache: Map<string, List<LRItem>> | undefined;
+  protected initCaches() {
+    if (this.closurecache == undefined) this.closurecache = new Map()
+  }
 
-    constructor(g: Grammar)
-    {
-        super(g);
-		this.initCaches();
+  protected closure(items: List<LRItem>): List<LRItem> {
+    this.initCaches()
+
+    let stringver = this.canonize(items)
+
+    if (this.closurecache!.has(stringver)) {
+      return this.closurecache!.get(stringver)!
     }
 
-    protected initCaches() {
-		if (this.closurecache == undefined)
-			this.closurecache = new Map();
+    let itemsArray: LRItem[] = items.toArray()
+    let queue: LRItem[] = [...items]
 
-	}
-
-    protected closure(items: List<LRItem>): List<LRItem> {
-
-        this.initCaches();
-
-		let stringver = this.canonize(items);
-
-        if (this.closurecache!.has(stringver)) {
-            return this.closurecache!.get(stringver)!;
-        }
-
-		let itemsArray: LRItem[] = items.toArray();
-		let queue: LRItem[] = [...items];
-
-		while (queue.length != 0) {
-			let item = queue.pop()!;
-			const p: Production = item.production;
-			if (item.position < p.get_rhs().length) {
-				const B: number = p.get_rhs()[item.position];
-				if (this.g.isNonTerminal(B)) {
-					const prods: OrderedIntegerSet = this.g.productionsFor(B);
-					for (const bsi of prods.list()) {
-						const p2: Production = this.g.productions.get(bsi);
-						const tmp: number[] = [];
-						for (let i=item.position + 1; i<p.get_rhs().length; i++){
-							tmp.push(p.get_rhs()[i]);
-						}
-						tmp.push(item.lookahead);
-						const first: OrderedIntegerSet = this.g.first(tmp);
-						for (const bsi2 of first.list())
-						{
-							const ni: LRItem = new LRItem(p2, 0, bsi2);
-							if (!this.contains(itemsArray, ni))
-							{
-								itemsArray.push(ni);
-								queue.unshift(ni);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if (this.itemList == undefined)
-            this.itemList = new List();
-
-		this.itemList.add(items);
-
-        stringver = this.canonize(items);
-
-        this.closurecache!.set(stringver, items);
-
-        return items;
-    }
-
-    protected goTo(items: List<LRItem>, s: number): List<LRItem>
-    {
-
-        const result: LRItem[] =  [];
-
-        for (const item of items.toArray())
-        {
-            const p: Production = item.production;
-
-            if (item.position < p.get_rhs().length)
-            {
-                const symb: number = p.get_rhs()[item.position];
-
-                if (symb == s)
-                {
-                    result.push(new LRItem(item.production, item.position+1, item.lookahead));
-                }
+    while (queue.length != 0) {
+      let item = queue.pop()!
+      const p: Production = item.production
+      if (item.position < p.get_rhs().length) {
+        const B: number = p.get_rhs()[item.position]
+        if (this.g.isNonTerminal(B)) {
+          const prods: OrderedIntegerSet = this.g.productionsFor(B)
+          for (const bsi of prods.list()) {
+            const p2: Production = this.g.productions.get(bsi)
+            const tmp: number[] = []
+            for (let i = item.position + 1; i < p.get_rhs().length; i++) {
+              tmp.push(p.get_rhs()[i])
             }
+            tmp.push(item.lookahead)
+            const first: OrderedIntegerSet = this.g.first(tmp)
+            for (const bsi2 of first.list()) {
+              const ni: LRItem = new LRItem(p2, 0, bsi2)
+              if (!this.contains(itemsArray, ni)) {
+                itemsArray.push(ni)
+                queue.unshift(ni)
+              }
+            }
+          }
         }
-
-        const resultList = new List<LRItem>();
-        resultList.setItems(result)
-
-		let clo = this.closure(resultList);
-
-        return clo;
+      }
     }
 
-	protected computeItems(): List<List<LRItem>>
-    {
-        const s: List<LRItem> = new List();
-        const sp: OrderedIntegerSet = this.g.productionsFor(this.g.startSymbol);
-        const f: number =  sp.list()[0];
+    if (this.itemList == undefined) this.itemList = new List()
 
-        s.add(new LRItem(this.g.productions.get(f), 0, Grammar.DOLLAR));
-		let cs = this.closure(s);
-        const c: List<List<LRItem>> = new List();
-        c.add(cs);
+    this.itemList.add(items)
 
-		let queue: List<LRItem>[] = [cs];
+    stringver = this.canonize(items)
 
-        while (queue.length != 0)
-        {
-			let state = queue.pop()!;
-			for (let i=0; i< state.size(); i++)
-			{
-				const m: LRItem = state.get(i);
+    this.closurecache!.set(stringver, items)
 
-				const p: Production = m.production;
-				if (p.get_rhs().length > m.position)
-				{
-					const gt: List<LRItem> = this.goTo(state, p.get_rhs()[m.position]);
-					let boolres = this.containsList(c, gt);
+    return items
+  }
 
-					if (gt.size() != 0 && ! boolres)
-					{
-						c.add(gt);
-						queue.unshift(gt);
-					}
-				}
-			}
+  protected goTo(items: List<LRItem>, s: number): List<LRItem> {
+    const result: LRItem[] = []
+
+    for (const item of items.toArray()) {
+      const p: Production = item.production
+
+      if (item.position < p.get_rhs().length) {
+        const symb: number = p.get_rhs()[item.position]
+
+        if (symb == s) {
+          result.push(new LRItem(item.production, item.position + 1, item.lookahead))
         }
-
-        return c;
+      }
     }
 
-    protected contains(list: Array<LRItem>, item: LRItem): boolean
-    {
-        for(const pivot of list){
-            if(item.equals(pivot))
-                return true;
+    const resultList = new List<LRItem>()
+    resultList.setItems(result)
+
+    let clo = this.closure(resultList)
+
+    return clo
+  }
+
+  protected computeItems(): List<List<LRItem>> {
+    const s: List<LRItem> = new List()
+    const sp: OrderedIntegerSet = this.g.productionsFor(this.g.startSymbol)
+    const f: number = sp.list()[0]
+
+    s.add(new LRItem(this.g.productions.get(f), 0, Grammar.DOLLAR))
+    let cs = this.closure(s)
+    const c: List<List<LRItem>> = new List()
+    c.add(cs)
+
+    let queue: List<LRItem>[] = [cs]
+
+    while (queue.length != 0) {
+      let state = queue.pop()!
+      for (let i = 0; i < state.size(); i++) {
+        const m: LRItem = state.get(i)
+
+        const p: Production = m.production
+        if (p.get_rhs().length > m.position) {
+          const gt: List<LRItem> = this.goTo(state, p.get_rhs()[m.position])
+          let boolres = this.containsList(c, gt)
+
+          if (gt.size() != 0 && !boolres) {
+            c.add(gt)
+            queue.unshift(gt)
+          }
         }
-        return false;
+      }
     }
 
-	protected containsList(list: List<List<LRItem>>, item: List<LRItem>): boolean
-	{
+    return c
+  }
 
-		const itemArray = item.toArray();
+  protected contains(list: Array<LRItem>, item: LRItem): boolean {
+    for (const pivot of list) {
+      if (item.equals(pivot)) return true
+    }
+    return false
+  }
 
-		for (const pivot of list)
-        {
+  protected containsList(list: List<List<LRItem>>, item: List<LRItem>): boolean {
+    const itemArray = item.toArray()
 
-			const pivotArray = pivot.toArray()
+    for (const pivot of list) {
+      const pivotArray = pivot.toArray()
 
-			if(pivotArray.length !== itemArray.length)
-            {
-				continue;
-			}
+      if (pivotArray.length !== itemArray.length) {
+        continue
+      }
 
-			let contained = true;
+      let contained = true
 
-			for(let i = 0; i < pivotArray.length; i++)
-            {
+      for (let i = 0; i < pivotArray.length; i++) {
+        const pivotItem: LRItem = pivotArray[i]
+        const it: LRItem = itemArray[i]
 
-				const pivotItem : LRItem = pivotArray[i];
-				const it : LRItem = itemArray[i];
-
-                if (pivotItem.equals(it) == false)
-                {
-					contained = false;
-					break;
-				}
-			}
-
-			if (contained)
-                return true;
+        if (pivotItem.equals(it) == false) {
+          contained = false
+          break
         }
+      }
 
-		return false;
-	}
+      if (contained) return true
+    }
 
+    return false
+  }
 
   /* (non-Javadoc)
    * @see gesser.gals.generator.parser.lr.LRGenerator#buildTable()
    */
   public async buildTable(): Promise<Command[][]> {
+    const result: Map<number, Command>[][] = []
 
-    const result: Map<number, Command>[][]  = [];
-
-    for (let i=0; i< this.itemList.size(); i++)
-    {
-      result[i] = [];
-      for (let j=0; j<this.g.symbols.length-1; j++)
-      {
-        result[i][j] = new Map<number, Command>();
+    for (let i = 0; i < this.itemList.size(); i++) {
+      result[i] = []
+      for (let j = 0; j < this.g.symbols.length - 1; j++) {
+        result[i][j] = new Map<number, Command>()
       }
     }
 
-    for (let i=0; i<result.length; i++)
-    {
+    for (let i = 0; i < result.length; i++) {
+      const items: List<LRItem> = this.itemList.get(i)
 
-      const items: List<LRItem> = this.itemList.get(i);
+      for (let j = 0; j < items.size(); j++) {
+        const item: LRItem = items.get(j)
 
-      for (let j=0; j<items.size(); j++)
-      {
+        const p: Production = item.production
+        const rhs: number[] = p.get_rhs()
 
-        const item: LRItem = items.get(j);
+        if (rhs.length > item.position) {
+          const s: number = rhs[item.position]
+          const next: List<LRItem> = this.goTo(items, s)
 
-        const p: Production = item.production;
-        const rhs: number[] = p.get_rhs();
-
-        if (rhs.length > item.position)
-        {
-          const s: number = rhs[item.position];
-          const next: List<LRItem> = this.goTo(items, s);
-
-          if (this.g.isTerminal(s))
-          {
-            const cmd = Command.createShift(this.getIndexFromList(this.itemList, next));
-            result[i][s-1].set( cmd.hashCode(), cmd);
+          if (this.g.isTerminal(s)) {
+            const cmd = Command.createShift(this.getIndexFromList(this.itemList, next))
+            result[i][s - 1].set(cmd.hashCode(), cmd)
+          } //nonTerminal
+          else {
+            const cmd = Command.createGoTo(this.getIndexFromList(this.itemList, next))
+            result[i][s - 1].set(cmd.hashCode(), cmd)
           }
-          else //nonTerminal
-          {
-            const cmd = Command.createGoTo((this.getIndexFromList(this.itemList, next)))
-            result[i][s-1].set( cmd.hashCode(), cmd);
-          }
-        }
-        else
-        {
-          const lhs = p.get_lhs();
+        } else {
+          const lhs = p.get_lhs()
 
-          if (lhs == this.g.startSymbol)
-          {
-            const cmd = Command.createAccept();
-            result[i][0].set( cmd.hashCode(), cmd);
-          }
-          else
-          {
-            const a: number = item.lookahead;
-            let cmd: Command;
-            if (lhs < this.semanticStart)
-              cmd = Command.createReduce(this.g.productions.indexOf(p));
-            else
-              cmd = Command.createAction(lhs-this.semanticStart);
+          if (lhs == this.g.startSymbol) {
+            const cmd = Command.createAccept()
+            result[i][0].set(cmd.hashCode(), cmd)
+          } else {
+            const a: number = item.lookahead
+            let cmd: Command
+            if (lhs < this.semanticStart) cmd = Command.createReduce(this.g.productions.indexOf(p))
+            else cmd = Command.createAction(lhs - this.semanticStart)
 
-            result[i][a-1].set(cmd.hashCode(), cmd);
+            result[i][a - 1].set(cmd.hashCode(), cmd)
           }
         }
       }
     }
 
-    const resultSet: Set<Command>[][] = result.map(	row => row.map(map => new Set(map.values())));
+    const resultSet: Set<Command>[][] = result.map((row) => row.map((map) => new Set(map.values())))
 
-    let cft = await this.resolveConflicts(resultSet);
+    let cft = await this.resolveConflicts(resultSet)
 
-    return cft;
+    return cft
   }
-
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

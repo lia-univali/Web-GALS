@@ -1,18 +1,16 @@
-
-
 export function langIdToString(value: number) {
-  if      (value === Options.LANG_CPP)    return 'C++';
-  else if (value === Options.LANG_JAVA)   return 'Java';
-  else if (value === Options.LANG_DELPHI) return 'Delphi';
-  else if (value === Options.LANG_PYTHON) return 'Python';
-  else if (value === Options.LANG_RUST)   return 'Rust';
+  if (value === Options.LANG_CPP) return 'C++'
+  else if (value === Options.LANG_JAVA) return 'Java'
+  else if (value === Options.LANG_DELPHI) return 'Delphi'
+  else if (value === Options.LANG_PYTHON) return 'Python'
+  else if (value === Options.LANG_RUST) return 'Rust'
   else throw new Error('Erro convertendo idtostring')
 }
 
 export function scnrIdToString(value: number) {
-  if      (value === Options.SCANNER_TABLE_FULL)     return 'Full';
-  else if (value === Options.SCANNER_TABLE_COMPACT)  return 'Compact'
-  else if (value === Options.SCANNER_TABLE_HARDCODE) return 'Hardcode';
+  if (value === Options.SCANNER_TABLE_FULL) return 'Full'
+  else if (value === Options.SCANNER_TABLE_COMPACT) return 'Compact'
+  else if (value === Options.SCANNER_TABLE_HARDCODE) return 'Hardcode'
 }
 
 export class Options {
@@ -74,7 +72,7 @@ export class Options {
         bfr += 'Python'
         break
       case Options.LANG_RUST:
-	bfr += 'Rust'
+        bfr += 'Rust'
         break
     }
 
@@ -193,3 +191,7 @@ export class Options {
     } else throw new Error('Erro processando arquivo')
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

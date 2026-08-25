@@ -26,3 +26,7 @@ export class Token {
     return this._id + '(' + this._lexeme + ')'
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

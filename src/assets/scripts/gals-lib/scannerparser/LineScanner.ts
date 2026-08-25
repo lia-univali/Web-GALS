@@ -172,9 +172,9 @@ export class LineScanner {
 
   private isLetter(char: string): boolean {
     return (
-      char.toLowerCase() != char.toUpperCase() 
-        || char.charCodeAt(0) == 170
-        || char.charCodeAt(0) == 186
+      char.toLowerCase() != char.toUpperCase() ||
+      char.charCodeAt(0) == 170 ||
+      char.charCodeAt(0) == 186
     )
     //return c.toLowerCase() != c.toUpperCase() // Não é 1-1 com o Java
   }
@@ -204,3 +204,7 @@ export class LineScanner {
     else return String.fromCharCode(-1)
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

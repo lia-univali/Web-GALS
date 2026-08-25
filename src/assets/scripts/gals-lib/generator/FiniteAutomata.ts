@@ -233,155 +233,148 @@ export class FiniteAutomata {
   }
 
   public translateString(str: string): string {
+    let result = ''
+    for (let i = 0; i < str.length; i++) {
+      const c = str.charAt(i)
 
-		let result = "";
-		for (let i=0; i < str.length; i++)
-		{
-			const c = str.charAt(i);
-      
-			switch (c)
-			{
-				case '"':
-					result+="&quot;";
-					break;
-				case '&':
-					result+="&amp;";
-					break;
-				case '<':
-					result+="&lt;";
-					break;
-				case '>':
-					result+="&gt;";
-					break;
-				default:
-					result+=c;
-			}
-		}
-			
-		return result;
-  } 
+      switch (c) {
+        case '"':
+          result += '&quot;'
+          break
+        case '&':
+          result += '&amp;'
+          break
+        case '<':
+          result += '&lt;'
+          break
+        case '>':
+          result += '&gt;'
+          break
+        default:
+          result += c
+      }
+    }
 
+    return result
+  }
 
   public asHTML(): string {
-    let result = "";
-  
+    let result = ''
+
     result +=
-    "<HTML>"+
-    "<HEAD>"+
-    "<TITLE> Tabela de Transições </TITLE>"+
-    "</HEAD>"+
-    "<BODY><FONT face=\"Verdana, Arial, Helvetica, sans-serif\">"+
-    "<TABLE border=1 cellspacing=0>";
-    
+      '<HTML>' +
+      '<HEAD>' +
+      '<TITLE> Tabela de Transições </TITLE>' +
+      '</HEAD>' +
+      '<BODY><FONT face="Verdana, Arial, Helvetica, sans-serif">' +
+      '<TABLE border=1 cellspacing=0>'
+
     result +=
-                "<TR align=center>"+
-                "<TD rowspan=\"2\" bgcolor=black><FONT color=white><B>ESTADO</B></FONT></TD>"+
-                "<TD rowspan=\"2\" bgcolor=black><FONT color=white><B>TOKEN<BR>RETORNADO</B></FONT></TD>"+
-                "<TD colspan=\""+ this._alphabet.size +"\" bgcolor=black><FONT color=white><B>ENTRADA</B></FONT></TD>"+
-        "</TR>"+
-        "<TR align=center>";
-      
-    for(const x of this._alphabet.list()){
-      const c: string = this.escapeSpecialCharacters(String.fromCodePoint(x));
-      result += "<TD bgcolor=#99FF66 nowrap><B>"+ this.translateChar(c) +"</B></TD>";
+      '<TR align=center>' +
+      '<TD rowspan="2" bgcolor=black><FONT color=white><B>ESTADO</B></FONT></TD>' +
+      '<TD rowspan="2" bgcolor=black><FONT color=white><B>TOKEN<BR>RETORNADO</B></FONT></TD>' +
+      '<TD colspan="' +
+      this._alphabet.size +
+      '" bgcolor=black><FONT color=white><B>ENTRADA</B></FONT></TD>' +
+      '</TR>' +
+      '<TR align=center>'
+
+    for (const x of this._alphabet.list()) {
+      const c: string = this.escapeSpecialCharacters(String.fromCodePoint(x))
+      result += '<TD bgcolor=#99FF66 nowrap><B>' + this.translateChar(c) + '</B></TD>'
     }
 
-    result += "</TR>";
-                      
-    for (let it = 0; it < this._transitions.size(); it++ ) {
-      result += "<TR align=center>"+
-              "<TD bgcolor=#99FF66><B>"+it+"</B></TD>";
+    result += '</TR>'
 
-      const t = this._finals[it];
-      let clr: string | null = null;
-      
-      if (t > 0)
-      {
-        if (clr == null)
-          clr = "#FFFFCC";
-          
-        let caption: string = HTMLDialog.translateString(this._tokenNames.get(t-2));
-        
-        if (this.getOrigin(it) >= 0)
-          caption += " / "+ this.getOrigin(it);
-        result += "<TD bgcolor="+clr+" nowrap>" + caption + "</TD>";
-      }
-      else if (t == 0)
-      {
-        if (clr == null)
-          clr = "#99CCFF";
-        result+="<TD bgcolor="+clr+"><B>:</B></TD>";
-      }
-      else if (t == -2)
-        result+="<TD bgcolor=#FF0000>?</TD>";
-      else
-      {
-        if (clr == null)
-          clr = "#FFCC99";
-        result+="<TD bgcolor="+clr+">?</TD>";
-      }
-        
-      const x: Map<string, number> = this._transitions.get(it);
+    for (let it = 0; it < this._transitions.size(); it++) {
+      result += '<TR align=center>' + '<TD bgcolor=#99FF66><B>' + it + '</B></TD>'
 
-      for(const i of this._alphabet.list()){
-        result += "<TD width=40 bgcolor=#F5F5F5>";
-        const integ = x.get( String.fromCodePoint(i));
-        
-        if (integ != undefined && integ >= 0)
-          result+=integ;
-        else
-          result+="-";
-          
-        result+="</TD>";
+      const t = this._finals[it]
+      let clr: string | null = null
+
+      if (t > 0) {
+        if (clr == null) clr = '#FFFFCC'
+
+        let caption: string = HTMLDialog.translateString(this._tokenNames.get(t - 2))
+
+        if (this.getOrigin(it) >= 0) caption += ' / ' + this.getOrigin(it)
+        result += '<TD bgcolor=' + clr + ' nowrap>' + caption + '</TD>'
+      } else if (t == 0) {
+        if (clr == null) clr = '#99CCFF'
+        result += '<TD bgcolor=' + clr + '><B>:</B></TD>'
+      } else if (t == -2) result += '<TD bgcolor=#FF0000>?</TD>'
+      else {
+        if (clr == null) clr = '#FFCC99'
+        result += '<TD bgcolor=' + clr + '>?</TD>'
       }
-      result+="</TR>";
+
+      const x: Map<string, number> = this._transitions.get(it)
+
+      for (const i of this._alphabet.list()) {
+        result += '<TD width=40 bgcolor=#F5F5F5>'
+        const integ = x.get(String.fromCodePoint(i))
+
+        if (integ != undefined && integ >= 0) result += integ
+        else result += '-'
+
+        result += '</TD>'
+      }
+      result += '</TR>'
     }
-    
-    result+=
-    "</TABLE>"+
-    "</FONT></BODY>"+
-    "</HTML>"+
-    "";
+
+    result += '</TABLE>' + '</FONT></BODY>' + '</HTML>' + ''
 
     // // var uri = "data:text/html," + encodeURIComponent(result);var newWindow = window.open(uri);
-    // var tab = window.open('about:blank', '_blank'); 
+    // var tab = window.open('about:blank', '_blank');
     // if(tab ==  null) return result;
     // tab.document.write(result); // where 'html' is a variable containing your HTML tab.document.close(); // to finish loading the page
 
-    return result;
+    return result
   }
 
   escapeSpecialCharacters(input: string) {
     return input
-    .replace(/\n/g, '\\n')
-    .replace(/\t/g, '\\t')
-    .replace(/\r/g, '\\r')
-    .replace(/\s/g, "' '")
+      .replace(/\n/g, '\\n')
+      .replace(/\t/g, '\\t')
+      .replace(/\r/g, '\\r')
+      .replace(/\s/g, "' '")
   }
-  
-  private translateChar(c : string): string {
-    switch (c){
-      case '\n' : return "\\n";
-      case '\r' : return "\\r";
-      case '\t' : return "\\t";
-      case '\b' : return "\\b";
-      case ' ' : return "' '";
 
-      case '"' : return "&quot;";
-      case '&' : return "&amp;";
-      case '<' : return "&lt;";
-      case '>' : return "&gt;";
+  private translateChar(c: string): string {
+    switch (c) {
+      case '\n':
+        return '\\n'
+      case '\r':
+        return '\\r'
+      case '\t':
+        return '\\t'
+      case '\b':
+        return '\\b'
+      case ' ':
+        return "' '"
 
-      default:{
+      case '"':
+        return '&quot;'
+      case '&':
+        return '&amp;'
+      case '<':
+        return '&lt;'
+      case '>':
+        return '&gt;'
+
+      default: {
         const charCode = c.charCodeAt(0)
 
         if ((charCode >= 32 && charCode <= 126) || (charCode >= 161 && charCode <= 255)) {
-          return c;
+          return c
         } else {
-          return charCode.toString();
+          return charCode.toString()
         }
       }
     }
   }
-  
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

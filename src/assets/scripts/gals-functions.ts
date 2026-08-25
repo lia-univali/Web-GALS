@@ -40,60 +40,64 @@ export enum Mode {
   BOTH
 }
 
-export function parseDefsOnTokens(def: string, tok: string): string{
+export function parseDefsOnTokens(def: string, tok: string): string {
   const tknzr: string[] = def.split('\n').filter(Boolean)
-  const defTermo : Map<string, string> = new Map()
+  const defTermo: Map<string, string> = new Map()
 
   for (let line of tknzr) {
-    line = line.trim();
+    line = line.trim()
 
-	const i     = line.indexOf(':');
-	const key   = line.slice(0, i);
-	let   value = line.slice(i + 1);
+    const i = line.indexOf(':')
+    const key = line.slice(0, i)
+    let value = line.slice(i + 1)
 
-	// HACK: Hack cagado, o parserparser confunde comentário da linguagem com comentário do editor
-	//       Efetua o escape manualmente.
+    // HACK: Hack cagado, o parserparser confunde comentário da linguagem com comentário do editor
+    //       Efetua o escape manualmente.
 
-	let was_slash: boolean = false;
+    let was_slash: boolean = false
 
-	if (value.trim() === "/") {
-		value = `"/" `
-		was_slash = true;
-	}
+    if (value.trim() === '/') {
+      value = `"/" `
+      was_slash = true
+    }
 
-	if (value.trim() === "//") {
-		throw new LexicalError(`A definição regular '${value.trim()}' será confundida como comentário no próprio editor, abortando.`);
-	}
+    if (value.trim() === '//') {
+      throw new LexicalError(
+        `A definição regular '${value.trim()}' será confundida como comentário no próprio editor, abortando.`
+      )
+    }
 
-	const termo = [key, value].filter(Boolean)
+    const termo = [key, value].filter(Boolean)
 
     // Reuso de uma Definição Regular em outra Definição
-    let defExpression : string = termo[1].trim()
+    let defExpression: string = termo[1].trim()
 
-	// HACK
-	if (was_slash) defExpression += " ";
+    // HACK
+    if (was_slash) defExpression += ' '
 
     const existentDefs = defExpression.match(/{[a-zA-Z_][a-zA-Z0-9_]*}/g)
-    if(existentDefs !== null) {
-      for(const exDef of existentDefs) {
-        if( !defTermo.has(exDef) ) {
-          throw new LexicalError(`Definições Regulares: A definição ${exDef} usada em '${line}' não existe.`);
+    if (existentDefs !== null) {
+      for (const exDef of existentDefs) {
+        if (!defTermo.has(exDef)) {
+          throw new LexicalError(
+            `Definições Regulares: A definição ${exDef} usada em '${line}' não existe.`
+          )
         } else {
           // @ts-expect-error: Object is possibly 'null'.
           defExpression = defExpression.replace(exDef, defTermo.get(exDef))
         }
       }
     }
-    
+
     defTermo.set('{' + termo[0].trim() + '}', defExpression)
   }
 
   for (const [key, value] of defTermo.entries()) {
-    const regex = new RegExp(key, "g");
+    const regex = new RegExp(key, 'g')
     tok = tok.replace(regex, value)
   }
 
-  return tok;
+  return tok
 }
 
 export function lexicalSimulation(
@@ -108,17 +112,16 @@ export function lexicalSimulation(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
-    console.warn(error);
-    throw new LexicalError((error as LexicalError).message);
+    console.warn(error)
+    throw new LexicalError((error as LexicalError).message)
   }
-
 
   const sensitive: boolean = true
 
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
   const lp: LineParser = new LineParser()
-  
-  if(fa == undefined){
+
+  if (fa == undefined) {
     fa = lp.parseFA(definitions, tokens, sensitive)
   }
 
@@ -157,7 +160,7 @@ export function lexicalSimulation(
       return ld.getFA(scannerCaseSensitive)
     } catch (
       error //MetaException
-      ) {
+    ) {
       console.warn(error)
       return null
     }
@@ -211,28 +214,23 @@ export function lexicalSimulation(
   return tokensModel
 }
 
-export function lexicalTable(
-  definitions: string,
-  tokens: string,
-  fa?: FiniteAutomata
-): string {
-
+export function lexicalTable(definitions: string, tokens: string, fa?: FiniteAutomata): string {
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
-    console.warn(error);
+    console.warn(error)
     throw new LexicalError((error as LexicalError).message)
   }
 
   const sensitive: boolean = true
   const lp: LineParser = new LineParser()
-  
-  if(fa == undefined){
+
+  if (fa == undefined) {
     fa = lp.parseFA(definitions, tokens, sensitive)
   }
 
-  return fa.asHTML();
+  return fa.asHTML()
 }
 
 export async function syntacticSimulation(
@@ -248,8 +246,9 @@ export async function syntacticSimulation(
   g?: Grammar,
   lrSim?: LRParserSimulator,
   ll1Sim?: LL1ParserSimulator
-): Promise<[TreeNode<string>, Grammar, LRParserSimulator | undefined, LL1ParserSimulator | undefined]> {
-
+): Promise<
+  [TreeNode<string>, Grammar, LRParserSimulator | undefined, LL1ParserSimulator | undefined]
+> {
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
@@ -259,15 +258,15 @@ export async function syntacticSimulation(
   }
 
   // Pega não terminais direto do grammar
-  const lines = grammar.split('\n');
-  const results = new Set<string>();
+  const lines = grammar.split('\n')
+  const results = new Set<string>()
 
   lines.forEach((line) => {
-    const matches = line.match(/^[^:]+(?=\s*::=)/);
+    const matches = line.match(/^[^:]+(?=\s*::=)/)
     if (matches) {
-      results.add(matches[0].trim());
+      results.add(matches[0].trim())
     }
-  });
+  })
 
   // Move a posição do Simbolo inicial da gramatica pada indice 0
 
@@ -275,11 +274,12 @@ export async function syntacticSimulation(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
+  if (startSymbolIndex == -1)
+    throw new SyntacticError('Símbolo inicial da Gramática não encontrado.')
 
-  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
+  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0]
 
-  resultsArray.splice(0, 0, itemToMove);
+  resultsArray.splice(0, 0, itemToMove)
 
   //Instanciação inicial
   //let nonTerminal: string = "";
@@ -291,77 +291,90 @@ export async function syntacticSimulation(
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
   const lp: LineParser = new LineParser()
-  
-  if(fa == undefined){
+
+  if (fa == undefined) {
     fa = lp.parseFA(definitions, tokens, sensitive)
   }
 
   // Feito para quando não é necessario reaparecer dialogo de conflito
-  if(needRebuildGram) {
+  if (needRebuildGram) {
     lrSim = undefined
     ll1Sim = undefined
   }
 
   // Passo 3 - Pega grammatica da MainWindow.java getGrammar
-  if (needRebuildGram || g == undefined){
-    needRebuildGram = false;
+  if (needRebuildGram || g == undefined) {
+    needRebuildGram = false
     // Cria Grammar InputPane.java getGrammar (line 69)
     // Pega tokens e tranforma pelo finite automata input pane getTokens
 
-    const tokensList: List<string> =  new List;
+    const tokensList: List<string> = new List()
 
-    if (mode == Mode.BOTH || mode == Mode.LEXICAL)
-    {
-      const tokenModelsList = fa.tokens;
-      for (let i = 0 ; i < tokenModelsList.size() ; i++){
-        tokensList.add(tokenModelsList.get(i));
-        tokensList.add("\n");
+    if (mode == Mode.BOTH || mode == Mode.LEXICAL) {
+      const tokenModelsList = fa.tokens
+      for (let i = 0; i < tokenModelsList.size(); i++) {
+        tokensList.add(tokenModelsList.get(i))
+        tokensList.add('\n')
       }
-    }
-    else //mode == SYNTATIC
-    {
-      const tknzr: string[] = tokens.split(/(\n)/g);
-      tknzr.forEach(t => tokensList.add(t));
+    } //mode == SYNTATIC
+    else {
+      const tknzr: string[] = tokens.split(/(\n)/g)
+      tknzr.forEach((t) => tokensList.add(t))
     }
 
     // Retorna InputPane getGrammar
     // TODO: RETIRAR OS NÃO TERMINAIS DIRETO DA GRAMATICA
-    const nonTerminalDivided: string[] = resultsArray;// nonTerminal.split(/(\n)/g);
+    const nonTerminalDivided: string[] = resultsArray // nonTerminal.split(/(\n)/g);
 
     //tokensList.toArray().forEach( token => nonTerminalDivided.push(token));
 
-    const nonTerminalDividedList: List<string> = new List();
+    const nonTerminalDividedList: List<string> = new List()
 
-    nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
+    nonTerminalDivided.forEach((i) => nonTerminalDividedList.add(i))
 
-    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
+    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar) //
 
     // //console.log("______________________________GRAMAR IS PARSED______________________________");
   }
 
   // Passo 4 continua  Actions.java simulate
   // MainWindow.java List terminals = MainWindow.getInstance().getTokens()
-  const terminals: Array<string> = fa.tokens.toArray();
+  const terminals: Array<string> = fa.tokens.toArray()
 
-  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
+  if (g === undefined) throw new SyntacticError('Grammar is Undefined')
 
-  let parserResult: LRGenerator | null = null;
-  let parserResultLL: LLParser | null = null;
+  let parserResult: LRGenerator | null = null
+  let parserResultLL: LLParser | null = null
 
-  switch (parser)
-  {
+  switch (parser) {
     case Options.PARSER_REC_DESC:
     case Options.PARSER_LL:
-      [ll1Sim, faSim, parserResultLL] = await simulateLL(fa, g,  terminals, faSim, sensitive, ll1Sim);
-      break;
+      ;[ll1Sim, faSim, parserResultLL] = await simulateLL(
+        fa,
+        g,
+        terminals,
+        faSim,
+        sensitive,
+        ll1Sim
+      )
+      break
     case Options.PARSER_SLR:
     case Options.PARSER_LALR:
     case Options.PARSER_LR:
-      [lrSim, faSim, parserResult] = await simulateLR(fa, g,  terminals, faSim, sensitive, parser, lrSim);
-      break;
+      ;[lrSim, faSim, parserResult] = await simulateLR(
+        fa,
+        g,
+        terminals,
+        faSim,
+        sensitive,
+        parser,
+        lrSim
+      )
+      break
   }
 
-  if(parserResult === null && parserResultLL === null) throw new SyntacticError("Erro na criação do Parser Sintático");
+  if (parserResult === null && parserResultLL === null)
+    throw new SyntacticError('Erro na criação do Parser Sintático')
 
   // //console.log("______________Simulator Created______________");
 
@@ -375,22 +388,19 @@ export async function syntacticSimulation(
 
   // Passo 5 Simula os tokens reconhecidos na operação de clique da classe SimulateWindow - método: syntClick
 
-  let root: TreeNode<string> = new TreeNode("Derivação");
+  let root: TreeNode<string> = new TreeNode('Derivação')
 
-  if(faSim === undefined) throw new SyntacticError("Finite Automata Simulator is Null")
+  if (faSim === undefined) throw new SyntacticError('Finite Automata Simulator is Null')
 
-  faSim.setInput(input);
+  faSim.setInput(input)
 
-  if (ll1Sim != undefined)
-  {
-    root = ll1Sim.parse(faSim, root);
-  }
-  else if (lrSim != undefined)
-  {
-    root = lrSim.parse(faSim, root);
+  if (ll1Sim != undefined) {
+    root = ll1Sim.parse(faSim, root)
+  } else if (lrSim != undefined) {
+    root = lrSim.parse(faSim, root)
   }
 
-  return [root, g, lrSim, ll1Sim] ;
+  return [root, g, lrSim, ll1Sim]
 } // FIM syntacticSimulation
 
 export async function syntacticTable(
@@ -403,25 +413,24 @@ export async function syntacticTable(
   fa?: FiniteAutomata,
   g?: Grammar
 ): Promise<[string, Grammar]> {
-
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
-    console.warn(error);
+    console.warn(error)
     throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar
-  const lines = grammar.split('\n');
-  const results = new Set<string>();
+  const lines = grammar.split('\n')
+  const results = new Set<string>()
 
   lines.forEach((line) => {
-    const matches = line.match(/^[^:]+(?=\s*::=)/);
+    const matches = line.match(/^[^:]+(?=\s*::=)/)
     if (matches) {
-      results.add(matches[0].trim());
+      results.add(matches[0].trim())
     }
-  });
+  })
 
   // Move a posição do Simbolo inicial da gramatica pada indice 0
 
@@ -429,11 +438,12 @@ export async function syntacticTable(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
+  if (startSymbolIndex == -1)
+    throw new SyntacticError('Símbolo inicial da Gramática não encontrado.')
 
-  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
+  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0]
 
-  resultsArray.splice(0, 0, itemToMove);
+  resultsArray.splice(0, 0, itemToMove)
 
   //Instanciação inicial
   //let nonTerminal: string = "";
@@ -445,70 +455,65 @@ export async function syntacticTable(
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
   const lp: LineParser = new LineParser()
-  
-  if(fa == undefined){
+
+  if (fa == undefined) {
     fa = lp.parseFA(definitions, tokens, sensitive)
   }
 
   // Passo 3 - Pega grammatica da MainWindow.java getGrammar
-  if (needRebuildGram || g == undefined){
-    needRebuildGram = false;
+  if (needRebuildGram || g == undefined) {
+    needRebuildGram = false
     // Cria Grammar InputPane.java getGrammar (line 69)
     // Pega tokens e tranforma pelo finite automata input pane getTokens
 
-    const tokensList: List<string> =  new List;
+    const tokensList: List<string> = new List()
 
-    if (mode == Mode.BOTH || mode == Mode.LEXICAL)
-    {
-      const tokenModelsList = fa.tokens;
-      for (let i = 0 ; i < tokenModelsList.size() ; i++){
-        tokensList.add(tokenModelsList.get(i));
-        tokensList.add("\n");
+    if (mode == Mode.BOTH || mode == Mode.LEXICAL) {
+      const tokenModelsList = fa.tokens
+      for (let i = 0; i < tokenModelsList.size(); i++) {
+        tokensList.add(tokenModelsList.get(i))
+        tokensList.add('\n')
       }
-    }
-    else //mode == SYNTATIC
-    {
-      const tknzr: string[] = tokens.split(/(\n)/g);
-      tknzr.forEach(t => tokensList.add(t));
+    } //mode == SYNTATIC
+    else {
+      const tknzr: string[] = tokens.split(/(\n)/g)
+      tknzr.forEach((t) => tokensList.add(t))
     }
 
     // Retorna InputPane getGrammar
     // TODO: RETIRAR OS NÃO TERMINAIS DIRETO DA GRAMATICA
-    const nonTerminalDivided: string[] = resultsArray;// nonTerminal.split(/(\n)/g);
+    const nonTerminalDivided: string[] = resultsArray // nonTerminal.split(/(\n)/g);
 
     //tokensList.toArray().forEach( token => nonTerminalDivided.push(token));
 
-    const nonTerminalDividedList: List<string> = new List();
+    const nonTerminalDividedList: List<string> = new List()
 
-    nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
+    nonTerminalDivided.forEach((i) => nonTerminalDividedList.add(i))
 
-    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
+    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar) //
     // //console.log("______________________________GRAMAR IS PARSED______________________________");
   }
 
-  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
+  if (g === undefined) throw new SyntacticError('Grammar is Undefined')
 
-  let parserResultLR: LRGenerator | null = null;
-  let parserResultLL: LLParser | null = null;
+  let parserResultLR: LRGenerator | null = null
+  let parserResultLL: LLParser | null = null
 
-  switch (parser)
-  {
+  switch (parser) {
     case Options.PARSER_REC_DESC:
     case Options.PARSER_LL:
-      parserResultLL = new LLParser(g);
-      break;
+      parserResultLL = new LLParser(g)
+      break
     case Options.PARSER_SLR:
     case Options.PARSER_LALR:
     case Options.PARSER_LR:
-      parserResultLR = LRGeneratorFactory.createGenerator(g, parser);
-      break;
+      parserResultLR = LRGeneratorFactory.createGenerator(g, parser)
+      break
   }
 
-  if(parserResultLR !== null)
-    return [await parserResultLR.tableAsHTML(), g];
-  else if(parserResultLL !== null)
-    return [await parserResultLL.tableAsHTML(), g];
-  else throw new SyntacticError("Erro na criação do Parser Sintático");
+  if (parserResultLR !== null) return [await parserResultLR.tableAsHTML(), g]
+  else if (parserResultLL !== null) return [await parserResultLL.tableAsHTML(), g]
+  else throw new SyntacticError('Erro na criação do Parser Sintático')
 }
 
 export async function syntacticSetTable(
@@ -525,20 +530,20 @@ export async function syntacticSetTable(
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
-    console.warn(error);
+    console.warn(error)
     throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar
-  const lines = grammar.split('\n');
-  const results = new Set<string>();
+  const lines = grammar.split('\n')
+  const results = new Set<string>()
 
   lines.forEach((line) => {
-    const matches = line.match(/^[^:]+(?=\s*::=)/);
+    const matches = line.match(/^[^:]+(?=\s*::=)/)
     if (matches) {
-      results.add(matches[0].trim());
+      results.add(matches[0].trim())
     }
-  });
+  })
 
   // Move a posição do Simbolo inicial da gramatica pada indice 0
 
@@ -546,11 +551,12 @@ export async function syntacticSetTable(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
+  if (startSymbolIndex == -1)
+    throw new SyntacticError('Símbolo inicial da Gramática não encontrado.')
 
-  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
+  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0]
 
-  resultsArray.splice(0, 0, itemToMove);
+  resultsArray.splice(0, 0, itemToMove)
 
   //Instanciação inicial
   //let nonTerminal: string = "";
@@ -562,71 +568,67 @@ export async function syntacticSetTable(
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
   const lp: LineParser = new LineParser()
-  
-  if(fa == undefined){
+
+  if (fa == undefined) {
     fa = lp.parseFA(definitions, tokens, sensitive)
   }
 
   // Passo 3 - Pega grammatica da MainWindow.java getGrammar
-  if (needRebuildGram || g == undefined){
-    needRebuildGram = false;
+  if (needRebuildGram || g == undefined) {
+    needRebuildGram = false
     // Cria Grammar InputPane.java getGrammar (line 69)
     // Pega tokens e tranforma pelo finite automata input pane getTokens
 
-    const tokensList: List<string> =  new List;
+    const tokensList: List<string> = new List()
 
-    if (mode == Mode.BOTH || mode == Mode.LEXICAL)
-    {
-      const tokenModelsList = fa.tokens;
-      for (let i = 0 ; i < tokenModelsList.size() ; i++){
-        tokensList.add(tokenModelsList.get(i));
-        tokensList.add("\n");
+    if (mode == Mode.BOTH || mode == Mode.LEXICAL) {
+      const tokenModelsList = fa.tokens
+      for (let i = 0; i < tokenModelsList.size(); i++) {
+        tokensList.add(tokenModelsList.get(i))
+        tokensList.add('\n')
       }
-    }
-    else //mode == SYNTATIC
-    {
-      const tknzr: string[] = tokens.split(/(\n)/g);
-      tknzr.forEach(t => tokensList.add(t));
+    } //mode == SYNTATIC
+    else {
+      const tknzr: string[] = tokens.split(/(\n)/g)
+      tknzr.forEach((t) => tokensList.add(t))
     }
 
     // Retorna InputPane getGrammar
     // TODO: RETIRAR OS NÃO TERMINAIS DIRETO DA GRAMATICA
-    const nonTerminalDivided: string[] = resultsArray;// nonTerminal.split(/(\n)/g);
+    const nonTerminalDivided: string[] = resultsArray // nonTerminal.split(/(\n)/g);
 
     //tokensList.toArray().forEach( token => nonTerminalDivided.push(token));
 
-    const nonTerminalDividedList: List<string> = new List();
+    const nonTerminalDividedList: List<string> = new List()
 
-    nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
+    nonTerminalDivided.forEach((i) => nonTerminalDividedList.add(i))
 
-    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
+    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar) //
     // //console.log("______________________________GRAMAR IS PARSED______________________________");
   }
 
-  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
+  if (g === undefined) throw new SyntacticError('Grammar is Undefined')
 
-  let parserResultLR: LRGenerator | null = null;
-  let parserResultLL: LLParser | null = null;
+  let parserResultLR: LRGenerator | null = null
+  let parserResultLL: LLParser | null = null
 
-  switch (parser)
-  {
+  switch (parser) {
     case Options.PARSER_REC_DESC:
     case Options.PARSER_LL:
-      parserResultLL = new LLParser(g);
-      break;
+      parserResultLL = new LLParser(g)
+      break
     case Options.PARSER_SLR:
     case Options.PARSER_LALR:
     case Options.PARSER_LR:
-      parserResultLR = LRGeneratorFactory.createGenerator(g, parser);
-      break;
+      parserResultLR = LRGeneratorFactory.createGenerator(g, parser)
+      break
   }
 
-  if(parserResultLR === null && parserResultLL === null) throw new SyntacticError("Erro na criação do Parser Sintático");
+  if (parserResultLR === null && parserResultLL === null)
+    throw new SyntacticError('Erro na criação do Parser Sintático')
 
-  if(parserResultLR != null)
-    return [parserResultLR.itemsAsHTML(), g];
-  if(parserResultLL != null)
-    return [await parserResultLL.tableAsHTML(), g];
+  if (parserResultLR != null) return [parserResultLR.itemsAsHTML(), g]
+  if (parserResultLL != null) return [await parserResultLL.tableAsHTML(), g]
 
   return ['ERROR', g]
 }
@@ -640,25 +642,25 @@ export function syntacticFirstFollowTable(
   needRebuildGram: boolean,
   fa?: FiniteAutomata,
   g?: Grammar
-): [string, Grammar]{
+): [string, Grammar] {
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
-    console.warn(error);
+    console.warn(error)
     throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar
-  const lines = grammar.split('\n');
-  const results = new Set<string>();
+  const lines = grammar.split('\n')
+  const results = new Set<string>()
 
   lines.forEach((line) => {
-    const matches = line.match(/^[^:]+(?=\s*::=)/);
+    const matches = line.match(/^[^:]+(?=\s*::=)/)
     if (matches) {
-      results.add(matches[0].trim());
+      results.add(matches[0].trim())
     }
-  });
+  })
 
   // Move a posição do Simbolo inicial da gramatica pada indice 0
 
@@ -666,11 +668,12 @@ export function syntacticFirstFollowTable(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
+  if (startSymbolIndex == -1)
+    throw new SyntacticError('Símbolo inicial da Gramática não encontrado.')
 
-  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
+  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0]
 
-  resultsArray.splice(0, 0, itemToMove);
+  resultsArray.splice(0, 0, itemToMove)
 
   //Instanciação inicial
   //let nonTerminal: string = "";
@@ -682,68 +685,64 @@ export function syntacticFirstFollowTable(
   //Passo 0 - Utiliza a ação simulate da Actions.java (line 276)
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
   const lp: LineParser = new LineParser()
-  if(fa == undefined){
+  if (fa == undefined) {
     fa = lp.parseFA(definitions, tokens, sensitive)
   }
 
   // Passo 3 - Pega grammatica da MainWindow.java getGrammar
-  if (needRebuildGram || g == undefined){
-    needRebuildGram = false;
+  if (needRebuildGram || g == undefined) {
+    needRebuildGram = false
     // Cria Grammar InputPane.java getGrammar (line 69)
     // Pega tokens e tranforma pelo finite automata input pane getTokens
 
-    const tokensList: List<string> =  new List;
+    const tokensList: List<string> = new List()
 
-    if (mode == Mode.BOTH || mode == Mode.LEXICAL)
-    {
-      const tokenModelsList = fa.tokens;
-      for (let i = 0 ; i < tokenModelsList.size() ; i++){
-        tokensList.add(tokenModelsList.get(i));
-        tokensList.add("\n");
+    if (mode == Mode.BOTH || mode == Mode.LEXICAL) {
+      const tokenModelsList = fa.tokens
+      for (let i = 0; i < tokenModelsList.size(); i++) {
+        tokensList.add(tokenModelsList.get(i))
+        tokensList.add('\n')
       }
-    }
-    else //mode == SYNTATIC
-    {
-      const tknzr: string[] = tokens.split(/(\n)/g);
-      tknzr.forEach(t => tokensList.add(t));
+    } //mode == SYNTATIC
+    else {
+      const tknzr: string[] = tokens.split(/(\n)/g)
+      tknzr.forEach((t) => tokensList.add(t))
     }
 
     // Retorna InputPane getGrammar
     // TODO: RETIRAR OS NÃO TERMINAIS DIRETO DA GRAMATICA
-    const nonTerminalDivided: string[] = resultsArray;// nonTerminal.split(/(\n)/g);
+    const nonTerminalDivided: string[] = resultsArray // nonTerminal.split(/(\n)/g);
 
     //tokensList.toArray().forEach( token => nonTerminalDivided.push(token));
 
-    const nonTerminalDividedList: List<string> = new List();
+    const nonTerminalDividedList: List<string> = new List()
 
-    nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
+    nonTerminalDivided.forEach((i) => nonTerminalDividedList.add(i))
 
-    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
+    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar) //
     // //console.log("______________________________GRAMAR IS PARSED______________________________");
   }
 
   // Passo 4 continua  Actions.java simulate
   // MainWindow.java List terminals = MainWindow.getInstance().getTokens()
-  fa.tokens.toArray();
+  fa.tokens.toArray()
 
-  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
+  if (g === undefined) throw new SyntacticError('Grammar is Undefined')
 
-  return [g.ffAsHTML(), g];
+  return [g.ffAsHTML(), g]
 }
 
-
-export function nonTerminalsFromGrammar(  startSymbol: string, grammar: string,): string{
-
+export function nonTerminalsFromGrammar(startSymbol: string, grammar: string): string {
   // Pega não terminais direto do grammar
-  const lines = grammar.split('\n');
-  const results = new Set<string>();
+  const lines = grammar.split('\n')
+  const results = new Set<string>()
 
   lines.forEach((line) => {
-    const matches = line.match(/^[^:]+(?=\s*::=)/);
+    const matches = line.match(/^[^:]+(?=\s*::=)/)
     if (matches) {
-      results.add(matches[0].trim());
+      results.add(matches[0].trim())
     }
-  });
+  })
 
   // Move a posição do Simbolo inicial da gramatica pada indice 0
 
@@ -751,14 +750,14 @@ export function nonTerminalsFromGrammar(  startSymbol: string, grammar: string,)
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex != -1){
-    const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
-    resultsArray.splice(0, 0, itemToMove);
-  }else{
-    resultsArray.splice(0, 0, startSymbol);
+  if (startSymbolIndex != -1) {
+    const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0]
+    resultsArray.splice(0, 0, itemToMove)
+  } else {
+    resultsArray.splice(0, 0, startSymbol)
   }
 
-  return resultsArray.join("\n");
+  return resultsArray.join('\n')
 }
 
 export async function generateCode(
@@ -766,29 +765,29 @@ export async function generateCode(
   tokens: string,
   startSymbol: string,
   grammar: string,
-  options:Options,
+  options: Options,
   needRebuildGram: boolean,
   fa?: FiniteAutomata,
-  g?: Grammar): Promise<[TreeMap<string, string>, Grammar, boolean, string | null]> {
-
+  g?: Grammar
+): Promise<[TreeMap<string, string>, Grammar, boolean, string | null]> {
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
     definitions = ''
   } catch (error) {
-    console.warn(error);
+    console.warn(error)
     throw new LexicalError((error as LexicalError).message)
   }
 
   // Pega não terminais direto do grammar
-  const lines = grammar.split('\n');
-  const results = new Set<string>();
+  const lines = grammar.split('\n')
+  const results = new Set<string>()
 
   lines.forEach((line) => {
-    const matches = line.match(/^[^:]+(?=\s*::=)/);
+    const matches = line.match(/^[^:]+(?=\s*::=)/)
     if (matches) {
-      results.add(matches[0].trim());
+      results.add(matches[0].trim())
     }
-  });
+  })
 
   // Move a posição do Simbolo inicial da gramatica pada indice 0
 
@@ -796,11 +795,12 @@ export async function generateCode(
 
   const startSymbolIndex = resultsArray.indexOf(startSymbol.trim())
 
-  if(startSymbolIndex == -1) throw new SyntacticError("Símbolo inicial da Gramática não encontrado.");
+  if (startSymbolIndex == -1)
+    throw new SyntacticError('Símbolo inicial da Gramática não encontrado.')
 
-  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0];
+  const itemToMove = resultsArray.splice(startSymbolIndex, 1)[0]
 
-  resultsArray.splice(0, 0, itemToMove);
+  resultsArray.splice(0, 0, itemToMove)
 
   //Instanciação inicial
   //let nonTerminal: string = "";
@@ -813,90 +813,87 @@ export async function generateCode(
   //Passo 1 - Gerar o automato finito - gerado com a chamada lp.parseFA - trecho extraído da Classe InputPane - linha 109
   const lp: LineParser = new LineParser()
 
-  if(fa == undefined){
+  if (fa == undefined) {
     fa = lp.parseFA(definitions, tokens, sensitive)
   }
 
   // Passo 3 - Pega grammatica da MainWindow.java getGrammar
-  if (needRebuildGram || g == undefined){
-    needRebuildGram = false;
+  if (needRebuildGram || g == undefined) {
+    needRebuildGram = false
     // Cria Grammar InputPane.java getGrammar (line 69)
     // Pega tokens e tranforma pelo finite automata input pane getTokens
 
-    const tokensList: List<string> =  new List;
+    const tokensList: List<string> = new List()
 
-    if (mode == Mode.BOTH || mode == Mode.LEXICAL)
-    {
-      const tokenModelsList = fa.tokens;
-      for (let i = 0 ; i < tokenModelsList.size() ; i++){
-        tokensList.add(tokenModelsList.get(i));
-        tokensList.add("\n");
+    if (mode == Mode.BOTH || mode == Mode.LEXICAL) {
+      const tokenModelsList = fa.tokens
+      for (let i = 0; i < tokenModelsList.size(); i++) {
+        tokensList.add(tokenModelsList.get(i))
+        tokensList.add('\n')
       }
-    }
-    else //mode == SYNTATIC
-    {
-      const tknzr: string[] = tokens.split(/(\n)/g);
-      tknzr.forEach(t => tokensList.add(t));
+    } //mode == SYNTATIC
+    else {
+      const tknzr: string[] = tokens.split(/(\n)/g)
+      tknzr.forEach((t) => tokensList.add(t))
     }
 
     // Retorna InputPane getGrammar
     // TODO: RETIRAR OS NÃO TERMINAIS DIRETO DA GRAMATICA
-    const nonTerminalDivided: string[] = resultsArray;// nonTerminal.split(/(\n)/g);
+    const nonTerminalDivided: string[] = resultsArray // nonTerminal.split(/(\n)/g);
 
     //tokensList.toArray().forEach( token => nonTerminalDivided.push(token));
 
-    const nonTerminalDividedList: List<string> = new List();
+    const nonTerminalDividedList: List<string> = new List()
 
-    nonTerminalDivided.forEach( i => nonTerminalDividedList.add(i));
+    nonTerminalDivided.forEach((i) => nonTerminalDividedList.add(i))
 
-    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar); //
+    g = new Parser().parse(tokensList, nonTerminalDividedList, grammar) //
     // //console.log("______________________________GRAMAR IS PARSED______________________________");
   }
 
-  // Passo 4 continua  Actions.java simulate 
+  // Passo 4 continua  Actions.java simulate
   // MainWindow.java List terminals = MainWindow.getInstance().getTokens()
-  fa.tokens.toArray();
+  fa.tokens.toArray()
 
-  if(g === undefined) throw new SyntacticError("Grammar is Undefined");
+  if (g === undefined) throw new SyntacticError('Grammar is Undefined')
 
   // Produção de codigo
-  const allFiles: TreeMap<string, string> = new TreeMap();
-  let makeFolders: boolean = false;
-  let mainfunc: string | null = null;
+  const allFiles: TreeMap<string, string> = new TreeMap()
+  let makeFolders: boolean = false
+  let mainfunc: string | null = null
 
-  switch (options.language)
-  {
+  switch (options.language) {
     case Options.LANG_JAVA:
-      allFiles.setAll( await new JavaCommonGenerator().generate(fa, g, options) );
-      allFiles.setAll(       new JavaScannerGenerator().generate(fa, options) );
-      allFiles.setAll( await new JavaParserGenerator().generate(g, options));
-      break;
+      allFiles.setAll(await new JavaCommonGenerator().generate(fa, g, options))
+      allFiles.setAll(new JavaScannerGenerator().generate(fa, options))
+      allFiles.setAll(await new JavaParserGenerator().generate(g, options))
+      break
     case Options.LANG_CPP:
-      allFiles.setAll( await new CppCommomGenerator().generate(fa, g, options) );
-      allFiles.setAll(       new CppScannerGeneretor().generate(fa, options) );
-      allFiles.setAll( await new CppParserGenerator().generate(g, options) );
-      break;
+      allFiles.setAll(await new CppCommomGenerator().generate(fa, g, options))
+      allFiles.setAll(new CppScannerGeneretor().generate(fa, options))
+      allFiles.setAll(await new CppParserGenerator().generate(g, options))
+      break
     case Options.LANG_DELPHI:
-      allFiles.setAll( await new DelphiCommomGenerator().generate(fa, g, options) );
-      allFiles.setAll(       new DelphiScannerGenerator().generate(fa, options) );
-      allFiles.setAll( await new DelphiParserGenerator().generate(g, options));
-      break;
+      allFiles.setAll(await new DelphiCommomGenerator().generate(fa, g, options))
+      allFiles.setAll(new DelphiScannerGenerator().generate(fa, options))
+      allFiles.setAll(await new DelphiParserGenerator().generate(g, options))
+      break
     case Options.LANG_PYTHON:
-      let pcg = new PythonCommonGenerator();
-      allFiles.setAll( await pcg.generate(fa, g, options) );
-      allFiles.setAll(       new PythonScannerGenerator().generate(fa, options) );
-      allFiles.setAll( await new PythonParserGenerator().generate(g, options) );
-      makeFolders = options.pkgName !== ""
-      mainfunc = pcg.mainfunc(options);
-      break;
+      let pcg = new PythonCommonGenerator()
+      allFiles.setAll(await pcg.generate(fa, g, options))
+      allFiles.setAll(new PythonScannerGenerator().generate(fa, options))
+      allFiles.setAll(await new PythonParserGenerator().generate(g, options))
+      makeFolders = options.pkgName !== ''
+      mainfunc = pcg.mainfunc(options)
+      break
     case Options.LANG_RUST:
-      allFiles.setAll( await new RustCommonGenerator().generate(fa, g, options) );
-      allFiles.setAll(       new RustScannerGenerator().generate(fa, options) );
-      allFiles.setAll( await new RustParserGenerator().generate(g, options) );
-      break;
+      allFiles.setAll(await new RustCommonGenerator().generate(fa, g, options))
+      allFiles.setAll(new RustScannerGenerator().generate(fa, options))
+      allFiles.setAll(await new RustParserGenerator().generate(g, options))
+      break
   }
 
-  return [allFiles, g, makeFolders, mainfunc];
+  return [allFiles, g, makeFolders, mainfunc]
 }
 
 // function transformToken(mode: Mode, inputString: string, fa?: FiniteAutomata, ): Array<string> {
@@ -933,37 +930,33 @@ async function simulateLL(
   fa: FiniteAutomata,
   g: Grammar,
   tokenNameList: Array<string>,
-  faSim: BasicScanner | undefined, 
+  faSim: BasicScanner | undefined,
   sensitive: boolean,
   llSim: LL1ParserSimulator | undefined
-): Promise<[LL1ParserSimulator, BasicScanner, LLParser]>
-{
-  if (fa != undefined)
-  {
-    faSim = new FiniteAutomataSimulator(fa, sensitive);
-  }
-  else
-  {
-    faSim = new FiniteAutomataSimulator(generateTokenListAutomata(tokenNameList, sensitive), sensitive);
+): Promise<[LL1ParserSimulator, BasicScanner, LLParser]> {
+  if (fa != undefined) {
+    faSim = new FiniteAutomataSimulator(fa, sensitive)
+  } else {
+    faSim = new FiniteAutomataSimulator(
+      generateTokenListAutomata(tokenNameList, sensitive),
+      sensitive
+    )
   }
 
   // let llSim;
-  let parser: LLParser | null;
-  if (g != null)
-  {
+  let parser: LLParser | null
+  if (g != null) {
+    parser = new LLParser(g)
 
-    parser = new LLParser(g);
+    if (parser === null) throw new SyntacticError('Parser is Null')
 
-    if(parser === null) throw new SyntacticError("Parser is Null");
-
-    if(llSim === undefined) {
-      const table = await parser.generateTable();
-      llSim = new LL1ParserSimulator(table, parser);
+    if (llSim === undefined) {
+      const table = await parser.generateTable()
+      llSim = new LL1ParserSimulator(table, parser)
     }
+  } else throw new SyntacticError('Grammar is Null')
 
-  }else throw new SyntacticError("Grammar is Null");
-
-  return [llSim, faSim, parser];
+  return [llSim, faSim, parser]
 }
 
 async function simulateLR(
@@ -973,56 +966,55 @@ async function simulateLR(
   faSim: BasicScanner | undefined,
   sensitive: boolean,
   parserEnum: number,
-  lrSim: LRParserSimulator | undefined)
-  : Promise<[LRParserSimulator, BasicScanner, LRGenerator]>
-{
+  lrSim: LRParserSimulator | undefined
+): Promise<[LRParserSimulator, BasicScanner, LRGenerator]> {
   // //console.log("___________________________simulateSLR___________________________");
   // lex.setEnabled(fa != null);
   // synt.setEnabled(g != null);
 
   // this.tokenNameList = tokenNameList;
 
-  if (fa != undefined)
-  {
-    faSim = new FiniteAutomataSimulator(fa, sensitive);
-  }
-  else
-  {
-    faSim = new FiniteAutomataSimulator(generateTokenListAutomata(tokenNameList, sensitive), sensitive);
+  if (fa != undefined) {
+    faSim = new FiniteAutomataSimulator(fa, sensitive)
+  } else {
+    faSim = new FiniteAutomataSimulator(
+      generateTokenListAutomata(tokenNameList, sensitive),
+      sensitive
+    )
   }
 
   //let lrSim;
-  let parser: LRGenerator | null;
-  if (g != null)
-  {
-    parser = LRGeneratorFactory.createGenerator(g, parserEnum);
-    if(parser === null) throw new SyntacticError("Parser is Null");
-    if(lrSim === undefined)
-	{
-		const table = await parser.buildTable();
-		lrSim = new LRParserSimulator(table, parser);
-	}
-  } else throw new SyntacticError("Grammar is Null");
+  let parser: LRGenerator | null
+  if (g != null) {
+    parser = LRGeneratorFactory.createGenerator(g, parserEnum)
+    if (parser === null) throw new SyntacticError('Parser is Null')
+    if (lrSim === undefined) {
+      const table = await parser.buildTable()
+      lrSim = new LRParserSimulator(table, parser)
+    }
+  } else throw new SyntacticError('Grammar is Null')
 
-  return [lrSim, faSim, parser];
+  return [lrSim, faSim, parser]
   // show();
 }
 
-function generateTokenListAutomata(tokenNameList: Array<string>, sensitive: boolean): FiniteAutomata
-{
-  try
-  {
-    const ld: LexicalData = new LexicalData();
-    for (let i=0; i< tokenNameList.length; i++)
-    {
-      const token: string = tokenNameList[i];
-      ld.addToken(token, token);
+function generateTokenListAutomata(
+  tokenNameList: Array<string>,
+  sensitive: boolean
+): FiniteAutomata {
+  try {
+    const ld: LexicalData = new LexicalData()
+    for (let i = 0; i < tokenNameList.length; i++) {
+      const token: string = tokenNameList[i]
+      ld.addToken(token, token)
     }
-    ld.addIgnore("[\\ \\n\\r\\t]");
-    return ld.getFA(sensitive);
-  }
-  catch (e)
-  {
-    throw e as MetaException;
+    ld.addIgnore('[\\ \\n\\r\\t]')
+    return ld.getFA(sensitive)
+  } catch (e) {
+    throw e as MetaException
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

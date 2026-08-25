@@ -107,3 +107,7 @@ export const PRODUCTIONS: number[][] = [
 
   [0]
 ]
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

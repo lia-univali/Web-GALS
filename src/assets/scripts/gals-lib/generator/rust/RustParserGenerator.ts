@@ -1,35 +1,31 @@
-import { NotLLException, SyntacticError } from "../../analyser/SystemErros";
-import { Options } from "../Options";
-import { FunctionCustom, RecursiveDescendent } from "../RecursiveDescendent";
-import { Grammar } from "../parser/Grammar";
-import { LLParser } from "../parser/ll/LLParser";
+import { NotLLException, SyntacticError } from '../../analyser/SystemErros'
+import { Options } from '../Options'
+import { FunctionCustom, RecursiveDescendent } from '../RecursiveDescendent'
+import { Grammar } from '../parser/Grammar'
+import { LLParser } from '../parser/ll/LLParser'
 
-export class RustParserGenerator
-{
-	
-	public async generate(g: Grammar, options: Options): Promise<Map<string, string>> //throws NotLLException
-	{
-		const result: Map<string, string> = new Map();
-        const pkgpath = options.pkgName !== "" ? options.pkgName + "/" : "";
-		
-		if (options.generateParser == true)
-		{
-			if (g != null)
-			{
-				result.set(`src/${pkgpath}parser.rs`,  await this.parser(g, options));
-				result.set(`src/${pkgpath}codegen.rs`,       this.semantic(options));
-			}
-		}
-		
-		return result;
-	}
+export class RustParserGenerator {
+  public async generate(g: Grammar, options: Options): Promise<Map<string, string>> {
+    //throws NotLLException
+    const result: Map<string, string> = new Map()
+    const pkgpath = options.pkgName !== '' ? options.pkgName + '/' : ''
 
-	private semantic(options: Options): string
-	{
-        const name = options.semanticName;
-        const pkgpath = options.pkgName !== "" ? options.pkgName + "::" : "";
-        return ""+
-`
+    if (options.generateParser == true) {
+      if (g != null) {
+        result.set(`src/${pkgpath}parser.rs`, await this.parser(g, options))
+        result.set(`src/${pkgpath}codegen.rs`, this.semantic(options))
+      }
+    }
+
+    return result
+  }
+
+  private semantic(options: Options): string {
+    const name = options.semanticName
+    const pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
+    return (
+      '' +
+      `
 use crate::${pkgpath}{errors::AnalysisError, token::Token};
 
 pub struct ${name} {}
@@ -44,34 +40,29 @@ impl ${name} {
     }
 }
 `
-        ;
-	}
+    )
+  }
 
-	private async parser(g: Grammar, options: Options): Promise<string>
-    {
-		switch (options.parser) {
-            case Options.PARSER_REC_DESC:
-				return await this.redDecParser(g, options);
+  private async parser(g: Grammar, options: Options): Promise<string> {
+    switch (options.parser) {
+      case Options.PARSER_REC_DESC:
+        return await this.redDecParser(g, options)
 
-			case Options.PARSER_LL:
-				return this.llParser(g, options);
+      case Options.PARSER_LL:
+        return this.llParser(g, options)
 
-			default: //slr, lalr, lr
-                return this.lrParser(g, options);
-        }
+      default: //slr, lalr, lr
+        return this.lrParser(g, options)
     }
+  }
 
-    private lrParser(g: Grammar, options: Options): string
-    {
-        const name = options.parserName;
-        const pkgpath = options.pkgName !== "" ? options.pkgName + "::" : "";
-        const stringmd: boolean = options.input == Options.INPUT_STRING;
-        return ""+
-`${stringmd ?
-``
-    :
-`use std::io::{Read, Seek};`
-}
+  private lrParser(g: Grammar, options: Options): string {
+    const name = options.parserName
+    const pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
+    const stringmd: boolean = options.input == Options.INPUT_STRING
+    return (
+      '' +
+      `${stringmd ? `` : `use std::io::{Read, Seek};`}
 use crate::${pkgpath}{
     codegen::${options.semanticName}, constants::*, errors::AnalysisError, scanner::${options.scannerName}, token::Token,
 };
@@ -80,7 +71,7 @@ pub struct ${name}${stringmd ? `` : `<T: Read + Seek>`} {
     previous_token: Option<Token>,
     current_token: Option<Token>,
     stack: Vec<u32>,
-    scanner: ${options.scannerName}${stringmd ? "" : "<T>"},
+    scanner: ${options.scannerName}${stringmd ? '' : '<T>'},
     semantic: ${options.semanticName},
 }
 
@@ -90,8 +81,8 @@ enum SyntaxParsingState {
     Reject(AnalysisError),
 }
 
-impl${stringmd ? "" : "<T: Read + Seek>"} ${name}${stringmd ? "" : "<T>"} {
-    pub fn new(scanner: ${options.scannerName}${stringmd ? "" : "<T>"}, semantic: ${options.semanticName}) -> Self {
+impl${stringmd ? '' : '<T: Read + Seek>'} ${name}${stringmd ? '' : '<T>'} {
+    pub fn new(scanner: ${options.scannerName}${stringmd ? '' : '<T>'}, semantic: ${options.semanticName}) -> Self {
         ${name} {
             previous_token: None,
             current_token: None,
@@ -186,37 +177,37 @@ impl${stringmd ? "" : "<T: Read + Seek>"} ${name}${stringmd ? "" : "<T>"} {
 }
 
 `
-        ;
-    }
+    )
+  }
 
-	private async redDecParser(g: Grammar, options: Options): Promise<string>
-	{
-        const tables = await new LLParser(g).generateTable();
-		const rd: RecursiveDescendent = new RecursiveDescendent(tables, g);
+  private async redDecParser(g: Grammar, options: Options): Promise<string> {
+    const tables = await new LLParser(g).generateTable()
+    const rd: RecursiveDescendent = new RecursiveDescendent(tables, g)
 
-		let scannername  = options.scannerName;
-        let parsername   = options.parserName;
-        let semanticname = options.semanticName;
-		const pkgpath = options.pkgName !== "" ? options.pkgName + "::" : "";
-		const stringmd: boolean = options.input == Options.INPUT_STRING;
+    let scannername = options.scannerName
+    let parsername = options.parserName
+    let semanticname = options.semanticName
+    const pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
+    const stringmd: boolean = options.input == Options.INPUT_STRING
 
-		let result = ""+
-`
-${stringmd ? "" : "use std::io::{Read, Seek};"}
+    let result =
+      '' +
+      `
+${stringmd ? '' : 'use std::io::{Read, Seek};'}
 
 use crate::${pkgpath}{
     codegen::${semanticname}, constants::*, errors::AnalysisError, scanner::${scannername}, token::Token,
 };
 
-pub struct ${parsername}${stringmd ? "" : "<T: Read + Seek>"} {
+pub struct ${parsername}${stringmd ? '' : '<T: Read + Seek>'} {
     current_token: Option<Token>,
     previous_token: Option<Token>,
-    scanner: ${scannername}${stringmd ? "" : "<T>"},
+    scanner: ${scannername}${stringmd ? '' : '<T>'},
     semantic: ${semanticname},
 }
 
-impl${stringmd ? "" : "<T: Read + Seek>"} ${parsername}${stringmd ? "" : "<T>"} {
-    pub fn new(lex: ${scannername}${stringmd ? "" : "<T>"}, sem: ${semanticname}) -> Self {
+impl${stringmd ? '' : '<T: Read + Seek>'} ${parsername}${stringmd ? '' : '<T>'} {
+    pub fn new(lex: ${scannername}${stringmd ? '' : '<T>'}, sem: ${semanticname}) -> Self {
         Parser {
             current_token: None,
             previous_token: None,
@@ -263,118 +254,104 @@ impl${stringmd ? "" : "<T: Read + Seek>"} ${parsername}${stringmd ? "" : "<T>"} 
         }
     }
 
-`;
-		const funcs: Map<string, FunctionCustom> = rd.build();
-
-
-		for (let symb = g.FIRST_NON_TERMINAL; symb < g.FIRST_SEMANTIC_ACTION(); symb++)
-		{
-			const name: string = rd.getSymbols(symb);
-			const f: FunctionCustom | undefined = funcs.get(name);
-
-			result += ""+
-				`    fn _${name}(&mut self) -> Result<(), AnalysisError> {\n`+
-				"        match self.current_token.as_ref().unwrap().get_id() {\n";
-
-			if (f == undefined)
-				throw new NotLLException("Gramática não é LL.");
-
-			const keys = Array.from(f.input.keys());
-			let pushed: Set<number> = new Set();
-
-			for (let i = 0; i < keys.length; i++)
-			{
-				const rhs = f.input.get(keys[i]);
-				let token = keys[i];
-
-				if (pushed.has(token))
-					continue;
-
-				let sym = rd.getSymbols(token);
-//				result += `\t\t\tcase TokenId.${sym === '$' ? "DOLLAR" : 't_' + sym}`;
-                result += `            TokenId::${sym === "$" ? "DOLLAR" : 't_' + sym}`;
-
-				pushed.add(token);
-
-				for (let j = i + 1; j < keys.length; j++)
-				{
-					const rhs2 = f.input.get(keys[j]);
-					if (rhs2 === rhs)
-					{
-						token = keys[j];
-						if (pushed.has(token))
-							continue;
-						let sym = rd.getSymbols(token);
-						result += ` | TokenId::${sym === '$' ? "DOLLAR" : 't_' + sym}`;
-						pushed.add(token);
-					}
-				}
-
-				result += " => {\n";
-
-				if (rhs == undefined)
-					throw new NotLLException("Gramática não é LL.");
-
-//				if (rhs.length == 0)
-//					result += "\t\t\t\tpass # EPSILON\n";
-
-				for (let k = 0; k < rhs.length; k++)
-				{
-					const s = rhs[k];
-					if (g.isTerminal(s))
-					{
-						result += `                self.matchr(${s})?; // ${rd.getSymbols(s)}\n`;
-					}
-					else if (g.isNonTerminal(s))
-					{
-						result += `                self._${rd.getSymbols(s)}()?;\n`;
-					}
-					else
-					{
-						result += `                self.semantic.execute_action(${(s-g.FIRST_SEMANTIC_ACTION())}, self.previous_token.as_ref().unwrap())?;\n`;
-					}
-				}
-
-				result += "            },\n";
-			}
-			result += `            _ => return Err(AnalysisError::syntatic(PARSER_ERROR[${f.lhs}].into(), self.current_token.as_ref().unwrap().get_position()))\n`
-//			result += `\t\t\tcase _:\n\t\t\t\traise SyntacticError(PARSER_ERROR[${f.lhs}], self.current_token.position)\n`;
-            result += "        };\n"
-            result += "        Ok(())\n";
-            result += "    }\n"
-		}
-
-		result += "}\n";
-
-		return result;
-	}
-
-	private llParser(g: Grammar, options: Options)
-	{
-		const scannername: string = options.scannerName;
-		const parsername: string = options.parserName;
-		const semanname: string = options.semanticName;
-		const pkgpath = options.pkgName !== "" ? options.pkgName + "::" : "";
-		const stringmd: boolean = options.input == Options.INPUT_STRING;
-
-		let result = ""+
 `
+    const funcs: Map<string, FunctionCustom> = rd.build()
+
+    for (let symb = g.FIRST_NON_TERMINAL; symb < g.FIRST_SEMANTIC_ACTION(); symb++) {
+      const name: string = rd.getSymbols(symb)
+      const f: FunctionCustom | undefined = funcs.get(name)
+
+      result +=
+        '' +
+        `    fn _${name}(&mut self) -> Result<(), AnalysisError> {\n` +
+        '        match self.current_token.as_ref().unwrap().get_id() {\n'
+
+      if (f == undefined) throw new NotLLException('Gramática não é LL.')
+
+      const keys = Array.from(f.input.keys())
+      let pushed: Set<number> = new Set()
+
+      for (let i = 0; i < keys.length; i++) {
+        const rhs = f.input.get(keys[i])
+        let token = keys[i]
+
+        if (pushed.has(token)) continue
+
+        let sym = rd.getSymbols(token)
+        //				result += `\t\t\tcase TokenId.${sym === '$' ? "DOLLAR" : 't_' + sym}`;
+        result += `            TokenId::${sym === '$' ? 'DOLLAR' : 't_' + sym}`
+
+        pushed.add(token)
+
+        for (let j = i + 1; j < keys.length; j++) {
+          const rhs2 = f.input.get(keys[j])
+          if (rhs2 === rhs) {
+            token = keys[j]
+            if (pushed.has(token)) continue
+            let sym = rd.getSymbols(token)
+            result += ` | TokenId::${sym === '$' ? 'DOLLAR' : 't_' + sym}`
+            pushed.add(token)
+          }
+        }
+
+        result += ' => {\n'
+
+        if (rhs == undefined) throw new NotLLException('Gramática não é LL.')
+
+        //				if (rhs.length == 0)
+        //					result += "\t\t\t\tpass # EPSILON\n";
+
+        for (let k = 0; k < rhs.length; k++) {
+          const s = rhs[k]
+          if (g.isTerminal(s)) {
+            result += `                self.matchr(${s})?; // ${rd.getSymbols(s)}\n`
+          } else if (g.isNonTerminal(s)) {
+            result += `                self._${rd.getSymbols(s)}()?;\n`
+          } else {
+            result += `                self.semantic.execute_action(${s - g.FIRST_SEMANTIC_ACTION()}, self.previous_token.as_ref().unwrap())?;\n`
+          }
+        }
+
+        result += '            },\n'
+      }
+      result += `            _ => return Err(AnalysisError::syntatic(PARSER_ERROR[${f.lhs}].into(), self.current_token.as_ref().unwrap().get_position()))\n`
+      //			result += `\t\t\tcase _:\n\t\t\t\traise SyntacticError(PARSER_ERROR[${f.lhs}], self.current_token.position)\n`;
+      result += '        };\n'
+      result += '        Ok(())\n'
+      result += '    }\n'
+    }
+
+    result += '}\n'
+
+    return result
+  }
+
+  private llParser(g: Grammar, options: Options) {
+    const scannername: string = options.scannerName
+    const parsername: string = options.parserName
+    const semanname: string = options.semanticName
+    const pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
+    const stringmd: boolean = options.input == Options.INPUT_STRING
+
+    let result =
+      '' +
+      `
 use std::io::{Read, Seek};
 
 use crate::${pkgpath}{
     codegen::${semanname}, constants::*, errors::AnalysisError, scanner::${scannername}, token::Token,
 };
 
-pub struct ${parsername}${stringmd ? "" : "<T: Read + Seek>"} {
+pub struct ${parsername}${stringmd ? '' : '<T: Read + Seek>'} {
     stack: Vec<i32>,
     current_token: Option<Token>,
     previous_token: Option<Token>,
-    scanner: ${scannername}${stringmd ? "" : "<T>"},
+    scanner: ${scannername}${stringmd ? '' : '<T>'},
     semantic: ${semanname},
 }
 
-impl${stringmd ? "" : "<T: Read + Seek>"} ${parsername}${stringmd ? "" : "<T>"} {
-    pub fn new(lex: ${scannername}${stringmd ? "" : "<T>"}, sem: ${semanname}) -> Self {
+impl${stringmd ? '' : '<T: Read + Seek>'} ${parsername}${stringmd ? '' : '<T>'} {
+    pub fn new(lex: ${scannername}${stringmd ? '' : '<T>'}, sem: ${semanname}) -> Self {
         ${parsername} {
             stack: Vec::new(),
             current_token: None,
@@ -420,7 +397,7 @@ impl${stringmd ? "" : "<T: Read + Seek>"} ${parsername}${stringmd ? "" : "<T>"} 
 
         if x == TokenId::EPSILON as i32 {
             return Ok(Some(()));
-        } else if ${parsername}${stringmd ? "" : "::<T>"}::is_terminal(x) {
+        } else if ${parsername}${stringmd ? '' : '::<T>'}::is_terminal(x) {
             if x == a {
                 if self.stack.is_empty() {
                     return Ok(None);
@@ -435,7 +412,7 @@ impl${stringmd ? "" : "<T: Read + Seek>"} ${parsername}${stringmd ? "" : "<T>"} 
                     self.current_token.as_ref().unwrap().get_position(),
                 ));
             }
-        } else if ${parsername}${stringmd ? "" : "::<T>"}::is_non_terminal(x) {
+        } else if ${parsername}${stringmd ? '' : '::<T>'}::is_non_terminal(x) {
             if self.push_production(x, a) {
                 return Ok(Some(()));
             } else {
@@ -467,6 +444,10 @@ impl${stringmd ? "" : "<T: Read + Seek>"} ${parsername}${stringmd ? "" : "<T>"} 
 
 `
 
-		return result;
-	}
+    return result
+  }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

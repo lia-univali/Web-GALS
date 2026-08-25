@@ -15,14 +15,18 @@ export default defineComponent({
     options: Options
   },
   data() {
-    const store =  projetoStore()
-    const X = store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.language     : -1;
-    const Y = store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.scannerTable : -1;
+    const store = projetoStore()
+    const X =
+      store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.language : -1
+    const Y =
+      store.selecionado !== -1
+        ? store.listaProjetos[store.selecionado].optionsGals.scannerTable
+        : -1
     return {
       activeTab: 'Geral',
       namespace: true,
       lang: store.selecionado !== -1 ? langIdToString(X) : '',
-      scnr: store.selecionado !== -1 ? scnrIdToString(Y) : '',
+      scnr: store.selecionado !== -1 ? scnrIdToString(Y) : ''
     }
   },
   setup() {
@@ -39,29 +43,32 @@ export default defineComponent({
     return {
       store,
       projetos,
-      selecionado,
+      selecionado
     }
   },
   watch: {
     selecionado() {
-      const store = projetoStore();
-      if (store.selecionado == -1)
-        return
+      const store = projetoStore()
+      if (store.selecionado == -1) return
       const X = store.listaProjetos[store.selecionado].optionsGals.language
       const Y = store.listaProjetos[store.selecionado].optionsGals.scannerTable
-      this.lang = langIdToString(X);
-      this.scnr = scnrIdToString(Y);
+      this.lang = langIdToString(X)
+      this.scnr = scnrIdToString(Y)
       this.activeTab = 'Geral'
       this.changeTab(this.activeTab)
     }
   },
   methods: {
     resetShadowStates() {
-      const store =  projetoStore()
-      const X = store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.language     : -1;
-      const Y = store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.scannerTable : -1;
-      this.lang = store.selecionado !== -1 ? langIdToString(X) : '';
-      this.scnr = store.selecionado !== -1 ? scnrIdToString(Y) : '';
+      const store = projetoStore()
+      const X =
+        store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.language : -1
+      const Y =
+        store.selecionado !== -1
+          ? store.listaProjetos[store.selecionado].optionsGals.scannerTable
+          : -1
+      this.lang = store.selecionado !== -1 ? langIdToString(X) : ''
+      this.scnr = store.selecionado !== -1 ? scnrIdToString(Y) : ''
     },
     fecharModal() {
       const modal = document.getElementById('modal__configuracoes')
@@ -83,23 +90,20 @@ export default defineComponent({
       this.activeTab = tab
     },
     autoChanged(e: Event) {
-      const form = e.target as HTMLFormElement;
+      const form = e.target as HTMLFormElement
 
-      if (form == null)
-        return;
+      if (form == null) return
 
-      this.scnr = form.value;
+      this.scnr = form.value
     },
     langChanged(e: Event) {
-      const form = e.target as HTMLFormElement;
+      const form = e.target as HTMLFormElement
 
-      if (form == null)
-        return;
+      if (form == null) return
 
-      this.lang = form.value;
+      this.lang = form.value
 
-      if (this.scnr === 'Compact' && this.lang !== 'Java')
-      {
+      if (this.scnr === 'Compact' && this.lang !== 'Java') {
         const form: any = this.$refs.form
         form.automato.value = 'Full'
         this.scnr = 'Full'
@@ -210,7 +214,7 @@ export default defineComponent({
             </div>
           </fieldset>
 
-          <fieldset @change='langChanged'>
+          <fieldset @change="langChanged">
             <legend>Linguagem</legend>
             <div>
               <input type="radio" id="linguagemJava" name="linguagem" value="Java" checked />
@@ -252,7 +256,13 @@ export default defineComponent({
                     <label for="arquivoLexico">Analisador Léxico</label>
                   </td>
                   <td>
-                    <input type="input" id="arquivoLexico" name="nomeLexico" value="Lexico" checked />
+                    <input
+                      type="input"
+                      id="arquivoLexico"
+                      name="nomeLexico"
+                      value="Lexico"
+                      checked
+                    />
                   </td>
                 </tr>
                 <tr>
@@ -282,19 +292,24 @@ export default defineComponent({
                 <tr>
                   <td>
                     <label for="arquivoNamespace">
-                      <span v-if='lang === "Java"'>
-                        Pacote
-                      </span>
-                      <span v-if='lang === "C++" || lang === "Delphi"' :class='{ disabled__label: lang === "Delphi"}'>
+                      <span v-if="lang === 'Java'"> Pacote </span>
+                      <span
+                        v-if="lang === 'C++' || lang === 'Delphi'"
+                        :class="{ disabled__label: lang === 'Delphi' }"
+                      >
                         Namespace
                       </span>
-                      <span v-if='lang === "Rust" || lang === "Python"'>
-                        Módulo
-                      </span>
+                      <span v-if="lang === 'Rust' || lang === 'Python'"> Módulo </span>
                     </label>
                   </td>
                   <td>
-                    <input :disabled='lang === "Delphi"' type="input" id="arquivoNamespace" name="nameNamespace" value="" />
+                    <input
+                      :disabled="lang === 'Delphi'"
+                      type="input"
+                      id="arquivoNamespace"
+                      name="nameNamespace"
+                      value=""
+                    />
                   </td>
                 </tr>
               </tbody>
@@ -322,7 +337,7 @@ export default defineComponent({
             </div>
           </fieldset>
 
-          <fieldset @change='autoChanged'>
+          <fieldset @change="autoChanged">
             <legend>Implementação do Autômato</legend>
             <div>
               <input type="radio" id="automatoCompleto" name="automato" value="Full" checked />
@@ -330,8 +345,16 @@ export default defineComponent({
             </div>
 
             <div>
-              <input :disabled='lang !== "Java"' type="radio" id="automatoCompactado" name="automato" value="Compact" />
-              <label :class='{ disabled__label: lang !== "Java"}' for="automatoCompactado">Tabela Compactada (Só para Java)</label>
+              <input
+                :disabled="lang !== 'Java'"
+                type="radio"
+                id="automatoCompactado"
+                name="automato"
+                value="Compact"
+              />
+              <label :class="{ disabled__label: lang !== 'Java' }" for="automatoCompactado"
+                >Tabela Compactada (Só para Java)</label
+              >
             </div>
 
             <div>
@@ -373,17 +396,17 @@ export default defineComponent({
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLALR" name="parser" value="LALR"/>
-                <label for="sintaticoLALR">LALR(1) <span style="color: red;">*</span></label>
+                <input type="radio" id="sintaticoLALR" name="parser" value="LALR" />
+                <label for="sintaticoLALR">LALR(1) <span style="color: red">*</span></label>
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR"/>
-                <label for="sintaticoLRCanonico">LR(1) <span style="color: red;">*</span></label>
+                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" />
+                <label for="sintaticoLRCanonico">LR(1) <span style="color: red">*</span></label>
               </div>
             </fieldset>
           </fieldset>
-          <span style="color: red;">*: demora para processar gramáticas grandes.</span>
+          <span style="color: red">*: demora para processar gramáticas grandes.</span>
         </div>
         <button class="btn_aplicarConfiguracoes">Aplicar</button>
       </form>
@@ -580,3 +603,7 @@ legend {
   color: #808080;
 }
 </style>
+
+<!-- Modelines; ponha a sua aqui -->
+
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

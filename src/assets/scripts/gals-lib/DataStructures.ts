@@ -6,7 +6,6 @@ interface IStack<T> {
 }
 
 export class Stack<T> implements IStack<T> {
-
   private storage: T[] = []
 
   constructor(private capacity: number = Infinity) {}
@@ -34,12 +33,12 @@ export class Stack<T> implements IStack<T> {
     return this.storage.length
   }
 
-  empty(): boolean{
-    return this.storage.length == 0;
+  empty(): boolean {
+    return this.storage.length == 0
   }
 
   clear() {
-    this.storage =[];
+    this.storage = []
   }
 }
 
@@ -56,14 +55,14 @@ export class List<T> {
   }
 
   set(i: number, value: T) {
-    this.items[i] = value;
+    this.items[i] = value
   }
 
-  setItems(items: Array<T>){
-    items.forEach((element => {
-      this.items.push(element);
-    }))
-//    this.items = items;
+  setItems(items: Array<T>) {
+    items.forEach((element) => {
+      this.items.push(element)
+    })
+    //    this.items = items;
   }
 
   add(value: T): void {
@@ -71,7 +70,7 @@ export class List<T> {
   }
   // Verificar, parece não estar OK
   addAll(list: List<T>): void {
-    this.items.concat(list.items);
+    this.items.concat(list.items)
   }
 
   get(index: number): T {
@@ -89,8 +88,8 @@ export class List<T> {
   }
 
   removeByIndex(index: number): T {
-    const item = this.items[index];
-    this.items.splice(index, 1);
+    const item = this.items[index]
+    this.items.splice(index, 1)
     return item
   }
 
@@ -98,7 +97,6 @@ export class List<T> {
     //return this.items.indexOf(valueToCheck) !== -1
     return this.items.includes(value)
   }
-
 
   indexOf(value: T): number {
     return this.items.indexOf(value)
@@ -113,11 +111,10 @@ export class List<T> {
   }
 
   toString(): string {
-
     // let result = "[";
 
     // if(Array.isArray(this.items[0])){
-    
+
     //   for(let item of this.items){
 
     //     if(item instanceof List){
@@ -128,7 +125,7 @@ export class List<T> {
     //   return result;
     // }else
     //  return `[${this.items.toString().split(',').join(', ')}]` // Original
-      return `[${this.items.toString()}]` // Simplificado
+    return `[${this.items.toString()}]` // Simplificado
   }
 
   toJSON() {
@@ -143,37 +140,37 @@ export class List<T> {
 export class OrderedIntegerSet {
   private _elements: Array<number>;
 
-  [Symbol.toStringTag]: string = "OrderedIntegerSet";
+  [Symbol.toStringTag]: string = 'OrderedIntegerSet'
 
   public constructor(data?: OrderedIntegerSet | number) {
     if (data === undefined) {
-      this._elements = [];
+      this._elements = []
     } else {
       if (data instanceof OrderedIntegerSet) {
         //        this._elements = data._elements.slice(); // Shallow Copy - apenas "number", então funciona como deep copy neste caso
-        this._elements = [...data._elements]; // Spread operator - idem slice()
+        this._elements = [...data._elements] // Spread operator - idem slice()
       } else {
-        this._elements = [data];
+        this._elements = [data]
       }
     }
   }
 
   public static fromArray(data: Array<number>): OrderedIntegerSet {
-    const newObj = new OrderedIntegerSet();
-    newObj.addAllArray(data);
-    return newObj;
+    const newObj = new OrderedIntegerSet()
+    newObj.addAllArray(data)
+    return newObj
   }
 
   public clone(): OrderedIntegerSet {
-    return new OrderedIntegerSet(this);
+    return new OrderedIntegerSet(this)
   }
 
   public get size(): number {
-    return this._elements.length;
+    return this._elements.length
   }
 
   public isEmpty(): boolean {
-    return this._elements.length === 0;
+    return this._elements.length === 0
   }
 
   public add(data: number): boolean {
@@ -181,98 +178,98 @@ export class OrderedIntegerSet {
     for (let i = 0; i < this._elements.length; i++) {
       if (this._elements[i] == data) {
         // Se o elemento já existe, não insere
-        return false; // Inserção não ocorreu
+        return false // Inserção não ocorreu
       }
 
       if (this._elements[i] > data) {
         // Se a posição verificada tiver um número maior, insere nesta posição
-        this._elements.splice(i, 0, data);
-        return true; // Inserção realizada
+        this._elements.splice(i, 0, data)
+        return true // Inserção realizada
       }
     }
 
     // Se passar por todas as posições e não encontrar nenhum valor maior
-    this._elements.push(data); // Insere no final
-    return true; // Inserção realizada
+    this._elements.push(data) // Insere no final
+    return true // Inserção realizada
   }
 
   public first(): number {
     if (this._elements.length == 0) {
-      return -1; // Não possui 1°
+      return -1 // Não possui 1°
     }
 
-    return this._elements[0]; // Retorna o primeiro elemento
+    return this._elements[0] // Retorna o primeiro elemento
   }
 
   public contains(data: number): boolean {
-    return this._elements.includes(data);
+    return this._elements.includes(data)
   }
 
   public has(data: number): boolean {
     // Idem contains. TODO: Padronizar e usar apenas 1, contains ou has
-    return this._elements.includes(data);
+    return this._elements.includes(data)
   }
 
   public delete(data: number): boolean {
     for (let i = 0; i < this._elements.length; i++) {
       if (this._elements[i] === data) {
-        this._elements.splice(i, 1);
-        return true;
+        this._elements.splice(i, 1)
+        return true
       }
     }
 
-    return false; // Elemento não removido, pois não estava no set
+    return false // Elemento não removido, pois não estava no set
   }
 
   public clear(): void {
-    this._elements.length = 0; // VERIFICAR, pode ser feito: "this._elements.splice(0, this._elements.length);"
+    this._elements.length = 0 // VERIFICAR, pode ser feito: "this._elements.splice(0, this._elements.length);"
   }
 
   public addAll(data: OrderedIntegerSet): boolean {
-    const sizeBefore: number = this._elements.length;
+    const sizeBefore: number = this._elements.length
     if (this._elements[this._elements.length - 1] < data._elements[0]) {
-      this._elements.push(...data._elements);
-      return sizeBefore != this._elements.length;
+      this._elements.push(...data._elements)
+      return sizeBefore != this._elements.length
     }
 
     // Estratégia de MERGE do MergeSort, mas respeitando a regra de conjunto: não permitir duplicatas
-    let i: number = 0;
-    let x: number = 0;
-    const newArray = [];
+    let i: number = 0
+    let x: number = 0
+    const newArray = []
     while (i < this._elements.length || x < data._elements.length) {
       if (i == this._elements.length) {
         while (x < data._elements.length) {
-          newArray.push(data._elements[x++]);
+          newArray.push(data._elements[x++])
         }
-        break;
+        break
       }
       if (x == data._elements.length) {
         while (i < this._elements.length) {
-          newArray.push(this._elements[i++]);
+          newArray.push(this._elements[i++])
         }
-        break;
+        break
       }
 
       if (this._elements[i] == data._elements[x]) {
-        newArray.push(this._elements[i]);
-        i++;
-        x++;
+        newArray.push(this._elements[i])
+        i++
+        x++
       } else {
         if (this._elements[i] < data._elements[x]) {
-          newArray.push(this._elements[i++]);
+          newArray.push(this._elements[i++])
         } else {
-          newArray.push(data._elements[x++]);
+          newArray.push(data._elements[x++])
         }
       }
     }
-    this._elements = newArray;
-    return sizeBefore != this._elements.length;
+    this._elements = newArray
+    return sizeBefore != this._elements.length
   }
 
   public addAllArray(data: Array<number>): boolean {
-    const sizeBefore: number = this._elements.length;
-    data.forEach((element) => this.add(element));
-    return sizeBefore != this._elements.length;
+    const sizeBefore: number = this._elements.length
+    data.forEach((element) => this.add(element))
+    return sizeBefore != this._elements.length
   }
 
   // retainAll é a operação de "intersecção" de conjuntos - não usada!
@@ -280,111 +277,113 @@ export class OrderedIntegerSet {
     data: OrderedIntegerSet,
     inplace: boolean = true
   ): boolean | OrderedIntegerSet {
-    const sizeBefore: number = this._elements.length;
-    const newArray: Array<number> = [];
+    const sizeBefore: number = this._elements.length
+    const newArray: Array<number> = []
     for (const element of data._elements) {
       if (this.contains(element)) {
-        newArray.push(element);
+        newArray.push(element)
       }
     }
     if (inplace) {
-      this._elements = newArray;
-      return sizeBefore != this._elements.length;
+      this._elements = newArray
+      return sizeBefore != this._elements.length
     }
-    return OrderedIntegerSet.fromArray(newArray);
+    return OrderedIntegerSet.fromArray(newArray)
   }
 
   list(): Array<number> {
-    return this._elements;
+    return this._elements
   }
 
   length(): number {
-    return this._elements.length;
+    return this._elements.length
   }
 
   entries(): IterableIterator<[number, number]> {
-    return this._elements.entries();
+    return this._elements.entries()
   }
 
   keys(): IterableIterator<number> {
-    return this._elements.keys();
+    return this._elements.keys()
   }
 
   values(): IterableIterator<number> {
-    return this._elements.values();
+    return this._elements.values()
   }
 
   equals(otherSet: OrderedIntegerSet): boolean {
-    const otherList = otherSet._elements;
-    const list = this._elements;
+    const otherList = otherSet._elements
+    const list = this._elements
 
-    if (list.length !== otherList.length) return false;
+    if (list.length !== otherList.length) return false
 
-    return list.every((value, index) => value === otherList[index]);
+    return list.every((value, index) => value === otherList[index])
   }
 
   [Symbol.iterator](): IterableIterator<number> {
-    return this._elements.values();
+    return this._elements.values()
   }
 
   // Mantida igual
   toJSON() {
-    return { values: this._elements };
+    return { values: this._elements }
   }
 
   // Simplificada
   toString(): string {
-    return `(${this._elements.toString()})`;
+    return `(${this._elements.toString()})`
   }
 }
 
 export class TreeNode<T> {
+  private _value: T | null
+  private _parent: TreeNode<T> | null
+  private _children: TreeNode<T>[]
 
-    private _value: T | null;
-    private _parent: TreeNode<T> | null;
-    private _children: TreeNode<T>[];
+  constructor(value?: T, parent?: TreeNode<T>) {
+    this._value = value === undefined ? null : value
+    this._parent = parent === undefined ? null : parent
+    this._children = []
+  }
 
-    constructor(value?: T, parent?: TreeNode<T>) {
-        this._value = (value === undefined? null : value);
-        this._parent = (parent === undefined? null : parent);
-        this._children = [];
+  add(child: TreeNode<T>): TreeNode<T> {
+    child.parent = this
+    this._children.push(child)
+    return child
+  }
+
+  get value(): T | null {
+    return this._value
+  }
+
+  get parent(): TreeNode<T> | null {
+    return this._parent
+  }
+
+  get children(): TreeNode<T>[] {
+    return this._children
+  }
+
+  set value(value: T | null) {
+    this._value = value
+  }
+
+  set parent(parent: TreeNode<T> | null) {
+    this._parent = parent
+  }
+
+  set children(children: TreeNode<T>[]) {
+    this._children = children
+  }
+
+  toJSON() {
+    return {
+      value: this.value,
+      children: this.children
     }
-
-    add(child: TreeNode<T>): TreeNode<T> {
-        child.parent = this;
-        this._children.push(child);
-        return child;
-    }
-
-
-    get value(): T | null {
-        return this._value;
-    }
-
-    get parent(): TreeNode<T> | null{
-        return this._parent;
-    }
-
-    get children(): TreeNode<T>[]{
-        return this._children;
-    }
-
-    set value(value: T | null) {
-        this._value = value;
-    }
-
-    set parent(parent: TreeNode<T> | null){
-        this._parent = parent;
-    }
-
-    set children(children: TreeNode<T>[]){
-        this._children = children;
-    }
-
-    toJSON() {
-        return {
-            "value": this.value,
-            "children": this.children
-        }
-    }
+  }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

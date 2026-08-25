@@ -228,3 +228,7 @@ export class SemanticAnalyser {
     this._fator.push(Node.createIntervalNode(c1, c2))
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

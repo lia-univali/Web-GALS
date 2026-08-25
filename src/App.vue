@@ -28,10 +28,10 @@ export default defineComponent({
   setup() {
     const store = projetoStore()
 
-	store.loadPersistedState()
+    store.loadPersistedState()
 
     store.$subscribe(() => {
-        store.persistState()
+      store.persistState()
     })
 
     const layout = computed(() => {
@@ -84,15 +84,12 @@ export default defineComponent({
             </splitpanes>
           </pane>
           <pane :size="layout.gramatica">
-            <splitpanes
-              vertical
-              id="lowerSplitpanes"
-            >
+            <splitpanes vertical id="lowerSplitpanes">
               <pane>
                 <AreaCodigo titulo="Gramática" />
               </pane>
               <pane>
-                <RailroadJanela titulo="Rairoad"/>
+                <RailroadJanela titulo="Rairoad" />
               </pane>
             </splitpanes>
           </pane>
@@ -147,7 +144,7 @@ body {
   /* flex-grow: 1; */
   /* flex-shrink: 0; */
   display: flex;
-  
+
   margin: 0px;
   padding: 0px;
 }
@@ -204,3 +201,7 @@ body {
   font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
 }
 </style>
+
+<!-- Modelines; ponha a sua aqui -->
+
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

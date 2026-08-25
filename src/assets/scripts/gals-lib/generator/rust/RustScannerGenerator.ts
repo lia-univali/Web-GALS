@@ -1,45 +1,39 @@
-import { List } from "../../DataStructures";
-import { FiniteAutomata } from "../FiniteAutomata";
-import { Options } from "../Options";
+import { List } from '../../DataStructures'
+import { FiniteAutomata } from '../FiniteAutomata'
+import { Options } from '../Options'
 
 /**
  * @author Vinícius
  */
 
-export class RustScannerGenerator
-{
-	public generate(fa: FiniteAutomata, options: Options): Map<string, string>
-	{		
-		const result: Map<string, string> = new Map();
-		
-		let scanner: string = "";
-		const pkgpath = options.pkgName !== "" ? options.pkgName + "/" : "";
-		
-		if (options.generateScanner == true)
-		{
-			if (fa != null)
-			{
-				scanner = this.buildScanner(fa, options);
-			}
-			else
-			{
-				scanner = "";
-			}
+export class RustScannerGenerator {
+  public generate(fa: FiniteAutomata, options: Options): Map<string, string> {
+    const result: Map<string, string> = new Map()
 
-			result.set(`src/${pkgpath}scanner.rs`, scanner);
-		}
-		
-		return result;
-	}
+    let scanner: string = ''
+    const pkgpath = options.pkgName !== '' ? options.pkgName + '/' : ''
 
-	private buildScanner(fa: FiniteAutomata, options: Options): string
-	{
-		const scannername: string = options.scannerName;
-		const pkgpath = options.pkgName !== "" ? options.pkgName + "::" : "";
-		const stringmd: boolean = options.input == Options.INPUT_STRING;
+    if (options.generateScanner == true) {
+      if (fa != null) {
+        scanner = this.buildScanner(fa, options)
+      } else {
+        scanner = ''
+      }
 
-		let result = ""+
-`
+      result.set(`src/${pkgpath}scanner.rs`, scanner)
+    }
+
+    return result
+  }
+
+  private buildScanner(fa: FiniteAutomata, options: Options): string {
+    const scannername: string = options.scannerName
+    const pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
+    const stringmd: boolean = options.input == Options.INPUT_STRING
+
+    let result =
+      '' +
+      `
 #![allow(unused)]
 
 use std::io::{BufReader, Read, Seek, SeekFrom};
@@ -51,23 +45,22 @@ use crate::${pkgpath}constants::*;
 use crate::${pkgpath}errors::AnalysisError;
 use crate::${pkgpath}token::*;
 
-pub struct ${scannername}${stringmd ? "" : "<T: Read + Seek>"} {
-${stringmd ?
-`    input: String,
+pub struct ${scannername}${stringmd ? '' : '<T: Read + Seek>'} {
+${
+  stringmd
+    ? `    input: String,
 `
-	:
-`    input: BufReader<T>,
+    : `    input: BufReader<T>,
      shadow: String,
 `
 }    pos: usize,
 }
 
-impl${stringmd ? "" : "<T: Read + Seek>"} ${scannername}${stringmd ? "" : "<T>"} {
-    pub fn new(input: ${stringmd ? "String" : "BufReader<T>"}) -> Self {
+impl${stringmd ? '' : '<T: Read + Seek>'} ${scannername}${stringmd ? '' : '<T>'} {
+    pub fn new(input: ${stringmd ? 'String' : 'BufReader<T>'}) -> Self {
         ${scannername} {
             input,
-${stringmd ? "" : "\t\tshadow: String::new(),"
-}            pos: 0,
+${stringmd ? '' : '\t\tshadow: String::new(),'}            pos: 0,
         }
     }
     pub fn next_token(&mut self) -> Option<Result<Token, AnalysisError>> {
@@ -78,10 +71,13 @@ ${stringmd ? "" : "\t\tshadow: String::new(),"
         let mut old_state: i32 = 0i32;
         let mut end_state: i32 = -1;
         let mut end = 0;
-${fa.hasContext() ?
-`        let mut ctxt_state: i32 = -1;
+${
+  fa.hasContext()
+    ? `        let mut ctxt_state: i32 = -1;
 		let mut ctxt_end: i32 = -1;
-` : ""}
+`
+    : ''
+}
         while state >= 0 {
             let Some(c) = self.next_char() else { break };
 
@@ -94,13 +90,15 @@ ${fa.hasContext() ?
                 end_state = state;
                 end = self.pos;
             }
-${fa.hasContext() ?
-`            if SCANNER_CONTEXT[state].0 == 1 {
+${
+  fa.hasContext()
+    ? `            if SCANNER_CONTEXT[state].0 == 1 {
 			    ctxt_state = state;
 				ctxt_end   = self.pos;
 			}
 `
-: ""}
+    : ''
+}
         }
 
         if newchar.is_none() && iters == 0 {
@@ -115,11 +113,14 @@ ${fa.hasContext() ?
             )));
         }
 
-${fa.hasContext() ?
-`        if ctxt_state != -1 && SCANNER_CONTEXT[end_state].1 == ctxt_end {
+${
+  fa.hasContext()
+    ? `        if ctxt_state != -1 && SCANNER_CONTEXT[end_state].1 == ctxt_end {
 	        end = ctxt_end;
 		}
-`:""}
+`
+    : ''
+}
         self.rewind(end);
 
         let mut token = self.token_for_state(end_state).expect("valid token");
@@ -140,10 +141,10 @@ ${fa.hasContext() ?
     }
 
     fn next_state(&self, c: u8, state: i32) -> i32 {
-${options.scannerTable == Options.SCANNER_TABLE_HARDCODE ?
-`${this.nextStateImpl(fa, options)}`
-    :
-`        SCANNER_TABLE[state as usize][c as usize]
+${
+  options.scannerTable == Options.SCANNER_TABLE_HARDCODE
+    ? `${this.nextStateImpl(fa, options)}`
+    : `        SCANNER_TABLE[state as usize][c as usize]
 `
 }    }
     fn token_for_state(&self, state: i32) -> Option<i32> {
@@ -154,8 +155,9 @@ ${options.scannerTable == Options.SCANNER_TABLE_HARDCODE ?
         }
     }
     fn lookup_token(&self, base: i32, mut key: String) -> i32 {
-${(options.scannerCaseSensitive == false) || (fa.specialCases.length > 0) ?
-`        let mut start = SPECIAL_CASES_INDEXES[base as usize];
+${
+  options.scannerCaseSensitive == false || fa.specialCases.length > 0
+    ? `        let mut start = SPECIAL_CASES_INDEXES[base as usize];
         let mut end = SPECIAL_CASES_INDEXES[base as usize + 1] - 1;
 
         if CASE_INSENSITIVITY {
@@ -180,26 +182,31 @@ ${(options.scannerCaseSensitive == false) || (fa.specialCases.length > 0) ?
         }
         return base;
 `
-	:
-`        unimplemented!()
+    : `        unimplemented!()
 `
 }    }
 
     fn rewind(&mut self, pos: usize) {
         self.pos = pos;
-${stringmd ? "" :
-`        self.input.seek(SeekFrom::Start(pos as u64));
+${
+  stringmd
+    ? ''
+    : `        self.input.seek(SeekFrom::Start(pos as u64));
         self.shadow.truncate(pos);
-`}    }
+`
+}    }
     fn substr_input(&self, start: usize, end: usize) -> &str {
-${stringmd ?
-`        self.input.split_at(start).1.split_at(end - start).0
-`		:
-`        self.shadow.split_at(start).1.split_at(end - start).0
-`}    }
+${
+  stringmd
+    ? `        self.input.split_at(start).1.split_at(end - start).0
+`
+    : `        self.shadow.split_at(start).1.split_at(end - start).0
+`
+}    }
     fn next_char(&mut self) -> Option<u8> {
-${stringmd ?
-`        if self.pos < self.input.len() {
+${
+  stringmd
+    ? `        if self.pos < self.input.len() {
             let c = *self.input.as_bytes().get(self.pos).expect("ascii string");
             self.pos += 1;
             Some(c)
@@ -207,8 +214,7 @@ ${stringmd ?
             None
         }
 `
-		:
-`        let mut buf: [u8; 1] = [0u8];
+    : `        let mut buf: [u8; 1] = [0u8];
         if let Err(_) = self.input.read_exact(&mut buf) {
             return None;
         } else {
@@ -216,39 +222,37 @@ ${stringmd ?
             self.pos += 1;
             Some(buf[0])
         }
-`}    }
+`
+}    }
 }
 
-`;
+`
 
-		return result;
-	}
+    return result
+  }
 
-	private nextStateImpl(fa: FiniteAutomata, opt: Options): string
-	{
-        const trans: List<Map<string, number>>  = fa.transitions;
-        let casesState = "";
-        for (let i=0; i<trans.size(); i++)
-        {
-            const m = trans.get(i);
-            if (m.size == 0)
-                continue;
+  private nextStateImpl(fa: FiniteAutomata, opt: Options): string {
+    const trans: List<Map<string, number>> = fa.transitions
+    let casesState = ''
+    for (let i = 0; i < trans.size(); i++) {
+      const m = trans.get(i)
+      if (m.size == 0) continue
 
-            casesState +=
-                "\t\t\t"+i+" => match c {\n";
+      casesState += '\t\t\t' + i + ' => match c {\n'
 
-            for (const [key, value] of m.entries())
-            {
-                const ch = key;
-                const it = value;
-                casesState += `\t\t\t\t${ch.charCodeAt(0)} => ${it},\n`;
-            }
+      for (const [key, value] of m.entries()) {
+        const ch = key
+        const it = value
+        casesState += `\t\t\t\t${ch.charCodeAt(0)} => ${it},\n`
+      }
 
-            casesState += "\t\t\t\t _ => -1,\n\t\t\t},\n";
-        }
-
-        return "\t\tmatch state {\n"+
-            casesState.toString()+
-            "\t\t\t_ => -1,\n\t\t}\n";
+      casesState += '\t\t\t\t _ => -1,\n\t\t\t},\n'
     }
+
+    return '\t\tmatch state {\n' + casesState.toString() + '\t\t\t_ => -1,\n\t\t}\n'
+  }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

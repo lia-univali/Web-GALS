@@ -20,14 +20,14 @@ export interface Projeto {
 }
 
 export interface Layout {
-  token: number,
-  simulacao: number,
-  saidaSimulacao: number,
-  gramatica: number,
+  token: number
+  simulacao: number
+  saidaSimulacao: number
+  gramatica: number
 }
 
-let linhaProjetoAntigo: string = '';
-let linhaProjetoNovo: string = '';
+let linhaProjetoAntigo: string = ''
+let linhaProjetoNovo: string = ''
 
 export const projetoStore = defineStore('projetos', {
   state: () => {
@@ -35,31 +35,31 @@ export const projetoStore = defineStore('projetos', {
       version: 2,
       listaProjetos: [
         {
-          'id': 0,
-          'fileName': 'untitled.gals',
-          'options': '',
-          'regularDefinitions': '',
-          'tokens': '',
-          'nonTerminals': '',
-          'grammar': '',
-          'textSimulator': '',
-          'consoleExit': '',
-          'optionsGals': new Options(),
-          'dirty': false,
-        },
+          id: 0,
+          fileName: 'untitled.gals',
+          options: '',
+          regularDefinitions: '',
+          tokens: '',
+          nonTerminals: '',
+          grammar: '',
+          textSimulator: '',
+          consoleExit: '',
+          optionsGals: new Options(),
+          dirty: false
+        }
       ] as Projeto[],
       selecionado: 0,
       layout: {
-        'token': 33.3333,
-        'simulacao': 33.3333,
-        'saidaSimulacao': 33.3333,
-        'gramatica': 50,
+        token: 33.3333,
+        simulacao: 33.3333,
+        saidaSimulacao: 33.3333,
+        gramatica: 50
       } as Layout,
       necessarioRecriar: true,
       gramatica: undefined as Grammar | undefined,
       lrSim: undefined as LRParserSimulator | undefined,
-      ll1Sim:  undefined as LL1ParserSimulator | undefined,
-      currGrammarLine: 1,
+      ll1Sim: undefined as LL1ParserSimulator | undefined,
+      currGrammarLine: 1
     }
   },
   getters: {
@@ -67,42 +67,39 @@ export const projetoStore = defineStore('projetos', {
   },
   actions: {
     loadPersistedState() {
-        const saved = localStorage.getItem("webgals-projects")
+      const saved = localStorage.getItem('webgals-projects')
 
-        if (!saved) return
+      if (!saved) return
 
-        const parsed = JSON.parse(saved)
+      const parsed = JSON.parse(saved)
 
-        if (parsed.version !== 2) {
-          return;
-        }
+      if (parsed.version !== 2) {
+        return
+      }
 
-        parsed.listaProjetos.forEach((p: Projeto) => {
-            p.optionsGals = Object.assign(
-                new Options(),
-                p.optionsGals
-            )
-        })
+      parsed.listaProjetos.forEach((p: Projeto) => {
+        p.optionsGals = Object.assign(new Options(), p.optionsGals)
+      })
 
-        parsed.listaProjetos = parsed.listaProjetos.filter((item: any)=> item !== null)
+      parsed.listaProjetos = parsed.listaProjetos.filter((item: any) => item !== null)
 
-        this.$patch(parsed)
+      this.$patch(parsed)
     },
 
     persistState() {
-        localStorage.setItem(
-            "webgals-projects",
-            JSON.stringify({
-                version: this.version,
-                listaProjetos: this.listaProjetos,
-                selecionado: this.selecionado,
-                layout: this.layout
-            })
-        )
+      localStorage.setItem(
+        'webgals-projects',
+        JSON.stringify({
+          version: this.version,
+          listaProjetos: this.listaProjetos,
+          selecionado: this.selecionado,
+          layout: this.layout
+        })
+      )
     },
     changeSelected(newSelected: number) {
       this.selecionado = newSelected
-      this.necessarioRecriar  = true
+      this.necessarioRecriar = true
       this.currGrammarLine = 1
     },
     deleteProject(id: number) {
@@ -122,15 +119,15 @@ export const projetoStore = defineStore('projetos', {
       this.listaProjetos.push(newProject)
     },
     selectLastProject() {
-      this.selecionado = this.listaProjetos.length - 1; 
+      this.selecionado = this.listaProjetos.length - 1
     },
-    changeNecessarioRecriar(): void{
+    changeNecessarioRecriar(): void {
       this.necessarioRecriar = !this.necessarioRecriar
     },
     setNecessarioRecriar(valor: boolean): void {
-      this.necessarioRecriar = valor;
+      this.necessarioRecriar = valor
     },
-    verificaNecessarioRecriar(): void{
+    verificaNecessarioRecriar(): void {
       const options = this.listaProjetos[this.selecionado].options
       const objOptions = this.listaProjetos[this.selecionado].optionsGals
       const regularDefinitions = this.listaProjetos[this.selecionado].regularDefinitions
@@ -141,9 +138,7 @@ export const projetoStore = defineStore('projetos', {
       let codigo = ''
       codigo += '#Options\n' + (options == undefined ? '' : objOptions.toString()) + '\n'
       codigo +=
-        '#RegularDefinitions\n' +
-        (regularDefinitions == undefined ? '' : regularDefinitions) +
-        '\n'
+        '#RegularDefinitions\n' + (regularDefinitions == undefined ? '' : regularDefinitions) + '\n'
       codigo += '#Tokens\n' + (tokens == undefined ? '' : tokens) + '\n'
       codigo +=
         '#NonTerminals\n' +
@@ -153,16 +148,19 @@ export const projetoStore = defineStore('projetos', {
 
       linhaProjetoNovo = codigo
 
-      if(linhaProjetoNovo === linhaProjetoAntigo)
-        this.necessarioRecriar = false
+      if (linhaProjetoNovo === linhaProjetoAntigo) this.necessarioRecriar = false
       else {
-        this.listaProjetos[this.selecionado].dirty = true;
+        this.listaProjetos[this.selecionado].dirty = true
         this.necessarioRecriar = true
         linhaProjetoAntigo = linhaProjetoNovo
       }
     },
     markDirty(): void {
-      this.listaProjetos[this.selecionado].dirty = true;
+      this.listaProjetos[this.selecionado].dirty = true
     }
   }
 })
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

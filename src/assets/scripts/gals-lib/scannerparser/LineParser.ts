@@ -204,7 +204,7 @@ export class LineParser {
           }
         }
       } catch (e) {
-        console.warn("No parseTokens",e)
+        console.warn('No parseTokens', e)
         throw new MetaException(MetaException.Mode.TOKEN, lineCount, e as AnalysisError)
       }
     }
@@ -296,8 +296,7 @@ export class LineParser {
         if (node != undefined) this.gen.addExpression(id, node, false)
       } else {
         const node: Node | undefined = this.parseRE(re)
-        if (node != undefined) 
-          this.gen.addExpression(id, node, true)
+        if (node != undefined) this.gen.addExpression(id, node, true)
         else
           throw new LexicalError(`Definição Regular "${re}" indefinida no Token '${id}'`, this.pos)
       }
@@ -368,3 +367,7 @@ export class LineParser {
     else return undefined
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

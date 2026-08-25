@@ -130,3 +130,7 @@ export function simulateLex(
 
   return tokensModel
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

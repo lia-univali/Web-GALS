@@ -397,3 +397,7 @@ export class REParser {
     }
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

@@ -30,10 +30,12 @@ export class SyntacticError extends AnalysisError {
   }
 }
 
-export class NotLLException extends Error
-{	
-	constructor(string: string)
-	{
-		super(string);
-	}
+export class NotLLException extends Error {
+  constructor(string: string) {
+    super(string)
+  }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

@@ -13,22 +13,22 @@ const galsTokensLanguage = StreamLanguage.define({
   token(stream) {
     // Comentário
     if (stream.match(/\/\/.*/)) return 'comment'
-    
+
     // String
     if (stream.match(/"(?:\\.|[^\\"\r\n])*"/)) return 'string'
-    
+
     // Operadores
     if (stream.match(/[:|!=]/)) return 'operator'
-    
+
     // Token (nome_token:)
     if (stream.match(/^[a-zA-Z]\w*[ \t]*:/)) return 'keyword'
-    
+
     // Números
     if (stream.match(/[0-9]/)) return 'number'
-    
+
     // Espaços
     if (stream.eatSpace()) return null
-    
+
     // Default
     stream.next()
     return null
@@ -40,25 +40,25 @@ const bnfLanguage = StreamLanguage.define({
   token(stream) {
     // Comentário
     if (stream.match(/\/\/.*/)) return 'comment'
-    
+
     // String
     if (stream.match(/"(?:\\.|[^\\"\r\n])*"/)) return 'string'
-    
+
     // Epsilon (î)
     if (stream.match(/î/)) return 'escape'
-    
+
     // Non-terminal <...>
     if (stream.match(/<[^<>\r\n\t]+>/)) return 'keyword'
-    
+
     // Semantic action #\d+
     if (stream.match(/#\d+/)) return 'strong'
-    
+
     // Operadores BNF (::=, |, ;)
     if (stream.match(/::=|\||;/)) return 'namespace'
-    
+
     // Espaços
     if (stream.eatSpace()) return null
-    
+
     // Default
     stream.next()
     return null
@@ -67,8 +67,7 @@ const bnfLanguage = StreamLanguage.define({
 
 function cursorListener(callback: any): any {
   return EditorView.updateListener.of((update) => {
-    if (!update.selectionSet)
-      return
+    if (!update.selectionSet) return
 
     const pos = update.state.selection.main.head
     const line = update.state.doc.lineAt(pos)
@@ -80,7 +79,7 @@ function cursorListener(callback: any): any {
 export default defineComponent({
   name: 'AreaCodigo',
   props: {
-    titulo: String,
+    titulo: String
   },
   data() {
     return {
@@ -88,9 +87,7 @@ export default defineComponent({
       tabSize: 2,
       simulatorView: null as any,
       // Extensões base para todos os editores
-      baseExtensions: [
-        EditorView.lineWrapping
-      ] as any[],
+      baseExtensions: [EditorView.lineWrapping] as any[]
     }
   },
   components: {
@@ -116,7 +113,7 @@ export default defineComponent({
   mounted() {
     // Registra a função de seleção globalmente apenas para o simulador
     if (this.titulo === 'Simulação') {
-      (window as any)._selectTextInSimulator = this.selectTextInSimulator.bind(this)
+      ;(window as any)._selectTextInSimulator = this.selectTextInSimulator.bind(this)
     }
   },
   beforeUnmount() {
@@ -128,7 +125,9 @@ export default defineComponent({
   watch: {
     selecionado() {
       // Update editor content when project changes
-      const definicoesRegulares = document.querySelector('[data-editor-id="textoDefinicoesRegulares"]')
+      const definicoesRegulares = document.querySelector(
+        '[data-editor-id="textoDefinicoesRegulares"]'
+      )
       const tokens = document.querySelector('[data-editor-id="textoTokens"]')
       const naoTerminais = document.getElementById('textoSimboloInicial')
       const gramatica = document.querySelector('[data-editor-id="textoGramatica"]')
@@ -137,14 +136,11 @@ export default defineComponent({
       if (this.selecionado == -1) return
 
       if (definicoesRegulares != null)
-        (definicoesRegulares as any).value =
-          this.projetos[this.selecionado].regularDefinitions
-      if (tokens != null)
-        (tokens as any).value = this.projetos[this.selecionado].tokens
+        (definicoesRegulares as any).value = this.projetos[this.selecionado].regularDefinitions
+      if (tokens != null) (tokens as any).value = this.projetos[this.selecionado].tokens
       if (naoTerminais != null)
         (naoTerminais as HTMLInputElement).value = this.projetos[this.selecionado].nonTerminals
-      if (gramatica != null)
-        (gramatica as any).value = this.projetos[this.selecionado].grammar
+      if (gramatica != null) (gramatica as any).value = this.projetos[this.selecionado].grammar
       if (simulador != null)
         (simulador as any).value = this.projetos[this.selecionado].textSimulator
     }
@@ -194,7 +190,7 @@ export default defineComponent({
         view.view.dispatch({
           selection: selection,
           effects: EditorView.scrollIntoView(start)
-        }) 
+        })
         view.view.focus()
       } catch (e) {
         console.error(e)
@@ -209,7 +205,7 @@ export default defineComponent({
     <div class="caixa__titulo">
       <p class="caixa__titulo">{{ titulo }}</p>
     </div>
-    
+
     <div v-if="projetos[selecionado] === undefined" class="caixa__interna">
       <input
         v-if="titulo === 'Símbolo inicial'"
@@ -427,3 +423,7 @@ export default defineComponent({
   width: calc(100% - 6px);
 }
 </style>
+
+<!-- Modelines; ponha a sua aqui -->
+
+<!-- kate: replace-tabs on; indent-width 2; tab-width 2; -->

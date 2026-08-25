@@ -10,88 +10,88 @@ import { StreamLanguage } from '@codemirror/language'
 import { EditorSelection } from '@codemirror/state'
 import type { LanguageSupport } from '@codemirror/language'
 import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
-import { Diagram, Choice, Sequence, NonTerminal, Terminal, Comment } from "@/vendor/railroad.js";
-import { parse_lexingrules, parse_grammar, is_token_grammar_pair_valid } from '@/assets/scripts/gals-functions2'
+import { Diagram, Choice, Sequence, NonTerminal, Terminal, Comment } from '@/vendor/railroad.js'
+import {
+  parse_lexingrules,
+  parse_grammar,
+  is_token_grammar_pair_valid
+} from '@/assets/scripts/gals-functions2'
 
 function make_diagram(prod_to_process: string, grammar: Grammar): typeof Diagram {
+  prod_to_process = prod_to_process.trim()
 
-  prod_to_process = prod_to_process.trim();
-
-  let name_to_id_map: { [key: string]: number } = {};
-  let unique_lens:    { [key: number]: number } = {};
-  let unique_indices: { [key: number]: number } = {};
+  let name_to_id_map: { [key: string]: number } = {}
+  let unique_lens: { [key: number]: number } = {}
+  let unique_indices: { [key: number]: number } = {}
   {
-    let copy_of_productions = [...grammar.productions];
+    let copy_of_productions = [...grammar.productions]
 
-    let last_seen   = -1;
-    let last_len    =  0;
-    let last_index  =  0;
+    let last_seen = -1
+    let last_len = 0
+    let last_index = 0
 
     const unique_productions = copy_of_productions.filter((p) => {
       if (p.get_lhs() != last_seen) {
-        unique_lens   [last_seen] = last_len;
-        unique_indices[last_seen] = last_index;
-        last_seen = p.get_lhs();
-        last_index += last_len;
-        last_len  = 1;
-        return true;
+        unique_lens[last_seen] = last_len
+        unique_indices[last_seen] = last_index
+        last_seen = p.get_lhs()
+        last_index += last_len
+        last_len = 1
+        return true
       } else {
-        last_len++;
-        return false;
+        last_len++
+        return false
       }
-    });
+    })
 
-    unique_lens   [last_seen] = last_len;
-    unique_indices[last_seen] = last_index;
+    unique_lens[last_seen] = last_len
+    unique_indices[last_seen] = last_index
 
-    let index = 0;
-
+    let index = 0
 
     for (let nt of grammar.nonTerminals) {
-      name_to_id_map[nt] = unique_productions[index++].get_lhs();
+      name_to_id_map[nt] = unique_productions[index++].get_lhs()
     }
 
-    index = 2;
+    index = 2
     for (let tt of grammar.terminals) {
-      name_to_id_map[tt] = index++;
+      name_to_id_map[tt] = index++
     }
-  };
-
-  const prodid = name_to_id_map[prod_to_process];
-
-  if (prodid == undefined) {
-    throw new Error("PRODID UNDEFINED");
   }
 
-  let sequences = [];
+  const prodid = name_to_id_map[prod_to_process]
+
+  if (prodid == undefined) {
+    throw new Error('PRODID UNDEFINED')
+  }
+
+  let sequences = []
 
   for (let i = 0; i < unique_lens[prodid]; i++) {
-    let real_i = unique_indices[prodid] + i;
-    let sequence = [];
-    const prodseq = grammar.productions.get(real_i).get_rhs();
+    let real_i = unique_indices[prodid] + i
+    let sequence = []
+    const prodseq = grammar.productions.get(real_i).get_rhs()
     for (let psi of prodseq) {
       if (psi >= grammar.FIRST_SEMANTIC_ACTION()) {
-        sequence.push(new Comment(`#${psi - grammar.FIRST_SEMANTIC_ACTION()}`));
+        sequence.push(new Comment(`#${psi - grammar.FIRST_SEMANTIC_ACTION()}`))
       } else if (psi >= grammar.FIRST_NON_TERMINAL) {
-        sequence.push(new NonTerminal(grammar.symbols[psi]));
+        sequence.push(new NonTerminal(grammar.symbols[psi]))
       } else {
-        sequence.push(new Terminal(grammar.symbols[psi]));
+        sequence.push(new Terminal(grammar.symbols[psi]))
       }
     }
     if (sequence.length == 0) {
-      sequences.push(new Terminal("ε"));
+      sequences.push(new Terminal('ε'))
     } else {
-      sequences.push(new Sequence(...sequence));
+      sequences.push(new Sequence(...sequence))
     }
   }
 
-  const rootChoice = new Choice(Math.trunc(sequences.length/2), ...sequences);
+  const rootChoice = new Choice(Math.trunc(sequences.length / 2), ...sequences)
 
-  const d = new Diagram(
-      rootChoice
-  ).toSVG();
+  const d = new Diagram(rootChoice).toSVG()
 
-  return d;
+  return d
 }
 
 export default defineComponent({
@@ -129,8 +129,8 @@ export default defineComponent({
   data() {
     return {
       prodName: 'ε',
-      producaoFalha: true,
-    };
+      producaoFalha: true
+    }
   },
   watch: {
     currGrammarLine() {
@@ -142,64 +142,64 @@ export default defineComponent({
   },
   methods: {
     regenerateDiagram() {
+      const prj = this.projetos[this.selecionado]
 
-      const prj = this.projetos[this.selecionado];
-
-      let g: Grammar | undefined = undefined;
+      let g: Grammar | undefined = undefined
 
       try {
-        const fa = parse_lexingrules(prj.regularDefinitions, prj.tokens, undefined);
-        g = parse_grammar(prj.nonTerminals, prj.grammar, fa);
+        const fa = parse_lexingrules(prj.regularDefinitions, prj.tokens, undefined)
+        g = parse_grammar(prj.nonTerminals, prj.grammar, fa)
       } catch (_error) {
-        this.prodName = "ε";
-        this.producaoFalha = true;
-        return;
+        this.prodName = 'ε'
+        this.producaoFalha = true
+        return
       }
 
-      const splitgrammar = prj.grammar.split(/\r?\n/);
-      let linenum = this.store.currGrammarLine - 1;
-      let line    = splitgrammar[linenum].trim();
+      const splitgrammar = prj.grammar.split(/\r?\n/)
+      let linenum = this.store.currGrammarLine - 1
+      let line = splitgrammar[linenum].trim()
 
-      while (line.includes("::=") == false) {
-        linenum--;
-        if (linenum < 0)
-          break;
-        line = splitgrammar[linenum].trim();
+      while (line.includes('::=') == false) {
+        linenum--
+        if (linenum < 0) break
+        line = splitgrammar[linenum].trim()
       }
 
-      let linesplit  = line.split(/::=/);
-      const production = linesplit[0];
+      let linesplit = line.split(/::=/)
+      const production = linesplit[0]
 
       /* TODO: Checar se estas condições e quer ocorrem */
-      if (production === "" || !line.includes("::=")) {
-        this.prodName = "ε";
-        this.producaoFalha = true;
-        return;
+      if (production === '' || !line.includes('::=')) {
+        this.prodName = 'ε'
+        this.producaoFalha = true
+        return
       }
 
-      let d;
+      let d
       try {
-        d = make_diagram(production, g);
+        d = make_diagram(production, g)
       } catch (error) {
-        this.$toast.error("Erro na visualização do grafo sintático:  "+(error as Error).message,{"duration":0})
-        this.prodName = "ε";
-        this.producaoFalha = true;
-        return;
+        this.$toast.error('Erro na visualização do grafo sintático:  ' + (error as Error).message, {
+          duration: 0
+        })
+        this.prodName = 'ε'
+        this.producaoFalha = true
+        return
       }
 
-      d.style.maxWidth  = "500px"
-      d.style.maxHeight = "75%";
-      d.style.width     = "100%";
-      d.style.height    = "auto";
+      d.style.maxWidth = '500px'
+      d.style.maxHeight = '75%'
+      d.style.width = '100%'
+      d.style.height = 'auto'
 
-      const dg = this.$refs.diagramContainer as HTMLElement;
-      dg.replaceChildren(d);
+      const dg = this.$refs.diagramContainer as HTMLElement
+      dg.replaceChildren(d)
 
-      this.prodName = production;
+      this.prodName = production
 
-      this.producaoFalha = false;
-    },
-  },
+      this.producaoFalha = false
+    }
+  }
 })
 </script>
 
@@ -208,7 +208,7 @@ export default defineComponent({
     <div class="caixa__titulo">
       <p class="caixa__titulo">Diagrama Sintático</p>
     </div>
-    <div style="width: 100%; height: 100%;" class="caixa__interna__railroad">
+    <div style="width: 100%; height: 100%" class="caixa__interna__railroad">
       <div class="producao" :class="{ producao_falha: producaoFalha }">
         <label>Produção: {{ prodName }}</label>
       </div>
@@ -218,7 +218,6 @@ export default defineComponent({
 </template>
 
 <style scoped>
-
 .caixa_railroad {
   display: flex;
   flex-direction: column;
@@ -272,7 +271,6 @@ export default defineComponent({
   align-items: center;
 }
 </style>
-
 
 <!-- Modelines; ponha a sua aqui -->
 

@@ -166,3 +166,7 @@ export class LexicalData {
     }
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

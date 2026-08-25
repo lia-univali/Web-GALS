@@ -25,3 +25,7 @@ export class AnalysisError extends Error {
     return this.message + ', em ' + this._position
   }
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;

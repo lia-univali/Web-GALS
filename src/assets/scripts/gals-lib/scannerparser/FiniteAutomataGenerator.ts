@@ -1,4 +1,4 @@
-import { SemanticError} from '../analyser/SystemErros'
+import { SemanticError } from '../analyser/SystemErros'
 import { Node, MetaData } from './Node'
 import { OrderedIntegerSet, List } from '../DataStructures'
 import { FiniteAutomata, KeyValuePar } from '../generator/FiniteAutomata'
@@ -303,7 +303,7 @@ export class FiniteAutomataGenerator {
       }
     }
 
-    const scList: Array<KeyValuePar> = [];
+    const scList: Array<KeyValuePar> = []
 
     //TODO Verify What it does
     //let scIndexes: number[][] =  Array.from({length: (this._tokenList.size() + 2)}, () => Array.from({length: 10}));
@@ -315,15 +315,13 @@ export class FiniteAutomataGenerator {
       const start: number = scList.length
 
       if (m != undefined) {
-
-        const entriesArray = new Map([...m.entries()].sort());
+        const entriesArray = new Map([...m.entries()].sort())
 
         for (const [key, value] of entriesArray.entries()) {
           scList.push(new KeyValuePar(key, value))
-        }   
+        }
       }
 
-      
       const end: number = scList.length
 
       scIndexes[i] = [start, end]
@@ -580,3 +578,7 @@ export class FiniteAutomataGenerator {
 
   //TODO toString
 }
+
+// Modelines; ponha a sua aqui
+
+// kate: replace-tabs on; indent-width 2; tab-width 2;
