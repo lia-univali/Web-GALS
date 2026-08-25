@@ -4,6 +4,7 @@ export const Sequence: any
 export const NonTerminal: any
 export const Terminal: any
 export const Comment: any
+export const Stack: any
 
 // Modelines; ponha a sua aqui
 

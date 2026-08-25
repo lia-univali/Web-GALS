@@ -10,12 +10,22 @@ import { StreamLanguage } from '@codemirror/language'
 import { EditorSelection } from '@codemirror/state'
 import type { LanguageSupport } from '@codemirror/language'
 import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
-import { Diagram, Choice, Sequence, NonTerminal, Terminal, Comment } from '@/vendor/railroad.js'
+import { Diagram, Choice, Sequence, NonTerminal, Terminal, Comment, Stack } from '@/vendor/railroad.js'
 import {
   parse_lexingrules,
   parse_grammar,
   is_token_grammar_pair_valid
 } from '@/assets/scripts/gals-functions2'
+
+// https://stackoverflow.com/questions/8495687/split-array-into-chunks#comment126404349_55435856
+function* chunks(arr, n) {
+  for (let i = 0; i < arr.length; i += n) {
+    yield arr.slice(i, i + n);
+  }
+}
+
+const MAKE_DIAGRAM_HORIZONTAL_SEQUENCE_BREAK_LEN: number = 5;
+const MAKE_DIAGRAM_HORIZONTAL_SEQUENCE_GROUPING_LEN: number = 3;
 
 function make_diagram(prod_to_process: string, grammar: Grammar): typeof Diagram {
   prod_to_process = prod_to_process.trim()
@@ -83,7 +93,15 @@ function make_diagram(prod_to_process: string, grammar: Grammar): typeof Diagram
     if (sequence.length == 0) {
       sequences.push(new Terminal('ε'))
     } else {
-      sequences.push(new Sequence(...sequence))
+      if (sequence.length <= MAKE_DIAGRAM_HORIZONTAL_SEQUENCE_BREAK_LEN) {
+        sequences.push(new Sequence(...sequence))
+      } else {
+        let newseq = []
+        for (let sqch of chunks(sequence, MAKE_DIAGRAM_HORIZONTAL_SEQUENCE_GROUPING_LEN)) {
+          newseq.push(new Stack(...sqch));
+        }
+        sequences.push(new Sequence(...newseq))
+      }
     }
   }
 
@@ -209,8 +227,8 @@ export default defineComponent({
       <p class="caixa__titulo">Diagrama Sintático</p>
     </div>
     <div style="width: 100%; height: 100%" class="caixa__interna__railroad">
-      <div class="producao" :class="{ producao_falha: producaoFalha }">
-        <label>Produção: {{ prodName }}</label>
+      <div class="producao">
+        <label>Produção: <span class="producao__inner" :class="{ producao_falha: producaoFalha }">{{ prodName }}</span></label>
       </div>
       <div class="diagrama__railroad" ref="diagramContainer"></div>
     </div>
@@ -259,8 +277,13 @@ export default defineComponent({
   width: calc(100% - 6px);
 }
 
+.producao__inner {
+ color: #708;
+ font-weight: normal;
+}
+
 .producao_falha {
-  background-color: #ffb1b1;
+  color: #f00;
 }
 
 .diagrama__railroad {
