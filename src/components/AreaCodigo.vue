@@ -65,7 +65,7 @@ const bnfLanguage = StreamLanguage.define({
   }
 })
 
-function cursorListener(callback) {
+function cursorListener(callback: any): any {
   return EditorView.updateListener.of((update) => {
     if (!update.selectionSet)
       return
@@ -81,7 +81,6 @@ export default defineComponent({
   name: 'AreaCodigo',
   props: {
     titulo: String,
-    currentLine: -1,
   },
   data() {
     return {

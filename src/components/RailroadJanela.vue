@@ -13,13 +13,13 @@ import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 import { Diagram, Choice, Sequence, NonTerminal, Terminal, Comment } from "@/vendor/railroad.js";
 import { parse_lexingrules, parse_grammar, is_token_grammar_pair_valid } from '@/assets/scripts/gals-functions2'
 
-function make_diagram(prod_to_process: string, grammar: Grammar): Diagram {
+function make_diagram(prod_to_process: string, grammar: Grammar): typeof Diagram {
 
   prod_to_process = prod_to_process.trim();
 
-  let name_to_id_map = [];
-  let unique_lens    = [];
-  let unique_indices = [];
+  let name_to_id_map: { [key: string]: number } = {};
+  let unique_lens:    { [key: number]: number } = {};
+  let unique_indices: { [key: number]: number } = {};
   {
     let copy_of_productions = [...grammar.productions];
 
@@ -28,10 +28,10 @@ function make_diagram(prod_to_process: string, grammar: Grammar): Diagram {
     let last_index  =  0;
 
     const unique_productions = copy_of_productions.filter((p) => {
-      if (p.lhs != last_seen) {
+      if (p.get_lhs() != last_seen) {
         unique_lens   [last_seen] = last_len;
         unique_indices[last_seen] = last_index;
-        last_seen = p.lhs;
+        last_seen = p.get_lhs();
         last_index += last_len;
         last_len  = 1;
         return true;
@@ -48,7 +48,7 @@ function make_diagram(prod_to_process: string, grammar: Grammar): Diagram {
 
 
     for (let nt of grammar.nonTerminals) {
-      name_to_id_map[nt] = unique_productions[index++].lhs;
+      name_to_id_map[nt] = unique_productions[index++].get_lhs();
     }
 
     index = 2;
@@ -97,7 +97,7 @@ function make_diagram(prod_to_process: string, grammar: Grammar): Diagram {
 export default defineComponent({
   name: 'AreaCodigo',
   mounted() {
-    this.regenerateDiagram(0)
+    this.regenerateDiagram()
   },
   setup() {
     const store = projetoStore()
@@ -134,10 +134,10 @@ export default defineComponent({
   },
   watch: {
     currGrammarLine() {
-      this.regenerateDiagram(this.store.currGrammarLine)
+      this.regenerateDiagram()
     },
     grammarTexto() {
-      this.regenerateDiagram(this.store.currGrammarLine)
+      this.regenerateDiagram()
     }
   },
   methods: {
@@ -192,7 +192,9 @@ export default defineComponent({
       d.style.width     = "100%";
       d.style.height    = "auto";
 
-      this.$refs.diagramContainer.replaceChildren(d);
+      const dg = this.$refs.diagramContainer as HTMLElement;
+      dg.replaceChildren(d);
+
       this.prodName = production;
 
       this.producaoFalha = false;
