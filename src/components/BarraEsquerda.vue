@@ -17,6 +17,12 @@ import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
 import { parseFileFromString, saveFile } from '@/assets/scripts/gals-lib/loadnsave_utils'
+import {
+  parse_lexingrules,
+  parse_grammar,
+  generate_syntactic_graph_svg
+} from '@/assets/scripts/gals-functions2'
+
 
 export default defineComponent({
   name: 'BarraEsquerda',
@@ -272,6 +278,64 @@ export default defineComponent({
       } catch (error) {
         this.$toast.error('Erro Sintático: ' + (error as Error).message, { duration: 0 })
       }
+    },
+    mostrarTodosGrafosSintaticos() {
+      const prj = this.projetos[this.selecionado]
+
+      let g: Grammar | undefined = undefined
+
+      try {
+        const fa = parse_lexingrules(prj.regularDefinitions, prj.tokens, undefined)
+        g = parse_grammar(prj.nonTerminals, prj.grammar, fa)
+      } catch (_error) {
+        this.$toast.error('Não é possível criar os grafos de uma linguagem inválida.');
+        return
+      }
+
+      let resultinghtml: string = `<html><head><link rel="stylesheet" href="${ process.env.NODE_ENV === 'development' ? "Web-GALS/railroad.css" : "Web-GALS/files/railroad.css" }">`;
+
+      resultinghtml += "<style>body { font-family: monospace; font-weight: bold; color: #708; }</style>";
+
+      resultinghtml += "</head><body><title>Diagramas sintáticos</title><ul>";
+
+      const splitgrammar = prj.grammar.split(/\r?\n/)
+
+      for (let linenum = 0; linenum < splitgrammar.length; linenum++) {
+        const line = splitgrammar[linenum];
+        if (line.includes('::=') == false)
+          continue;
+
+        const linesplit  = line.split(/::=/);
+        const production = linesplit[0].trim();
+
+        let d
+        try {
+          d = generate_syntactic_graph_svg(production, g, true)
+        } catch (error) {
+          this.$toast.error('Erro na visualização do grafo sintático:  ' + (error as Error).message, {
+            duration: 0
+          })
+          return
+        }
+
+        // HACK: escapar html
+        {
+          const div = document.createElement('div');
+          div.textContent = production;
+          resultinghtml += `<li id="${div.innerHTML}">${div.innerHTML}:</li>`;
+        }
+        resultinghtml += d.outerHTML
+        resultinghtml += "<hr><br>";
+      }
+
+      resultinghtml += "</ul></body></html>"
+
+      const newTab = window.open()
+      if (newTab) {
+          newTab.document.write(resultinghtml);
+          newTab.document.close();
+      }
+      this.$toast.info('Grafos sintáticos criados com sucesso!')
     }
   }
 })
@@ -359,6 +423,7 @@ export default defineComponent({
           "
         >
           <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
+          <button class="btn" @click="mostrarTodosGrafosSintaticos">Grafos Sintáticos</button>
         </div>
         <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>

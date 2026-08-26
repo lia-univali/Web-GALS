@@ -10,107 +10,11 @@ import { StreamLanguage } from '@codemirror/language'
 import { EditorSelection } from '@codemirror/state'
 import type { LanguageSupport } from '@codemirror/language'
 import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
-import { Diagram, Choice, Sequence, NonTerminal, Terminal, Comment, Stack } from '@/vendor/railroad.js'
 import {
   parse_lexingrules,
   parse_grammar,
-  is_token_grammar_pair_valid
+  generate_syntactic_graph_svg
 } from '@/assets/scripts/gals-functions2'
-
-// https://stackoverflow.com/questions/8495687/split-array-into-chunks#comment126404349_55435856
-function* chunks(arr: any, n: any): any {
-  for (let i = 0; i < arr.length; i += n) {
-    yield arr.slice(i, i + n);
-  }
-}
-
-const MAKE_DIAGRAM_HORIZONTAL_SEQUENCE_BREAK_LEN: number = 5;
-const MAKE_DIAGRAM_HORIZONTAL_SEQUENCE_GROUPING_LEN: number = 3;
-
-function make_diagram(prod_to_process: string, grammar: Grammar): typeof Diagram {
-  prod_to_process = prod_to_process.trim()
-
-  let name_to_id_map: { [key: string]: number } = {}
-  let unique_lens: { [key: number]: number } = {}
-  let unique_indices: { [key: number]: number } = {}
-  {
-    let copy_of_productions = [...grammar.productions]
-
-    let last_seen = -1
-    let last_len = 0
-    let last_index = 0
-
-    const unique_productions = copy_of_productions.filter((p) => {
-      if (p.get_lhs() != last_seen) {
-        unique_lens[last_seen] = last_len
-        unique_indices[last_seen] = last_index
-        last_seen = p.get_lhs()
-        last_index += last_len
-        last_len = 1
-        return true
-      } else {
-        last_len++
-        return false
-      }
-    })
-
-    unique_lens[last_seen] = last_len
-    unique_indices[last_seen] = last_index
-
-    let index = 0
-
-    for (let nt of grammar.nonTerminals) {
-      name_to_id_map[nt] = unique_productions[index++].get_lhs()
-    }
-
-    index = 2
-    for (let tt of grammar.terminals) {
-      name_to_id_map[tt] = index++
-    }
-  }
-
-  const prodid = name_to_id_map[prod_to_process]
-
-  if (prodid == undefined) {
-    throw new Error('PRODID UNDEFINED')
-  }
-
-  let sequences = []
-
-  for (let i = 0; i < unique_lens[prodid]; i++) {
-    let real_i = unique_indices[prodid] + i
-    let sequence = []
-    const prodseq = grammar.productions.get(real_i).get_rhs()
-    for (let psi of prodseq) {
-      if (psi >= grammar.FIRST_SEMANTIC_ACTION()) {
-        sequence.push(new Comment(`#${psi - grammar.FIRST_SEMANTIC_ACTION()}`))
-      } else if (psi >= grammar.FIRST_NON_TERMINAL) {
-        sequence.push(new NonTerminal(grammar.symbols[psi]))
-      } else {
-        sequence.push(new Terminal(grammar.symbols[psi]))
-      }
-    }
-    if (sequence.length == 0) {
-      sequences.push(new Terminal('ε'))
-    } else {
-      if (sequence.length <= MAKE_DIAGRAM_HORIZONTAL_SEQUENCE_BREAK_LEN) {
-        sequences.push(new Sequence(...sequence))
-      } else {
-        let newseq = []
-        for (let sqch of chunks(sequence, MAKE_DIAGRAM_HORIZONTAL_SEQUENCE_GROUPING_LEN)) {
-          newseq.push(new Stack(...sqch));
-        }
-        sequences.push(new Sequence(...newseq))
-      }
-    }
-  }
-
-  const rootChoice = new Choice(Math.trunc(sequences.length / 2), ...sequences)
-
-  const d = new Diagram(rootChoice).toSVG()
-
-  return d
-}
 
 export default defineComponent({
   name: 'AreaCodigo',
@@ -195,7 +99,7 @@ export default defineComponent({
 
       let d
       try {
-        d = make_diagram(production, g)
+        d = generate_syntactic_graph_svg(production, g)
       } catch (error) {
         this.$toast.error('Erro na visualização do grafo sintático:  ' + (error as Error).message, {
           duration: 0
