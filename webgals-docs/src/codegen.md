@@ -267,9 +267,9 @@ Se nenhum erro for detectado, o método termina de forma normal (o analisador se
 Este método é o núcleo do processo de análise, e os erros detectados devem ser tratados pelo chamador deste método.
 Erros léxicos vem do analisador léxico na forma da exceção LexicalError. Erros semânticos serão reportados via a exceção SemanticError. O próprio analisador sintático detecta erros, e lança a exceção SyntacticError quando os encontra.
 
-| Java                                                              | C++                                                                 | Delphi                                                                       | Python                                        | Rust |
-|-------------------------------------------------------------------|---------------------------------------------------------------------|------------------------------------------------------------------------------|-----------------------------------------------|------|
-| <pre>void parse(Lexico scanner, Semantico semanticAnalyser)</pre> | <pre>void parse(Lexico* scanner, Semantico* semanticAnalyser)</pre> | <pre>procedure parse(scanner : TLexico; semanticAnalyser : TSemantico)</pre> | <pre>def parse(self, scanner, semantic)</pre> | ???  |
+| Java                                                              | C++                                                                 | Delphi                                                                       | Python                                        | Rust                                                       |
+|-------------------------------------------------------------------|---------------------------------------------------------------------|------------------------------------------------------------------------------|-----------------------------------------------|------------------------------------------------------------|
+| <pre>void parse(Lexico scanner, Semantico semanticAnalyser)</pre> | <pre>void parse(Lexico* scanner, Semantico* semanticAnalyser)</pre> | <pre>procedure parse(scanner : TLexico; semanticAnalyser : TSemantico)</pre> | <pre>def parse(self, scanner, semantic)</pre> | <pre>fn parse(mut self) -> Result<(), AnalysisError></pre> |
 
 
 #### Interface com o Analisador Léxico
