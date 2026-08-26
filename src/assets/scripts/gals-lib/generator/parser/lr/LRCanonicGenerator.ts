@@ -58,7 +58,7 @@ export class LRCanonicGenerator extends LRGenerator {
 
     if (this.itemList == undefined) this.itemList = new List()
 
-    this.itemList.add(items)
+    this.itemListAddIfNotExists(items);
 
     stringver = this.canonize(items)
 

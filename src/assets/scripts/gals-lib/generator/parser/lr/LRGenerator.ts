@@ -18,7 +18,10 @@ export abstract class LRGenerator {
 
   private lalrgotocache: Map<string, List<LRItem>> = new Map()
 
+  protected itemListCollisionHashes: { [key: string]: boolean };
+
   constructor(g: Grammar) {
+    this.itemListCollisionHashes = {}
     this.semanticStart = g.FIRST_SEMANTIC_ACTION()
     this.firstSementicAction = g.FIRST_SEMANTIC_ACTION()
 
@@ -26,6 +29,29 @@ export abstract class LRGenerator {
 
     this.initCaches()
     this.itemList = this.computeItems()
+  }
+
+  private itemStringHash(item: List<LRItem>): string {
+    let lrstr = "";
+    for (const lr0 of item) {
+      lrstr += lr0.toString() + ":";
+    }
+    return lrstr;
+  }
+
+  protected itemListAdd(item: List<LRItem>) {
+    let lrstr = this.itemStringHash(item);
+    this.itemListCollisionHashes[lrstr] = true;
+    this.itemList.add(item);
+  }
+
+  protected itemListAddIfNotExists(item: List<LRItem>) {
+    let lrstr = this.itemStringHash(item);
+    if (this.itemListCollisionHashes[lrstr] != true) {
+      return;
+    }
+    this.itemListCollisionHashes[lrstr] = true;
+    this.itemList.add(item);
   }
 
   protected getLalrGotoCache() {
@@ -280,7 +306,7 @@ export abstract class LRGenerator {
     result +=
       '<HTML>' +
       '<HEAD>' +
-      '<TITLE>Itens SLR(1)</TITLE>' +
+      '<TITLE>Itens LR</TITLE>' +
       '</HEAD>' +
       '<BODY><FONT face="Verdana, Arial, Helvetica, sans-serif">' +
       '<TABLE border=1 cellspacing=0>'

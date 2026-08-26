@@ -18,7 +18,7 @@ import {
 } from '@/assets/scripts/gals-functions2'
 
 // https://stackoverflow.com/questions/8495687/split-array-into-chunks#comment126404349_55435856
-function* chunks(arr, n) {
+function* chunks(arr: any, n: any): any {
   for (let i = 0; i < arr.length; i += n) {
     yield arr.slice(i, i + n);
   }
