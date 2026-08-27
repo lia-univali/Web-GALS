@@ -9,6 +9,7 @@ import { EditorView } from '@codemirror/view'
 import { StreamLanguage } from '@codemirror/language'
 import { EditorSelection } from '@codemirror/state'
 import type { LanguageSupport } from '@codemirror/language'
+import { FiniteAutomata } from '@/assets/scripts/gals-lib/generator/FiniteAutomata'
 import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 import {
   parse_lexingrules,
@@ -59,7 +60,7 @@ export default defineComponent({
       tokens,
     }
   },
-  data() {
+  data(): { prodName: string, producaoFalha: boolean, cachedFA: FiniteAutomata | null } {
     return {
       prodName: 'ε',
       producaoFalha: true,
@@ -100,7 +101,7 @@ export default defineComponent({
         this.regenerateFA();
       }
 
-      return parse_grammar(prj.nonTerminals, prj.grammar, this.cachedFA);
+      return parse_grammar(prj.nonTerminals, prj.grammar, this.cachedFA! as any);
     },
     regenerateDiagram() {
       const prj = this.projetos[this.selecionado]

@@ -52,7 +52,7 @@ export function parse_lexingrules(
   return fa
 }
 
-export function parse_nonterminals_from_grammar_string(startSymbol: string, grammar: string): string[] {
+export function parse_nonterminals_from_grammar_string(startSymbol: string, grammar: string): List<string> {
   // Pega não terminais direto do grammar
   const lines = grammar.split('\n')
   const results = new Set<string>()
