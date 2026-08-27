@@ -35,11 +35,13 @@ export function parse_lexingrules(
 ): FiniteAutomata {
   const sensitive: boolean = true
 
+
   try {
     tokens = parseDefsOnTokens(definitions, tokens)
   } catch (error) {
     throw new LexicalError((error as LexicalError).message)
   }
+
 
   const lp: LineParser = new LineParser()
 
@@ -50,14 +52,7 @@ export function parse_lexingrules(
   return fa
 }
 
-/** parse_grammar
- * Gera o objeto Grammar que reflete a gramática.
- * @param startSymbol Símbolo inicial da gramática.
- * @param grammar Código-fonte da gramática.
- * @param fa Automato finito do lexer associado a gramática.
- * @returns Grammar a gramática.
- */
-export function parse_grammar(startSymbol: string, grammar: string, fa: FiniteAutomata): Grammar {
+export function parse_nonterminals_from_grammar_string(startSymbol: string, grammar: string): string[] {
   // Pega não terminais direto do grammar
   const lines = grammar.split('\n')
   const results = new Set<string>()
@@ -79,6 +74,25 @@ export function parse_grammar(startSymbol: string, grammar: string, fa: FiniteAu
 
   resultsArray.splice(0, 0, itemToMove)
 
+  // TODO: RETIRAR OS NÃO TERMINAIS DIRETO DA GRAMATICA
+  const nonTerminalDivided: string[] = resultsArray
+  const nonTerminalDividedList: List<string> = new List()
+
+  nonTerminalDivided.forEach((i) => nonTerminalDividedList.add(i))
+
+  return nonTerminalDividedList;
+}
+
+/** parse_grammar
+ * Gera o objeto Grammar que reflete a gramática.
+ * @param startSymbol Símbolo inicial da gramática.
+ * @param grammar Código-fonte da gramática.
+ * @param fa Automato finito do lexer associado a gramática.
+ * @returns Grammar a gramática.
+ */
+export function parse_grammar(startSymbol: string, grammar: string, fa: FiniteAutomata): Grammar {
+
+  const nonTerminalDividedList = parse_nonterminals_from_grammar_string(startSymbol, grammar);
   const tokensList: List<string> = new List()
 
   const tokenModelsList = fa.tokens
@@ -86,12 +100,6 @@ export function parse_grammar(startSymbol: string, grammar: string, fa: FiniteAu
     tokensList.add(tokenModelsList.get(i))
     tokensList.add('\n')
   }
-
-  // TODO: RETIRAR OS NÃO TERMINAIS DIRETO DA GRAMATICA
-  const nonTerminalDivided: string[] = resultsArray
-  const nonTerminalDividedList: List<string> = new List()
-
-  nonTerminalDivided.forEach((i) => nonTerminalDividedList.add(i))
 
   const g = new Parser().parse(tokensList, nonTerminalDividedList, grammar)
 

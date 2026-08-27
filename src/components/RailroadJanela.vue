@@ -13,7 +13,8 @@ import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 import {
   parse_lexingrules,
   parse_grammar,
-  generate_syntactic_graph_svg
+  generate_syntactic_graph_svg,
+  parse_nonterminals_from_grammar_string
 } from '@/assets/scripts/gals-functions2'
 
 export default defineComponent({
@@ -40,21 +41,40 @@ export default defineComponent({
       return store.listaProjetos[store.selecionado].grammar
     })
 
+    const regularDefinitions = computed(() => {
+      return store.listaProjetos[store.selecionado].regularDefinitions
+    })
+
+    const tokens = computed(() => {
+      return store.listaProjetos[store.selecionado].tokens
+    })
+
     return {
       store,
       projetos,
       selecionado,
       currGrammarLine,
-      grammarTexto
+      grammarTexto,
+      regularDefinitions,
+      tokens,
     }
   },
   data() {
     return {
       prodName: 'ε',
-      producaoFalha: true
+      producaoFalha: true,
+      cachedFA: null
     }
   },
   watch: {
+    tokens() {
+      this.cachedFA = null
+      this.regenerateDiagram()
+    },
+    regularDefinitions() {
+      this.cachedFA = null
+      this.regenerateDiagram()
+    },
     currGrammarLine() {
       this.regenerateDiagram()
     },
@@ -63,19 +83,27 @@ export default defineComponent({
     }
   },
   methods: {
-    regenerateDiagram() {
+    regenerateFA() {
+      const prj = this.projetos[this.selecionado]
+      try {
+        // TODO: make blazingly fast
+        this.cachedFA = parse_lexingrules(prj.regularDefinitions, prj.tokens, undefined)
+      } catch (error) {
+        this.cachedFA = null;
+        throw error;
+      }
+    },
+    generateGrammarObj() {
       const prj = this.projetos[this.selecionado]
 
-      let g: Grammar | undefined = undefined
-
-      try {
-        const fa = parse_lexingrules(prj.regularDefinitions, prj.tokens, undefined)
-        g = parse_grammar(prj.nonTerminals, prj.grammar, fa)
-      } catch (_error) {
-        this.prodName = 'ε'
-        this.producaoFalha = true
-        return
+      if (this.cachedFA == null) {
+        this.regenerateFA();
       }
+
+      return parse_grammar(prj.nonTerminals, prj.grammar, this.cachedFA);
+    },
+    regenerateDiagram() {
+      const prj = this.projetos[this.selecionado]
 
       const splitgrammar = prj.grammar.split(/\r?\n/)
       let linenum = this.store.currGrammarLine - 1
@@ -90,8 +118,10 @@ export default defineComponent({
       let linesplit = line.split(/::=/)
       const production = linesplit[0]
 
-      /* TODO: Checar se estas condições e quer ocorrem */
-      if (production === '' || !line.includes('::=')) {
+      let g
+      try {
+        g = this.generateGrammarObj();
+      } catch {
         this.prodName = 'ε'
         this.producaoFalha = true
         return
@@ -109,10 +139,10 @@ export default defineComponent({
         return
       }
 
-      d.style.maxWidth = '500px'
+      d.style.maxWidth  = '500px'
       d.style.maxHeight = '75%'
-      d.style.width = '100%'
-      d.style.height = 'auto'
+      d.style.width     = '100%'
+      d.style.height    = 'auto'
 
       const dg = this.$refs.diagramContainer as HTMLElement
       dg.replaceChildren(d)

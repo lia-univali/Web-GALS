@@ -14,6 +14,9 @@ export class LineParser {
   private pos: number = 0
   private gen: FiniteAutomataGenerator | null = null
 
+  /** parseFA
+   * Essa função é leeeeeeeeeenta.
+   */
   parseFA(defs: string, tokens: string, scannerCaseSensitive: boolean): FiniteAutomata {
     //throws MetaException{
 

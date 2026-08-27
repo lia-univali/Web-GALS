@@ -161,7 +161,6 @@ export default defineComponent({
   },
   methods: {
     onGrammarLineChanged(line: number) {
-      console.log(line)
       this.store.currGrammarLine = line
     },
     onSimulatorReady(view: any) {
