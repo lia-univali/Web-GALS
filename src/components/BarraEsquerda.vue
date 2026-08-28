@@ -301,7 +301,14 @@ export default defineComponent({
       const splitgrammar = prj.grammar.split(/\r?\n/)
 
       for (let linenum = 0; linenum < splitgrammar.length; linenum++) {
-        const line = splitgrammar[linenum];
+        let line = splitgrammar[linenum];
+        {
+          const commentpos = line.indexOf('//');
+          if (commentpos != -1) {
+            line = line.slice(0, commentpos)
+          }
+        }
+
         if (line.includes('::=') == false)
           continue;
 

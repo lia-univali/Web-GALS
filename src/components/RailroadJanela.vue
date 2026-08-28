@@ -109,11 +109,23 @@ export default defineComponent({
       const splitgrammar = prj.grammar.split(/\r?\n/)
       let linenum = this.store.currGrammarLine - 1
       let line = splitgrammar[linenum].trim()
+      {
+        const commentpos = line.indexOf('//');
+        if (commentpos != -1) {
+          line = line.slice(0, commentpos)
+        }
+      }
 
       while (line.includes('::=') == false) {
         linenum--
         if (linenum < 0) break
         line = splitgrammar[linenum].trim()
+        {
+          const commentpos = line.indexOf('//');
+          if (commentpos != -1) {
+            line = line.slice(0, commentpos)
+          }
+        }
       }
 
       let linesplit = line.split(/::=/)
