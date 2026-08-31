@@ -65,7 +65,7 @@ export default defineComponent({
       railroadwinSize
     }
   },
-  data(): { prodName: string, producaoFalha: boolean, cachedFA: FiniteAutomata | null } {
+  data(): { prodName: string, producaoFalha: boolean, cachedFA: FiniteAutomata | null, faDirty: boolean } {
     return {
       prodName: 'ε',
       producaoFalha: true,
