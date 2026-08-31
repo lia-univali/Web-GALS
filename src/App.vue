@@ -85,10 +85,10 @@ export default defineComponent({
           </pane>
           <pane :size="layout.gramatica">
             <splitpanes vertical id="lowerSplitpanes">
-              <pane>
+              <pane :size="layout.gramhoriz">
                 <AreaCodigo titulo="Gramática" />
               </pane>
-              <pane>
+              <pane :size="layout.diagsyn">
                 <RailroadJanela titulo="Rairoad" />
               </pane>
             </splitpanes>

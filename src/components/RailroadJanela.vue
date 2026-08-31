@@ -50,6 +50,10 @@ export default defineComponent({
       return store.listaProjetos[store.selecionado].tokens
     })
 
+    const railroadwinSize = computed(() => {
+      return store.layout.diagsyn
+    })
+
     return {
       store,
       projetos,
@@ -58,6 +62,7 @@ export default defineComponent({
       grammarTexto,
       regularDefinitions,
       tokens,
+      railroadwinSize
     }
   },
   data(): { prodName: string, producaoFalha: boolean, cachedFA: FiniteAutomata | null } {
@@ -104,6 +109,10 @@ export default defineComponent({
       return parse_grammar(prj.nonTerminals, prj.grammar, this.cachedFA! as any);
     },
     regenerateDiagram() {
+
+      if (this.railroadwinSize === 0)
+        return;
+
       const prj = this.projetos[this.selecionado]
 
       const splitgrammar = prj.grammar.split(/\r?\n/)

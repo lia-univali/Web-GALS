@@ -118,30 +118,51 @@ export default defineComponent({
           this.layout.token = 33.33333
           this.layout.simulacao = 33.33333
           this.layout.saidaSimulacao = 33.33333
-
+          this.layout.diagsyn = 0
+          this.layout.gramhoriz = 100
           this.layout.gramatica = 0
           break
         case 1: // Sintático
           this.layout.token = 0
           this.layout.simulacao = 50
           this.layout.saidaSimulacao = 50
-
+          this.layout.diagsyn = 0
+          this.layout.gramhoriz = 100
           this.layout.gramatica = 50
           break
         case 2: //Léxico e Sintático
           this.layout.token = 33.33333
           this.layout.simulacao = 33.33333
           this.layout.saidaSimulacao = 33.33333
-
+          this.layout.diagsyn = 0
+          this.layout.gramhoriz = 100
           this.layout.gramatica = 50
           break
         case 3: //Simulador
           this.layout.token = 0
           this.layout.simulacao = 50
           this.layout.saidaSimulacao = 50
-
+          this.layout.diagsyn = 0
+          this.layout.gramhoriz = 100
           this.layout.gramatica = 0
           break
+        case 4: // Sintático (G)
+          this.layout.token = 0
+          this.layout.simulacao = 50
+          this.layout.saidaSimulacao = 50
+          this.layout.diagsyn = 50
+          this.layout.gramhoriz = 50
+          this.layout.gramatica = 50
+          break;
+
+        case 5: // Léxico e Sintático (G)
+          this.layout.token = 33.33333
+          this.layout.simulacao = 33.33333
+          this.layout.saidaSimulacao = 33.33333
+          this.layout.diagsyn = 50
+          this.layout.gramhoriz = 50
+          this.layout.gramatica = 50
+          break;
       }
     }
   }
@@ -168,7 +189,9 @@ export default defineComponent({
       <div class="dropdown-content">
         <a @click="mudaLayout(0)">Léxico</a>
         <a @click="mudaLayout(1)">Sintático</a>
+        <a @click="mudaLayout(4)">Sintático (D)</a>
         <a @click="mudaLayout(2)">Léxico e Sintático</a>
+        <a @click="mudaLayout(5)">Léxico e Sintático (D)</a>
         <a @click="mudaLayout(3)">Simulador</a>
       </div>
     </div>
@@ -282,7 +305,7 @@ a:hover {
   display: none;
   position: absolute;
   background-color: #f1f1f1;
-  min-width: 170px;
+  min-width: 200px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
   right: 0;

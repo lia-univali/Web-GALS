@@ -53,7 +53,9 @@ export const projetoStore = defineStore('projetos', {
         token: 33.3333,
         simulacao: 33.3333,
         saidaSimulacao: 33.3333,
-        gramatica: 50
+        gramatica: 50,
+        diagsyn: 50,
+        gramhoriz: 50,
       } as Layout,
       necessarioRecriar: true,
       gramatica: undefined as Grammar | undefined,
