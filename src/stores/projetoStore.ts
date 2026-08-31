@@ -24,6 +24,8 @@ export interface Layout {
   simulacao: number
   saidaSimulacao: number
   gramatica: number
+  diagsyn: number
+  gramhoriz: number
 }
 
 let linhaProjetoAntigo: string = ''
