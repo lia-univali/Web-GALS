@@ -37,7 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-eb314bcd.js";
+            window.path_to_searchindex_js = "searchindex-535b33ed.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -199,11 +199,12 @@
 <li><strong>Tokens:</strong> Área de texto para a definição de Tokens a serem reconhecidos pelo Analisador Léxico (<em>scanner</em>).</li>
 <li><strong>Simulação:</strong> Área de texto dedicada aos testes das definições de Tokens e Gramática.</li>
 <li><strong>Saída da Simulação:</strong> Local de exibição da saída dos testes do analisador léxico (lista de Tokens) e do analísador sintático (árvore de derivação), dependendo da escolha do usuário.</li>
+<li><strong>Diagrama Sintático:</strong> Janela com a visualização da gramática em estilo <em>railroad</em>.</li>
 <li><strong>Gerar código:</strong> Botão para gerar o código-fonte dos analisadores e construção de compilador da linguagem projetada.</li>
 <li><strong>Menu Layout:</strong> Este menu permite o usuário mudar o layout da área de trabalho do Web GALS.</li>
 <li><strong>Gerenciador de Projetos:</strong> Opções que permitem o usuário trabalhar em múltiplos projetos (arquivos) ao mesmo tempo.</li>
 <li><strong>Tabelas e Documentação do projeto:</strong> Menu com opções de visualização das tabelas dos analisadores de acordo com as definições do projeto selecionado.</li>
-<li><strong>Menu de Configurações:</strong> abrir menu de configurações do projeto selecionado.</li>
+<li><strong>Menu de Configurações:</strong> Abrir menu de configurações do projeto selecionado.</li>
 <li><strong>Informações do Web GALS:</strong> Exibir as informações do Web GALS.</li>
 <li><strong>Espaço de Projetos</strong>: Espaço para selecionar o projeto a ser trabalhado no WebGALS.</li>
 <li><strong>Definições Regulares</strong>: Área de texto para escrita das definições regulares e posterior aproveitamento na definição de Tokens.</li>
@@ -944,7 +945,9 @@ Erros léxicos vem do analisador léxico na forma da exceção LexicalError. Err
 <pre>procedure parse(scanner : TLexico; semanticAnalyser : TSemantico)</pre>
 </td><td>
 <pre>def parse(self, scanner, semantic)</pre>
-</td><td>???</td></tr>
+</td><td>
+<pre>fn parse(mut self) -&gt; Result&lt;(), AnalysisError&gt;</pre>
+</td></tr>
 </tbody>
 </table>
 </div>

@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-eb314bcd.js";
+            window.path_to_searchindex_js = "searchindex-535b33ed.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -500,7 +500,9 @@ Erros léxicos vem do analisador léxico na forma da exceção LexicalError. Err
 <pre>procedure parse(scanner : TLexico; semanticAnalyser : TSemantico)</pre>
 </td><td>
 <pre>def parse(self, scanner, semantic)</pre>
-</td><td>???</td></tr>
+</td><td>
+<pre>fn parse(mut self) -&gt; Result&lt;(), AnalysisError&gt;</pre>
+</td></tr>
 </tbody>
 </table>
 </div>
