@@ -292,7 +292,7 @@ export default defineComponent({
         return
       }
 
-      let resultinghtml: string = `<html><head><link rel="stylesheet" href="${ process.env.NODE_ENV === 'development' ? "Web-GALS/railroad.css" : "Web-GALS/files/railroad.css" }">`;
+      let resultinghtml: string = `<html><head><link rel="stylesheet" href="${ process.env.NODE_ENV === 'development' ? "Web-GALS/railroad.css" : "Web-GALS/railroad.css" }">`;
 
       resultinghtml += "<style>body { font-family: monospace; font-weight: bold; color: #708; }</style>";
 
