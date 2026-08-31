@@ -430,8 +430,8 @@ export default defineComponent({
           "
         >
           <button class="btn" @click="mostrarTabelaConjuntoSintatico">Conjunto de itens</button>
-          <button class="btn" @click="mostrarTodosGrafosSintaticos">Grafos Sintáticos</button>
         </div>
+        <button class="btn" @click="mostrarTodosGrafosSintaticos">Grafos Sintáticos</button>
         <button class="btn" @click="mostrarTabelaFirstFollowSintatico">First & Follow</button>
       </div>
       <div class="container__info" v-else-if="paginaAberta == 'Informações'">
