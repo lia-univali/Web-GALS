@@ -69,33 +69,60 @@ export default defineComponent({
     return {
       prodName: 'ε',
       producaoFalha: true,
-      cachedFA: null
+      cachedFA: null,
+      faDirty: true,
     }
   },
   watch: {
     tokens() {
-      this.cachedFA = null
-      this.regenerateDiagram()
+      this.faDirty  = true
+      this.attemptTwiceRegenerateDiagram()
     },
     regularDefinitions() {
-      this.cachedFA = null
-      this.regenerateDiagram()
+      this.faDirty  = true
+      this.attemptTwiceRegenerateDiagram()
     },
     currGrammarLine() {
-      this.regenerateDiagram()
+      this.attemptTwiceRegenerateDiagram()
     },
     grammarTexto() {
-      this.regenerateDiagram()
+      this.attemptTwiceRegenerateDiagram()
     }
   },
   methods: {
+    attemptTwiceRegenerateDiagram() {
+      if (this.faDirty == true) {
+        try {
+          this.regenerateDiagram()
+        } catch(error) {
+          this.cachedFA = null;
+          try {
+            this.regenerateDiagram()
+          } catch {
+            this.prodName = 'ε'
+            this.producaoFalha = true
+            return
+          }
+        }
+      } else {
+        try {
+          this.regenerateDiagram()
+        } catch {
+          this.prodName = 'ε'
+          this.producaoFalha = true
+          return
+        }
+      }
+    },
     regenerateFA() {
       const prj = this.projetos[this.selecionado]
       try {
         // TODO: make blazingly fast
         this.cachedFA = parse_lexingrules(prj.regularDefinitions, prj.tokens, undefined)
+        this.faDirty  = false;
       } catch (error) {
         this.cachedFA = null;
+        this.faDirty  = true;
         throw error;
       }
     },
@@ -140,14 +167,7 @@ export default defineComponent({
       let linesplit = line.split(/::=/)
       const production = linesplit[0]
 
-      let g
-      try {
-        g = this.generateGrammarObj();
-      } catch {
-        this.prodName = 'ε'
-        this.producaoFalha = true
-        return
-      }
+      const g = this.generateGrammarObj();
 
       let d
       try {
