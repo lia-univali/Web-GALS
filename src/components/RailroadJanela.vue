@@ -167,7 +167,14 @@ export default defineComponent({
       let linesplit = line.split(/::=/)
       const production = linesplit[0]
 
-      const g = this.generateGrammarObj();
+      let g
+      try {
+        g = this.generateGrammarObj();
+      } catch (_error) {
+        this.prodName = 'ε'
+        this.producaoFalha = true
+        return
+      }
 
       let d
       try {
