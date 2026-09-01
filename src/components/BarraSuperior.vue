@@ -14,7 +14,8 @@ export default defineComponent({
   isEmitting: false,
   data() {
     return {
-      isEmitting: false
+      isEmitting: false,
+      hasInstalledSimulationWorkerEventListener: false,
     }
   },
   setup() {
@@ -24,16 +25,17 @@ export default defineComponent({
       return store.layout
     })
 
+    const simulationworker = computed(() => {
+      return store.simulationworker
+    });
+
     return {
       store,
-      layout
+      layout,
+      simulationworker
     }
   },
   methods: {
-    /*
-     * TODO: Não é possível mandar a gramática atravéz de workers
-     * devido a uma referencia circular; consertar.
-     */
     gerarCodigo() {
       this.isEmitting = true
 
@@ -62,55 +64,51 @@ export default defineComponent({
           break
       }
 
-      const worker = new Worker(new URL('@/workers/emitcode.worker.ts', import.meta.url), {
-        type: 'module'
-      })
+      if (this.hasInstalledSimulationWorkerEventListener == false)
+      {
+        this.simulationworker.addEventListener('message', (event) => {
+          const data = event.data
 
-      worker.postMessage({
+          if (data.type === 'emitcode') {
+            if (data.success) {
+             /*
+              * Eu não consigo acreditar que é ASSIM que se emite um arquivo no
+              * javascript.
+              *
+              * Bravo, Brendan Eich.
+              */
+
+              const link = document.createElement('a')
+              link.href = data.result
+              link.download = projeto.fileName.slice(0, -5) + ' - ' + linguagemString + '.zip'
+
+              document.body.appendChild(link)
+              link.click()
+              document.body.removeChild(link)
+
+              URL.revokeObjectURL(data.result)
+
+              this.$toast.success('Arquivos Gerados!')
+            } else {
+              this.$toast.error(data.error, { duration: 0 })
+            }
+            this.isEmitting = false
+          }
+        })
+        this.hasInstalledSimulationWorkerEventListener = true;
+      }
+
+
+      this.simulationworker.postMessage({
+        type: 'emitcode',
         regularDefinitions: projeto.regularDefinitions,
         tokens: projeto.tokens,
         nonTerminals: projeto.nonTerminals,
         grammar: projeto.grammar,
         options: JSON.stringify(options),
         necessarioRecriar: true,
-        fa: undefined,
-        g: undefined,
         fileName: projeto.fileName
       })
-
-      worker.onmessage = (event) => {
-        const data = event.data
-
-        if (data.type === 'rpc_request') {
-          UIBridge.uibridgeimpl(this, worker, data)
-        } else {
-          if (data.success) {
-            /*
-             * Eu não consigo acreditar que é ASSIM que se emite um arquivo no
-             * javascript.
-             *
-             * Bravo, Brendan Eich.
-             */
-
-            const link = document.createElement('a')
-            link.href = data.result
-            link.download = projeto.fileName.slice(0, -5) + ' - ' + linguagemString + '.zip'
-
-            document.body.appendChild(link)
-            link.click()
-            document.body.removeChild(link)
-
-            URL.revokeObjectURL(data.result)
-
-            this.$toast.success('Arquivos Gerados!')
-          } else {
-            this.$toast.error(data.error, { duration: 0 })
-          }
-
-          this.isEmitting = false
-          worker.terminate()
-        }
-      }
     },
     mudaLayout(perfil: number) {
       switch (perfil) {

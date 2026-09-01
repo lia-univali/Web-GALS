@@ -4,6 +4,7 @@ import { nonTerminalsFromGrammar } from '@/assets/scripts/gals-functions'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 import { LRParserSimulator } from '@/assets/scripts/gals-lib/simulator/LRParserSimulator'
 import { LL1ParserSimulator } from '@/assets/scripts/gals-lib/simulator/LL1ParserSimulator'
+import * as UIBridge from '@/workers/UIBridge'
 
 export interface Projeto {
   id: number
@@ -33,6 +34,17 @@ let linhaProjetoNovo: string = ''
 
 export const projetoStore = defineStore('projetos', {
   state: () => {
+    const simulationworker = new Worker(new URL('@/workers/simulation.worker.ts', import.meta.url), {
+      type: 'module'
+    });
+
+    simulationworker.addEventListener('message', (event) => {
+      if (event.data.type === 'rpc_request')
+      {
+        UIBridge.uibridgeimpl(this, simulationworker, event.data)
+      }
+    })
+
     return {
       version: 2,
       listaProjetos: [
@@ -60,9 +72,7 @@ export const projetoStore = defineStore('projetos', {
         gramhoriz: 50,
       } as Layout,
       necessarioRecriar: true,
-      gramatica: undefined as Grammar | undefined,
-      lrSim: undefined as LRParserSimulator | undefined,
-      ll1Sim: undefined as LL1ParserSimulator | undefined,
+      simulationworker: simulationworker,
       currGrammarLine: 1
     }
   },

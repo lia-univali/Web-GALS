@@ -21,7 +21,8 @@ export default defineComponent({
       resultadoLexico: new Map<Token, string>(),
       resultadoSintatico: new TreeNode<string>(),
       tipoSimulacao: 'Lexico',
-      isSimulating: false
+      isSimulating: false,
+      hasInstalledSimulationWorkerEventListener: false,
     }
   },
   setup() {
@@ -36,14 +37,14 @@ export default defineComponent({
       set: (value: boolean) => store.setNecessarioRecriar(value)
     })
 
-    const syntacticworker = new Worker(new URL('@/workers/syntactic.worker.ts', import.meta.url), {
-      type: 'module'
+    const simulationworker = computed(() => {
+      return store.simulationworker;
     });
 
     return {
       store,
       necessarioRecriar,
-      syntacticworker
+      simulationworker
     }
   },
   methods: {
@@ -78,40 +79,41 @@ export default defineComponent({
     queueSyntacticSimulation(projeto: any) {
       this.isSimulating = true
 
-      this.syntacticworker.onmessage = (event) => {
-        const data = event.data
+      if (this.hasInstalledSimulationWorkerEventListener == false) {
+        this.simulationworker.addEventListener('message', (event) => {
+          const data = event.data
+          if (data.type === 'syntactic') {
+            if (data.success) {
+              const resultadoSintatico = data.result
 
-        if (data.type === 'rpc_request') {
-          UIBridge.uibridgeimpl(this, this.syntacticworker, data)
-        } else {
-          if (data.success) {
-            const [resultadoSintatico, _novaGramatica, _novoLRSim, _novoLL1Sim] = data.result
+              this.resultadoSintatico = Object.assign(new TreeNode(), JSON.parse(resultadoSintatico))
 
-            this.resultadoSintatico = Object.assign(new TreeNode(), JSON.parse(resultadoSintatico))
+              this.$toast.default('Simulação Sintática Concluída')
+              projeto.consoleExit = 'Simulação Concluida'
+            } else {
+              console.log(data.error)
 
-            this.$toast.default('Simulação Sintática Concluída')
-            projeto.consoleExit = 'Simulação Concluida'
-          } else {
-            console.log(data.error)
+              this.$toast.error('Erro Léxico/Sintático: ' + this.translateHTMLTags(data.error), {
+                duration: 0
+              })
 
-            this.$toast.error('Erro Léxico/Sintático: ' + this.translateHTMLTags(data.error), {
-              duration: 0
-            })
-
-            projeto.consoleExit = 'Erro Léxico/Sintático: ' + data.error
+              projeto.consoleExit = 'Erro Léxico/Sintático: ' + data.error
+            }
+            this.isSimulating = false
           }
-          this.isSimulating = false
-        }
+        });
+        this.hasInstalledSimulationWorkerEventListener = true;
       }
 
-      this.syntacticworker.postMessage({
-        textSimulator: projeto.textSimulator,
+      this.simulationworker.postMessage({
+        type: 'syntactic',
+        textSimulator:      projeto.textSimulator,
         regularDefinitions: projeto.regularDefinitions,
-        tokens: projeto.tokens,
-        nonTerminals: projeto.nonTerminals,
-        grammar: projeto.grammar,
-        parser: projeto.optionsGals.parser,
-        necessarioRecriar: this.store.necessarioRecriar,
+        tokens:             projeto.tokens,
+        nonTerminals:       projeto.nonTerminals,
+        grammar:            projeto.grammar,
+        parser:             projeto.optionsGals.parser,
+        necessarioRecriar:  this.store.necessarioRecriar,
       })
     },
     simularSintatico() {
