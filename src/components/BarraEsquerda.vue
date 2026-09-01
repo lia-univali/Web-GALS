@@ -204,10 +204,11 @@ export default defineComponent({
         projeto.optionsGals.parser,
         this.store.necessarioRecriar,
         undefined,
-        this.store.gramatica as Grammar | undefined
+        undefined,
       )
-        .then(([html, gramatica]) => {
-          this.store.gramatica = gramatica
+        .then(([html, _gramatica]) => {
+        // TODO: Mover para thread
+//        this.store.gramatica = gramatica
 
           const newTab = window.open()
           if (newTab) {
@@ -233,10 +234,11 @@ export default defineComponent({
         projeto.optionsGals.parser,
         this.store.necessarioRecriar,
         undefined,
-        this.store.gramatica as Grammar | undefined
+        undefined,
       )
-        .then(([html, gramatica]) => {
-          this.store.gramatica = gramatica
+        .then(([html, _gramatica]) => {
+        // TODO: Mover para thread
+//        this.store.gramatica = gramatica
 
           const newTab = window.open()
           if (newTab) {
@@ -255,7 +257,7 @@ export default defineComponent({
       const projeto = this.store.listaProjetos[selecionado]
 
       try {
-        const [html, gramatica] = syntacticFirstFollowTable(
+        const [html, _gramatica] = syntacticFirstFollowTable(
           projeto.regularDefinitions,
           projeto.tokens,
           projeto.nonTerminals,
@@ -263,10 +265,10 @@ export default defineComponent({
           projeto.optionsGals.parser,
           this.store.necessarioRecriar,
           undefined,
-          this.store.gramatica as Grammar | undefined
+          undefined,
         )
-
-        this.store.gramatica = gramatica
+        // TODO: Mover para thread
+//        this.store.gramatica = gramatica
 
         const newTab = window.open()
         if (newTab) {
