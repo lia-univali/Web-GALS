@@ -36,9 +36,14 @@ export default defineComponent({
       set: (value: boolean) => store.setNecessarioRecriar(value)
     })
 
+    const syntacticworker = new Worker(new URL('@/workers/syntactic.worker.ts', import.meta.url), {
+      type: 'module'
+    });
+
     return {
       store,
-      necessarioRecriar
+      necessarioRecriar,
+      syntacticworker
     }
   },
   methods: {
@@ -73,23 +78,16 @@ export default defineComponent({
     queueSyntacticSimulation(projeto: any) {
       this.isSimulating = true
 
-      const worker = new Worker(new URL('@/workers/syntactic.worker.ts', import.meta.url), {
-        type: 'module'
-      })
-
-      worker.onmessage = (event) => {
+      this.syntacticworker.onmessage = (event) => {
         const data = event.data
 
         if (data.type === 'rpc_request') {
-          UIBridge.uibridgeimpl(this, worker, data)
+          UIBridge.uibridgeimpl(this, this.syntacticworker, data)
         } else {
           if (data.success) {
-            const [resultadoSintatico, novaGramatica, novoLRSim, novoLL1Sim] = data.result
+            const [resultadoSintatico, _novaGramatica, _novoLRSim, _novoLL1Sim] = data.result
 
             this.resultadoSintatico = Object.assign(new TreeNode(), JSON.parse(resultadoSintatico))
-            //  this.store.gramatica = novaGramatica;
-            //  this.store.lrSim = novoLRSim;
-            //  this.store.ll1Sim = novoLL1Sim;
 
             this.$toast.default('Simulação Sintática Concluída')
             projeto.consoleExit = 'Simulação Concluida'
@@ -102,12 +100,11 @@ export default defineComponent({
 
             projeto.consoleExit = 'Erro Léxico/Sintático: ' + data.error
           }
-          worker.terminate()
           this.isSimulating = false
         }
       }
 
-      worker.postMessage({
+      this.syntacticworker.postMessage({
         textSimulator: projeto.textSimulator,
         regularDefinitions: projeto.regularDefinitions,
         tokens: projeto.tokens,
@@ -115,12 +112,6 @@ export default defineComponent({
         grammar: projeto.grammar,
         parser: projeto.optionsGals.parser,
         necessarioRecriar: this.store.necessarioRecriar,
-        gramatica: undefined,
-        lrSim: undefined,
-        ll1Sim: undefined
-        // gramatica: this.store.gramatica,
-        // lrSim: this.store.lrSim,
-        // ll1Sim: this.store.ll1Sim
       })
     },
     simularSintatico() {

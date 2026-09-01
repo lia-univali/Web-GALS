@@ -1,14 +1,17 @@
 import { syntacticSimulation } from '@/assets/scripts/gals-functions'
+import { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar';
+import { LRParserSimulator } from '@/assets/scripts/gals-lib/simulator/LRParserSimulator';
+import { LL1ParserSimulator } from '@/assets/scripts/gals-lib/simulator/LL1ParserSimulator';
+
+let gramatica: Grammar            | undefined = undefined;
+let lrSim:     LRParserSimulator  | undefined = undefined;
+let ll1Sim:    LL1ParserSimulator | undefined = undefined;
 
 self.onmessage = (event) => {
   if (event.data.type !== 'rpc_response')
     try {
       const args = event.data
 
-      /*
-       * TODO: Não é possível mandar a gramática atravéz de workers
-       * devido a uma referencia circular; consertar.
-       */
       syntacticSimulation(
         args.textSimulator,
         args.regularDefinitions,
@@ -19,11 +22,16 @@ self.onmessage = (event) => {
         args.necessarioRecriar,
         undefined,
         undefined,
-        args.gramatica,
-        args.lrSim,
-        args.ll1Sim
+        gramatica,
+        lrSim,
+        ll1Sim
       )
-        .then(([root, _g, _ll, _lr]) => {
+        .then(([root, g, lr, ll]) => {
+
+          gramatica = g;
+          lrSim     = lr;
+          ll1Sim    = ll;
+
           let result = [JSON.stringify(root), undefined, undefined, undefined]
 
           self.postMessage({
