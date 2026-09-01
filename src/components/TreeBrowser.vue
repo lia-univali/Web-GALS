@@ -13,6 +13,10 @@ export default defineComponent({
     isRoot: {
       type: Boolean,
       default: true
+    },
+    depth: {
+      type: Number,
+      default: 0
     }
   },
   data() {
@@ -44,10 +48,11 @@ export default defineComponent({
           </summary>
           <TreeBrowser
             v-for="(child, index) in node?.children"
-            :key="child.value == null ? '' : child.value"
+            :key="child.value == null ? '' : `${child.value}#${index},${depth}`"
             :node="child"
             :is-final="index == node?.children.length - 1"
             :is-root="false"
+            :depth="depth + 1"
           />
         </details>
         <div v-else>
