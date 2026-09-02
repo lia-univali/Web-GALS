@@ -59,7 +59,7 @@ self.onmessage = (event) => {
                   self.postMessage({
                     type: 'emitcode',
                     success: true,
-                    result: url
+                    result: [url, args.fileName, args.linguagemString]
                   })
                 })
               } catch (error) {

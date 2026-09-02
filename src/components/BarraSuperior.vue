@@ -40,7 +40,10 @@ export default defineComponent({
       this.isEmitting = true
 
       const selecionado = this.store.selecionado
-      if (selecionado == -1) return
+      if (selecionado == -1) {
+        this.isEmitting = false
+        return
+      }
       const projeto = this.store.listaProjetos[selecionado]
       const options: Options = projeto.optionsGals
 
@@ -79,14 +82,18 @@ export default defineComponent({
               */
 
               const link = document.createElement('a')
-              link.href = data.result
-              link.download = projeto.fileName.slice(0, -5) + ' - ' + linguagemString + '.zip'
+
+              const [href, fileName, ls] = data.result
+
+              link.href = href
+
+              link.download = fileName + ' - ' + ls + '.zip'
 
               document.body.appendChild(link)
               link.click()
               document.body.removeChild(link)
 
-              URL.revokeObjectURL(data.result)
+              URL.revokeObjectURL(href)
 
               this.$toast.success('Arquivos Gerados!')
             } else {
@@ -107,7 +114,8 @@ export default defineComponent({
         grammar: projeto.grammar,
         options: JSON.stringify(options),
         necessarioRecriar: true,
-        fileName: projeto.fileName
+        fileName: projeto.fileName,
+        linguagemString: linguagemString
       })
     },
     mudaLayout(perfil: number) {
