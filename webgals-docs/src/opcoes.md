@@ -48,6 +48,19 @@ Para Python e Rust é possível especificar o *module* das classes, onde é cria
 > [!NOTE]
 > Não foi implementado para Delphi suporte para o sistema de nomeamento de hierarquia (namespace).
 
+#### Modal - Formato do Projeto
+
+<!--
+O Web GALS é compativel com o GALS 2003 até certo ponto, porém todas as novas funcionalidades adicionadas ao Web GALS que não existem no GALS 2003 irão
+inevitavelmente gerar incompatibilidades, por isso, é oferecido a opção de gerar um projeto estritamente compatível com o GALS 2003, onde as
+novas funcionalidades são desabilitadas.
+-->
+O Web GALS é compativel com o GALS 2003 até certo ponto: todas as novas funcionalidades irão inevitavelmente gerar incompatibilidades e,
+por isso, é oferecido a opção de gerar um projeto estritamente compatível com a versão antiga, onde as novas funcionalidades estão desabilitadas.
+
+- **Formato `.gals` -- (GALS 2003)**: Python e Rust desativados; LR(1)-Canônico e LALR(1) desativados; não salva o conteúdo da janela de simulação.
+- **Formato `.vgls` -- (Web GALS)**: Suporte completo.
+
 ## Opções do Analisador Léxico
 
 A aba de opções do analisador léxico permite o usuário configurar a forma de entrada e a implementação do autômato de reconhecimento léxico.
