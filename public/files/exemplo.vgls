@@ -59,3 +59,6 @@ KCOLB : "}"
 
 <optr1> ::= O_PLUS  | O_MINUS;
 <optr2> ::= O_TIMES | O_DIV;
+
+#SimulatorText
+bGV0IGQgPSA5OTsKewogICAgbGV0IGEgPSBiICogKDEgKyAyKSAtIGM7Cn07

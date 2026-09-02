@@ -45,6 +45,7 @@ Após finalizar um projeto no Web GALS, é possível gerar um código *template*
 
 Tendo de exemplo [o seguinte arquivo de projeto](https://lia-univali.github.io/Web-GALS/files/exemplo.vgls), com a seguinte entrada de simulação, o estado do Web GALS se encontra como no da figura:
 ```rust
+let d = 99;
 {
 	let a = b * (1 + 2) - c;
 };
