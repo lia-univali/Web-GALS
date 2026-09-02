@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { projetoStore, type Projeto } from '@/stores/projetoStore'
-import { Options } from '@/assets/scripts/gals-lib/generator/Options'
+import { Options, FORMAT_VGLS } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
   name: 'ModalNovoArquivo',
@@ -21,7 +21,7 @@ export default defineComponent({
     adicionarProjeto() {
       const input = document.getElementById('nomeProjeto') as HTMLInputElement
       if (input != null) {
-        let nome: string = input.value.trim() + '.gals'
+        let nome: string = input.value.trim()
 
         const newProject = {
           id: this.store.totalProjetos,
@@ -33,7 +33,8 @@ export default defineComponent({
           grammar: '',
           textSimulator: '',
           consoleExit: '',
-          optionsGals: new Options()
+          optionsGals: new Options(),
+          projectFormat: FORMAT_VGLS,
         } as Projeto
 
         this.store.addProject(newProject)

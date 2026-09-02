@@ -1,3 +1,13 @@
+
+
+export const FORMAT_GALS2003: number = 0
+export const FORMAT_VGLS:     number = 1
+
+export function formatIdToString(value: number) {
+  if (value === FORMAT_GALS2003) return '.gals';
+  else if (value === FORMAT_VGLS) return '.vgls';
+}
+
 export function langIdToString(value: number) {
   if (value === Options.LANG_CPP) return 'C++'
   else if (value === Options.LANG_JAVA) return 'Java'
@@ -11,6 +21,14 @@ export function scnrIdToString(value: number) {
   if (value === Options.SCANNER_TABLE_FULL) return 'Full'
   else if (value === Options.SCANNER_TABLE_COMPACT) return 'Compact'
   else if (value === Options.SCANNER_TABLE_HARDCODE) return 'Hardcode'
+}
+
+export function parsIdToString(value: number) {
+  if (value === Options.PARSER_LR)            return 'LR'
+  else if (value === Options.PARSER_LALR)     return 'LALR'
+  else if (value === Options.PARSER_SLR)      return 'SLR'
+  else if (value === Options.PARSER_LL)       return 'LL'
+  else if (value === Options.PARSER_REC_DESC) return 'RD'
 }
 
 export class Options {

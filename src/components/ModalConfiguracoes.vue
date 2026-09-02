@@ -3,8 +3,8 @@
 import { defineComponent } from 'vue'
 import { projetoStore } from '@/stores/projetoStore'
 import { computed } from 'vue'
-import { Options } from '@/assets/scripts/gals-lib/generator/Options'
-import { langIdToString, scnrIdToString } from '@/assets/scripts/gals-lib/generator/Options'
+import { Options, FORMAT_GALS2003, FORMAT_VGLS } from '@/assets/scripts/gals-lib/generator/Options'
+import { langIdToString, scnrIdToString, formatIdToString, parsIdToString } from '@/assets/scripts/gals-lib/generator/Options'
 
 export default defineComponent({
   name: 'ModalConfiguracoes',
@@ -17,16 +17,28 @@ export default defineComponent({
   data() {
     const store = projetoStore()
     const X =
-      store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.language : -1
+      store.selecionado !== -1
+        ? store.listaProjetos[store.selecionado].optionsGals.language
+        : -1
     const Y =
       store.selecionado !== -1
         ? store.listaProjetos[store.selecionado].optionsGals.scannerTable
         : -1
+    const Z =
+      store.selecionado !== -1
+        ? store.listaProjetos[store.selecionado].projectFormat
+        : -1
+    const W =
+      store.selecionado !== -1
+        ? store.listaProjetos[store.selecionado].optionsGals.parser
+        : -1
     return {
       activeTab: 'Geral',
       namespace: true,
-      lang: store.selecionado !== -1 ? langIdToString(X) : '',
-      scnr: store.selecionado !== -1 ? scnrIdToString(Y) : ''
+      lang: store.selecionado !== -1 ?   langIdToString(X) : '',
+      scnr: store.selecionado !== -1 ?   scnrIdToString(Y) : '',
+      form: store.selecionado !== -1 ? formatIdToString(Z) : '',
+      pars: store.selecionado !== -1 ?   parsIdToString(W) : '',
     }
   },
   setup() {
@@ -52,8 +64,12 @@ export default defineComponent({
       if (store.selecionado == -1) return
       const X = store.listaProjetos[store.selecionado].optionsGals.language
       const Y = store.listaProjetos[store.selecionado].optionsGals.scannerTable
+      const Z = store.listaProjetos[store.selecionado].projectFormat
+      const W = store.listaProjetos[store.selecionado].optionsGals.parser
       this.lang = langIdToString(X)
       this.scnr = scnrIdToString(Y)
+      this.form = formatIdToString(Z)
+      this.pars = parsIdToString(W)
       this.activeTab = 'Geral'
       this.changeTab(this.activeTab)
     }
@@ -62,13 +78,25 @@ export default defineComponent({
     resetShadowStates() {
       const store = projetoStore()
       const X =
-        store.selecionado !== -1 ? store.listaProjetos[store.selecionado].optionsGals.language : -1
+        store.selecionado !== -1
+          ? store.listaProjetos[store.selecionado].optionsGals.language
+          : -1
       const Y =
         store.selecionado !== -1
           ? store.listaProjetos[store.selecionado].optionsGals.scannerTable
           : -1
-      this.lang = store.selecionado !== -1 ? langIdToString(X) : ''
-      this.scnr = store.selecionado !== -1 ? scnrIdToString(Y) : ''
+      const Z =
+        store.selecionado !== -1
+          ? store.listaProjetos[store.selecionado].projectFormat
+          : -1
+      const W =
+        store.selecionado !== -1
+          ? store.listaProjetos[store.selecionado].optionsGals.parser
+          : -1
+      this.lang = store.selecionado !== -1 ?   langIdToString(X) : ''
+      this.scnr = store.selecionado !== -1 ?   scnrIdToString(Y) : ''
+      this.form = store.selecionado !== -1 ? formatIdToString(Z) : ''
+      this.pars = store.selecionado !== -1 ?   parsIdToString(W) : ''
     },
     fecharModal() {
       const modal = document.getElementById('modal__configuracoes')
@@ -109,6 +137,32 @@ export default defineComponent({
         this.scnr = 'Full'
       }
     },
+    formChanged(e: Event) {
+      const form = e.target as HTMLFormElement
+
+      if (form == null) return
+
+      this.form = form.value
+
+      if (this.form === '.gals') {
+        const forme: any = this.$refs.form
+        if (this.lang === 'Python' || this.lang === 'Rust') {
+          forme.linguagem.value = 'Java'
+          this.lang = 'Java';
+        }
+        if (this.pars === 'LR' || this.pars === 'LALR') {
+          forme.parser.value = 'SLR'
+          this.pars = 'SLR'
+        }
+      }
+    },
+    parsChanged(e: Event) {
+      const form = e.target as HTMLFormElement
+
+      if (form == null) return
+
+      this.pars = form.value
+    },
     enviarForms(e: Event) {
       if (e == null) return
       let newOptions = new Options()
@@ -139,6 +193,14 @@ export default defineComponent({
 
       this.projetos[this.selecionado].optionsGals = newOptions
       this.projetos[this.selecionado].options = newOptions.toString()
+
+      if (form.formatoarquivo.value === '.gals')
+      {
+        this.projetos[this.selecionado].projectFormat = FORMAT_GALS2003;
+      } else {
+        this.projetos[this.selecionado].projectFormat = FORMAT_VGLS;
+      }
+
       this.fecharModal()
       this.store.necessarioRecriar = true
       this.$toast.info('Configurações Aplicadas!')
@@ -146,6 +208,7 @@ export default defineComponent({
     preencherModal() {
       const form: any = this.$refs.form
       const opcoes: Options = this.projetos[this.selecionado].optionsGals
+      const formato: number = this.projetos[this.selecionado].projectFormat
 
       if (opcoes.generateScanner && opcoes.generateParser) form.gerar.value = '3'
       else if (opcoes.generateParser) form.gerar.value = '2'
@@ -177,6 +240,13 @@ export default defineComponent({
       else if (Options.PARSER_SLR == opcoes.parser) form.parser.value = 'SLR'
       else if (Options.PARSER_LL == opcoes.parser) form.parser.value = 'LL'
       else if (Options.PARSER_REC_DESC == opcoes.parser) form.parser.value = 'RD'
+
+      if (formato == FORMAT_GALS2003) {
+        form.formatoarquivo.value = '.gals'
+      }
+      else if (formato == FORMAT_VGLS) {
+        form.formatoarquivo.value = '.vgls'
+      }
     }
   }
 })
@@ -232,13 +302,13 @@ export default defineComponent({
             </div>
 
             <div>
-              <input type="radio" id="linguagemPython" name="linguagem" value="Python" />
-              <label for="linguagemPython">Python</label>
+              <input :disabled="form === '.gals'" type="radio" id="linguagemPython" name="linguagem" value="Python" />
+              <label :class="{ disabled__label: form === '.gals' }" for="linguagemPython">Python</label>
             </div>
 
             <div>
-              <input type="radio" id="linguagemRust" name="linguagem" value="Rust" />
-              <label for="linguagemRust">Rust</label>
+              <input :disabled="form === '.gals'" type="radio" id="linguagemRust" name="linguagem" value="Rust" />
+              <label :class="{ disabled__label: form === '.gals' }" for="linguagemRust">Rust</label>
             </div>
 
             <!-- <div>
@@ -315,6 +385,17 @@ export default defineComponent({
               </tbody>
             </table>
           </fieldset>
+          <fieldset id="format" @change="formChanged">
+            <legend>Formato do Projeto</legend>
+            <div>
+              <input type="radio" id="formatoGALS" name="formatoarquivo" value=".gals" checked />
+              <label for="formatoGALS">Formato .gals (GALS 2003)</label>
+            </div>
+            <div>
+              <input type="radio" id="formatoVGLS" name="formatoarquivo" value=".vgls" checked />
+              <label for="formatoVGLS">Formato .vgls (Web GALS)</label>
+            </div>
+          </fieldset>
         </div>
 
         <div v-show="activeTab == 'Léxico'" id="Léxico" class="tabcontent">
@@ -370,7 +451,7 @@ export default defineComponent({
         </div>
 
         <div v-show="activeTab == 'Sintático'" id="Sintático" class="tabcontent">
-          <fieldset>
+          <fieldset @change="parsChanged">
             <legend>Classe do Analisador Sintático</legend>
 
             <fieldset>
@@ -396,13 +477,13 @@ export default defineComponent({
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLALR" name="parser" value="LALR" />
-                <label for="sintaticoLALR">LALR(1) <span style="color: red">*</span></label>
+                <input :disabled="form === '.gals'" type="radio" id="sintaticoLALR" name="parser" value="LALR" />
+                <label :class="{ disabled__label: form === '.gals' }" for="sintaticoLALR">LALR(1) <span style="color: red">*</span></label>
               </div>
 
               <div>
-                <input type="radio" id="sintaticoLRCanonico" name="parser" value="LR" />
-                <label for="sintaticoLRCanonico">LR(1) <span style="color: red">*</span></label>
+                <input :disabled="form === '.gals'" type="radio" id="sintaticoLRCanonico" name="parser" value="LR" />
+                <label :class="{ disabled__label: form === '.gals' }" for="sintaticoLRCanonico">LR(1) <span style="color: red">*</span></label>
               </div>
             </fieldset>
           </fieldset>

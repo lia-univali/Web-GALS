@@ -12,7 +12,7 @@ import {
   syntacticSetTable,
   syntacticTable
 } from '@/assets/scripts/gals-functions'
-import { Options } from '@/assets/scripts/gals-lib/generator/Options'
+import { Options, FORMAT_GALS2003, FORMAT_VGLS } from '@/assets/scripts/gals-lib/generator/Options'
 import ModalConfiguracoes from '@/components/ModalConfiguracoes.vue'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
 
@@ -53,7 +53,8 @@ export default defineComponent({
       store,
       projetos,
       selecionado,
-      buildDate
+      buildDate,
+      FORMAT_GALS2003,
     }
   },
   methods: {
@@ -390,7 +391,7 @@ export default defineComponent({
               class="botao__mudar__projeto"
               v-bind:class="selecionado == projeto.id ? 'selecionado__projeto' : ''"
             >
-              {{ projeto.fileName }}
+              {{ projeto.fileName }}{{ projeto.projectFormat == FORMAT_GALS2003 ? ".gals" : ".vgls" }}
               <span class="projeto__modified" v-if="projeto.dirty">•</span>
             </button>
 

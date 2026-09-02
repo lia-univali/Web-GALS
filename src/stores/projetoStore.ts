@@ -1,4 +1,4 @@
-import { Options } from '@/assets/scripts/gals-lib/generator/Options'
+import { Options, FORMAT_GALS2003, FORMAT_VGLS } from '@/assets/scripts/gals-lib/generator/Options'
 import { defineStore } from 'pinia'
 import { nonTerminalsFromGrammar } from '@/assets/scripts/gals-functions'
 import type { Grammar } from '@/assets/scripts/gals-lib/generator/parser/Grammar'
@@ -18,6 +18,7 @@ export interface Projeto {
   consoleExit: string
   optionsGals: Options
   dirty: boolean
+  projectFormat: number,
 }
 
 export interface Layout {
@@ -31,6 +32,17 @@ export interface Layout {
 
 let linhaProjetoAntigo: string = ''
 let linhaProjetoNovo: string = ''
+
+function storeFrom2To3(j: any) {
+  for (let p of j.listaProjetos) {
+    const i = p.fileName.lastIndexOf('.');
+    if (i != -1) {
+      p.fileName = p.fileName.slice(0, i);
+    }
+    p.projectFormat = FORMAT_VGLS;
+  }
+  j.version = 3;
+}
 
 export const projetoStore = defineStore('projetos', {
   state: () => {
@@ -46,11 +58,11 @@ export const projetoStore = defineStore('projetos', {
     })
 
     return {
-      version: 2,
+      version: 3,
       listaProjetos: [
         {
           id: 0,
-          fileName: 'untitled.gals',
+          fileName: 'untitled',
           options: '',
           regularDefinitions: '',
           tokens: '',
@@ -59,7 +71,8 @@ export const projetoStore = defineStore('projetos', {
           textSimulator: '',
           consoleExit: '',
           optionsGals: new Options(),
-          dirty: false
+          dirty: false,
+          projectFormat: FORMAT_VGLS,
         }
       ] as Projeto[],
       selecionado: 0,
@@ -73,7 +86,7 @@ export const projetoStore = defineStore('projetos', {
       } as Layout,
       necessarioRecriar: true,
       simulationworker: simulationworker,
-      currGrammarLine: 1
+      currGrammarLine: 1,
     }
   },
   getters: {
@@ -87,8 +100,12 @@ export const projetoStore = defineStore('projetos', {
 
       const parsed = JSON.parse(saved)
 
-      if (parsed.version !== 2) {
-        return
+      if (parsed.version === 2) {
+        storeFrom2To3(parsed) ;
+      }
+
+      if (parsed.version !== 3) {
+        return;
       }
 
       parsed.listaProjetos.forEach((p: Projeto) => {

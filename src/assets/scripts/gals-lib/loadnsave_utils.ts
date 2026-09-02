@@ -1,5 +1,5 @@
 import type { Projeto } from '@/stores/projetoStore'
-import { Options } from './generator/Options'
+import { Options, FORMAT_GALS2003, FORMAT_VGLS } from './generator/Options'
 import salvador from '@/assets/scripts/saver'
 import { nonTerminalsFromGrammar } from '@/assets/scripts/gals-functions'
 
@@ -7,6 +7,13 @@ function parseV1(fileName: string, id: number, content: string): Projeto {
   const splitResultado: string[] = content.split(
     /#Options\n|\n#RegularDefinitions\n|\n#Tokens\n|\n#NonTerminals\n|\n#Grammar\n/
   )
+
+  {
+    const idx = fileName.lastIndexOf('.');
+    if (idx != -1) {
+      fileName = fileName.slice(0, idx);
+    }
+  }
 
   const newProject = {
     id,
@@ -35,7 +42,8 @@ function parseV1(fileName: string, id: number, content: string): Projeto {
         ? new Options()
         : new Options().constructorFromString(
             splitResultado[1] == undefined ? '' : splitResultado[1]
-          )
+          ),
+    projectFormat: FORMAT_GALS2003,
   }
 
   return newProject
@@ -48,6 +56,7 @@ function parseV2(fileName: string, id: number, content: string): Projeto {
   let v1proj = parseV1(fileName, id, subcontent)
 
   v1proj.textSimulator = atob(separated[2])
+  v1proj.projectFormat = FORMAT_VGLS
 
   return v1proj
 }
@@ -70,16 +79,6 @@ export function parseFileFromString(fileName: string, id: number, content: strin
         throw new Error(`.vgls versão ${version} não suportado.`)
     }
   } else {
-    //  let namesplit = fileName.split(/\./);
-    //
-    //  if (namesplit[namesplit.length - 1] === "gals")
-    //  {
-    //      fileName = ""
-    //      for (let i = 0; i <= namesplit.length - 2; i++)
-    //        fileName += namesplit[i] + ".";
-    //      fileName += "vgls"
-    //    }
-
     return parseV1(fileName, id, content)
   }
 }
@@ -91,10 +90,13 @@ export function saveFile(project: Projeto) {
   const tokens = project.tokens
   const nonTerminals = project.nonTerminals
   const grammar = project.grammar
+  const format = project.projectFormat
 
   let codigo = ''
 
-  //codigo += "%%%VERSION 2%%%\n"
+  if (format == FORMAT_VGLS) {
+    codigo += "%%%VERSION 2%%%\n"
+  }
 
   codigo += '#Options\n' + (options == undefined ? '' : objOptions.toString()) + '\n'
 
@@ -110,9 +112,12 @@ export function saveFile(project: Projeto) {
 
   codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar) + '\n'
 
-  //codigo += "#SimulatorText\n" + btoa(project.textSimulator)
+  if (format == FORMAT_VGLS) {
+    codigo += "#SimulatorText\n" + btoa(project.textSimulator)
+  }
 
-  salvador.download(codigo, project.fileName, '.gals')
+  const filefmt = format == FORMAT_VGLS ? '.vgls' : '.gals';
+  salvador.download(codigo, project.fileName + filefmt, filefmt)
 
   project.dirty = false
 }
