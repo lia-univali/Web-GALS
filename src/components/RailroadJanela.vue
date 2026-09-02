@@ -21,7 +21,12 @@ import {
 export default defineComponent({
   name: 'AreaCodigo',
   mounted() {
-    this.regenerateDiagram()
+    if (this.selecionado == -1) {
+      this.prodName = 'ε'
+      this.producaoFalha = true
+      return
+    }
+    this.attemptTwiceRegenerateDiagram()
   },
   setup() {
     const store = projetoStore()
@@ -39,14 +44,23 @@ export default defineComponent({
     })
 
     const grammarTexto = computed(() => {
+      if (store.selecionado == -1) {
+        return undefined;
+      }
       return store.listaProjetos[store.selecionado].grammar
     })
 
     const regularDefinitions = computed(() => {
+      if (store.selecionado == -1) {
+        return undefined;
+      }
       return store.listaProjetos[store.selecionado].regularDefinitions
     })
 
     const tokens = computed(() => {
+      if (store.selecionado == -1) {
+        return undefined;
+      }
       return store.listaProjetos[store.selecionado].tokens
     })
 
@@ -91,6 +105,11 @@ export default defineComponent({
   },
   methods: {
     attemptTwiceRegenerateDiagram() {
+      if (this.selecionado == -1) {
+        this.prodName = 'ε'
+        this.producaoFalha = true
+        return
+      }
       if (this.faDirty == true) {
         try {
           this.regenerateDiagram()
@@ -170,10 +189,8 @@ export default defineComponent({
       let g
       try {
         g = this.generateGrammarObj();
-      } catch (_error) {
-        this.prodName = 'ε'
-        this.producaoFalha = true
-        return
+      } catch (error) {
+        throw error;
       }
 
       let d
