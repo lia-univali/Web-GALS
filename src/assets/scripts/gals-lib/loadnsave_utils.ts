@@ -61,6 +61,20 @@ function parseV2(fileName: string, id: number, content: string): Projeto {
   return v1proj
 }
 
+function parseV3(fileName: string, id: number, content: string): Projeto {
+  const separated = content.split(/%%%VERSION [0-9]+%%%\n|#SimulatorText|#ExtendedOptions/)
+  const subcontent = separated[1]
+
+  let v1proj = parseV1(fileName, id, subcontent)
+
+  v1proj.textSimulator = atob(separated[2])
+  v1proj.projectFormat = FORMAT_VGLS
+
+  v1proj.optionsGals.expandFromString(separated[3])
+
+  return v1proj
+}
+
 function getVersion(content: string): number {
   return parseInt(content.split(/%%%VERSION|%%%/)[1])
 }
@@ -75,6 +89,8 @@ export function parseFileFromString(fileName: string, id: number, content: strin
         throw new Error(`.gals não deve ter cabeçalho de versão`)
       case 2:
         return parseV2(fileName, id, content)
+      case 3:
+        return parseV3(fileName, id, content)
       default:
         throw new Error(`.vgls versão ${version} não suportado.`)
     }
@@ -95,7 +111,7 @@ export function saveFile(project: Projeto) {
   let codigo = ''
 
   if (format == FORMAT_VGLS) {
-    codigo += "%%%VERSION 2%%%\n"
+    codigo += "%%%VERSION 3%%%\n"
   }
 
   codigo += '#Options\n' + (options == undefined ? '' : objOptions.toString()) + '\n'
@@ -113,7 +129,8 @@ export function saveFile(project: Projeto) {
   codigo += '#Grammar\n' + (grammar == undefined ? '' : grammar) + '\n'
 
   if (format == FORMAT_VGLS) {
-    codigo += "#SimulatorText\n" + btoa(project.textSimulator)
+    codigo += "#SimulatorText\n" + btoa(project.textSimulator) + "\n"
+    codigo += "#ExtendedOptions\n" + objOptions.extendedToString() + "\n"
   }
 
   const filefmt = format == FORMAT_VGLS ? '.vgls' : '.gals';

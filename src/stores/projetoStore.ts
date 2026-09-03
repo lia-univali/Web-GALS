@@ -18,7 +18,7 @@ export interface Projeto {
   consoleExit: string
   optionsGals: Options
   dirty: boolean
-  projectFormat: number,
+  projectFormat: number
 }
 
 export interface Layout {
@@ -44,6 +44,13 @@ function storeFrom2To3(j: any) {
   j.version = 3;
 }
 
+function storeFrom3To4(j: any) {
+  for (let p of j.listaProjetos) {
+    p.optionsGals.useASTLib = false;
+  }
+  j.version = 4;
+}
+
 export const projetoStore = defineStore('projetos', {
   state: () => {
     const simulationworker = new Worker(new URL('@/workers/simulation.worker.ts', import.meta.url), {
@@ -58,7 +65,7 @@ export const projetoStore = defineStore('projetos', {
     })
 
     return {
-      version: 3,
+      version: 4,
       listaProjetos: [
         {
           id: 0,
@@ -104,7 +111,11 @@ export const projetoStore = defineStore('projetos', {
         storeFrom2To3(parsed) ;
       }
 
-      if (parsed.version !== 3) {
+      if (parsed.version === 3) {
+        storeFrom3To4(parsed);
+      }
+
+      if (parsed.version !== 4) {
         return;
       }
 
