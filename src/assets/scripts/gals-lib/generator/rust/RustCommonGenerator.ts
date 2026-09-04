@@ -48,6 +48,7 @@ pub mod constants;
 ${options.generateScanner ? `pub mod scanner;` : ''}
 ${options.generateParser ? `pub mod parser;` : ''}
 ${options.generateParser ? `pub mod codegen;` : ''}
+${options.generateParser && options.useASTLib ? `mod node;` : ''}
 `
     )
   }
@@ -80,6 +81,7 @@ mod token;
 ${options.generateScanner ? `mod scanner;` : ''}
 ${options.generateParser ? `mod parser;` : ''}
 ${options.generateParser ? `mod codegen;` : ''}
+${options.generateParser && options.useASTLib ? `mod node;` : ''}
 `
     : `
 mod ${options.pkgName};
@@ -100,12 +102,19 @@ ${
     ${options.generateParser ? `let syn = ${parsername}::new(lex, sem);` : ''}
 
     ${
-      options.generateParser
+      options.generateParser && options.useASTLib == false
         ? `if let Err(e) = syn.parse() {
         eprintln!("{e}");
     }`
         : ''
     }
+${options.generateParser && options.useASTLib == true ?
+`    match syn.parse() {
+      Ok(tree) => tree.print_tree(0),
+      Err(e) => eprintln!("{e}"),
+    }
+` :
+''}
 }
 
 `
@@ -136,7 +145,7 @@ num-traits = "0.2.19"
       `
 use crate::${pkgpath}constants::TokenId;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Token {
     id: TokenId,
     lexeme: String,
@@ -257,8 +266,38 @@ impl Error for AnalysisError {}
       '\tDOLLAR  = 1,\n' +
       this.constList(fa, g) +
       (options.generateScanner ? this.lexDecls(fa, options) : '') +
-      (options.generateParser ? await this.syntDecls(g, options) : '')
+      (options.generateParser ? await this.syntDecls(g, options) : '') +
+      (options.useASTLib ? this.nontermsDecls(g) : '')
     )
+  }
+
+  private nontermsDecls(g: Grammar): string {
+    let res: string[] = [];
+
+    res.push("#[allow(nonstandard_style)]\n")
+    res.push("#[derive(Debug)]\n")
+    res.push("pub enum NonTerm {\n")
+    res.push("    EPSILON,")
+
+    for (let i = 0; i < g.nonTerminals.length; i++) {
+      const nt = g.nonTerminals[i];
+      res.push(`    nt_${nt.slice(1, -1)},\n`)
+    }
+
+    res.push("}\n")
+
+    res.push("\nimpl From<i32> for NonTerm {\n")
+    res.push("    fn from(value: i32) -> Self {\n")
+    res.push("        match value {\n")
+    for (let i = 0; i < g.nonTerminals.length; i++) {
+      const nt = g.nonTerminals[i];
+      const j = i + g.FIRST_NON_TERMINAL;
+      res.push(`            ${j} => NonTerm::nt_${nt.slice(1, -1)},\n`)
+    }
+    res.push("            _ => panic!(\"invalid nonterminal\")\n")
+    res.push("        }\n    }\n}\n")
+
+    return res.join('');
   }
 
   private constList(fa: FiniteAutomata, g: Grammar): string {
@@ -605,6 +644,7 @@ impl Error for AnalysisError {}
 
     let result = ''
 
+    result += "#[rustfmt::skip]\n"
     result += `pub const PARSER_TABLE: [[(SLRAction, i32); ${this.lrTable[0].length}]; ${this.lrTable.length}] = [\n`
 
     let max = this.lrTable.length

@@ -14,10 +14,65 @@ export class RustParserGenerator {
       if (g != null) {
         result.set(`src/${pkgpath}parser.rs`, await this.parser(g, options))
         result.set(`src/${pkgpath}codegen.rs`, this.semantic(options))
+
+        if (options.useASTLib == true) {
+          result.set(`src/${pkgpath}node.rs`, this.node(g, options))
+        }
       }
     }
 
     return result
+  }
+
+  private node(g: Grammar, options: Options) {
+    let pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
+    let res: string[] = [];
+
+    res.push(`use crate::${pkgpath}{constants::NonTerm, token::Token};\n`);
+    res.push("pub type NodeTransform = fn(&mut Box<Node>);\n\n");
+
+    res.push("#[derive(Debug)]\n");
+    res.push("pub enum NodeKind {\n");
+    res.push("    Terminal(Token),\n");
+    res.push("    NonTerminal(NonTerm),\n");
+    res.push("    SemanticAction(i32),\n");
+    res.push("}\n\n");
+
+    res.push("impl Default for NodeKind {\n");
+    res.push("    fn default() -> Self {\n");
+    res.push("        NodeKind::NonTerminal(NonTerm::EPSILON)\n");
+    res.push("    }\n");
+    res.push("}\n\n");
+
+    res.push("#[derive(Default)]\n");
+    res.push("pub struct Node {\n");
+    res.push("    kind: NodeKind,\n");
+    res.push("    children: Vec<Box<Node>>,\n");
+    res.push("}\n\n");
+
+    res.push("impl Node {\n");
+    res.push("    pub fn new(kind: NodeKind) -> Box<Self> {\n");
+    res.push("        Box::new(Self {\n");
+    res.push("            kind,\n");
+    res.push("            children: Vec::new(),\n");
+    res.push("        })\n");
+    res.push("    }\n");
+    res.push("    pub fn cpush(&mut self, c: Box<Node>) {\n");
+    res.push("        self.children.push(c);\n");
+    res.push("    }\n");
+    res.push("    pub fn morph(&mut self, nkind: NodeKind) {\n");
+    res.push("        self.kind = nkind;\n");
+    res.push("    }\n");
+    res.push("    pub fn invert_children(&mut self) {\n");
+    res.push("        self.children.reverse();\n");
+    res.push("    }\n");
+    res.push("    pub fn print_tree(&self, depth: usize) {\n");
+    res.push("        println!(\"{} {:?}\", \" \".repeat(depth * 4),self.kind);\n");
+    res.push("        self.children.iter().for_each(|n| n.print_tree(depth + 1));\n");
+    res.push("    }\n");
+    res.push("}\n");
+
+    return res.join('');
   }
 
   private semantic(options: Options): string {
@@ -67,12 +122,15 @@ use crate::${pkgpath}{
     codegen::${options.semanticName}, constants::*, errors::AnalysisError, scanner::${options.scannerName}, token::Token,
 };
 
+${options.useASTLib ? `use crate::${pkgpath}node::{Node, NodeKind};` : ''}
+
 pub struct ${name}${stringmd ? `` : `<T: Read + Seek>`} {
     previous_token: Option<Token>,
     current_token: Option<Token>,
     stack: Vec<u32>,
     scanner: ${options.scannerName}${stringmd ? '' : '<T>'},
     semantic: ${options.semanticName},
+    ${options.useASTLib ? "forest: Vec<Box<Node>>," : ''}
 }
 
 enum SyntaxParsingState {
@@ -89,10 +147,11 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${name}${stringmd ? '' : '<T>'} {
             stack: Vec::new(),
             scanner,
             semantic,
+            ${options.useASTLib ? "forest: Vec::new()," : ''}
         }
     }
 
-    pub fn parse(mut self) -> Result<(), AnalysisError> {
+    ${options.useASTLib ? "pub fn parse(mut self) -> Result<Box<Node>, AnalysisError>" : "pub fn parse(mut self) -> Result<(), AnalysisError>" } {
         self.stack.push(0);
         self.previous_token = None;
 
@@ -103,7 +162,14 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${name}${stringmd ? '' : '<T>'} {
 
         loop {
             match self.step() {
-                SyntaxParsingState::Accept => return Ok(()),
+${options.useASTLib ?
+`                SyntaxParsingState::Accept => {
+                    let mut res = Box::default();
+                    std::mem::swap(&mut res, &mut self.forest[0]);
+                    return Ok(res);
+                }
+`
+:`               SyntaxParsingState::Accept => return Ok(()),`}
                 SyntaxParsingState::Reject(err) => return Err(err),
                 SyntaxParsingState::Continue => {}
             }
@@ -128,6 +194,15 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${name}${stringmd ? '' : '<T>'} {
         match cmd.0 {
             SLRAction::SHIFT => {
                 self.stack.push(cmd.1 as u32);
+
+${options.useASTLib ?
+`                self.forest.push(Node::new(NodeKind::Terminal(
+                    self.current_token.clone().unwrap()
+                )));
+`
+:
+''}
+
                 self.previous_token = self.current_token.take();
 
                 match self.scanner.next_token() {
@@ -142,19 +217,44 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${name}${stringmd ? '' : '<T>'} {
             }
             SLRAction::REDUCE => {
                 let prod = PRODUCTIONS[cmd.1 as usize];
+
+${options.useASTLib ?
+`                let mut node = Node::new(NodeKind::NonTerminal(NonTerm::EPSILON));
+`
+:''}
+
                 for _ in 0..prod.1 {
+${options.useASTLib ?
+`                    node.cpush(self.forest.pop().expect("insufficient trees"));
+`
+:''}
                     self.stack.pop();
                 }
+
+${options.useASTLib ?
+`                node.invert_children();
+`
+:''}
 
                 let oldstate = *self.stack.last().expect("oldstate") as usize;
 
                 self.stack
                     .push(PARSER_TABLE[oldstate][(prod.0 - 1) as usize].1 as u32);
 
+${options.useASTLib ?
+`                node.morph(NodeKind::NonTerminal(NonTerm::from(prod.0)));
+                self.forest.push(node);
+`
+:''}
+
                 Continue
             }
             SLRAction::ACTION => {
                 let action = FIRST_SEMANTIC_ACTION + cmd.1 - 1;
+${options.useASTLib ?
+`                self.forest
+                    .push(Node::new(NodeKind::SemanticAction(cmd.1 - 1)));
+`: ''}
                 self.stack
                     .push(PARSER_TABLE[state][action as usize].1 as u32);
                 let res = self
@@ -166,7 +266,12 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${name}${stringmd ? '' : '<T>'} {
                     Continue
                 }
             }
-            SLRAction::ACCEPT => Accept,
+${options.useASTLib ?
+`            SLRAction::ACCEPT => {
+               assert_eq!(self.forest.len(), 1);
+               Accept
+            },`
+:`            SLRAction::ACCEPT => Accept,`}
             SLRAction::GO_TO => unimplemented!(),
             SLRAction::ERROR => Reject(AnalysisError::syntatic(
                 PARSER_ERROR[state].into(),
