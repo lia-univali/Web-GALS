@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-535b33ed.js";
+            window.path_to_searchindex_js = "searchindex-d9df109e.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -220,6 +220,18 @@ Para Python e Rust é possível especificar o <em>module</em> das classes, onde 
 <p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
 <p>Não foi implementado para Delphi suporte para o sistema de nomeamento de hierarquia (namespace).</p>
 </blockquote>
+<h4 id="modal---formato-do-projeto"><a class="header" href="#modal---formato-do-projeto">Modal - Formato do Projeto</a></h4>
+<!--
+O Web GALS é compativel com o GALS 2003 até certo ponto, porém todas as novas funcionalidades adicionadas ao Web GALS que não existem no GALS 2003 irão
+inevitavelmente gerar incompatibilidades, por isso, é oferecido a opção de gerar um projeto estritamente compatível com o GALS 2003, onde as
+novas funcionalidades são desabilitadas.
+-->
+<p>O Web GALS é compativel com o GALS 2003 até certo ponto: todas as novas funcionalidades irão inevitavelmente gerar incompatibilidades e,
+por isso, é oferecido a opção de gerar um projeto estritamente compatível com a versão antiga, onde as novas funcionalidades estão desabilitadas.</p>
+<ul>
+<li><strong>Formato <code>.gals</code> – (GALS 2003)</strong>: Python e Rust desativados; LR(1)-Canônico e LALR(1) desativados; não salva o conteúdo da janela de simulação.</li>
+<li><strong>Formato <code>.vgls</code> – (Web GALS)</strong>: Suporte completo.</li>
+</ul>
 <h2 id="opções-do-analisador-léxico"><a class="header" href="#opções-do-analisador-léxico">Opções do Analisador Léxico</a></h2>
 <p>A aba de opções do analisador léxico permite o usuário configurar a forma de entrada e a implementação do autômato de reconhecimento léxico.</p>
 <center><img src="./confl.png" alt="Diálogo da Configurações Léxicas"></center>
