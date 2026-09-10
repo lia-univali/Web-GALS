@@ -28,6 +28,7 @@ export class RustParserGenerator {
     let pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
     let res: string[] = [];
 
+    res.push("use std::fmt::Display;");
     res.push(`use crate::${pkgpath}{constants::NonTerm, token::Token};\n`);
     res.push("pub type NodeTransform = fn(&mut Box<Node>);\n\n");
 
@@ -36,6 +37,18 @@ export class RustParserGenerator {
     res.push("    Terminal(Token),\n");
     res.push("    NonTerminal(NonTerm),\n");
     res.push("    SemanticAction(i32),\n");
+    res.push("}\n\n");
+
+    res.push("impl Display for NodeKind {\n");
+    res.push("    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {\n");
+    res.push("        match self {\n");
+    res.push("            NodeKind::Terminal(token) => {\n");
+    res.push("                write!(f, \"{:?} : \\\"{}\\\" \", token.get_id(), token.get_lexeme())\n");
+    res.push("            }\n");
+    res.push("            NodeKind::NonTerminal(non_term) => write!(f, \"<{:?}>\", *non_term),\n");
+    res.push("            NodeKind::SemanticAction(n) => write!(f, \"#{}\", *n)\n");
+    res.push("        }\n");
+    res.push("    }\n");
     res.push("}\n\n");
 
     res.push("impl Default for NodeKind {\n");
@@ -67,7 +80,7 @@ export class RustParserGenerator {
     res.push("        self.children.reverse();\n");
     res.push("    }\n");
     res.push("    pub fn print_tree(&self, depth: usize) {\n");
-    res.push("        println!(\"{} {:?}\", \" \".repeat(depth * 4),self.kind);\n");
+    res.push("        println!(\"{} {}\", \" \".repeat(depth * 4),self.kind);\n");
     res.push("        self.children.iter().for_each(|n| n.print_tree(depth + 1));\n");
     res.push("    }\n");
     res.push("}\n");
