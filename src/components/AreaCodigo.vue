@@ -296,12 +296,10 @@ export default defineComponent({
         ref="simulatorEditor"
         :key="`sim-${selecionado}`"
         v-model="projetos[selecionado].textSimulator"
-        @change="store.verificaNecessarioRecriar"
         :extensions="extensionsDefault"
         :disabled="selecionado == -1"
         class="texto__codigo"
-        @ready="onSimulatorReady"
-      />
+        @ready="onSimulatorReady"/>
     </div>
   </div>
 </template>
