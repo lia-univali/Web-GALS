@@ -28,15 +28,53 @@ export class RustParserGenerator {
     let pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
     let res: string[] = [];
 
-    res.push("use std::fmt::Display;");
-    res.push(`use crate::${pkgpath}{constants::NonTerm, token::Token};\n`);
-    res.push("pub type NodeTransform = fn(&mut Box<Node>);\n\n");
+    res.push("use std::fmt::Display;\n");
+    res.push(`use crate::${pkgpath}{codegen::CustomNode, constants::NonTerm, token::Token};\n`);
 
-    res.push("#[derive(Debug)]\n");
+    res.push("#[allow(unused)]\n");
+    res.push("#[derive(Debug, Clone)]\n");
     res.push("pub enum NodeKind {\n");
     res.push("    Terminal(Token),\n");
     res.push("    NonTerminal(NonTerm),\n");
     res.push("    SemanticAction(i32),\n");
+    res.push("    Custom(CustomNode),\n");
+    res.push("}\n\n");
+
+    res.push("#[allow(unused)]\n");
+    res.push("impl NodeKind {\n");
+    res.push("    pub fn as_terminal(&self) -> &Token {\n");
+    res.push("        match self {\n");
+    res.push("            NodeKind::Terminal(token) => token,\n");
+    res.push("            _ => panic!(),\n");
+    res.push("        }\n");
+    res.push("    }\n");
+    res.push("    pub fn as_nonterminal(&self) -> &NonTerm {\n");
+    res.push("        match self {\n");
+    res.push("            NodeKind::NonTerminal(non_term) => non_term,\n");
+    res.push("            _ => panic!(),\n");
+    res.push("        }\n");
+    res.push("    }\n");
+    res.push("    pub fn as_semanticaction(&self) -> &i32 {\n");
+    res.push("        match self {\n");
+    res.push("            NodeKind::SemanticAction(n) => n,\n");
+    res.push("            _ => panic!()\n");
+    res.push("        }\n");
+    res.push("    }\n");
+    res.push("    pub fn as_custom(&self) -> &CustomNode {\n");
+    res.push("        match self {\n");
+    res.push("            NodeKind::Custom(cn) => cn,\n");
+    res.push("            _ => panic!()\n");
+    res.push("        }\n");
+    res.push("    }\n");
+    res.push("    pub fn is_similar(&self, rhs: &NodeKind) -> bool {\n");
+    res.push("        match (self, rhs) {\n");
+    res.push("            (NodeKind::Terminal(a), NodeKind::Terminal(b)) => a.get_id() == b.get_id(),\n");
+    res.push("            (NodeKind::NonTerminal(a), NodeKind::NonTerminal(b)) => *a == *b,\n");
+    res.push("            (NodeKind::SemanticAction(a), NodeKind::SemanticAction(b)) => *a == *b,\n");
+    res.push("            (NodeKind::Custom(a), NodeKind::Custom(b)) => *a == *b,\n");
+    res.push("            _ => false,\n");
+    res.push("        }\n");
+    res.push("    }\n");
     res.push("}\n\n");
 
     res.push("impl Display for NodeKind {\n");
@@ -46,7 +84,8 @@ export class RustParserGenerator {
     res.push("                write!(f, \"{:?} : \\\"{}\\\" \", token.get_id(), token.get_lexeme())\n");
     res.push("            }\n");
     res.push("            NodeKind::NonTerminal(non_term) => write!(f, \"<{:?}>\", *non_term),\n");
-    res.push("            NodeKind::SemanticAction(n) => write!(f, \"#{}\", *n)\n");
+    res.push("            NodeKind::SemanticAction(n) => write!(f, \"#{}\", *n),\n");
+    res.push("            NodeKind::Custom(c) => write!(f, \"{}\", *c),");
     res.push("        }\n");
     res.push("    }\n");
     res.push("}\n\n");
@@ -57,12 +96,13 @@ export class RustParserGenerator {
     res.push("    }\n");
     res.push("}\n\n");
 
-    res.push("#[derive(Default)]\n");
+    res.push("#[derive(Default, Clone, Debug)]\n");
     res.push("pub struct Node {\n");
     res.push("    kind: NodeKind,\n");
     res.push("    children: Vec<Box<Node>>,\n");
     res.push("}\n\n");
 
+    res.push("#[allow(unused)]\n")
     res.push("impl Node {\n");
     res.push("    pub fn new(kind: NodeKind) -> Box<Self> {\n");
     res.push("        Box::new(Self {\n");
@@ -70,19 +110,171 @@ export class RustParserGenerator {
     res.push("            children: Vec::new(),\n");
     res.push("        })\n");
     res.push("    }\n");
+    res.push("    pub fn get_kind_mut(&mut self) -> &mut NodeKind {\n");
+    res.push("        &mut self.kind\n");
+    res.push("    }\n");
+    res.push("    pub fn get_kind(&self) -> &NodeKind {\n");
+    res.push("        &self.kind\n");
+    res.push("    }\n");
+    res.push("    pub fn ccount(&self) -> usize {\n");
+    res.push("        self.children.len()\n");
+    res.push("    }\n");
     res.push("    pub fn cpush(&mut self, c: Box<Node>) {\n");
     res.push("        self.children.push(c);\n");
     res.push("    }\n");
     res.push("    pub fn morph(&mut self, nkind: NodeKind) {\n");
     res.push("        self.kind = nkind;\n");
     res.push("    }\n");
+    res.push("    pub fn follow(&self, whre: usize) -> Option<&Box<Node>> {\n");
+    res.push("        self.children.get(whre)\n");
+    res.push("    }\n");
+    res.push("    pub fn follow_mut(&mut self, whre: usize) -> Option<&mut Box<Node>> {\n");
+    res.push("        self.children.get_mut(whre)\n");
+    res.push("    }\n");
+    res.push("    pub fn kidnap(&mut self, which: usize) -> Box<Node> {\n");
+    res.push("        self.children.swap_remove(which)\n");
+    res.push("    }\n");
+    res.push("    pub fn transform<F>(self: &mut Box<Self>, t: &mut F)\n");
+    res.push("    where\n");
+    res.push("        F: FnMut(&mut Box<Self>),\n");
+    res.push("    {\n");
+    res.push("        self.children.iter_mut().for_each(|c| c.transform(t));\n");
+    res.push("        t(self);\n");
+    res.push("    }\n");
+    res.push("    pub fn transform_bfs<F>(self: &mut Box<Self>, t: &mut F)\n");
+    res.push("    where\n");
+    res.push("        F: FnMut(&mut Box<Self>),\n");
+    res.push("    {\n");
+    res.push("        t(self);\n");
+    res.push("        self.children.iter_mut().for_each(|c| c.transform_bfs(t));\n");
+    res.push("    }\n");
+    res.push("    pub fn transform_dual<F>(self: &mut Box<Self>, t: &mut F)\n");
+    res.push("    where\n");
+    res.push("        F: FnMut(&mut Box<Self>, bool),\n");
+    res.push("    {\n");
+    res.push("        t(self, false);\n");
+    res.push("        self.children.iter_mut().for_each(|c| c.transform_dual(t));\n");
+    res.push("        t(self, true);\n");
+    res.push("    }\n");
     res.push("    pub fn invert_children(&mut self) {\n");
     res.push("        self.children.reverse();\n");
     res.push("    }\n");
     res.push("    pub fn print_tree(&self, depth: usize) {\n");
-    res.push("        println!(\"{} {}\", \" \".repeat(depth * 4),self.kind);\n");
+    res.push("        println!(\"{} {}\", \" \".repeat(depth * 4), self.kind);\n");
     res.push("        self.children.iter().for_each(|n| n.print_tree(depth + 1));\n");
+    res.push("    }\n\n");
+    res.push("    //---\n\n");
+    res.push("    pub fn assimilate(self: &mut Box<Self>, newkind: NodeKind, similars: &[NodeKind]) {\n");
+    res.push("        self.transform(&mut |n| {\n");
+    res.push("            for similar in similars {\n");
+    res.push("                if n.get_kind().is_similar(similar) {\n");
+    res.push("                    n.morph(newkind.clone());\n");
+    res.push("                    break;\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("        });\n");
     res.push("    }\n");
+    res.push("    pub fn squash(self: &mut Box<Self>, target: NodeKind) {\n");
+    res.push("        self.transform(&mut |n| {\n");
+    res.push("            if n.get_kind().is_similar(&target) {\n");
+    res.push("                if n.ccount() == 1 {\n");
+    res.push("                    if n.follow(0).unwrap().get_kind().is_similar(n.get_kind()) {\n");
+    res.push("                        *n = n.kidnap(0);\n");
+    res.push("                    }\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("    pub fn filter(self: &mut Box<Self>, target: NodeKind, removelist: &[NodeKind]) {\n");
+    res.push("        self.transform(&mut |n| {\n");
+    res.push("            if n.get_kind().is_similar(&target) {\n");
+    res.push("                n.children.retain(|node| {\n");
+    res.push("                    for ri in removelist {\n");
+    res.push("                        if node.get_kind().is_similar(ri) {\n");
+    res.push("                            return false;\n");
+    res.push("                        }\n");
+    res.push("                    }\n");
+    res.push("                    return true;\n");
+    res.push("                });\n");
+    res.push("            }\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("    pub fn flatten(self: &mut Box<Self>, target: NodeKind) {\n");
+    res.push("        self.transform(&mut |n| {\n");
+    res.push("            n.children = n\n");
+    res.push("                .children\n");
+    res.push("                .iter_mut()\n");
+    res.push("                .flat_map(|child| {\n");
+    res.push("                    if child.get_kind().is_similar(&target) {\n");
+    res.push("                        let mut new = Vec::default();\n");
+    res.push("                        std::mem::swap(&mut child.children, &mut new);\n");
+    res.push("                        new\n");
+    res.push("                    } else {\n");
+    res.push("                        let mut new = Box::default();\n");
+    res.push("                        std::mem::swap(child, &mut new);\n");
+    res.push("                        vec![new]\n");
+    res.push("                    }\n");
+    res.push("                })\n");
+    res.push("                .collect();\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("    pub fn enlistify(self: &mut Box<Self>, target: NodeKind) {\n");
+    res.push("        self.transform(&mut |n| {\n");
+    res.push("            if n.get_kind().is_similar(&target) {\n");
+    res.push("                if let Some(c) = n.children.last() {\n");
+    res.push("                    if c.get_kind().is_similar(&target) {\n");
+    res.push("                        n.children = n\n");
+    res.push("                            .children\n");
+    res.push("                            .iter_mut()\n");
+    res.push("                            .flat_map(|kinder| {\n");
+    res.push("                                if kinder.get_kind().is_similar(&target) {\n");
+    res.push("                                    let mut new = Vec::default();\n");
+    res.push("                                    std::mem::swap(&mut kinder.children, &mut new);\n");
+    res.push("                                    new\n");
+    res.push("                                } else {\n");
+    res.push("                                    let mut new = Box::default();\n");
+    res.push("                                    std::mem::swap(kinder, &mut new);\n");
+    res.push("                                    vec![new]\n");
+    res.push("                                }\n");
+    res.push("                            })\n");
+    res.push("                            .collect();\n");
+    res.push("                    }\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("    pub fn raise(self: &mut Box<Self>, targetdest: NodeKind, targetsrc: NodeKind) {\n");
+    res.push("        self.transform(&mut |n| {\n");
+    res.push("            n.children = n\n");
+    res.push("                .children\n");
+    res.push("                .iter_mut()\n");
+    res.push("                .flat_map(|m| {\n");
+    res.push("                    if m.get_kind().is_similar(&targetdest) {\n");
+    res.push("                        let mut risen = vec![];\n");
+    res.push("                        m.children.retain_mut(|k| {\n");
+    res.push("                            if k.get_kind().is_similar(&targetsrc) {\n");
+    res.push("                                let mut new = Box::default();\n");
+    res.push("                                std::mem::swap(k, &mut new);\n");
+    res.push("                                risen.push(new);\n");
+    res.push("                                return false;\n");
+    res.push("                            } else {\n");
+    res.push("                                return true;\n");
+    res.push("                            }\n");
+    res.push("                        });\n");
+    res.push("                        let mut new = Box::default();\n");
+    res.push("                        std::mem::swap(m, &mut new);\n");
+    res.push("                        let mut res = vec![new];\n");
+    res.push("                        res.append(&mut risen);\n");
+    res.push("                        res\n");
+    res.push("                    } else {\n");
+    res.push("                        let mut new = Box::default();\n");
+    res.push("                        std::mem::swap(m, &mut new);\n");
+    res.push("                        vec![new]\n");
+    res.push("                    }\n");
+    res.push("                })\n");
+    res.push("                .collect();\n");
+    res.push("        });\n");
+    res.push("    }\n")
     res.push("}\n");
 
     return res.join('');
@@ -91,10 +283,11 @@ export class RustParserGenerator {
   private semantic(options: Options): string {
     const name = options.semanticName
     const pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
-    return (
-      '' +
-      `
+
+    const res1 = '' +
+`
 use crate::${pkgpath}{errors::AnalysisError, token::Token};
+${options.useASTLib == true ? "use std::fmt::Display;": ''}
 
 pub struct ${name} {}
 
@@ -107,8 +300,26 @@ impl ${name} {
         Ok(())
     }
 }
-`
-    )
+`;
+    let res2: string[] = [];
+
+    if (options.useASTLib == true) {
+      res2.push("\n#[derive(Debug, Clone, PartialEq)]\n");
+      res2.push("pub struct CustomNode {}\n\n");
+      res2.push("#[allow(unused)]\n");
+      res2.push("impl CustomNode {\n");
+      res2.push("    pub fn new() -> Self {\n");
+      res2.push("        CustomNode {}\n");
+      res2.push("    }\n");
+      res2.push("}\n\n");
+      res2.push("impl Display for CustomNode {\n");
+      res2.push("    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {\n")
+      res2.push("        write!(f, \"(custom)\")\n");
+      res2.push("    }\n")
+      res2.push("}\n");
+    }
+
+    return res1 + res2.join('');
   }
 
   private async parser(g: Grammar, options: Options): Promise<string> {

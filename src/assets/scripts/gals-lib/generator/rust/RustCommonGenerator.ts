@@ -48,7 +48,7 @@ pub mod constants;
 ${options.generateScanner ? `pub mod scanner;` : ''}
 ${options.generateParser ? `pub mod parser;` : ''}
 ${options.generateParser ? `pub mod codegen;` : ''}
-${options.generateParser && options.useASTLib ? `mod node;` : ''}
+${options.generateParser && options.useASTLib ? `pub mod node;` : ''}
 `
     )
   }
@@ -152,6 +152,7 @@ pub struct Token {
     position: usize,
 }
 
+#[allow(unused)]
 impl Token {
     pub fn new(id: TokenId, lexeme: String, position: usize) -> Self {
         Token {
@@ -160,6 +161,14 @@ impl Token {
             position,
         }
     }
+    pub fn new_dummy(id: TokenId) -> Self {
+        Token {
+            id,
+            lexeme: String::default(),
+            position: 0,
+        }
+    }
+
     pub fn get_id(&self) -> TokenId {
         self.id
     }
@@ -275,7 +284,7 @@ impl Error for AnalysisError {}
     let res: string[] = [];
 
     res.push("#[allow(nonstandard_style)]\n")
-    res.push("#[derive(Debug)]\n")
+    res.push("#[derive(Debug, PartialEq, Eq, Clone, Copy)]\n")
     res.push("pub enum NonTerm {\n")
     res.push("    EPSILON,")
 
