@@ -29,7 +29,7 @@ export class RustParserGenerator {
     let res: string[] = [];
 
     res.push("use std::fmt::Display;\n");
-    res.push(`use crate::${pkgpath}{codegen::CustomNode, constants::NonTerm, token::Token};\n`);
+    res.push(`use crate::${pkgpath}{errors::AnalysisError, codegen::CustomNode, constants::NonTerm, token::Token};\n`);
 
     res.push("#[allow(unused)]\n");
     res.push("#[derive(Debug, Clone)]\n");
@@ -100,6 +100,7 @@ export class RustParserGenerator {
     res.push("pub struct Node {\n");
     res.push("    kind: NodeKind,\n");
     res.push("    children: Vec<Box<Node>>,\n");
+    res.push("    actionlex: Option<Token>,\n");
     res.push("}\n\n");
 
     res.push("#[allow(unused)]\n")
@@ -108,7 +109,21 @@ export class RustParserGenerator {
     res.push("        Box::new(Self {\n");
     res.push("            kind,\n");
     res.push("            children: Vec::new(),\n");
+    res.push("            actionlex: None,\n");
     res.push("        })\n");
+    res.push("    }\n");
+    res.push("    pub fn new_action(kind: NodeKind, actionlex: Token) -> Box<Self> {\n");
+    res.push("        Box::new(Self {\n");
+    res.push("            kind,\n");
+    res.push("            children: Vec::new(),\n");
+    res.push("            actionlex: Some(actionlex),\n");
+    res.push("        })\n");
+    res.push("    }\n");
+    res.push("    pub fn get_actionlex(&self) -> Option<&Token> {\n");
+    res.push("        (&self.actionlex).as_ref()\n");
+    res.push("    }\n");
+    res.push("    pub fn get_children(&self) -> &Vec<Box<Node>> {\n");
+    res.push("        &self.children\n");
     res.push("    }\n");
     res.push("    pub fn get_kind_mut(&mut self) -> &mut NodeKind {\n");
     res.push("        &mut self.kind\n");
@@ -133,6 +148,13 @@ export class RustParserGenerator {
     res.push("    }\n");
     res.push("    pub fn kidnap(&mut self, which: usize) -> Box<Node> {\n");
     res.push("        self.children.swap_remove(which)\n");
+    res.push("    }\n");
+    res.push("    pub fn try_transform<F>(self: &mut Box<Self>, t: &mut F) -> Result<(), AnalysisError>\n");
+    res.push("    where\n");
+    res.push("        F: FnMut(&mut Box<Self>) -> Result<(), AnalysisError>,\n");
+    res.push("    {\n");
+    res.push("        self.children.iter_mut().try_for_each(|c| c.try_transform(t));\n");
+    res.push("        t(self)\n");
     res.push("    }\n");
     res.push("    pub fn transform<F>(self: &mut Box<Self>, t: &mut F)\n");
     res.push("    where\n");
@@ -343,7 +365,7 @@ impl ${name} {
       '' +
       `${stringmd ? `` : `use std::io::{Read, Seek};`}
 use crate::${pkgpath}{
-    codegen::${options.semanticName}, constants::*, errors::AnalysisError, scanner::${options.scannerName}, token::Token,
+    ${options.useASTLib == false ? `codegen::${options.semanticName},` : ''} constants::*, errors::AnalysisError, scanner::${options.scannerName}, token::Token,
 };
 
 ${options.useASTLib ? `use crate::${pkgpath}node::{Node, NodeKind};` : ''}
@@ -353,7 +375,7 @@ pub struct ${name}${stringmd ? `` : `<T: Read + Seek>`} {
     current_token: Option<Token>,
     stack: Vec<u32>,
     scanner: ${options.scannerName}${stringmd ? '' : '<T>'},
-    semantic: ${options.semanticName},
+    ${options.useASTLib == false ? `semantic: ${options.semanticName},` : ''}
     ${options.useASTLib ? "forest: Vec<Box<Node>>," : ''}
 }
 
@@ -364,13 +386,13 @@ enum SyntaxParsingState {
 }
 
 impl${stringmd ? '' : '<T: Read + Seek>'} ${name}${stringmd ? '' : '<T>'} {
-    pub fn new(scanner: ${options.scannerName}${stringmd ? '' : '<T>'}, semantic: ${options.semanticName}) -> Self {
+    pub fn new(scanner: ${options.scannerName}${stringmd ? '' : '<T>'}${options.useASTLib == false ? `, semantic: ${options.semanticName}` : ''}) -> Self {
         ${name} {
             previous_token: None,
             current_token: None,
             stack: Vec::new(),
             scanner,
-            semantic,
+            ${options.useASTLib == false ? "semantic," : ''}
             ${options.useASTLib ? "forest: Vec::new()," : ''}
         }
     }
@@ -476,19 +498,26 @@ ${options.useASTLib ?
             SLRAction::ACTION => {
                 let action = FIRST_SEMANTIC_ACTION + cmd.1 - 1;
 ${options.useASTLib ?
-`                self.forest
-                    .push(Node::new(NodeKind::SemanticAction(cmd.1 - 1)));
+`                self.forest.push(Node::new_action(
+                    NodeKind::SemanticAction(cmd.1 - 1),
+                    self.previous_token.as_ref().expect("token").clone(),
+                ));
 `: ''}
                 self.stack
                     .push(PARSER_TABLE[state][action as usize].1 as u32);
-                let res = self
+${options.useASTLib ?
+`                Continue
+                }
+` :
+`                let res = self
                     .semantic
                     .execute_action(cmd.1 as u32, self.previous_token.as_ref().expect("token"));
-                if let Err(e) = res {
-                    Reject(e)
-                } else {
-                    Continue
-                }
+                  if let Err(e) = res {
+                      Reject(e)
+                  } else {
+                      Continue
+                  }
+              }`
             }
 ${options.useASTLib ?
 `            SLRAction::ACCEPT => {

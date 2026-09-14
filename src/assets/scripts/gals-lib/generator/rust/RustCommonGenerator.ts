@@ -60,7 +60,7 @@ ${options.generateParser && options.useASTLib ? `pub mod node;` : ''}
     const pkgpath = options.pkgName !== '' ? options.pkgName + '::' : ''
     const stringmd: boolean = options.input == Options.INPUT_STRING
 
-    return (
+    const res1 =
       '' +
       `
 #![allow(nonstandard_style)]
@@ -70,7 +70,8 @@ ${stringmd ? '' : `use std::{fs::File, io::BufReader};`}
 use crate::${pkgpath}{
     ${options.generateScanner ? `scanner::${scannername},` : ''}
     ${options.generateParser ? `parser::${parsername},` : ''}
-    ${options.generateParser ? `codegen::${semanticname}` : ''}
+    ${options.generateParser ? `codegen::${semanticname},` : ''}
+    ${options.useASTLib ? `node::NodeKind,` : ''}
 };
 ${
   options.pkgName === ''
@@ -87,38 +88,54 @@ ${options.generateParser && options.useASTLib ? `mod node;` : ''}
 mod ${options.pkgName};
 `
 }
-fn main() {
-${
-  options.generateScanner
-    ? `${
-        stringmd
-          ? `    let lex = ${scannername}::new("".into());`
-          : `    let file = File::open("program.txt").expect("erro ao abrir arquivo");
-    let lex = ${scannername}::new(BufReader::new(file));`
-      }`
-    : ''
-}
-    ${options.generateParser ? `let sem = ${semanticname}::new();` : ''}
-    ${options.generateParser ? `let syn = ${parsername}::new(lex, sem);` : ''}
+`;
+    let res2: string[] = [];
 
-    ${
-      options.generateParser && options.useASTLib == false
-        ? `if let Err(e) = syn.parse() {
-        eprintln!("{e}");
-    }`
-        : ''
-    }
-${options.generateParser && options.useASTLib == true ?
-`    match syn.parse() {
-      Ok(tree) => tree.print_tree(0),
-      Err(e) => eprintln!("{e}"),
-    }
-` :
-''}
-}
+    res2.push("fn main() {\n\n");
 
-`
-    )
+    if (options.generateScanner) {
+      if (stringmd) {
+        res2.push(`    let lex = ${scannername}::new("".into());\n`);
+      } else {
+        res2.push(`    let file = File::open("program.txt").expect("erro ao abrir arquivo");\n`);
+        res2.push(`    let lex  = ${scannername}::new(BufReader::new(file));\n`);
+      }
+    }
+
+    if (options.generateParser) {
+      if (options.useASTLib == false)
+      {
+        res2.push(`    let sem = ${semanticname}::new();\n`);
+        res2.push(`    let syn = ${parsername}::new(lex, sem);\n\n`);
+        res2.push("    if let Err(e) = syn.parse() {\n");
+        res2.push("        eprintln!(\"{e}\");\n");
+        res2.push("    }\n");
+      } else {
+        res2.push(`    let syn = ${parsername}::new(lex);\n\n`);
+        res2.push("    let mut tree = match syn.parse() {\n");
+        res2.push("        Ok(tree) => tree,\n");
+        res2.push("        Err(e) => { eprintln!(\"{e}\"); return; }\n");
+        res2.push("    };\n\n");
+
+        res2.push(`    let mut sem = ${semanticname}::new();\n\n`);
+
+        res2.push("    let errs = tree.try_transform(&mut |n| {\n");
+        res2.push("         if let NodeKind::SemanticAction(a) = n.get_kind() {\n");
+        res2.push("             sem.execute_action((*a + 1) as u32, n.get_actionlex().expect(\"token\"))?;\n");
+        res2.push("         };\n");
+        res2.push("         Ok(())\n");
+        res2.push("    });\n\n");
+
+        res2.push("    if let Err(e) = errs {\n");
+        res2.push("        eprintln!(\"{e}\");\n");
+        res2.push("        return;\n");
+        res2.push("    }\n");
+      }
+    }
+
+    res2.push("}\n");
+
+    return res1 + res2.join('');
   }
 
   private generateCargotoml() {
