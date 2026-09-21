@@ -81,7 +81,7 @@ export class PythonCommonGenerator {
       `from ${pkgname}Constants import TokenId\n\n` +
       '@dataclass(frozen=True)\n' +
       'class Token:\n' +
-      '\ttkid:     TokenID = TokenId.EPSILON\n' +
+      '\ttkid:     TokenId = TokenId.EPSILON\n' +
       '\tlexeme:   str     = ""\n' +
       '\tposition: int     = -1\n'
     )
