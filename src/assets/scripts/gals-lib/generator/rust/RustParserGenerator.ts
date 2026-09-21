@@ -125,6 +125,9 @@ export class RustParserGenerator {
     res.push("    pub fn get_children(&self) -> &Vec<Box<Node>> {\n");
     res.push("        &self.children\n");
     res.push("    }\n");
+    res.push("    pub fn get_children_mut(&mut self) -> &mut Vec<Box<Node>> {\n");
+    res.push("        &mut self.children\n");
+    res.push("    }\n");
     res.push("    pub fn get_kind_mut(&mut self) -> &mut NodeKind {\n");
     res.push("        &mut self.kind\n");
     res.push("    }\n");
@@ -697,7 +700,7 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${parsername}${stringmd ? '' : '<T>'} 
 use std::io::{Read, Seek};
 
 use crate::${pkgpath}{
-    codegen::${semanname}, constants::*, errors::AnalysisError, scanner::${scannername}, token::Token,
+    ${options.useASTLib ? 'node::NodeKind, node::Node,' : `codegen::${semanname},`} constants::*, errors::AnalysisError, scanner::${scannername}, token::Token,
 };
 
 pub struct ${parsername}${stringmd ? '' : '<T: Read + Seek>'} {
@@ -705,17 +708,23 @@ pub struct ${parsername}${stringmd ? '' : '<T: Read + Seek>'} {
     current_token: Option<Token>,
     previous_token: Option<Token>,
     scanner: ${scannername}${stringmd ? '' : '<T>'},
-    semantic: ${semanname},
+${options.useASTLib ?
+`    forest: Vec<Box<Node>>,
+    nodect: Vec<usize>,` :
+`    semantic: ${semanname},`}
 }
 
 impl${stringmd ? '' : '<T: Read + Seek>'} ${parsername}${stringmd ? '' : '<T>'} {
-    pub fn new(lex: ${scannername}${stringmd ? '' : '<T>'}, sem: ${semanname}) -> Self {
+    pub fn new(lex: ${scannername}${stringmd ? '' : '<T>'}${options.useASTLib ? '' : ` , sem: ${semanname}`}) -> Self {
         ${parsername} {
             stack: Vec::new(),
             current_token: None,
             previous_token: None,
             scanner: lex,
-            semantic: sem,
+${options.useASTLib ?
+`            forest: Vec::new(),
+            nodect: Vec::new(),` :
+`            semantic: sem,`}
         }
     }
 
@@ -735,6 +744,10 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${parsername}${stringmd ? '' : '<T>'} 
             for i in (0..=(production.len() - 1)).rev() {
                 self.stack.push(production[i]);
             }
+${options.useASTLib ?
+`            self.forest
+                .push(Node::new(NodeKind::NonTerminal(NonTerm::from(top_stack))));
+            self.nodect.push(production.len());` : ''}
             true
         } else {
             false
@@ -753,9 +766,39 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${parsername}${stringmd ? '' : '<T>'} 
         let x = self.stack.pop().unwrap();
         let a = self.current_token.as_ref().unwrap().get_id() as i32;
 
+${options.useASTLib ?
+`        macro_rules! depopulate_forest {
+            ($self:ident, $nn:expr) => {
+                $self.forest.last_mut().expect("a").cpush($nn);
+
+                let mut itg = $self.nodect.pop().unwrap();
+                while itg == 1 {
+                    let node = $self.forest.pop().unwrap();
+                    $self.forest.last_mut().unwrap().cpush(node);
+                    if $self.nodect.len() > 0 {
+                        itg = $self.nodect.pop().unwrap();
+                    } else {
+                        break;
+                    }
+                }
+
+                $self.nodect.push(itg.saturating_sub(1));
+            };
+        }` : ''}
+
         if x == TokenId::EPSILON as i32 {
+${options.useASTLib ?
+`            depopulate_forest!(
+                self,
+                Node::new(NodeKind::Terminal(Token::new_dummy(TokenId::EPSILON)))
+            );` : ''}
             return Ok(Some(()));
         } else if ${parsername}${stringmd ? '' : '::<T>'}::is_terminal(x) {
+${options.useASTLib ?
+`            depopulate_forest!(
+                self,
+                Node::new(NodeKind::Terminal(self.current_token.clone().unwrap()))
+            );` : ''}
             if x == a {
                 if self.stack.is_empty() {
                     return Ok(None);
@@ -780,23 +823,47 @@ impl${stringmd ? '' : '<T: Read + Seek>'} ${parsername}${stringmd ? '' : '<T>'} 
                 ));
             }
         } else {
-            self.semantic.execute_action(
+${options.useASTLib ?
+`            depopulate_forest!(
+                self,
+                Node::new_action(
+                    NodeKind::SemanticAction(x - FIRST_SEMANTIC_ACTION - 1),
+                    self.previous_token.clone().unwrap()
+                )
+            );
+` :
+`            self.semantic.execute_action(
                 (x - FIRST_SEMANTIC_ACTION) as u32,
                 self.previous_token.as_ref().unwrap(),
-            )?;
+            )?;`}
             return Ok(Some(()));
         }
     }
 
-    pub fn parse(mut self) -> Result<(), AnalysisError> {
+    pub fn parse(mut self) -> Result<${options.useASTLib ? 'Box<Node>' : '()'}, AnalysisError> {
         self.stack.push(TokenId::DOLLAR as i32);
         self.stack.push(START_SYMBOL);
 
         self.current_token = self.scanner.next_token().transpose()?;
 
+${options.useASTLib ?
+`            self.forest
+            .push(Node::new(NodeKind::Terminal(Token::new_dummy(
+                TokenId::EPSILON,
+            ))));` : ''}
+
         while let Some(_) = self.step()? {}
 
-        Ok(())
+${options.useASTLib ?
+`        if self.forest.len() != 1 {
+            return Err(AnalysisError::syntatic(
+                "Erro desconhecido no motor sintático (teve sucesso mas contém mais de uma árvore sintática resultante.)".into(),
+                0,
+            ));
+        }
+
+        Ok(self.forest.pop().unwrap().kidnap(0))` :
+`        Ok(())`}
     }
 }
 

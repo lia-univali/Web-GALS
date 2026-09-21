@@ -284,7 +284,7 @@ impl Error for AnalysisError {}
       (options.scannerCaseSensitive == true ? 'false;\n\n' : 'true;\n\n') +
       'pub const TOKEN_DEPENDENCY  : bool  = ' +
       (fa.specialCases.length > 0 ? 'true;\n' : 'false;\n') +
-      '#[allow(nonstandard_style)]\n' +
+      '\n#[allow(nonstandard_style)]\n' +
       '#[derive(Default, Debug, Clone, Copy, PartialEq, Eq, FromPrimitive)]\n' +
       'pub enum TokenId {\n' +
       '\t#[default]\n' +
@@ -342,7 +342,25 @@ impl Error for AnalysisError {}
       else result += '\tt_' + t + ' = ' + (i + 2) + ',\n'
     }
 
-    result += '\n}\n'
+    result += '\n}\n\n'
+
+    result += "impl From<i32> for TokenId {\n"
+    result += "   fn from(value: i32) -> Self {\n"
+    result += "       match value {\n"
+    result += "           0 => TokenId::EPSILON,\n"
+    result += "           1 => TokenId::DOLLAR,\n"
+
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i]
+      if (t.charAt(0) == '"')
+        result += '               ' + (i + 2) + ' => ' + 'TokenId::t_TOKEN_' + (i + 2) + ',' + '//' + t + '\n'
+      else result += '                ' + (i + 2) + ' => ' + 'TokenId::t_' + t + ',\n'
+    }
+
+    result += "           _ => panic!(),\n"
+    result += "       }\n"
+    result += "   }\n"
+    result += "\n}\n"
 
     return result.toString()
   }
