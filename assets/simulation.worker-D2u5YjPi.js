@@ -2337,7 +2337,7 @@ from ${e.pkgName!==""?e.pkgName+".":""}Constants import TokenId
 
 @dataclass(frozen=True)
 class Token:
-	tkid:     TokenID = TokenId.EPSILON
+	tkid:     TokenId = TokenId.EPSILON
 	lexeme:   str     = ""
 	position: int     = -1
 `}generateErrors(e){return`from dataclasses import dataclass
