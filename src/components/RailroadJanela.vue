@@ -183,6 +183,11 @@ export default defineComponent({
         }
       }
 
+      if (line === "" || line == undefined) {
+        throw new Error('');
+      }
+
+
       let linesplit = line.split(/::=/)
       const production = linesplit[0]
 
