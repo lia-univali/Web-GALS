@@ -64,12 +64,10 @@ export class PythonCommonGenerator {
             ? `stream = StringIO("")\n\nlex = ${options.scannerName}(stream)\n`
             : ''
         }
-        break
       case Options.INPUT_STRING:
         {
           return options.generateScanner ? `lex = ${options.scannerName}("")\n` : ''
         }
-        break
     }
     return ''
   }
@@ -87,7 +85,7 @@ export class PythonCommonGenerator {
     )
   }
 
-  private generateErrors(options: Options): string {
+  private generateErrors(_options: Options): string {
     return (
       'from dataclasses import dataclass\n\n' +
       '@dataclass\n' +
