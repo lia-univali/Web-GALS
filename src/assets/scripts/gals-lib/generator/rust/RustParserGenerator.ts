@@ -166,12 +166,12 @@ export class RustParserGenerator {
     res.push("        self.children.iter_mut().for_each(|c| c.transform(t));\n");
     res.push("        t(self);\n");
     res.push("    }\n");
-    res.push("    pub fn transform_bfs<F>(self: &mut Box<Self>, t: &mut F)\n");
+    res.push("    pub fn transform_preorder<F>(self: &mut Box<Self>, t: &mut F)\n");
     res.push("    where\n");
     res.push("        F: FnMut(&mut Box<Self>),\n");
     res.push("    {\n");
     res.push("        t(self);\n");
-    res.push("        self.children.iter_mut().for_each(|c| c.transform_bfs(t));\n");
+    res.push("        self.children.iter_mut().for_each(|c| c.transform_preorder(t));\n");
     res.push("    }\n");
     res.push("    pub fn transform_dual<F>(self: &mut Box<Self>, t: &mut F)\n");
     res.push("    where\n");
