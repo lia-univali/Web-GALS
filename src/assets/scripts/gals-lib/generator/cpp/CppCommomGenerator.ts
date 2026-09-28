@@ -1,3 +1,4 @@
+import type { __assign } from 'tslib'
 import { SyntacticError } from '../../analyser/SystemErros'
 import { Production } from '../../util/Production'
 import { FiniteAutomata, KeyValuePar } from '../FiniteAutomata'
@@ -199,10 +200,74 @@ export class CppCommomGenerator {
       '\n' +
       this.lexDecls(fa, options) +
       (await this.syntDecls(g, options)) +
+      (options.useASTLib ? this.astlibdeclsH(g, options) : '') +
       this.closeNamespace(options) +
       '#endif\n' +
       ''
     )
+  }
+
+  private astlibdeclsH(g: Grammar, options: Options): string {
+    let res: string[] = [];
+
+    res.push(`\nextern const char *TOKEN_REFLECTION[${g.terminals.length + 2}];\n\n`);
+    res.push(`extern const char *PRODUCTION_REFLECTION[${g.nonTerminals.length + 1}];\n\n`);
+
+    res.push("enum class NonTerm {\n");
+    res.push("    EPSILON,\n");
+    for (let i = 0; i < g.nonTerminals.length; i++) {
+      const nt = g.nonTerminals[i];
+      const j = i + g.FIRST_NON_TERMINAL;
+      res.push(`    nt_${nt.slice(1, -1)} = ${j},\n`)
+    }
+    res.push("};\n\n");
+
+    if (options.parser != Options.PARSER_LL)
+      res.push(`const int FIRST_NON_TERMINAL = ${g.FIRST_NON_TERMINAL};\n`);
+
+    res.push("\n");
+
+    return res.join('');
+  }
+
+  private astlibdeclsCpp(fa: FiniteAutomata, g: Grammar, options: Options): string {
+    let res: string[] = [];
+
+    res.push(`const char *TOKEN_REFLECTION[${g.terminals.length + 2}] = {\n`);
+    res.push('    "EPSILON",\n');
+    res.push('    "DOLLAR",\n');
+
+    const tokens = fa.tokens.toArray()!;
+
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i];
+      let str: string;
+
+      if (t.charAt(0) == '"')
+        str = 't_TOKEN_' + (i + 2);
+      else
+        str = 't_' + t;
+
+      res.push(`    "${str}"`);
+      res.push(",\n");
+    }
+
+    res.pop();
+    res.push("\n};\n\n");
+
+    res.push(`const char *PRODUCTION_REFLECTION[${g.nonTerminals.length + 1}] = {\n`);
+
+    for (let i = 0; i < g.nonTerminals.length; i++) {
+      const nt = g.nonTerminals[i];
+      res.push(`    "${nt.slice(1, -1)}"`)
+      res.push(",\n");
+    }
+
+    res.push('    "EPSILON",\n');
+    res.pop();
+    res.push("\n};\n\n");
+
+    return res.join('');
   }
 
   private constList(fa: FiniteAutomata, g: Grammar): string {
@@ -359,6 +424,7 @@ export class CppCommomGenerator {
       this.openNamespace(options) +
       this.lexTables(fa, options) +
       (await this.syntTables(g, options)) +
+      (options.useASTLib ? this.astlibdeclsCpp(fa, g, options) : '')+
       this.closeNamespace(options) +
       ''
     )
