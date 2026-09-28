@@ -292,7 +292,7 @@ void executeAction(int action, Token token) throws SemanticError
 
 Os parâmetros indicam a ação semântica que deve ser executada e o mais recente Token produzido pelo analisador léxico (em c++ ele é passado via ponteiro).
 
-Para gramáticas com poucas açãoes semânticas, pode-se construir um switch/case em função do parâmetro `action` e colocar o código da ação diretamente dentro de cada `case`, ou delegar um outro método para executá-la (mais recomendado para fins de organização).
+Para gramáticas com poucas ações semânticas, pode-se construir um switch/case em função do parâmetro `action` e colocar o código da ação diretamente dentro de cada `case`, ou delegar um outro método para executá-la (mais recomendado para fins de organização).
 Em gramáticas com muitas ações, pode ser mais interessante criar um array de callbacks, indexado pelo número da ação semântica.
 
 Se um erro semântico for detectado, ele deve ser informado ao analisador sintático lançando uma excessão do tipo `SemanticError`. Isto é importante para manter a uniformidade na detecção de erros e interromper o processo de análise/compilação.

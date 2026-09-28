@@ -1,6 +1,6 @@
 # Opções
 
-O Web GALS oferece opções para configuração de cada projeto. As configuraçõe são apresentadas em três abas no menu de configurações acessível na barra lateral esquerda da interface.
+O Web GALS oferece opções para configuração de cada projeto. As configurações são apresentadas em três abas no menu de configurações acessível na barra lateral esquerda da interface.
 
 ## Opções Gerais
 

@@ -11,7 +11,7 @@ O Web GALS é uma ferramenta de Software Livre. Seu código fonte é liberado so
 
 ## Uso Geral
 
-O Web GALS apresenta uma área de trabalho com quatro janelas, um gerenciador de projetos e um menu de configurações.
+O Web GALS apresenta uma área de trabalho com cinco janelas, um gerenciador de projetos e um menu de configurações.
 
 ![Interface do Web GALS](./galsinterface.png)
 <center><i>Screenshot da interface principal do Web GALS.</i></center>
