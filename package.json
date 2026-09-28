@@ -22,7 +22,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build:docs": "cd webgals-docs && mdbook build",
+    "build:docs": "cd webgals-docs && mdbook build && cd .. && touch public/docs/.keep",
     "build": "npm run build:docs && run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
