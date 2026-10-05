@@ -56,6 +56,7 @@ export class CppParserGenerator {
     res.push("#include <algorithm>\n");
     res.push("#include <functional>\n");
     res.push("#include \"Token.h\"\n\n");
+    res.push(`#include \"${options.semanticName}.h\"\n`);
 
     if (options.pkgName)
       res.push(`using namespace ${options.pkgName};\n\n`);
@@ -73,7 +74,7 @@ export class CppParserGenerator {
 
     res.push(this.openNamespace(options));
 
-    res.push("using NodeData = std::variant<Token*, NonTerm, int>;\n\n");
+    res.push("using NodeData = std::variant<Token*, NonTerm, int, CustomNode>;\n\n");
 
     res.push("enum class NodeKind {\n");
     res.push("        Terminal,\n");
@@ -104,6 +105,10 @@ export class CppParserGenerator {
     res.push("        : m_children(), m_kind(NodeKind::SemanticAction), m_data(action), m_actionlex(actlex)\n");
     res.push("        {}\n\n");
 
+    res.push("        Node(CustomNode& cn)\n");
+    res.push("        : m_children(), m_kind(NodeKind::Custom), m_data(cn)\n");
+    res.push("        {}\n\n");
+
     res.push("public:\n\n");
 
     res.push("        ~Node() = default;\n\n");
@@ -119,10 +124,12 @@ export class CppParserGenerator {
     res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, Token*&>(Token*&);\n");
     res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, NonTerm&>(NonTerm&);\n");
     res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, int&, Token*&>(int&, Token*&);\n\n");
+    res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, CustomNode&>(CustomNode&);\n\n");
 
     res.push("        static std::unique_ptr<Node> from_terminal(Token* lex);\n");
     res.push("        static std::unique_ptr<Node> from_nonterminal(NonTerm prod);\n");
     res.push("        static std::unique_ptr<Node> from_semanticaction(int action, Token* actlex);\n\n");
+    res.push("        static std::unique_ptr<Node> from_customnode(CustomNode cn);\n\n");
 
     res.push("        Token* getActionLex(void);\n");
     res.push("        std::vector<std::unique_ptr<Node>>& getChildren(void);\n");
@@ -228,6 +235,9 @@ export class CppParserGenerator {
     res.push("std::unique_ptr<Node> Node::from_semanticaction(int action, Token* actlex) {\n");
     res.push("      return std::make_unique<Node>(action, actlex);\n");
     res.push("}\n");
+    res.push("std::unique_ptr<Node> Node::from_customnode(CustomNode cn) {\n");
+    res.push("      return std::make_unique<Node>(cn);\n");
+    res.push("}\n");
     res.push("\n");
     res.push("Token* Node::getActionLex(void) {\n");
     res.push("      return m_actionlex;\n");
@@ -282,7 +292,8 @@ export class CppParserGenerator {
     res.push("              auto& a = std::get<int>(m_data);\n");
     res.push("              std::cout << \"#\" << a << std::endl;\n");
     res.push("      } else {\n");
-    res.push("              std::cout << \"CUSTOM\" << std::endl;\n");
+    res.push("              auto& c = std::get<CustomNode>(m_data);\n")
+    res.push("              std::cout << c.to_string() << std::endl;\n");
     res.push("      }\n");
     res.push("\n");
     res.push("      for (const auto& c : m_children)\n");
@@ -314,7 +325,7 @@ export class CppParserGenerator {
     res.push("			return std::get<int>(ldata) == std::get<int>(rdata);\n");
     res.push("		}\n");
     res.push("		case NodeKind::Custom: {\n");
-    res.push("			return false;\n");
+    res.push("			return std::get<CustomNode>(ldata) == std::get<CustomNode>(rdata);\n");
     res.push("		}\n");
     res.push("	}\n");
     res.push("	return false;\n");
@@ -566,10 +577,23 @@ export class CppParserGenerator {
       '    void executeAction(int action, const Token *token);\n' + // throw (SemanticError );\n"+ // Verificar throw
       '};\n' +
       '\n' +
+      (options.useASTLib ? this.semanticHAST() : '')+
       this.closeNamespace(options) +
       '#endif\n' +
       ''
     )
+  }
+
+  private semanticHAST(): string {
+    let res: string[] = []
+
+    res.push("    class CustomNode {\n");
+    res.push("    public:\n");
+    res.push("        std::string to_string(void) const;\n");
+    res.push("        bool operator==(const CustomNode& rhs) const;\n");
+    res.push("    };\n");
+
+    return res.join('');
   }
 
   private semanticAnalyserCpp(options: Options): string {
@@ -592,9 +616,25 @@ export class CppParserGenerator {
       '              << ", Lexema: " << token->getLexeme() << std::endl;\n' +
       '}\n' +
       '\n' +
+      (options.useASTLib ? this.semanticCppAST() : '')+
       this.closeNamespace(options) +
       ''
     )
+  }
+
+  private semanticCppAST(): string {
+    let res: string[] = []
+
+    res.push("    std::string CustomNode::to_string(void) const {");
+    res.push("        return \"CustomNode\";");
+    res.push("    }");
+    res.push("    ");
+    res.push("    bool CustomNode::operator==(const CustomNode& rhs) const {");
+    res.push("        (void) rhs;");
+    res.push("        return true;");
+    res.push("    }");
+
+    return res.join('');
   }
 
   private async parserH(g: Grammar, options: Options): Promise<string> {
