@@ -150,7 +150,7 @@ export class RustParserGenerator {
     res.push("        self.children.get_mut(whre)\n");
     res.push("    }\n");
     res.push("    pub fn kidnap(&mut self, which: usize) -> Box<Node> {\n");
-    res.push("        self.children.swap_remove(which)\n");
+    res.push("        self.children.remove(which)\n");
     res.push("    }\n");
     res.push("    pub fn try_transform<F>(self: &mut Box<Self>, t: &mut F) -> Result<(), AnalysisError>\n");
     res.push("    where\n");
