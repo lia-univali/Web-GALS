@@ -128,6 +128,10 @@ export class CppParserGenerator {
     res.push("        std::vector<std::unique_ptr<Node>>& getChildren(void);\n");
     res.push("        std::pair<NodeKind&, NodeData&> getKind(void);\n");
 
+    res.push("\n");
+    res.push("        static bool isSimilar(std::pair<NodeKind&, NodeData&> lhs, std::pair<NodeKind&, NodeData&> rhs);\n");
+    res.push("\n");
+
     res.push("        size_t ccount(void) const noexcept;\n");
     res.push("        void cpush(std::unique_ptr<Node>&& newchild);\n\n");
 
@@ -142,9 +146,53 @@ export class CppParserGenerator {
 
     res.push("        static void transform(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t);\n");
     res.push("        static void transformPreorder(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t);\n");
-    res.push("        static void transformDual(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&, bool)> t);\n");
+    res.push("        static void transformDual(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&, bool)> t);\n\n");
+
+    res.push("		// ---\n");
+    res.push("\n");
+    res.push("        static void assimilate(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> newkd,\n");
+    res.push("        	std::vector<std::pair<NodeKind, NodeData>> similars);\n");
+    res.push("\n");
+    res.push("        static void squash(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> tgtkd);\n");
+    res.push("\n");
+    res.push("        static void filter(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> tgtkd,\n");
+    res.push("        	std::vector<std::pair<NodeKind, NodeData>> removelist);\n");
+    res.push("\n");
+    res.push("        static void flatten(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> tgtkd);\n");
+    res.push("\n");
+    res.push("        static void enlistify(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> tgtkd);\n");
+    res.push("\n");
+    res.push("        static void raise(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> destkd,\n");
+    res.push("        	std::pair<NodeKind, NodeData> srckd);\n");
+    res.push("\n");
 
     res.push("};\n");
+
+    res.push("\n");
+    res.push("#define KDCOMPARE(lkind, ldata, rkind, rdata) \\\n");
+    res.push("	(Node::isSimilar( \\\n");
+    res.push("		std::make_pair< \\\n");
+    res.push("			std::reference_wrapper<NodeKind>, \\\n");
+    res.push("			std::reference_wrapper<NodeData>> \\\n");
+    res.push("		((lkind), (ldata)), \\\n");
+    res.push("		std::make_pair< \\\n");
+    res.push("			std::reference_wrapper<NodeKind>, \\\n");
+    res.push("			std::reference_wrapper<NodeData>> \\\n");
+    res.push("		((rkind), (rdata)) \\\n");
+    res.push("	))\n");
+    res.push("\n");
 
     res.push(this.closeNamespace(options));
 
@@ -241,6 +289,37 @@ export class CppParserGenerator {
     res.push("              c->print_tree(level + 1);\n");
     res.push("}\n");
     res.push("\n");
+    res.push("bool Node::isSimilar(std::pair<NodeKind&, NodeData&> lhs, std::pair<NodeKind&, NodeData&> rhs)\n");
+    res.push("{\n");
+    res.push("	auto [lkind, ldata] = lhs;\n");
+    res.push("	auto [rkind, rdata] = rhs;\n");
+    res.push("\n");
+    res.push("	if (lkind != rkind)\n");
+    res.push("		return false;\n");
+    res.push("\n");
+    res.push("	switch (lkind) {\n");
+    res.push("		case NodeKind::Terminal: {\n");
+    res.push("			Token* a = std::get<Token*>(ldata);\n");
+    res.push("			Token* b = std::get<Token*>(rdata);\n");
+    res.push("\n");
+    res.push("			if (a == nullptr || b == nullptr)\n");
+    res.push("				return a == b;\n");
+    res.push("\n");
+    res.push("			return a->getId() == b->getId();\n");
+    res.push("		}\n");
+    res.push("		case NodeKind::NonTerminal: {\n");
+    res.push("			return std::get<NonTerm>(ldata) == std::get<NonTerm>(rdata);\n");
+    res.push("		}\n");
+    res.push("		case NodeKind::SemanticAction: {\n");
+    res.push("			return std::get<int>(ldata) == std::get<int>(rdata);\n");
+    res.push("		}\n");
+    res.push("		case NodeKind::Custom: {\n");
+    res.push("			return false;\n");
+    res.push("		}\n");
+    res.push("	}\n");
+    res.push("	return false;\n");
+    res.push("}\n");
+    res.push("\n");
     res.push("void Node::transform(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t)\n");
     res.push("{\n");
     res.push("      for (auto& c : self->m_children) Node::transform(c,t);\n");
@@ -259,7 +338,206 @@ export class CppParserGenerator {
     res.push("      for (auto& c : self->m_children) Node::transformDual(c,t);\n");
     res.push("      t(self, true);\n");
     res.push("}\n");
-
+    res.push("\n");
+    res.push("// ---\n");
+    res.push("\n");
+    res.push("static void try_delete_terminal(NodeData& data) {\n");
+    res.push("	if (Token** tptr = std::get_if<Token*>(&data))\n");
+    res.push("		delete (*tptr);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::assimilate(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> newkd,\n");
+    res.push("	std::vector<std::pair<NodeKind, NodeData>> similars)\n");
+    res.push("{\n");
+    res.push("	auto& [newkind, newdata]   = newkd;\n");
+    res.push("	Node::transform(self, [&](auto& n) {\n");
+    res.push("		auto  [nkind, ndata] = n->getKind();\n");
+    res.push("		for (auto& [skind, sdata] : similars) {\n");
+    res.push("			if (KDCOMPARE(nkind, ndata, skind, sdata))\n");
+    res.push("			{\n");
+    res.push("				n->morph(newkind, newdata);\n");
+    res.push("				break;\n");
+    res.push("			}\n");
+    res.push("		}\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(newkd.second);\n");
+    res.push("	for (auto& r : similars)\n");
+    res.push("		try_delete_terminal(r.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::squash(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd)\n");
+    res.push("{\n");
+    res.push("	auto& [tkind, tdata] = tgtkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto  [nkind, ndata] = n->getKind();\n");
+    res.push("		if (KDCOMPARE(nkind, ndata, tkind, tdata) == false)\n");
+    res.push("		{\n");
+    res.push("			return;\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		if (n->ccount() != 1)\n");
+    res.push("			return;\n");
+    res.push("\n");
+    res.push("		auto& child = n->follow(0);\n");
+    res.push("		auto [ckind, cdata] = child->getKind();\n");
+    res.push("\n");
+    res.push("		if (KDCOMPARE(ckind, cdata, nkind, ndata)) {\n");
+    res.push("			n = std::move(n->kidnap(0));\n");
+    res.push("		}\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(tgtkd.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::filter(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd,\n");
+    res.push("	std::vector<std::pair<NodeKind, NodeData>> removelist)\n");
+    res.push("{\n");
+    res.push("	auto& [tkind, tdata] = tgtkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [nkind, ndata] = n->getKind();\n");
+    res.push("\n");
+    res.push("		if (KDCOMPARE(nkind, ndata, tkind, tdata) == false)\n");
+    res.push("			return;\n");
+    res.push("\n");
+    res.push("		n->m_children.erase(\n");
+    res.push("			std::remove_if(\n");
+    res.push("				n->m_children.begin(),\n");
+    res.push("				n->m_children.end(),\n");
+    res.push("				[&](auto& child) {\n");
+    res.push("					auto [ckind, cdata] = child->getKind();\n");
+    res.push("					for (auto& [rkind, rdata] : removelist) {\n");
+    res.push("						if (KDCOMPARE(ckind, cdata, rkind, rdata))\n");
+    res.push("							return true;\n");
+    res.push("					}\n");
+    res.push("					return false;\n");
+    res.push("				}),\n");
+    res.push("			n->m_children.end()\n");
+    res.push("		);\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(tgtkd.second);\n");
+    res.push("	for (auto& r : removelist)\n");
+    res.push("		try_delete_terminal(r.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::flatten(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd)\n");
+    res.push("{\n");
+    res.push("\n");
+    res.push("	auto& [tkind, tdata] = tgtkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [nkind, ndata] = n->getKind();\n");
+    res.push("\n");
+    res.push("		std::vector<std::unique_ptr<Node>> new_children;\n");
+    res.push("		for (auto& child : n->m_children) {\n");
+    res.push("\n");
+    res.push("			auto [ckind, cdata] = child->getKind();\n");
+    res.push("			if (KDCOMPARE(ckind, cdata, tkind, tdata)) {\n");
+    res.push("				for (auto& grandchild : child->m_children) {\n");
+    res.push("					new_children.push_back(std::move(grandchild));\n");
+    res.push("				}\n");
+    res.push("			} else {\n");
+    res.push("				new_children.push_back(std::move(child));\n");
+    res.push("			}\n");
+    res.push("\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		n->m_children = std::move(new_children);\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(tgtkd.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::enlistify(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd)\n");
+    res.push("{\n");
+    res.push("	auto& [tkind, tdata] = tgtkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [nkind, ndata] = n->getKind();\n");
+    res.push("\n");
+    res.push("		if (n->ccount() == 0)\n");
+    res.push("			return;\n");
+    res.push("\n");
+    res.push("		auto [ckind, cdata] = n->m_children.back()->getKind();\n");
+    res.push("\n");
+    res.push("		if (KDCOMPARE(ckind, cdata, tkind, tdata) == false)\n");
+    res.push("			return;\n");
+    res.push("\n");
+    res.push("		std::vector<std::unique_ptr<Node>> new_children;\n");
+    res.push("\n");
+    res.push("		for (auto& kinder : n->m_children) {\n");
+    res.push("			auto [kkind, kdata] = kinder->getKind();\n");
+    res.push("			if (KDCOMPARE(kkind, kdata, tkind, tdata)) {\n");
+    res.push("				for (auto& grand : kinder->m_children) {\n");
+    res.push("					new_children.push_back(std::move(grand));\n");
+    res.push("				}\n");
+    res.push("			} else {\n");
+    res.push("				new_children.push_back(std::move(kinder));\n");
+    res.push("			}\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		n->m_children = std::move(new_children);\n");
+    res.push("	});\n");
+    res.push("	try_delete_terminal(tgtkd.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::raise(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> destkd,\n");
+    res.push("	std::pair<NodeKind, NodeData> srckd)\n");
+    res.push("{\n");
+    res.push("	auto& [tkind, tdata] = srckd;\n");
+    res.push("	auto& [dkind, ddata] = destkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [nkind, ndata] = n->getKind();\n");
+    res.push("\n");
+    res.push("		std::vector<std::unique_ptr<Node>> new_children;\n");
+    res.push("\n");
+    res.push("        for (auto& child : n->m_children) {\n");
+    res.push("\n");
+    res.push("			auto [ckind, cdata] = child->getKind();\n");
+    res.push("\n");
+    res.push("			if (KDCOMPARE(ckind, cdata, dkind, ddata) == false) {\n");
+    res.push("				new_children.push_back(std::move(child));\n");
+    res.push("				continue;\n");
+    res.push("			}\n");
+    res.push("\n");
+    res.push("            std::vector<std::unique_ptr<Node>> risen;\n");
+    res.push("            auto& grandchildren = child->m_children;\n");
+    res.push("            auto it = grandchildren.begin();\n");
+    res.push("\n");
+    res.push("			while (it != grandchildren.end()) {\n");
+    res.push("				auto [ikind, idata] = (*it)->getKind();\n");
+    res.push("				if (KDCOMPARE(ikind, idata, tkind, tdata)) {\n");
+    res.push("                    risen.push_back(std::move(*it));\n");
+    res.push("                    it = grandchildren.erase(it);\n");
+    res.push("                } else {\n");
+    res.push("                    ++it;\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("\n");
+    res.push("            new_children.push_back(std::move(child));\n");
+    res.push("\n");
+    res.push("            for (auto& r : risen) {\n");
+    res.push("                new_children.push_back(std::move(r));\n");
+    res.push("            }\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("        n->m_children = std::move(new_children);\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(destkd.second);\n");
+    res.push("	try_delete_terminal(srckd.second);\n");
+    res.push("}\n");
 
     this.closeNamespace(options);
 
@@ -704,7 +982,7 @@ export class CppParserGenerator {
       '    else // isSemanticAction(x)\n' +
       '    {\n' +
       (options.useASTLib ?
-        '        this->depopulate_forest(Node::from_semanticaction(x - FIRST_SEMANTIC_ACTION - 1, previousToken));\n'
+        '        this->depopulate_forest(Node::from_semanticaction(x - FIRST_SEMANTIC_ACTION, previousToken));\n'
         :
         '        semanticAnalyser->executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n'
       ) +
@@ -873,7 +1151,7 @@ export class CppParserGenerator {
       '        {\n' +
       '            int action = FIRST_SEMANTIC_ACTION + cmd[1] - 1;\n' +
       (options.useASTLib ?
-      '            forest.push_back(Node::from_semanticaction(action, previousToken));\n'
+      '            forest.push_back(Node::from_semanticaction(cmd[1], previousToken));\n'
       : '' ) +
       '            stack.push(PARSER_TABLE[state][action][1]);\n' +
       (options.useASTLib == false ?
