@@ -54,6 +54,7 @@ export class CppParserGenerator {
     res.push("#include <vector>\n");
     res.push("#include <iostream>\n");
     res.push("#include <algorithm>\n");
+    res.push("#include <functional>\n");
     res.push("#include \"Token.h\"\n\n");
 
     if (options.pkgName)
@@ -85,7 +86,9 @@ export class CppParserGenerator {
     res.push("private:\n");
     res.push("        std::vector<std::unique_ptr<Node>> m_children;\n");
     res.push("        NodeKind m_kind;\n");
-    res.push("        NodeData m_data;\n\n");
+    res.push("        NodeData m_data;\n");
+    res.push("        Token* m_actionlex;\n\n");
+
 
     res.push("        Node() = delete;\n\n");
 
@@ -97,8 +100,8 @@ export class CppParserGenerator {
     res.push("        : m_children(), m_kind(NodeKind::NonTerminal), m_data(prod)\n");
     res.push("        {}\n\n");
 
-    res.push("        Node(int& action)\n");
-    res.push("        : m_children(), m_kind(NodeKind::SemanticAction), m_data(action)\n");
+    res.push("        Node(int& action, Token*& actlex)\n");
+    res.push("        : m_children(), m_kind(NodeKind::SemanticAction), m_data(action), m_actionlex(actlex)\n");
     res.push("        {}\n\n");
 
     res.push("public:\n\n");
@@ -115,11 +118,15 @@ export class CppParserGenerator {
 
     res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, Token*&>(Token*&);\n");
     res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, NonTerm&>(NonTerm&);\n");
-    res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, int&>(int&);\n\n");
+    res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, int&, Token*&>(int&, Token*&);\n\n");
 
     res.push("        static std::unique_ptr<Node> from_terminal(Token* lex);\n");
     res.push("        static std::unique_ptr<Node> from_nonterminal(NonTerm prod);\n");
-    res.push("        static std::unique_ptr<Node> from_semanticaction(int action);\n\n");
+    res.push("        static std::unique_ptr<Node> from_semanticaction(int action, Token* actlex);\n\n");
+
+    res.push("        Token* getActionLex(void);\n");
+    res.push("        std::vector<std::unique_ptr<Node>>& getChildren(void);\n");
+    res.push("        std::pair<NodeKind&, NodeData&> getKind(void);\n");
 
     res.push("        size_t ccount(void) const noexcept;\n");
     res.push("        void cpush(std::unique_ptr<Node>&& newchild);\n\n");
@@ -128,7 +135,15 @@ export class CppParserGenerator {
 
     res.push("        void morph(NodeKind kind, NodeData data);\n\n");
 
-    res.push("        void print_tree(int level = 0) const;\n");
+    res.push("        std::unique_ptr<Node>& follow(size_t whre);\n");
+    res.push("        std::unique_ptr<Node> kidnap(size_t which);\n\n");
+
+    res.push("        void print_tree(int level = 0) const;\n\n");
+
+    res.push("        static void transform(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t);\n");
+    res.push("        static void transformPreorder(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t);\n");
+    res.push("        static void transformDual(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&, bool)> t);\n");
+
     res.push("};\n");
 
     res.push(this.closeNamespace(options));
@@ -162,8 +177,20 @@ export class CppParserGenerator {
     res.push("      return std::make_unique<Node>(prod);\n");
     res.push("}\n");
     res.push("\n");
-    res.push("std::unique_ptr<Node> Node::from_semanticaction(int action) {\n");
-    res.push("      return std::make_unique<Node>(action);\n");
+    res.push("std::unique_ptr<Node> Node::from_semanticaction(int action, Token* actlex) {\n");
+    res.push("      return std::make_unique<Node>(action, actlex);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("Token* Node::getActionLex(void) {\n");
+    res.push("      return m_actionlex;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::vector<std::unique_ptr<Node>>& Node::getChildren(void) {\n");
+    res.push("      return m_children;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::pair<NodeKind&, NodeData&> Node::getKind(void) {\n");
+    res.push("      return {m_kind, m_data};\n");
     res.push("}\n");
     res.push("\n");
     res.push("size_t Node::ccount(void) const noexcept {\n");
@@ -176,13 +203,22 @@ export class CppParserGenerator {
     res.push("\n");
     res.push("void Node::invert_children(void) {\n");
     res.push("      std::reverse(m_children.begin(), m_children.end());\n");
-    res.push("}\n\n");
-
-    res.push("void Node::morph(NodeKind kind, NodeData data) {\n")
-    res.push("  m_kind = kind;\n")
-    res.push("  m_data = data;\n")
-    res.push("}\n\n")
-
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::morph(NodeKind kind, NodeData data) {\n");
+    res.push("  m_kind = kind;\n");
+    res.push("  m_data = data;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::unique_ptr<Node>& Node::follow(size_t whre) {\n");
+    res.push("      return m_children[whre];\n");
+    res.push("}\n");
+    res.push("std::unique_ptr<Node> Node::kidnap(size_t which) {\n");
+    res.push("      auto removed = std::move(m_children[which]);\n");
+    res.push("      m_children.erase(m_children.begin() + which);\n");
+    res.push("      return removed;\n");
+    res.push("}\n");
+    res.push("\n");
     res.push("void Node::print_tree(int level) const {\n");
     res.push("\n");
     res.push("      for (int i = 0; i < level; i++)\n");
@@ -190,10 +226,10 @@ export class CppParserGenerator {
     res.push("\n");
     res.push("      if (m_kind == NodeKind::Terminal) {\n");
     res.push("              auto l = std::get<Token*>(m_data);\n");
-    res.push(`              std::cout << (TOKEN_REFLECTION[l->getId()]) << " \\"" << l->getLexeme() << "\\"" << std::endl;\n`);
+    res.push("              std::cout << (TOKEN_REFLECTION[l->getId()]) << \" \\\"\" << l->getLexeme() << \"\\\"\" << std::endl;\n");
     res.push("      } else if (m_kind == NodeKind::NonTerminal) {\n");
     res.push("              auto& p = std::get<NonTerm>(m_data);\n");
-    res.push(`              std::cout << "<" << (PRODUCTION_REFLECTION[((int)p) - FIRST_NON_TERMINAL]) << ">" << std::endl;\n`);
+    res.push("              std::cout << \"<\" << (PRODUCTION_REFLECTION[((int)p) - FIRST_NON_TERMINAL]) << \">\" << std::endl;\n");
     res.push("      } else if (m_kind == NodeKind::SemanticAction) {\n");
     res.push("              auto& a = std::get<int>(m_data);\n");
     res.push("              std::cout << \"#\" << a << std::endl;\n");
@@ -204,6 +240,26 @@ export class CppParserGenerator {
     res.push("      for (const auto& c : m_children)\n");
     res.push("              c->print_tree(level + 1);\n");
     res.push("}\n");
+    res.push("\n");
+    res.push("void Node::transform(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t)\n");
+    res.push("{\n");
+    res.push("      for (auto& c : self->m_children) Node::transform(c,t);\n");
+    res.push("      t(self);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::transformPreorder(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t)\n");
+    res.push("{\n");
+    res.push("      t(self);\n");
+    res.push("      for (auto& c : self->m_children) Node::transformPreorder(c,t);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::transformDual(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&, bool)> t)\n");
+    res.push("{\n");
+    res.push("      t(self, false);\n");
+    res.push("      for (auto& c : self->m_children) Node::transformDual(c,t);\n");
+    res.push("      t(self, true);\n");
+    res.push("}\n");
+
 
     this.closeNamespace(options);
 
@@ -324,10 +380,16 @@ export class CppParserGenerator {
       '\n' +
       '    ' + (options.useASTLib ? 'std::unique_ptr<Node>' : 'void') + ' parse(' +
       scannerName +
-      ' *scanner, ' +
-      semanticName +
-      ' *semanticAnalyser);\n' + // throw (AnalysisError)
-      '\n' +
+      ' *scanner' +
+      (
+        options.useASTLib == false ?
+        ', ' +
+        semanticName +
+        ' *semanticAnalyser'
+        :
+        ''
+      ) +
+      ');\n\n' +
       'private:\n' +
       (descendant ? '' : '    std::stack<int> stack;\n') +
       '    Token *previousToken;\n' +
@@ -338,9 +400,13 @@ export class CppParserGenerator {
       scannerName +
       ' *scanner;\n' +
       '    ' +
-      semanticName +
-      ' *semanticAnalyser;\n' +
-      '\n' +
+      (options.useASTLib == false ?
+        semanticName +
+        ' *semanticAnalyser;\n' +
+        '\n'
+        :
+        ''
+      ) +
       (descendant
         ? recDescFuncs
         : '    bool step();\n' + // throw (AnalysisError);\n"+
@@ -539,12 +605,17 @@ export class CppParserGenerator {
       parserName +
       '::parse(' +
       scannerName +
-      ' *scanner, ' +
-      semanticName +
-      ' *semanticAnalyser)\n' + // throw (AnalysisError)\n"+
-      '{\n' +
+      ' *scanner' +
+      (options.useASTLib == false ?
+        ', ' +
+        semanticName +
+        ' *semanticAnalyser'
+        :
+        ''
+      )+
+      ')\n{\n' +
       '    this->scanner = scanner;\n' +
-      '    this->semanticAnalyser = semanticAnalyser;\n' +
+      (options.useASTLib == false ? '    this->semanticAnalyser = semanticAnalyser;\n' : '') +
       '\n' +
       '    //Limpa a pilha\n' +
       '    while (! stack.empty())\n' +
@@ -632,8 +703,11 @@ export class CppParserGenerator {
       '    }\n' +
       '    else // isSemanticAction(x)\n' +
       '    {\n' +
-      (options.useASTLib ? '        this->depopulate_forest(Node::from_semanticaction(x - FIRST_SEMANTIC_ACTION - 1));\n' : '') +
-      '        semanticAnalyser->executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n' +
+      (options.useASTLib ?
+        '        this->depopulate_forest(Node::from_semanticaction(x - FIRST_SEMANTIC_ACTION - 1, previousToken));\n'
+        :
+        '        semanticAnalyser->executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n'
+      ) +
       '        return false;\n' +
       '    }\n' +
       '}\n' +
@@ -701,12 +775,17 @@ export class CppParserGenerator {
       parserName +
       '::parse(' +
       scannerName +
-      ' *scanner, ' +
-      semanticName +
-      ' *semanticAnalyser)\n' + // throw (AnalysisError)\n"+
-      '{\n' +
+      ' *scanner' +
+      (options.useASTLib == false ?
+        ' ,' +
+        semanticName +
+        ' *semanticAnalyser'
+        :
+        ''
+      ) +
+      ')\n{\n' +
       '    this->scanner = scanner;\n' +
-      '    this->semanticAnalyser = semanticAnalyser;\n' +
+      (options.useASTLib == false ? '    this->semanticAnalyser = semanticAnalyser;\n' : '') +
       '\n' +
       '    //Limpa a pilha\n' +
       '    while (! stack.empty())\n' +
@@ -728,7 +807,7 @@ export class CppParserGenerator {
       '\n' +
       '    while ( ! step() )\n' +
       '        ;\n' +
-      (options.useASTLib ? 'return std::move(forest[0]);\n': '') +
+      (options.useASTLib ? '    return std::move(forest[0]);\n': '') +
       '}\n' +
       '\n' +
       'bool ' +
@@ -794,10 +873,12 @@ export class CppParserGenerator {
       '        {\n' +
       '            int action = FIRST_SEMANTIC_ACTION + cmd[1] - 1;\n' +
       (options.useASTLib ?
-      '            forest.push_back(Node::from_semanticaction(action));\n'
+      '            forest.push_back(Node::from_semanticaction(action, previousToken));\n'
       : '' ) +
       '            stack.push(PARSER_TABLE[state][action][1]);\n' +
-      '            semanticAnalyser->executeAction(cmd[1], previousToken);\n' +
+      (options.useASTLib == false ?
+      '            semanticAnalyser->executeAction(cmd[1], previousToken);\n'
+      : '' ) +
       '            return false;\n' +
       '        }\n' +
       '        case ACCEPT:\n' +
