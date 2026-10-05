@@ -32,6 +32,10 @@ export default defineComponent({
       store.selecionado !== -1
         ? store.listaProjetos[store.selecionado].optionsGals.parser
         : -1
+    const T =
+      store.selecionado !== -1
+        ? store.listaProjetos[store.selecionado].optionsGals.useASTLib
+        : -1
     return {
       activeTab: 'Geral',
       namespace: true,
@@ -39,6 +43,7 @@ export default defineComponent({
       scnr: store.selecionado !== -1 ?   scnrIdToString(Y) : '',
       form: store.selecionado !== -1 ? formatIdToString(Z) : '',
       pars: store.selecionado !== -1 ?   parsIdToString(W) : '',
+      ast:  store.selecionado !== -1 ?   T.toString() : '',
     }
   },
   setup() {
@@ -66,10 +71,12 @@ export default defineComponent({
       const Y = store.listaProjetos[store.selecionado].optionsGals.scannerTable
       const Z = store.listaProjetos[store.selecionado].projectFormat
       const W = store.listaProjetos[store.selecionado].optionsGals.parser
+      const T = store.listaProjetos[store.selecionado].optionsGals.useASTLib
       this.lang = langIdToString(X)
       this.scnr = scnrIdToString(Y)
       this.form = formatIdToString(Z)
       this.pars = parsIdToString(W)
+      this.ast  = T.toString()
       this.activeTab = 'Geral'
       this.changeTab(this.activeTab)
     }
@@ -93,10 +100,15 @@ export default defineComponent({
         store.selecionado !== -1
           ? store.listaProjetos[store.selecionado].optionsGals.parser
           : -1
+      const T =
+        store.selecionado !== -1
+          ? store.listaProjetos[store.selecionado].optionsGals.useASTLib
+          : -1
       this.lang = store.selecionado !== -1 ?   langIdToString(X) : ''
       this.scnr = store.selecionado !== -1 ?   scnrIdToString(Y) : ''
       this.form = store.selecionado !== -1 ? formatIdToString(Z) : ''
       this.pars = store.selecionado !== -1 ?   parsIdToString(W) : ''
+      this.ast  = store.selecionado !== -1 ?   T.toString() : ''
     },
     fecharModal() {
       const modal = document.getElementById('modal__configuracoes')
@@ -154,6 +166,10 @@ export default defineComponent({
           forme.parser.value = 'SLR'
           this.pars = 'SLR'
         }
+        if (this.ast === 'true') {
+          forme.ASTLib.value = 'false'
+          this.ast = 'false'
+        }
       }
     },
     parsChanged(e: Event) {
@@ -162,6 +178,13 @@ export default defineComponent({
       if (form == null) return
 
       this.pars = form.value
+    },
+    astChanged(e: Event) {
+      const form = e.target as HTMLFormElement
+
+      if (form == null) return
+
+      this.ast = form.value
     },
     enviarForms(e: Event) {
       if (e == null) return
@@ -190,6 +213,8 @@ export default defineComponent({
       newOptions.setOption('Input', form.tipoEntrada.value)
 
       newOptions.setOption('Parser', form.parser.value)
+
+      newOptions.setOption('UseAstLib', form.ASTLib.value)
 
       this.projetos[this.selecionado].optionsGals = newOptions
       this.projetos[this.selecionado].options = newOptions.toString()
@@ -247,6 +272,9 @@ export default defineComponent({
       else if (formato == FORMAT_VGLS) {
         form.formatoarquivo.value = '.vgls'
       }
+
+      if (Options.DONT_USE_ASTLIB == opcoes.useASTLib) form.ASTLib.value = 'false'
+      else if (Options.USE_ASTLIB == opcoes.useASTLib) form.ASTLib.value = 'true'
     }
   }
 })
@@ -486,6 +514,17 @@ export default defineComponent({
                 <label :class="{ disabled__label: form === '.gals' }" for="sintaticoLRCanonico">LR(1) <span style="color: red">*</span></label>
               </div>
             </fieldset>
+          </fieldset>
+          <fieldset @change="astChanged">
+            <legend>Biblioteca para Manipulação da Árvore Abstrata</legend>
+            <div>
+              <input type="radio" id="dontUseASTLib" name="ASTLib" value="false" checked />
+              <label for="dontUseASTLib">Sem biblioteca de manipulação</label>
+            </div>
+            <div>
+              <input :disabled="form === '.gals'" type="radio" id="useASTLib" name="ASTLib" value="true" />
+              <label for="useASTLib">Integrar biblioteca de manipulação ao projeto</label>
+            </div>
           </fieldset>
           <span style="color: red">*: demora para processar gramáticas grandes.</span>
         </div>

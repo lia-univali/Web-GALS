@@ -69,6 +69,12 @@ export class Options {
 
   public input: number = Options.INPUT_STRING
 
+  public static readonly DONT_USE_ASTLIB: boolean = false
+  public static readonly USE_ASTLIB: boolean = true
+
+  public useASTLib: boolean = Options.DONT_USE_ASTLIB
+
+
   public toString(): string {
     let bfr = ''
 
@@ -149,6 +155,14 @@ export class Options {
     return bfr
   }
 
+  public extendedToString(): string {
+    let bfr = ''
+
+    bfr += "UseAstLib = " + (this.useASTLib ? 'true' : 'false');
+
+    return bfr
+  }
+
   public constructorFromString(str: string): Options {
     // eslint-disable-next-line prefer-const
     let o = new Options()
@@ -163,6 +177,17 @@ export class Options {
     }
 
     return o
+  }
+
+  public expandFromString(str: string) {
+    const lineArray = str.split('\n')
+
+    for (const line of lineArray) {
+      if (line == '')
+        continue;
+      const [name, value] = line.split('=')
+      this.setOption(name.trim(), value.trim())
+    }
   }
 
   /**
@@ -206,6 +231,8 @@ export class Options {
       else if (value.toUpperCase() === 'LL'.toUpperCase()) this.parser = Options.PARSER_LL
       else if (value.toUpperCase() === 'RD'.toUpperCase()) this.parser = Options.PARSER_REC_DESC
       else throw new Error('Erro processando arquivo')
+    } else if (name.toUpperCase() === 'UseAstLib'.toUpperCase()) {
+      this.useASTLib = /true/i.test(value)
     } else throw new Error('Erro processando arquivo')
   }
 }

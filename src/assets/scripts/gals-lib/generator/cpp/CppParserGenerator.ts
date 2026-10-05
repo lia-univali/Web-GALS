@@ -19,6 +19,11 @@ export class CppParserGenerator {
 
       result.set(options.semanticName + '.cpp', this.semanticAnalyserCpp(options))
       result.set(options.semanticName + '.h', this.semanticAnalyserH(options))
+
+      if (options.useASTLib) {
+        result.set('Node.h',   this.nodeH(options));
+        result.set('Node.cpp', this.nodeCpp(options));
+      }
     }
 
     return result
@@ -36,6 +41,507 @@ export class CppParserGenerator {
 
     if (namespace != null && !(namespace === '')) return '} //namespace ' + namespace + '\n\n'
     else return ''
+  }
+
+  private nodeH(options: Options): string {
+    let res: string[] = [];
+
+    res.push("#ifndef NODE_H\n");
+    res.push("#define NODE_H\n\n");
+
+    res.push("#include <memory>\n");
+    res.push("#include <variant>\n");
+    res.push("#include <vector>\n");
+    res.push("#include <iostream>\n");
+    res.push("#include <algorithm>\n");
+    res.push("#include <functional>\n");
+    res.push("#include \"Token.h\"\n\n");
+
+    if (options.pkgName)
+      res.push(`using namespace ${options.pkgName};\n\n`);
+
+    res.push("/*\n");
+    res.push(" * As funções make_unique da biblioteca padrão foram\n");
+    res.push(" * declaradas de forma diferente entre versões do C++.\n");
+    res.push(" */\n");
+    res.push("#if defined(__cpp_lib_constexpr_memory) && \\\n");
+    res.push("    __cpp_lib_constexpr_memory >= 202202L\n");
+    res.push("    #define NODE_MAKE_UNIQUE_CONSTEXPR constexpr\n");
+    res.push("#else\n");
+    res.push("    #define NODE_MAKE_UNIQUE_CONSTEXPR\n");
+    res.push("#endif\n\n");
+
+    res.push(this.openNamespace(options));
+
+    res.push("using NodeData = std::variant<Token*, NonTerm, int>;\n\n");
+
+    res.push("enum class NodeKind {\n");
+    res.push("        Terminal,\n");
+    res.push("        NonTerminal,\n");
+    res.push("        SemanticAction,\n");
+    res.push("        Custom\n");
+    res.push("};\n\n");
+
+    res.push("class Node {\n");
+    res.push("private:\n");
+    res.push("        std::vector<std::unique_ptr<Node>> m_children;\n");
+    res.push("        NodeKind m_kind;\n");
+    res.push("        NodeData m_data;\n");
+    res.push("        Token* m_actionlex;\n\n");
+
+
+    res.push("        Node() = delete;\n\n");
+
+    res.push("        Node(Token*& lex)\n");
+    res.push("        : m_children(), m_kind(NodeKind::Terminal), m_data(lex)\n");
+    res.push("        {}\n\n");
+
+    res.push("        Node(NonTerm& prod)\n");
+    res.push("        : m_children(), m_kind(NodeKind::NonTerminal), m_data(prod)\n");
+    res.push("        {}\n\n");
+
+    res.push("        Node(int& action, Token*& actlex)\n");
+    res.push("        : m_children(), m_kind(NodeKind::SemanticAction), m_data(action), m_actionlex(actlex)\n");
+    res.push("        {}\n\n");
+
+    res.push("public:\n\n");
+
+    res.push("        ~Node() = default;\n\n");
+
+    res.push("        Node(Node&)             = delete;\n");
+    res.push("        Node& operator=(Node&)  = delete;\n");
+    res.push("        Node(Node&&)            = default;\n");
+    res.push("        Node& operator=(Node&&) = default;\n\n");
+
+    res.push("        NodeKind kind(void) const noexcept;\n");
+    res.push("        const NodeData& data(void) const noexcept;\n\n");
+
+    res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, Token*&>(Token*&);\n");
+    res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, NonTerm&>(NonTerm&);\n");
+    res.push("        friend NODE_MAKE_UNIQUE_CONSTEXPR std::unique_ptr<Node> std::make_unique<Node, int&, Token*&>(int&, Token*&);\n\n");
+
+    res.push("        static std::unique_ptr<Node> from_terminal(Token* lex);\n");
+    res.push("        static std::unique_ptr<Node> from_nonterminal(NonTerm prod);\n");
+    res.push("        static std::unique_ptr<Node> from_semanticaction(int action, Token* actlex);\n\n");
+
+    res.push("        Token* getActionLex(void);\n");
+    res.push("        std::vector<std::unique_ptr<Node>>& getChildren(void);\n");
+    res.push("        std::pair<NodeKind&, NodeData&> getKind(void);\n");
+
+    res.push("\n");
+    res.push("        static bool isSimilar(std::pair<NodeKind&, NodeData&> lhs, std::pair<NodeKind&, NodeData&> rhs);\n");
+    res.push("\n");
+
+    res.push("        size_t ccount(void) const noexcept;\n");
+    res.push("        void cpush(std::unique_ptr<Node>&& newchild);\n\n");
+
+    res.push("        void invert_children(void);\n\n");
+
+    res.push("        void morph(NodeKind kind, NodeData data);\n\n");
+
+    res.push("        std::unique_ptr<Node>& follow(size_t whre);\n");
+    res.push("        std::unique_ptr<Node> kidnap(size_t which);\n\n");
+
+    res.push("        void print_tree(int level = 0) const;\n\n");
+
+    res.push("        static void transform(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t);\n");
+    res.push("        static void transformPreorder(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t);\n");
+    res.push("        static void transformDual(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&, bool)> t);\n\n");
+
+    res.push("		// ---\n");
+    res.push("\n");
+    res.push("        static void assimilate(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> newkd,\n");
+    res.push("        	std::vector<std::pair<NodeKind, NodeData>> similars);\n");
+    res.push("\n");
+    res.push("        static void squash(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> tgtkd);\n");
+    res.push("\n");
+    res.push("        static void filter(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> tgtkd,\n");
+    res.push("        	std::vector<std::pair<NodeKind, NodeData>> removelist);\n");
+    res.push("\n");
+    res.push("        static void flatten(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> tgtkd);\n");
+    res.push("\n");
+    res.push("        static void enlistify(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> tgtkd);\n");
+    res.push("\n");
+    res.push("        static void raise(\n");
+    res.push("        	std::unique_ptr<Node>& self,\n");
+    res.push("        	std::pair<NodeKind, NodeData> destkd,\n");
+    res.push("        	std::pair<NodeKind, NodeData> srckd);\n");
+    res.push("\n");
+
+    res.push("};\n");
+
+    res.push("\n");
+    res.push("#define KDCOMPARE(lkind, ldata, rkind, rdata) \\\n");
+    res.push("	(Node::isSimilar( \\\n");
+    res.push("		std::make_pair< \\\n");
+    res.push("			std::reference_wrapper<NodeKind>, \\\n");
+    res.push("			std::reference_wrapper<NodeData>> \\\n");
+    res.push("		((lkind), (ldata)), \\\n");
+    res.push("		std::make_pair< \\\n");
+    res.push("			std::reference_wrapper<NodeKind>, \\\n");
+    res.push("			std::reference_wrapper<NodeData>> \\\n");
+    res.push("		((rkind), (rdata)) \\\n");
+    res.push("	))\n");
+    res.push("\n");
+
+    res.push(this.closeNamespace(options));
+
+    res.push("#endif\n");
+
+    return res.join('');
+  }
+
+  private nodeCpp(options: Options): string {
+    let res: string[] = [];
+
+    res.push("#include \"Node.h\"\n");
+    res.push("\n");
+
+    this.openNamespace(options);
+
+    res.push("NodeKind Node::kind(void) const noexcept {\n");
+    res.push("      return m_kind;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("const NodeData& Node::data(void) const noexcept {\n");
+    res.push("      return m_data;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::unique_ptr<Node> Node::from_terminal(Token* lex) {\n");
+    res.push("      return std::make_unique<Node>(lex);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::unique_ptr<Node> Node::from_nonterminal(NonTerm prod) {\n");
+    res.push("      return std::make_unique<Node>(prod);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::unique_ptr<Node> Node::from_semanticaction(int action, Token* actlex) {\n");
+    res.push("      return std::make_unique<Node>(action, actlex);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("Token* Node::getActionLex(void) {\n");
+    res.push("      return m_actionlex;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::vector<std::unique_ptr<Node>>& Node::getChildren(void) {\n");
+    res.push("      return m_children;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::pair<NodeKind&, NodeData&> Node::getKind(void) {\n");
+    res.push("      return {m_kind, m_data};\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("size_t Node::ccount(void) const noexcept {\n");
+    res.push("      return m_children.size();\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::cpush(std::unique_ptr<Node>&& newchild) {\n");
+    res.push("      m_children.push_back(std::move(newchild));\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::invert_children(void) {\n");
+    res.push("      std::reverse(m_children.begin(), m_children.end());\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::morph(NodeKind kind, NodeData data) {\n");
+    res.push("  m_kind = kind;\n");
+    res.push("  m_data = data;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("std::unique_ptr<Node>& Node::follow(size_t whre) {\n");
+    res.push("      return m_children[whre];\n");
+    res.push("}\n");
+    res.push("std::unique_ptr<Node> Node::kidnap(size_t which) {\n");
+    res.push("      auto removed = std::move(m_children[which]);\n");
+    res.push("      m_children.erase(m_children.begin() + which);\n");
+    res.push("      return removed;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::print_tree(int level) const {\n");
+    res.push("\n");
+    res.push("      for (int i = 0; i < level; i++)\n");
+    res.push("              std::cout << \"  \";\n");
+    res.push("\n");
+    res.push("      if (m_kind == NodeKind::Terminal) {\n");
+    res.push("              auto l = std::get<Token*>(m_data);\n");
+    res.push("              std::cout << (TOKEN_REFLECTION[l->getId()]) << \" \\\"\" << l->getLexeme() << \"\\\"\" << std::endl;\n");
+    res.push("      } else if (m_kind == NodeKind::NonTerminal) {\n");
+    res.push("              auto& p = std::get<NonTerm>(m_data);\n");
+    res.push("              std::cout << \"<\" << (PRODUCTION_REFLECTION[((int)p) - FIRST_NON_TERMINAL]) << \">\" << std::endl;\n");
+    res.push("      } else if (m_kind == NodeKind::SemanticAction) {\n");
+    res.push("              auto& a = std::get<int>(m_data);\n");
+    res.push("              std::cout << \"#\" << a << std::endl;\n");
+    res.push("      } else {\n");
+    res.push("              std::cout << \"CUSTOM\" << std::endl;\n");
+    res.push("      }\n");
+    res.push("\n");
+    res.push("      for (const auto& c : m_children)\n");
+    res.push("              c->print_tree(level + 1);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("bool Node::isSimilar(std::pair<NodeKind&, NodeData&> lhs, std::pair<NodeKind&, NodeData&> rhs)\n");
+    res.push("{\n");
+    res.push("	auto [lkind, ldata] = lhs;\n");
+    res.push("	auto [rkind, rdata] = rhs;\n");
+    res.push("\n");
+    res.push("	if (lkind != rkind)\n");
+    res.push("		return false;\n");
+    res.push("\n");
+    res.push("	switch (lkind) {\n");
+    res.push("		case NodeKind::Terminal: {\n");
+    res.push("			Token* a = std::get<Token*>(ldata);\n");
+    res.push("			Token* b = std::get<Token*>(rdata);\n");
+    res.push("\n");
+    res.push("			if (a == nullptr || b == nullptr)\n");
+    res.push("				return a == b;\n");
+    res.push("\n");
+    res.push("			return a->getId() == b->getId();\n");
+    res.push("		}\n");
+    res.push("		case NodeKind::NonTerminal: {\n");
+    res.push("			return std::get<NonTerm>(ldata) == std::get<NonTerm>(rdata);\n");
+    res.push("		}\n");
+    res.push("		case NodeKind::SemanticAction: {\n");
+    res.push("			return std::get<int>(ldata) == std::get<int>(rdata);\n");
+    res.push("		}\n");
+    res.push("		case NodeKind::Custom: {\n");
+    res.push("			return false;\n");
+    res.push("		}\n");
+    res.push("	}\n");
+    res.push("	return false;\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::transform(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t)\n");
+    res.push("{\n");
+    res.push("      for (auto& c : self->m_children) Node::transform(c,t);\n");
+    res.push("      t(self);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::transformPreorder(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&)> t)\n");
+    res.push("{\n");
+    res.push("      t(self);\n");
+    res.push("      for (auto& c : self->m_children) Node::transformPreorder(c,t);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::transformDual(std::unique_ptr<Node>& self, std::function<void(std::unique_ptr<Node>&, bool)> t)\n");
+    res.push("{\n");
+    res.push("      t(self, false);\n");
+    res.push("      for (auto& c : self->m_children) Node::transformDual(c,t);\n");
+    res.push("      t(self, true);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("// ---\n");
+    res.push("\n");
+    res.push("static void try_delete_terminal(NodeData& data) {\n");
+    res.push("	if (Token** tptr = std::get_if<Token*>(&data))\n");
+    res.push("		delete (*tptr);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::assimilate(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> newkd,\n");
+    res.push("	std::vector<std::pair<NodeKind, NodeData>> similars)\n");
+    res.push("{\n");
+    res.push("	auto& [newkind, newdata]   = newkd;\n");
+    res.push("	Node::transform(self, [&](auto& n) {\n");
+    res.push("		auto  [nkind, ndata] = n->getKind();\n");
+    res.push("		for (auto& [skind, sdata] : similars) {\n");
+    res.push("			if (KDCOMPARE(nkind, ndata, skind, sdata))\n");
+    res.push("			{\n");
+    res.push("				n->morph(newkind, newdata);\n");
+    res.push("				break;\n");
+    res.push("			}\n");
+    res.push("		}\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(newkd.second);\n");
+    res.push("	for (auto& r : similars)\n");
+    res.push("		try_delete_terminal(r.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::squash(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd)\n");
+    res.push("{\n");
+    res.push("	auto& [tkind, tdata] = tgtkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto  [nkind, ndata] = n->getKind();\n");
+    res.push("		if (KDCOMPARE(nkind, ndata, tkind, tdata) == false)\n");
+    res.push("		{\n");
+    res.push("			return;\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		if (n->ccount() != 1)\n");
+    res.push("			return;\n");
+    res.push("\n");
+    res.push("		auto& child = n->follow(0);\n");
+    res.push("		auto [ckind, cdata] = child->getKind();\n");
+    res.push("\n");
+    res.push("		if (KDCOMPARE(ckind, cdata, nkind, ndata)) {\n");
+    res.push("			n = std::move(n->kidnap(0));\n");
+    res.push("		}\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(tgtkd.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::filter(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd,\n");
+    res.push("	std::vector<std::pair<NodeKind, NodeData>> removelist)\n");
+    res.push("{\n");
+    res.push("	auto& [tkind, tdata] = tgtkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [nkind, ndata] = n->getKind();\n");
+    res.push("\n");
+    res.push("		if (KDCOMPARE(nkind, ndata, tkind, tdata) == false)\n");
+    res.push("			return;\n");
+    res.push("\n");
+    res.push("		n->m_children.erase(\n");
+    res.push("			std::remove_if(\n");
+    res.push("				n->m_children.begin(),\n");
+    res.push("				n->m_children.end(),\n");
+    res.push("				[&](auto& child) {\n");
+    res.push("					auto [ckind, cdata] = child->getKind();\n");
+    res.push("					for (auto& [rkind, rdata] : removelist) {\n");
+    res.push("						if (KDCOMPARE(ckind, cdata, rkind, rdata))\n");
+    res.push("							return true;\n");
+    res.push("					}\n");
+    res.push("					return false;\n");
+    res.push("				}),\n");
+    res.push("			n->m_children.end()\n");
+    res.push("		);\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(tgtkd.second);\n");
+    res.push("	for (auto& r : removelist)\n");
+    res.push("		try_delete_terminal(r.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::flatten(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd)\n");
+    res.push("{\n");
+    res.push("\n");
+    res.push("	auto& [tkind, tdata] = tgtkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [nkind, ndata] = n->getKind();\n");
+    res.push("\n");
+    res.push("		std::vector<std::unique_ptr<Node>> new_children;\n");
+    res.push("		for (auto& child : n->m_children) {\n");
+    res.push("\n");
+    res.push("			auto [ckind, cdata] = child->getKind();\n");
+    res.push("			if (KDCOMPARE(ckind, cdata, tkind, tdata)) {\n");
+    res.push("				for (auto& grandchild : child->m_children) {\n");
+    res.push("					new_children.push_back(std::move(grandchild));\n");
+    res.push("				}\n");
+    res.push("			} else {\n");
+    res.push("				new_children.push_back(std::move(child));\n");
+    res.push("			}\n");
+    res.push("\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		n->m_children = std::move(new_children);\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(tgtkd.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::enlistify(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd)\n");
+    res.push("{\n");
+    res.push("	auto& [tkind, tdata] = tgtkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [nkind, ndata] = n->getKind();\n");
+    res.push("\n");
+    res.push("		if (n->ccount() == 0)\n");
+    res.push("			return;\n");
+    res.push("\n");
+    res.push("		auto [ckind, cdata] = n->m_children.back()->getKind();\n");
+    res.push("\n");
+    res.push("		if (KDCOMPARE(ckind, cdata, tkind, tdata) == false)\n");
+    res.push("			return;\n");
+    res.push("\n");
+    res.push("		std::vector<std::unique_ptr<Node>> new_children;\n");
+    res.push("\n");
+    res.push("		for (auto& kinder : n->m_children) {\n");
+    res.push("			auto [kkind, kdata] = kinder->getKind();\n");
+    res.push("			if (KDCOMPARE(kkind, kdata, tkind, tdata)) {\n");
+    res.push("				for (auto& grand : kinder->m_children) {\n");
+    res.push("					new_children.push_back(std::move(grand));\n");
+    res.push("				}\n");
+    res.push("			} else {\n");
+    res.push("				new_children.push_back(std::move(kinder));\n");
+    res.push("			}\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		n->m_children = std::move(new_children);\n");
+    res.push("	});\n");
+    res.push("	try_delete_terminal(tgtkd.second);\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::raise(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> destkd,\n");
+    res.push("	std::pair<NodeKind, NodeData> srckd)\n");
+    res.push("{\n");
+    res.push("	auto& [tkind, tdata] = srckd;\n");
+    res.push("	auto& [dkind, ddata] = destkd;\n");
+    res.push("	Node::transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [nkind, ndata] = n->getKind();\n");
+    res.push("\n");
+    res.push("		std::vector<std::unique_ptr<Node>> new_children;\n");
+    res.push("\n");
+    res.push("        for (auto& child : n->m_children) {\n");
+    res.push("\n");
+    res.push("			auto [ckind, cdata] = child->getKind();\n");
+    res.push("\n");
+    res.push("			if (KDCOMPARE(ckind, cdata, dkind, ddata) == false) {\n");
+    res.push("				new_children.push_back(std::move(child));\n");
+    res.push("				continue;\n");
+    res.push("			}\n");
+    res.push("\n");
+    res.push("            std::vector<std::unique_ptr<Node>> risen;\n");
+    res.push("            auto& grandchildren = child->m_children;\n");
+    res.push("            auto it = grandchildren.begin();\n");
+    res.push("\n");
+    res.push("			while (it != grandchildren.end()) {\n");
+    res.push("				auto [ikind, idata] = (*it)->getKind();\n");
+    res.push("				if (KDCOMPARE(ikind, idata, tkind, tdata)) {\n");
+    res.push("                    risen.push_back(std::move(*it));\n");
+    res.push("                    it = grandchildren.erase(it);\n");
+    res.push("                } else {\n");
+    res.push("                    ++it;\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("\n");
+    res.push("            new_children.push_back(std::move(child));\n");
+    res.push("\n");
+    res.push("            for (auto& r : risen) {\n");
+    res.push("                new_children.push_back(std::move(r));\n");
+    res.push("            }\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("        n->m_children = std::move(new_children);\n");
+    res.push("	});\n");
+    res.push("\n");
+    res.push("	try_delete_terminal(destkd.second);\n");
+    res.push("	try_delete_terminal(srckd.second);\n");
+    res.push("}\n");
+
+    this.closeNamespace(options);
+
+    return res.join('');
   }
 
   private semanticAnalyserH(options: Options): string {
@@ -130,6 +636,7 @@ export class CppParserGenerator {
       '.h"\n' +
       '#include "SyntacticError.h"\n' +
       '\n' +
+      (options.useASTLib ? '#include "Node.h"\n' : '') +
       (descendant ? '' : '#include <stack>\n' + '\n') +
       this.openNamespace(options) +
       'class ' +
@@ -149,23 +656,35 @@ export class CppParserGenerator {
       '        if (currentToken != 0)  delete currentToken;\n' +
       '    }\n' +
       '\n' +
-      '    void parse(' +
+      '    ' + (options.useASTLib ? 'std::unique_ptr<Node>' : 'void') + ' parse(' +
       scannerName +
-      ' *scanner, ' +
-      semanticName +
-      ' *semanticAnalyser);\n' + // throw (AnalysisError)
-      '\n' +
+      ' *scanner' +
+      (
+        options.useASTLib == false ?
+        ', ' +
+        semanticName +
+        ' *semanticAnalyser'
+        :
+        ''
+      ) +
+      ');\n\n' +
       'private:\n' +
       (descendant ? '' : '    std::stack<int> stack;\n') +
       '    Token *previousToken;\n' +
       '    Token *currentToken;\n' +
+      (options.useASTLib ? '    std::vector<std::unique_ptr<Node>> forest = {};\n': '') +
+      (options.useASTLib && options.parser == Options.PARSER_LL ? '    std::vector<int> nodect = {};\n': '') +
       '    ' +
       scannerName +
       ' *scanner;\n' +
       '    ' +
-      semanticName +
-      ' *semanticAnalyser;\n' +
-      '\n' +
+      (options.useASTLib == false ?
+        semanticName +
+        ' *semanticAnalyser;\n' +
+        '\n'
+        :
+        ''
+      ) +
       (descendant
         ? recDescFuncs
         : '    bool step();\n' + // throw (AnalysisError);\n"+
@@ -174,7 +693,8 @@ export class CppParserGenerator {
               '\n' +
               '    static bool isTerminal(int x) { return x < FIRST_NON_TERMINAL; }\n' +
               '    static bool isNonTerminal(int x) { return x >= FIRST_NON_TERMINAL && x < FIRST_SEMANTIC_ACTION; }\n' +
-              '    static bool isSemanticAction(int x) { return x >= FIRST_SEMANTIC_ACTION; }\n'
+              '    static bool isSemanticAction(int x) { return x >= FIRST_SEMANTIC_ACTION; }\n\n' +
+              (options.useASTLib ? '    void depopulate_forest(std::unique_ptr<Node>&& nn);' : '')
             : '')) +
       '};\n' +
       '\n' +
@@ -359,16 +879,21 @@ export class CppParserGenerator {
       '.h"\n' +
       '\n' +
       this.openNamespace(options) +
-      'void ' +
+      (options.useASTLib ? 'std::unique_ptr<Node> ' : 'void ') +
       parserName +
       '::parse(' +
       scannerName +
-      ' *scanner, ' +
-      semanticName +
-      ' *semanticAnalyser);\n' + // throw (AnalysisError)\n"+
-      '{\n' +
+      ' *scanner' +
+      (options.useASTLib == false ?
+        ', ' +
+        semanticName +
+        ' *semanticAnalyser'
+        :
+        ''
+      )+
+      ')\n{\n' +
       '    this->scanner = scanner;\n' +
-      '    this->semanticAnalyser = semanticAnalyser;\n' +
+      (options.useASTLib == false ? '    this->semanticAnalyser = semanticAnalyser;\n' : '') +
       '\n' +
       '    //Limpa a pilha\n' +
       '    while (! stack.empty())\n' +
@@ -377,16 +902,26 @@ export class CppParserGenerator {
       '    stack.push(DOLLAR);\n' +
       '    stack.push(START_SYMBOL);\n' +
       '\n' +
+      (options.useASTLib ?
+      '    forest.push_back(Node::from_terminal(new Token(TokenId::EPSILON, "", 0)));\n\n'
+      :
       '    if (previousToken != 0 && previousToken != currentToken)\n' +
-      '        delete previousToken;\n' +
+      '        delete previousToken;\n'
+      ) +
       '    previousToken = 0;\n' +
       '\n' +
+      (options.useASTLib ?
+      ''
+      :
       '    if (currentToken != 0)\n' +
-      '        delete currentToken;\n' +
+      '        delete currentToken;\n') +
       '    currentToken = scanner->nextToken();\n' +
       '\n' +
       '    while ( ! step() )\n' +
       '        ;\n' +
+      (options.useASTLib ?
+      '    return std::move(forest[0]);'
+      : '') +
       '}\n' +
       '\n' +
       'bool ' +
@@ -409,18 +944,24 @@ export class CppParserGenerator {
       '\n' +
       '    if (x == EPSILON)\n' +
       '    {\n' +
+      (options.useASTLib ? '        this->depopulate_forest(Node::from_terminal(new Token(TokenId::EPSILON, "", 0)));\n' : '')+
       '        return false;\n' +
       '    }\n' +
       '    else if (isTerminal(x))\n' +
       '    {\n' +
+      (options.useASTLib ? '        this->depopulate_forest(Node::from_terminal(currentToken));\n' : '')+
       '        if (x == a)\n' +
       '        {\n' +
       '            if (stack.empty())\n' +
       '                return true;\n' +
       '            else\n' +
       '            {\n' +
+      (options.useASTLib ?
+      ''
+      :
       '                if (previousToken != 0)\n' +
-      '                    delete previousToken;\n' +
+      '                    delete previousToken;\n'
+      )+
       '                previousToken = currentToken;\n' +
       '                currentToken = scanner->nextToken();\n' +
       '                return false;\n' +
@@ -440,7 +981,11 @@ export class CppParserGenerator {
       '    }\n' +
       '    else // isSemanticAction(x)\n' +
       '    {\n' +
-      '        semanticAnalyser->executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n' +
+      (options.useASTLib ?
+        '        this->depopulate_forest(Node::from_semanticaction(x - FIRST_SEMANTIC_ACTION, previousToken));\n'
+        :
+        '        semanticAnalyser->executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n'
+      ) +
       '        return false;\n' +
       '    }\n' +
       '}\n' +
@@ -459,12 +1004,35 @@ export class CppParserGenerator {
       '        {\n' +
       '            stack.push( production[i] );\n' +
       '        }\n' +
+      (options.useASTLib ?
+      '        forest.push_back(Node::from_nonterminal((NonTerm) topStack));\n'+
+      '        nodect.push_back(length);\n' : ''
+      )+
       '        return true;\n' +
       '    }\n' +
       '    else\n' +
       '        return false;\n' +
       '}\n' +
       '\n' +
+      (options.useASTLib ?
+      'void ' +
+      parserName +
+      '::depopulate_forest(std::unique_ptr<Node>&& nn)\n'+
+      '{\n'+
+      '    forest.back()->cpush(std::move(nn));\n'+
+      '    int itg = nodect.back(); nodect.pop_back();\n'+
+      '    while (itg == 1) {\n'+
+      '       auto node = std::move(forest.back()); forest.pop_back();\n'+
+      '       forest.back()->cpush(std::move(node));\n'+
+      '       if (nodect.size() > 0) {\n'+
+      '           itg = nodect.back(); nodect.pop_back();\n'+
+      '       } else {\n'+
+      '           break;\n'+
+      '       }\n'+
+      '    }\n'+
+      '    nodect.push_back((itg - 1) > 0 ? (itg - 1) : 0);\n'+
+      '}\n'+
+      '\n' : '') +
       this.closeNamespace(options) +
       ''
     )
@@ -481,16 +1049,21 @@ export class CppParserGenerator {
       '.h"\n' +
       '\n' +
       this.openNamespace(options) +
-      'void ' +
+      (options.useASTLib ? 'std::unique_ptr<Node>'  : 'void ') +
       parserName +
       '::parse(' +
       scannerName +
-      ' *scanner, ' +
-      semanticName +
-      ' *semanticAnalyser)\n' + // throw (AnalysisError)\n"+
-      '{\n' +
+      ' *scanner' +
+      (options.useASTLib == false ?
+        ' ,' +
+        semanticName +
+        ' *semanticAnalyser'
+        :
+        ''
+      ) +
+      ')\n{\n' +
       '    this->scanner = scanner;\n' +
-      '    this->semanticAnalyser = semanticAnalyser;\n' +
+      (options.useASTLib == false ? '    this->semanticAnalyser = semanticAnalyser;\n' : '') +
       '\n' +
       '    //Limpa a pilha\n' +
       '    while (! stack.empty())\n' +
@@ -498,16 +1071,21 @@ export class CppParserGenerator {
       '\n' +
       '    stack.push(0);\n' +
       '\n' +
+      (options.useASTLib ? '' :
       '    if (previousToken != 0 && previousToken != currentToken)\n' +
-      '        delete previousToken;\n' +
+      '        delete previousToken;\n'
+      ) +
       '    previousToken = 0;\n' +
       '\n' +
+      (options.useASTLib ? '' :
       '    if (currentToken != 0)\n' +
-      '        delete currentToken;\n' +
+      '        delete currentToken;\n'
+      ) +
       '    currentToken = scanner->nextToken();\n' +
       '\n' +
       '    while ( ! step() )\n' +
       '        ;\n' +
+      (options.useASTLib ? '    return std::move(forest[0]);\n': '') +
       '}\n' +
       '\n' +
       'bool ' +
@@ -533,8 +1111,12 @@ export class CppParserGenerator {
       '        case SHIFT:\n' +
       '        {\n' +
       '            stack.push(cmd[1]);\n' +
+      (options.useASTLib ?
+      '            forest.push_back(Node::from_terminal(currentToken));\n'
+      :
       '            if (previousToken != 0)\n' +
-      '                delete previousToken;\n' +
+      '                delete previousToken;\n'
+      ) +
       '            previousToken = currentToken;\n' +
       '            currentToken = scanner->nextToken();\n' +
       '            return false;\n' +
@@ -543,18 +1125,38 @@ export class CppParserGenerator {
       '        {\n' +
       '            const int* prod = PRODUCTIONS[cmd[1]];\n' +
       '\n' +
+      (options.useASTLib ?
+      '            auto node = Node::from_nonterminal(NonTerm::EPSILON);\n\n' +
+      '            for (int i=0; i<prod[1]; i++) {\n' +
+      '                node->cpush(std::move(forest.back()));\n'+
+      '                forest.pop_back();\n'+
+      '                stack.pop();\n'+
+      '            }\n'+
+      '            node->invert_children();\n'
+      :
       '            for (int i=0; i<prod[1]; i++)\n' +
-      '                stack.pop();\n' +
+      '                stack.pop();\n'
+      ) +
       '\n' +
       '            int oldState = stack.top();\n' +
       '            stack.push(PARSER_TABLE[oldState][prod[0]-1][1]);\n' +
+      (options.useASTLib ?
+      '\n' +
+      '            node->morph(NodeKind::NonTerminal, (NonTerm) prod[0]);\n'+
+      '            forest.push_back(std::move(node));\n'
+      : '')+
       '            return false;\n' +
       '        }\n' +
       '        case ACTION:\n' +
       '        {\n' +
       '            int action = FIRST_SEMANTIC_ACTION + cmd[1] - 1;\n' +
+      (options.useASTLib ?
+      '            forest.push_back(Node::from_semanticaction(cmd[1], previousToken));\n'
+      : '' ) +
       '            stack.push(PARSER_TABLE[state][action][1]);\n' +
-      '            semanticAnalyser->executeAction(cmd[1], previousToken);\n' +
+      (options.useASTLib == false ?
+      '            semanticAnalyser->executeAction(cmd[1], previousToken);\n'
+      : '' ) +
       '            return false;\n' +
       '        }\n' +
       '        case ACCEPT:\n' +
