@@ -37,7 +37,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-d9df109e.js";
+            window.path_to_searchindex_js = "searchindex-608d6f9d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -186,7 +186,7 @@
 <p>A versão antiga da documentação está disponível em <a href="https://lia-univali.github.io/Web-GALS/files/help.html">https://lia-univali.github.io/Web-GALS/files/help.html</a></p>
 </blockquote>
 <h2 id="uso-geral"><a class="header" href="#uso-geral">Uso Geral</a></h2>
-<p>O Web GALS apresenta uma área de trabalho com quatro janelas, um gerenciador de projetos e um menu de configurações.</p>
+<p>O Web GALS apresenta uma área de trabalho com cinco janelas, um gerenciador de projetos e um menu de configurações.</p>
 <p><img src="galsinterface.png" alt="Interface do Web GALS"></p>
 <center><i>Screenshot da interface principal do Web GALS.</i></center>
 <p>A interface é utilizada para definir as regras de análise léxica e sintática da linguagem a ser projetada. O Web GALS possui suporte a algoritmos de análise descendente e ascendente, bem como, permite a escolha de linguagem de implementação alvo do compilador via o menu de configurações. Essa interface é ilustrada e detalhada a seguir.</p>
@@ -226,7 +226,7 @@
 <center><i>Estado do Web GALS após simulação sintática.</i></center>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="opções"><a class="header" href="#opções">Opções</a></h1>
-<p>O Web GALS oferece opções para configuração de cada projeto. As configuraçõe são apresentadas em três abas no menu de configurações acessível na barra lateral esquerda da interface.</p>
+<p>O Web GALS oferece opções para configuração de cada projeto. As configurações são apresentadas em três abas no menu de configurações acessível na barra lateral esquerda da interface.</p>
 <h2 id="opções-gerais"><a class="header" href="#opções-gerais">Opções Gerais</a></h2>
 <p>A janela de configurações gerais permite o usuário escolher o quê será gerado e em qual linguagem-alvo, junto às escolhas de nomes de arquivos específicos do projeto.</p>
 <center><img src="confg.png" alt="Diálogo de Configurações Gerais"></center>
@@ -975,7 +975,7 @@ Em C++ e em Delphi, é esperado que a cada chamada o token retornado seja alocad
 <pre><code class="language-java">void executeAction(int action, Token token) throws SemanticError
 </code></pre>
 <p>Os parâmetros indicam a ação semântica que deve ser executada e o mais recente Token produzido pelo analisador léxico (em c++ ele é passado via ponteiro).</p>
-<p>Para gramáticas com poucas açãoes semânticas, pode-se construir um switch/case em função do parâmetro <code>action</code> e colocar o código da ação diretamente dentro de cada <code>case</code>, ou delegar um outro método para executá-la (mais recomendado para fins de organização).
+<p>Para gramáticas com poucas ações semânticas, pode-se construir um switch/case em função do parâmetro <code>action</code> e colocar o código da ação diretamente dentro de cada <code>case</code>, ou delegar um outro método para executá-la (mais recomendado para fins de organização).
 Em gramáticas com muitas ações, pode ser mais interessante criar um array de callbacks, indexado pelo número da ação semântica.</p>
 <p>Se um erro semântico for detectado, ele deve ser informado ao analisador sintático lançando uma excessão do tipo <code>SemanticError</code>. Isto é importante para manter a uniformidade na detecção de erros e interromper o processo de análise/compilação.</p>
 <h3 id="detalhes-das-tabelas-de-erro"><a class="header" href="#detalhes-das-tabelas-de-erro">Detalhes das tabelas de Erro</a></h3>
@@ -1049,8 +1049,243 @@ fn main() {
 }</code></pre>
 <div style="break-before: page; page-break-before: always;"></div>
 <h1 id="árvore-sintática-em-memória"><a class="header" href="#árvore-sintática-em-memória">Árvore Sintática em Memória</a></h1>
-<p><em>Ainda não implementado.</em></p>
-
+<blockquote class="blockquote-tag blockquote-tag-warning">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</p>
+<p>A biblioteca ainda está em desenvolvimento e atualmente suporta apenas Rust e C++.
+A API esta sujeita a mudar até novembro de 2026.</p>
+</blockquote>
+<h2 id="árvore-abstrata"><a class="header" href="#árvore-abstrata">Árvore abstrata</a></h2>
+<p>Tradicionalmente o processamento semântico e geração de código feito por um compilador
+acontece via o uso das ações semânticas; identificadores numéricos presentes na gramática que
+realizam <em>callbacks</em> a funções no compilador quando identificadas pelo analisador sintático
+(no Web GALS tais funções sendo escritas dentro do método <code>executeAction()</code> da classe Semântico).</p>
+<p>Este método é simples na implementação, porém restringe a complexidade do compilador já
+que em nenhum momento da compilação o compilador tem acesso completo a árvore sintática
+derivada pelo analisador sintático.</p>
+<p>De fato, no uso das ações semânticas não só se limita as informações disponíveis ao compilador
+(somente Tokens associados a uma ação semântica são enviados à classe Semântica), como conjuntos
+de informações outrora sequenciais são quebrados em múltiplas chamadas de função (como no caso de lista de
+identificadores em uma chamada de função, ou uma expressão binária).</p>
+<p>Uma alternativa ao uso do sistema de ações semânticas é guardar a árvore sintática
+derivada pelo analisador sintático na memoria e processa-la posteriormente. Esta árvore
+dada pelo analisador denomina-se <strong>Árvore Sintática Concreta</strong>, já que ela representa precisamente
+o que o analisador aceitou. No momento que se modifica uma árvore sintática concreta, ela se torna
+uma <strong>Árvore Sintática Abstrata</strong> (<em>AST</em>), já que ela representa o programa, mas não necessariamente
+o que o analisador sintático aceitou. Por questões de brevidade este documento ira referir ambas como abstrata.</p>
+<p>O Web GALS suporta na sua geração de código uma biblioteca para a criação e manipulação de árvores sintáticas
+abstratas, com múltiplas transformações pré implementadas prontas ao uso.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>A biblioteca vem desativada por padrão, e é ativada no menu de configurações do Web GALS na secção sintática.</p>
+</blockquote>
+<p>Ao habilitar a biblioteca, a função <code>parse()</code> da classe Sintático para de executar as ações semânticas e passa
+a retornar a árvore sintática. Por questões de compatibilidade, caso a gramática possua ações semânticas, essas
+são postas na árvore concreta em suas devidas posições, na qual podem ser processadas da maneira tradicional
+posteriormente via uma <em>transformação</em>, exemplificado em Rust e C++:</p>
+<pre><code class="language-C++">try {
+	auto tree = syn.parse(&amp;lex);
+	Node::transform(tree, [&amp;sem](auto&amp; n) {
+		auto kind = n-&gt;getKind();
+		if (kind.first == NodeKind::SemanticAction) {
+			auto actlex = n-&gt;getActionLex();
+			auto a = std::get&lt;int&gt;(kind.second);
+			sem.executeAction(a + 1, actlex);
+		}
+	});
+} catch ( ... ) {
+	...
+}
+</code></pre>
+<center><i>Exemplo C++.</i></center>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let mut tree = syn.parse()?;
+tree.try_transform(&amp;mut |n| {
+	if let NodeKind::SemanticAction(a) = n.get_kind() {
+		sem.execute_action((*a + 1) as u32, n.get_actionlex().expect("token"))?;
+	};
+	Ok(())
+})?;
+<span class="boring">}</span></code></pre>
+<center><i>Exemplo Rust.</i></center>
+<p>Transformações são o coração desta metodologia. Uma transformação é uma função executada em todos os nós da
+árvore seguindo uma ordem específica (a transformação acima sendo pós-ordem em profundidade).</p>
+<p>Com o uso das transformações é possível simplificar e reorganizar a árvore abstrata, adicionar informações
+a ela (como informações de tipagem), ou até mesmo usa-la de referência para a geração de código.</p>
+<h2 id="classe-node"><a class="header" href="#classe-node">Classe Node</a></h2>
+<p>A classe <code>Node</code> é a classe que representa os nós da árvore abstrata, e é o tipo retornado pela função <code>parse()</code>.
+De dados, elas possuem o parâmetro <code>kind</code>, a variante (<em>tagged union</em>/<em>enum</em>) de que tipo de nó é esse, tendo quatro
+opções: terminal, não-terminal, ação semântica e nó customizado; e <code>children</code>, sua lista de filhos. Métodos estão
+disponíveis para acessar e modificar ambos.</p>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>Devido a grande quantidade de código presente nesta classe, vezes quatro, uma para cada implementação,
+somente suas descrições estão presentes neste documento. Peço que busquem protótipos de função no próprio
+código fonte dos arquivos gerados.</p>
+</blockquote>
+<h2 id="transformações-prontas"><a class="header" href="#transformações-prontas">Transformações Prontas</a></h2>
+<p>A biblioteca vem com seis transformações parametrizáveis que permitem modificar a árvore, no intuito de simplifica-la
+para visualização e posterior processamento.</p>
+<h4 id="transformção-assimilate"><a class="header" href="#transformção-assimilate">Transformção <code>assimilate</code></a></h4>
+<p>Protótipo <code>assimilate(newkind: NodeKind, similars: List&lt;NodeKind&gt;)</code>.</p>
+<p>Esta transformação ira percorrer a árvore procurando por
+nós que se assemelham a qualquer <code>NodeKind</code> presente em <code>similars</code> e, caso ache, os morfará para <code>newkind</code>. Esta
+transformação é útil para padronizar nós que representam a mesma informação. Por exemplo, dado a gramática:</p>
+<pre><code>&lt;expr&gt;  ::= &lt;expr1&gt;;
+&lt;expr1&gt; ::= &lt;expr2&gt; | &lt;expr2&gt; &lt;optr1&gt; &lt;expr1&gt;;
+&lt;expr2&gt; ::= &lt;term&gt;  | &lt;term&gt;  &lt;optr2&gt; &lt;expr2&gt;;
+&lt;optr1&gt; ::= ...;
+&lt;optr2&gt; ::= ...;
+&lt;term&gt;  ::= &lt;value&gt; | OPEN &lt;expr&gt; CLOSE;
+</code></pre>
+<p>as regras <code>&lt;expr&gt;</code>, <code>&lt;expr1&gt;</code>, <code>&lt;expr2&gt;</code> e <code>&lt;term&gt;</code> representam as mesmas informações, mas necessitam ser não-terminais diferentes
+por questões de precedência e ambiguidade. As regras de operador sofrem um problema parecido.
+as transformações <code>assimilate(&lt;expr&gt;, [&lt;expr1&gt;, &lt;expr2&gt;, &lt;term&gt;])</code> e transformação <code>assimilate(&lt;optr&gt;, [&lt;optr1&gt;, &lt;optr2&gt;])</code>
+irão padronizar a árvore abstrata como mostrado abaixo:</p>
+<center><img src="assimilate.png" alt="Exemplo de transformação assimilate"></center>
+<center><i>Exemplo de transformação assimilate.</i></center>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>A função <code>assimilate()</code>, e todas as transformações prontas, esperam argumentos do tipo NodeKind. Por exemplo,
+em Rust, uma das transformações acima seria escrita da seguinte forma:</p>
+<pre><code>tree.assimilate(NodeKind::NonTerminal(NonTerm::nt_expr), &amp;[
+	NodeKind::NonTerminal(NonTerm::nt_expr1),
+	NodeKind::NonTerminal(NonTerm::nt_expr2),
+	NodeKind::NonTerminal(NonTerm::nt_term),
+])
+</code></pre>
+<p>A enumeração <code>NonTerm</code> está disponível no arquivo de constantes gerado com o projeto, junto com <code>TokenId</code> para terminais.</p>
+<p>Para C++, o tipo <code>NodeKind</code> é quebrado em duas partes, onde funções como a anterior aceitam <code>std::pair&lt;NodeKind, NodeData&gt;</code> no lugar
+de <code>NodeKind</code>, com <code>NodeKind</code> sendo uma enumeração e <code>NodeData</code> sendo um <code>std::variant</code> com os dados da enumeração, por exemplo:</p>
+<pre><code>Node::assimilate(
+  tree,
+  std::make_pair(NodeKind::NonTerminal, NonTerm::nt_expr),
+  std::vector&lt;std::pair&lt;NodeKind, NodeData&gt;&gt; {
+    std::make_pair(NodeKind::NonTerminal, NonTerm::nt_expr1),
+    std::make_pair(NodeKind::NonTerminal, NonTerm::nt_expr2),
+    std::make_pair(NodeKind::NonTerminal, NonTerm::nt_term ),
+  }
+);
+</code></pre>
+</blockquote>
+<h4 id="transformação-squash"><a class="header" href="#transformação-squash">Transformação <code>squash</code></a></h4>
+<p>Protótipo <code>squash(target: NodeKind)</code>.</p>
+<p>Esta transformação procura por nós similares a <code>target</code> nos quais tem somente
+um nó filho e, caso o seu nó filho tenha o mesmo nodekind que seu pai, o filho é deletado, com os netos sendo transferidos para
+o pai, eg.: <code>A tem B tem C,D,E → A tem C,D,E; B deletado</code>. Esta transformação é util em uso conjunto com a transformação anterior
+para deletar nós reduntantes na árvore. Por exemplo, digamos que as padronizações de expressão anteriores foram executadas:
+há uma grande chance que “cadeias” de <code>&lt;expr&gt;</code> aninhadas umas dentro das outras tenham sido formadas. A transformação <code>squash()</code> ira
+“esmagar” estas cadeidas em um nó só. A figura abaixo exemplifica:</p>
+<center><img src="squash.png" alt="Exemplo de transformação squash"></center>
+<center><i>Exemplo de transformação squash.</i></center>
+<h4 id="transformação-filter"><a class="header" href="#transformação-filter">Transformação <code>filter</code></a></h4>
+<p>Protótipo: <code>filter(target: NodeKind, removelist: List&lt;NodeKind&gt;)</code>.</p>
+<p>Esta transformação remove qualquer filho de <code>target</code> que esteja presente
+em <code>removelist</code>. Ela é útil para remover terminais que não apre­sentam significado semântico após a analise sintática, como pontos-vírgula
+ou parênteses. Por exemplo, em uma lista de identificadores associados a tipos, é muito provavel que os elementos sejam separados por
+vírgula, ou algo similar, porém somente os identificadores e os tipos apresentam significado semântico.</p>
+<p>Dado a seguinte gramatica:</p>
+<pre><code>&lt;lista&gt; ::= &lt;tipo&gt; IDENT SEMI | &lt;tipo&gt; IDENT VIRGULA &lt;lista&gt;;
+</code></pre>
+<p>e a seguinte possível derivação desta gramática:</p>
+<center><img src="filter1.png" alt="Exemplo para transformação filter."></center>
+<center><i>Exemplo para transformação filter.</i></center>
+<p>executar:</p>
+<pre><code class="language-C++">Node::filter(
+	tree,
+	std::make_pair(NodeKind::NonTerminal, NonTerm::nt_lista),
+	std::vector&lt;std::pair&lt;NodeKind, NodeData&gt;&gt; {
+		std::make_pair(NodeKind::Terminal, new Token(TokenId::t_VIRGULA, "", 0)),
+		std::make_pair(NodeKind::Terminal, new Token(TokenId::t_SEMI, "", 0)),
+	}
+)
+</code></pre>
+<blockquote class="blockquote-tag blockquote-tag-note">
+<p class="blockquote-tag-title"><svg viewbox="0 0 16 16" width="18" height="18"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</p>
+<p>No C++, todas as transformações efetuam <code>delete</code> dos <code>Tokens*</code> recebidos via argumento.</p>
+</blockquote>
+<p>irá deletar as virgulas e pontos-vírgulas da árvore abstrata, como da seguinte forma:</p>
+<center><img src="filter2.png" alt="Exemplo após transformação filter."></center>
+<center><i>Exemplo após transformação filter.</i></center>
+<h4 id="transformação-flatten"><a class="header" href="#transformação-flatten">Transformação <code>flatten</code></a></h4>
+<p>Protótipo: <code>flatten(target: NodeKind)</code>.</p>
+<p>Esta transformação é usada para deletar um nó, trocando-o por seus filhos.
+Por exemplo, se um nó A tem um nó B, no qual o nó B tem filhos C e D, executar
+flatten(B) deletará B e fará com que C e D sejam filhos de A, eg.:</p>
+<center><img src="flatten1.png" alt="Exemplo pré transformação flatten."></center>
+<center><i>Exemplo pré transformação flatten.</i></center>
+<p>vira</p>
+<center><img src="flatten2.png" alt="Exemplo pós transformação flatten."></center>
+<center><i>Exemplo pós transformação flatten.</i></center>
+<h4 id="transformação-enlistify"><a class="header" href="#transformação-enlistify">Transformação <code>enlistify</code></a></h4>
+<p>Protótipo: <code>enlistify(target: NodeKind)</code>.</p>
+<p>Esta transformação é usada para linearizar listas recursivas. Ele checa
+se o nó raiz e seu último filho tem o mesmo tipo e, se for esse o caso, executa
+<code>flatten()</code> em tal filho.</p>
+<p>Por exemplo, se pegarmos o exemplo da transformação <code>filter()</code> e executarmos <code>enlistify(&lt;lista&gt;)</code> o resultado será:</p>
+<center><img src="enlistify.png" alt="Exemplo após transformação enlistify."></center>
+<center><i>Exemplo após transformação enlistify.</i></center>
+<h2 id="transformações-customizadas"><a class="header" href="#transformações-customizadas">Transformações Customizadas</a></h2>
+<p>As transformações são implementadas via a chamada do método correspondente em qualquer nó da árvore,
+dando uma função lambda como argumento (que realizará a operação da transformação). A função lambda em sí
+recebe um único argumento: o nó que está sendo atualmente processado. A função de transformação então irá
+percorrer todos os nós filhos do nó na qual a transformação iniciada, executando a função lambda fornecida
+tende eles de argumento.</p>
+<p>O primeiro e principal método de transformação fornecida é, nomeada de acordo, <code>transform(t)</code>, específica com código
+Rust abaixo:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn transform&lt;F&gt;(self: &amp;mut Box&lt;Self&gt;, t: &amp;mut F)
+where
+	F: FnMut(&amp;mut Box&lt;Self&gt;),
+{
+	self.children.iter_mut().for_each(|c| c.transform(t));
+	t(self);
+}
+<span class="boring">}</span></code></pre>
+<p>Esta função percorre a árvore <em>em profundidade</em> com chamada <em>pós ordem</em>, ou seja, nós mais profundos primeiro, com
+a sua função lambda sendo executada após chegar ao final da cadeia de nós, ou “na volta”.</p>
+<p>A função <code>transformPreorder(t)</code> também é em profundidade, mas executa <em>pré ordem</em>, ou seja, executa “na ida”:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn transform_preorder&lt;F&gt;(self: &amp;mut Box&lt;Self&gt;, t: &amp;mut F)
+where
+	F: FnMut(&amp;mut Box&lt;Self&gt;),
+{
+	t(self)
+	self.children.iter_mut().for_each(|c| c.transform_preorder(t));
+}
+<span class="boring">}</span></code></pre>
+<p>A função <code>transformDual(t)</code> executa a lambda duas vezes, uma vez pré ordem e outra pós ordem. Tal operação é necessária
+para a correta implementação da tipagem e escopagem do programa, já que importa para implementação de ambos se você
+esta “entrando” ou “saindo” de um nó.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn transform_dual&lt;F&gt;(self: &amp;mut Box&lt;Self&gt;, t: &amp;mut F)
+where
+	F: FnMut(&amp;mut Box&lt;Self&gt;, bool),
+{
+	t(self, false);
+	self.children.iter_mut().for_each(|c| c.transform_dual(t));
+	t(self, true);
+}
+<span class="boring">}</span></code></pre>
+<p>A versões de C++ dessas funções são métodos estáticos devido ao fato de que o C++ não permite especializar a variável <code>this</code>
+a qualquer tipo além de <code>T*</code>, porém o design da biblioteca requer um valor boxeado <code>std::unique_ptr&lt;T&gt;</code> como valor <code>this</code>, eg.:</p>
+<pre><code class="language-C++">// Equivalente C++ de transform(t)
+static void transform(std::unique_ptr&lt;Node&gt;&amp; self, std::function&lt;void(std::unique_ptr&lt;Node&gt;&amp;)&gt; t);
+// Então é chamada com
+Node::transform(no, ...);
+/* Ao invéz de
+no-&gt;transform(...);
+*/
+</code></pre>
+<p><em>TODO nó customizado</em></p>
+<!--
+- *Nós customizados*
+	- Explicar uso
+	- Exemplo: Tipagem
+-->
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

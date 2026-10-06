@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-d9df109e.js";
+            window.path_to_searchindex_js = "searchindex-608d6f9d.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -517,7 +517,7 @@ Em C++ e em Delphi, é esperado que a cada chamada o token retornado seja alocad
 <pre><code class="language-java">void executeAction(int action, Token token) throws SemanticError
 </code></pre>
 <p>Os parâmetros indicam a ação semântica que deve ser executada e o mais recente Token produzido pelo analisador léxico (em c++ ele é passado via ponteiro).</p>
-<p>Para gramáticas com poucas açãoes semânticas, pode-se construir um switch/case em função do parâmetro <code>action</code> e colocar o código da ação diretamente dentro de cada <code>case</code>, ou delegar um outro método para executá-la (mais recomendado para fins de organização).
+<p>Para gramáticas com poucas ações semânticas, pode-se construir um switch/case em função do parâmetro <code>action</code> e colocar o código da ação diretamente dentro de cada <code>case</code>, ou delegar um outro método para executá-la (mais recomendado para fins de organização).
 Em gramáticas com muitas ações, pode ser mais interessante criar um array de callbacks, indexado pelo número da ação semântica.</p>
 <p>Se um erro semântico for detectado, ele deve ser informado ao analisador sintático lançando uma excessão do tipo <code>SemanticError</code>. Isto é importante para manter a uniformidade na detecção de erros e interromper o processo de análise/compilação.</p>
 <h3 id="detalhes-das-tabelas-de-erro"><a class="header" href="#detalhes-das-tabelas-de-erro">Detalhes das tabelas de Erro</a></h3>
