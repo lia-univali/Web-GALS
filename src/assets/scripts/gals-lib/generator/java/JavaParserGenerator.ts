@@ -35,9 +35,88 @@ export class JavaParserGenerator {
       result.set(classname + '.java', parser)
 
       result.set(options.semanticName + '.java', this.generateSemanticAnalyser(options))
+
+      if (options.useASTLib) {
+        result.set('Node.java', this.generateNode(options));
+      }
     }
 
     return result
+  }
+
+  private generateNode(options: Options): string {
+    let res: string[] = []
+
+    const packageName = options.pkgName
+    if (packageName && packageName !== '') {
+      res.push(`package ${packageName};\n\n`)
+    }
+
+    res.push("import java.util.List;\n");
+    res.push("import java.util.ArrayList;\n");
+    res.push("import java.util.Collections;\n");
+    res.push("\n");
+    res.push("public class Node\n");
+    res.push("{\n");
+    res.push("\n");
+    res.push("    public sealed interface NodeKind\n");
+    res.push("    {\n");
+    res.push("        public record Terminal(Token lex) implements NodeKind {}\n");
+    res.push("        public record NonTerminal(NonTerm nt) implements NodeKind {}\n");
+    res.push("        public record SemanticAction(int action, Token lex) implements NodeKind {}\n");
+    res.push("        public record CustomNode() implements NodeKind {}\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    private final ArrayList<Node> children = new ArrayList<Node>();\n");
+    res.push("    private NodeKind kind;\n");
+    res.push("\n");
+    res.push("    public Node(Token tk) {\n");
+    res.push("        this.kind = new NodeKind.Terminal(tk);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public Node(NonTerm nt) {\n");
+    res.push("        this.kind = new NodeKind.NonTerminal(nt);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public Node(int action, Token actionlex) {\n");
+    res.push("        this.kind = new NodeKind.SemanticAction(action, actionlex);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void cpush(Node newchild) {\n");
+    res.push("        this.children.add(newchild);\n");
+    res.push("    }\n");
+    res.push("    public void morph(NodeKind kd) {\n");
+    res.push("        this.kind = kd;\n");
+    res.push("    }\n");
+    res.push("    public void invert_children() {\n");
+    res.push("        Collections.reverse(this.children);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void printTree(int level) {\n");
+    res.push("        for (int i = 0; i < level; i++)\n");
+    res.push("            System.out.print(\"  \");\n");
+    res.push("\n");
+    res.push("        if (kind instanceof NodeKind.Terminal t) {\n");
+    res.push("            Token l = t.lex();\n");
+    res.push("            System.out.println(Reflection.TOKENS.get(l.getId()) + \" \\\"\" + l.getLexeme() + \"\\\"\");\n");
+    res.push("\n");
+    res.push("        } else if (kind instanceof NodeKind.NonTerminal nt) {\n");
+    res.push("            NonTerm p = nt.nt();\n");
+    res.push("            System.out.println(\"<\" + Reflection.NONTERMS.get(p.index()) + \">\");\n");
+    res.push("\n");
+    res.push("        } else if (kind instanceof NodeKind.SemanticAction a) {\n");
+    res.push("            System.out.println(\"#\" + a.action());\n");
+    res.push("\n");
+    res.push("        } else if (kind instanceof NodeKind.CustomNode) {\n");
+    res.push("            System.out.println(\"CUSTOM\");\n");
+    res.push("        }\n");
+    res.push("\n");
+    res.push("        for (Node c : children)\n");
+    res.push("            c.printTree(level + 1);\n");
+    res.push("    }\n");
+    res.push("}\n");
+
+    return res.join('')
   }
 
   private async buildRecursiveDecendantParser(g: Grammar, parserOptions: Options): Promise<string> {
@@ -110,13 +189,18 @@ export class JavaParserGenerator {
       ' scanner;\n' +
       '    private ' +
       semanName +
-      ' semanticAnalyser;\n' +
-      '\n'
+      ' semanticAnalyser;\n'
 
     result.push(variables)
 
+    if (parserOptions.useASTLib) {
+      result.push("    private final Stack<Node> forest = new Stack<Node>();\n")
+    }
+
+    result.push("\n");
+
     result.push(
-      '    public void parse(' +
+      '    public ' + (parserOptions.useASTLib ? 'Node' : 'void')+ ' parse(' +
         scannerName +
         ' scanner, ' +
         semanName +
@@ -126,13 +210,17 @@ export class JavaParserGenerator {
         '        this.semanticAnalyser = semanticAnalyser;\n' +
         '\n' +
         '        stack.clear();\n' +
-        //        '        stack.push(new Integer(0));\n' + // JDK Antigo - deprecated
         '        stack.push(0);\n' +
         '\n' +
         '        currentToken = scanner.nextToken();\n' +
         '\n' +
         '        while ( ! step() )\n' +
         '            ;\n' +
+        (parserOptions.useASTLib ?
+        '        return forest.pop();\n'
+        :
+        ''
+        )+
         '    }\n' +
         '\n' +
         '    private boolean step() throws LexicalError, SyntacticError, SemanticError\n' +
@@ -154,8 +242,12 @@ export class JavaParserGenerator {
         '        switch (cmd[0])\n' +
         '        {\n' +
         '            case SHIFT:\n' +
-        //'                stack.push(new Integer(cmd[1]));\n' + // JDK Antigo - deprecated
         '                stack.push(cmd[1]);\n' +
+        (parserOptions.useASTLib ?
+        '                forest.push(new Node(currentToken));\n'
+        :
+        ''
+        ) +
         '                previousToken = currentToken;\n' +
         '                currentToken = scanner.nextToken();\n' +
         '                return false;\n' +
@@ -163,17 +255,35 @@ export class JavaParserGenerator {
         '            case REDUCE:\n' +
         '                int[] prod = PRODUCTIONS[cmd[1]];\n' +
         '\n' +
+        (parserOptions.useASTLib ?
+        '                var node = new Node(NonTerm.EPSILON);\n'+
+        '                for (int i=0; i<prod[1]; i++) { \n' +
+        '                    node.cpush(forest.pop());\n' +
+        '                    stack.pop();\n' +
+        '                }\n' +
+        '                node.invert_children();\n'+
+        '                int oldState = stack.peek();\n' +
+        '                stack.push(PARSER_TABLE[oldState][prod[0]-1][1]);\n' +
+        '                node.morph(new Node.NodeKind.NonTerminal(NonTerm.getNonTermFromIndex(prod[0])));\n' +
+        '                forest.push(node);\n' +
+        '                return false;\n'
+        :
         '                for (int i=0; i<prod[1]; i++)\n' +
         '                    stack.pop();\n' +
         '\n' +
         '                int oldState = stack.peek();\n' +
-        //        '                stack.push(new Integer(PARSER_TABLE[oldState][prod[0]-1][1]));\n' + // JDK Antigo - deprecated
         '                stack.push(PARSER_TABLE[oldState][prod[0]-1][1]);\n' +
-        '                return false;\n' +
+        '                return false;\n'
+        ) +
         '\n' +
         '            case ACTION:\n' +
         '                int action = FIRST_SEMANTIC_ACTION + cmd[1] - 1;\n' +
-        //        '                stack.push(new Integer(PARSER_TABLE[state][action][1]));\n' + // JDK Antigo - deprecated
+        (parserOptions.useASTLib
+        ?
+        '                forest.push(new Node(cmd[1], previousToken));\n'
+        :
+        ''
+        ) +
         '                stack.push(PARSER_TABLE[state][action][1]);\n' +
         '                semanticAnalyser.executeAction(cmd[1], previousToken);\n' +
         '                return false;\n' +
