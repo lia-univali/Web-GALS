@@ -604,7 +604,8 @@ export class JavaParserGenerator {
 
     result.push('\n')
 
-    result.push(this.emitDepopulator())
+    if (parserOptions.useASTLib)
+      result.push(this.emitDepopulator())
 
     return result.join('')
   }
