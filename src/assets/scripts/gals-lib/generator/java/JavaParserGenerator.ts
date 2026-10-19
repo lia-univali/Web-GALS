@@ -52,6 +52,8 @@ export class JavaParserGenerator {
       res.push(`package ${packageName};\n\n`)
     }
 
+    res.push("import java.util.function.Consumer;\n");
+    res.push("import java.util.function.BiConsumer;\n");
     res.push("import java.util.List;\n");
     res.push("import java.util.ArrayList;\n");
     res.push("import java.util.Collections;\n");
@@ -66,6 +68,34 @@ export class JavaParserGenerator {
     res.push("        public record SemanticAction(int action, Token lex) implements NodeKind {}\n");
     res.push("        public record CustomNode() implements NodeKind {}\n");
     res.push("    }\n");
+    res.push("\n");
+    res.push("	public static boolean isSimilar(NodeKind lhs, NodeKind rhs) {\n");
+    res.push("		if (lhs instanceof NodeKind.Terminal a &&\n");
+    res.push("			rhs instanceof NodeKind.Terminal b) {\n");
+    res.push("			return a.lex().getId() == b.lex().getId();\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		if (lhs instanceof NodeKind.NonTerminal a &&\n");
+    res.push("			rhs instanceof NodeKind.NonTerminal b) {\n");
+    res.push("			return a.nt() == b.nt();\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		if (lhs instanceof NodeKind.SemanticAction a &&\n");
+    res.push("			rhs instanceof NodeKind.SemanticAction b) {\n");
+    res.push("			return a.action() == b.action();\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		if (lhs instanceof NodeKind.CustomNode &&\n");
+    res.push("			rhs instanceof NodeKind.CustomNode) {\n");
+    res.push("			return true;\n");
+    res.push("		}\n");
+    res.push("\n");
+    res.push("		return false;\n");
+    res.push("	}\n");
+    res.push("\n");
+    res.push("	public boolean isSimilar(NodeKind rhs) {\n");
+    res.push("		return Node.isSimilar(this.kind, rhs);\n");
+    res.push("	}\n");
     res.push("\n");
     res.push("    private final ArrayList<Node> children = new ArrayList<Node>();\n");
     res.push("    private NodeKind kind;\n");
@@ -82,6 +112,30 @@ export class JavaParserGenerator {
     res.push("        this.kind = new NodeKind.SemanticAction(action, actionlex);\n");
     res.push("    }\n");
     res.push("\n");
+    res.push("    public Node(NodeKind kind) {\n");
+    res.push("        this.kind = kind;\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("	public NodeKind getKind() {\n");
+    res.push("        return this.kind;\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void setKind(NodeKind kind) {\n");
+    res.push("        this.kind = kind;\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public List<Node> getChildren() {\n");
+    res.push("        return this.children;\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public int ccount() {\n");
+    res.push("        return this.children.size();\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public Node follow(int where) {\n");
+    res.push("        return this.children.get(where);\n");
+    res.push("    }\n");
+    res.push("\n");
     res.push("    public void cpush(Node newchild) {\n");
     res.push("        this.children.add(newchild);\n");
     res.push("    }\n");
@@ -91,9 +145,9 @@ export class JavaParserGenerator {
     res.push("    public void invert_children() {\n");
     res.push("        Collections.reverse(this.children);\n");
     res.push("    }\n");
-    res.push("    public Node kidnap(int which) {\n")
-    res.push("        return this.children.remove(which);\n")
-    res.push("    }\n")
+    res.push("    public Node kidnap(int which) {\n");
+    res.push("        return this.children.remove(which);\n");
+    res.push("    }\n");
     res.push("\n");
     res.push("    public void printTree(int level) {\n");
     res.push("        for (int i = 0; i < level; i++)\n");
@@ -116,6 +170,154 @@ export class JavaParserGenerator {
     res.push("\n");
     res.push("        for (Node c : children)\n");
     res.push("            c.printTree(level + 1);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    // ---\n");
+    res.push("\n");
+    res.push("	public void transform(Consumer<Node> t) {\n");
+    res.push("        for (Node child : children)\n");
+    res.push("            child.transform(t);\n");
+    res.push("        t.accept(this);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void transformPreorder(Consumer<Node> t) {\n");
+    res.push("        t.accept(this);\n");
+    res.push("        for (Node child : children)\n");
+    res.push("            child.transformPreorder(t);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void transformDual(BiConsumer<Node, Boolean> t) {\n");
+    res.push("        t.accept(this, false);\n");
+    res.push("        for (Node child : children)\n");
+    res.push("            child.transformDual(t);\n");
+    res.push("        t.accept(this, true);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    @FunctionalInterface\n");
+    res.push("    public interface TransformWithError {\n");
+    res.push("        void apply(Node node) throws AnalysisError;\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void tryTransform(TransformWithError t)\n");
+    res.push("        throws AnalysisError\n");
+    res.push("    {\n");
+    res.push("        for (Node child : children)\n");
+    res.push("            child.tryTransform(t);\n");
+    res.push("\n");
+    res.push("        t.apply(this);\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("	// --\n");
+    res.push("\n");
+    res.push("	public void assimilate(NodeKind newKind, List<NodeKind> similars) {\n");
+    res.push("        transform(n -> {\n");
+    res.push("            for (NodeKind similar : similars) {\n");
+    res.push("                if (n.isSimilar(similar)) {\n");
+    res.push("                    n.morph(newKind);\n");
+    res.push("                    break;\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("	public void squash(NodeKind target) {\n");
+    res.push("        transform(n -> {\n");
+    res.push("            if (n.isSimilar(target) && n.ccount() == 1) {\n");
+    res.push("                Node child = n.follow(0);\n");
+    res.push("\n");
+    res.push("                if (child.isSimilar(n.getKind())) {\n");
+    res.push("                    n.kind = child.kind;\n");
+    res.push("                    n.children.clear();\n");
+    res.push("                    n.children.addAll(child.children);\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void filter(NodeKind target, List<NodeKind> removelist) {\n");
+    res.push("        transform(n -> {\n");
+    res.push("            if (n.isSimilar(target)) {\n");
+    res.push("                n.children.removeIf(node -> {\n");
+    res.push("                    for (NodeKind remove : removelist) {\n");
+    res.push("                        if (node.isSimilar(remove))\n");
+    res.push("                            return true;\n");
+    res.push("                    }\n");
+    res.push("\n");
+    res.push("                    return false;\n");
+    res.push("                });\n");
+    res.push("            }\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void flatten(NodeKind target) {\n");
+    res.push("        transform(n -> {\n");
+    res.push("            ArrayList<Node> newChildren = new ArrayList<>();\n");
+    res.push("\n");
+    res.push("            for (Node child : n.children) {\n");
+    res.push("                if (child.isSimilar(target)) {\n");
+    res.push("                    newChildren.addAll(child.children);\n");
+    res.push("                } else {\n");
+    res.push("                    newChildren.add(child);\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("\n");
+    res.push("            n.children.clear();\n");
+    res.push("            n.children.addAll(newChildren);\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void enlistify(NodeKind target) {\n");
+    res.push("        transform(n -> {\n");
+    res.push("            if (n.isSimilar(target) && !n.children.isEmpty()) {\n");
+    res.push("                Node last = n.children.get(n.children.size() - 1);\n");
+    res.push("\n");
+    res.push("                if (last.isSimilar(target)) {\n");
+    res.push("                    ArrayList<Node> newChildren = new ArrayList<>();\n");
+    res.push("\n");
+    res.push("                    for (Node child : n.children) {\n");
+    res.push("                        if (child.isSimilar(target)) {\n");
+    res.push("                            newChildren.addAll(child.children);\n");
+    res.push("                        } else {\n");
+    res.push("                            newChildren.add(child);\n");
+    res.push("                        }\n");
+    res.push("                    }\n");
+    res.push("\n");
+    res.push("                    n.children.clear();\n");
+    res.push("                    n.children.addAll(newChildren);\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("        });\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public void raise(NodeKind targetDest, NodeKind targetSrc) {\n");
+    res.push("        transform(n -> {\n");
+    res.push("            ArrayList<Node> newChildren = new ArrayList<>();\n");
+    res.push("\n");
+    res.push("            for (Node child : n.children) {\n");
+    res.push("                if (child.isSimilar(targetDest)) {\n");
+    res.push("                    ArrayList<Node> risen = new ArrayList<>();\n");
+    res.push("                    ArrayList<Node> remaining = new ArrayList<>();\n");
+    res.push("\n");
+    res.push("                    for (Node k : child.children) {\n");
+    res.push("                        if (k.isSimilar(targetSrc))\n");
+    res.push("                            risen.add(k);\n");
+    res.push("                        else\n");
+    res.push("                            remaining.add(k);\n");
+    res.push("                    }\n");
+    res.push("\n");
+    res.push("                    child.children.clear();\n");
+    res.push("                    child.children.addAll(remaining);\n");
+    res.push("\n");
+    res.push("                    newChildren.add(child);\n");
+    res.push("                    newChildren.addAll(risen);\n");
+    res.push("                } else {\n");
+    res.push("                    newChildren.add(child);\n");
+    res.push("                }\n");
+    res.push("            }\n");
+    res.push("\n");
+    res.push("            n.children.clear();\n");
+    res.push("            n.children.addAll(newChildren);\n");
+    res.push("        });\n");
     res.push("    }\n");
     res.push("}\n");
 
@@ -190,9 +392,11 @@ export class JavaParserGenerator {
       '    private ' +
       scannerName +
       ' scanner;\n' +
-      '    private ' +
-      semanName +
-      ' semanticAnalyser;\n'
+      (parserOptions.useASTLib ?
+      ''
+      :
+      '    private ' + semanName + ' semanticAnalyser;\n'
+      )
 
     result.push(variables)
 
@@ -205,12 +409,18 @@ export class JavaParserGenerator {
     result.push(
       '    public ' + (parserOptions.useASTLib ? 'Node' : 'void')+ ' parse(' +
         scannerName +
-        ' scanner, ' +
+        ' scanner' +
+        (parserOptions.useASTLib ?
+        ''
+        :
+        ', ' +
         semanName +
-        ' semanticAnalyser) throws LexicalError, SyntacticError, SemanticError\n' +
+        ' semanticAnalyser'
+        ) +
+        ') throws LexicalError, SyntacticError, SemanticError\n' +
         '    {\n' +
         '        this.scanner = scanner;\n' +
-        '        this.semanticAnalyser = semanticAnalyser;\n' +
+        (parserOptions.useASTLib ? '' : '        this.semanticAnalyser = semanticAnalyser;\n') +
         '\n' +
         '        stack.clear();\n' +
         '        stack.push(0);\n' +
@@ -288,7 +498,10 @@ export class JavaParserGenerator {
         ''
         ) +
         '                stack.push(PARSER_TABLE[state][action][1]);\n' +
-        '                semanticAnalyser.executeAction(cmd[1], previousToken);\n' +
+        (parserOptions.useASTLib ?
+        ''
+        :
+        '                semanticAnalyser.executeAction(cmd[1], previousToken);\n') +
         '                return false;\n' +
         '\n' +
         '            case ACCEPT:\n' +
@@ -324,9 +537,11 @@ export class JavaParserGenerator {
       '    private ' +
       scannerName +
       ' scanner;\n' +
-      '    private ' +
-      semanName +
-      ' semanticAnalyser;\n' +
+      (parserOptions.useASTLib ?
+      ''
+      :
+      '    private ' + semanName + ' semanticAnalyser;\n'
+      ) +
       (parserOptions.useASTLib ?
       '    private final Stack<Node>    forest = new Stack<Node>();\n' +
       '    private final Stack<Integer> nodect = new Stack<Integer>();\n'
@@ -415,7 +630,7 @@ export class JavaParserGenerator {
       ' semanticAnalyser) throws LexicalError, SyntacticError, SemanticError\n' +
       '    {\n' +
       '        this.scanner = scanner;\n' +
-      '        this.semanticAnalyser = semanticAnalyser;\n' +
+      (parserOptions.useASTLib ? '' : '        this.semanticAnalyser = semanticAnalyser;\n') +
       '\n' +
       '        stack.clear();\n' +
       '        stack.push(DOLLAR);\n' +
@@ -491,8 +706,10 @@ export class JavaParserGenerator {
       '        else // isSemanticAction(x)\n' +
       '        {\n' +
       (options.useASTLib ?
-      '            this.depopulateForest(new Node(x - FIRST_SEMANTIC_ACTION, previousToken));\n':'')+
-      '            semanticAnalyser.executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n' +
+      '            this.depopulateForest(new Node(x - FIRST_SEMANTIC_ACTION, previousToken));\n'
+      :
+      '            semanticAnalyser.executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n'
+      )+
       '            return false;\n' +
       '        }\n' +
       '    }\n' +
