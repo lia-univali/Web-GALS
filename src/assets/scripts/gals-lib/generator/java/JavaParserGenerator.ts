@@ -38,10 +38,40 @@ export class JavaParserGenerator {
 
       if (options.useASTLib) {
         result.set('Node.java', this.generateNode(options));
+        result.set('CstmNode.java', this.generateCstmNode(options));
       }
     }
 
     return result
+  }
+
+  private generateCstmNode(options: Options): string {
+    let res: string[] = []
+
+    const packageName = options.pkgName
+    if (packageName && packageName !== '') {
+      res.push(`package ${packageName};\n\n`)
+    }
+
+    res.push('public class CstmNode {\n')
+    res.push('\n')
+    res.push('	  @Override\n')
+    res.push('	  public String toString() {\n')
+    res.push('		    return "#CUSTOM";\n')
+    res.push('	  }\n')
+    res.push('\n')
+    res.push('	  @Override\n')
+    res.push('	  public boolean equals(Object o) {\n')
+    res.push('		    return true;\n')
+    res.push('	  }\n')
+    res.push('\n')
+    res.push('	  @Override\n')
+    res.push('	  public int hashCode() {\n')
+    res.push('		    return 0;\n')
+    res.push('	  }\n')
+    res.push('}\n')
+
+    return res.join('')
   }
 
   private generateNode(options: Options): string {
@@ -66,7 +96,7 @@ export class JavaParserGenerator {
     res.push("        public record Terminal(Token lex) implements NodeKind {}\n");
     res.push("        public record NonTerminal(NonTerm nt) implements NodeKind {}\n");
     res.push("        public record SemanticAction(int action, Token lex) implements NodeKind {}\n");
-    res.push("        public record CustomNode() implements NodeKind {}\n");
+    res.push("        public record CustomNode(CstmNode cn) implements NodeKind {}\n");
     res.push("    }\n");
     res.push("\n");
     res.push("	public static boolean isSimilar(NodeKind lhs, NodeKind rhs) {\n");
@@ -87,7 +117,7 @@ export class JavaParserGenerator {
     res.push("\n");
     res.push("		if (lhs instanceof NodeKind.CustomNode &&\n");
     res.push("			rhs instanceof NodeKind.CustomNode) {\n");
-    res.push("			return true;\n");
+    res.push("			return lhs == rhs;\n");
     res.push("		}\n");
     res.push("\n");
     res.push("		return false;\n");
@@ -164,8 +194,8 @@ export class JavaParserGenerator {
     res.push("        } else if (kind instanceof NodeKind.SemanticAction a) {\n");
     res.push("            System.out.println(\"#\" + a.action());\n");
     res.push("\n");
-    res.push("        } else if (kind instanceof NodeKind.CustomNode) {\n");
-    res.push("            System.out.println(\"CUSTOM\");\n");
+    res.push("        } else if (kind instanceof NodeKind.CustomNode cn) {\n");
+    res.push("            System.out.println(cn.toString());\n");
     res.push("        }\n");
     res.push("\n");
     res.push("        for (Node c : children)\n");
@@ -625,9 +655,15 @@ export class JavaParserGenerator {
     return (
       (parserOptions.useASTLib ? '    public Node parse(' : '    public void parse(') +
       scannerName +
-      ' scanner, ' +
+      ' scanner' +
+      (parserOptions.useASTLib ?
+      ''
+      :
+      ', ' +
       semanName +
-      ' semanticAnalyser) throws LexicalError, SyntacticError, SemanticError\n' +
+      ' semanticAnalyser'
+      ) +
+      ') throws LexicalError, SyntacticError, SemanticError\n' +
       '    {\n' +
       '        this.scanner = scanner;\n' +
       (parserOptions.useASTLib ? '' : '        this.semanticAnalyser = semanticAnalyser;\n') +
