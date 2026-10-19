@@ -91,6 +91,9 @@ export class JavaParserGenerator {
     res.push("    public void invert_children() {\n");
     res.push("        Collections.reverse(this.children);\n");
     res.push("    }\n");
+    res.push("    public Node kidnap(int which) {\n")
+    res.push("        return this.children.remove(which);\n")
+    res.push("    }\n")
     res.push("\n");
     res.push("    public void printTree(int level) {\n");
     res.push("        for (int i = 0; i < level; i++)\n");
@@ -324,6 +327,12 @@ export class JavaParserGenerator {
       '    private ' +
       semanName +
       ' semanticAnalyser;\n' +
+      (parserOptions.useASTLib ?
+      '    private final Stack<Node>    forest = new Stack<Node>();\n' +
+      '    private final Stack<Integer> nodect = new Stack<Integer>();\n'
+      :
+      ''
+      ) +
       '\n'
 
     result.push(variables)
@@ -342,13 +351,36 @@ export class JavaParserGenerator {
 
     result.push('\n')
 
-    result.push(this.emitStep())
+    result.push(this.emitStep(parserOptions))
 
     result.push('\n')
 
     result.push(this.emitDriver(parserOptions))
 
+    result.push('\n')
+
+    result.push(this.emitDepopulator())
+
     return result.join('')
+  }
+
+  private emitDepopulator(): string {
+    return (
+      '    private void depopulateForest(Node nn) {\n' +
+      '        this.forest.peek().cpush(nn);\n' +
+      '        int itg = this.nodect.pop();\n' +
+      '        while (itg == 1) {\n' +
+      '            Node node = this.forest.pop();\n' +
+      '            this.forest.peek().cpush(node);\n' +
+      '            if (this.nodect.size() > 0) {\n' +
+      '                itg = this.nodect.pop();\n' +
+      '            } else {\n' +
+      '                break;\n' +
+      '            }\n' +
+      '        }\n' +
+      '        this.nodect.push((itg - 1) > 0 ? (itg - 1) : 0);\n' +
+      '    }\n'
+    );
   }
 
   private emitTesters(): string {
@@ -376,7 +408,7 @@ export class JavaParserGenerator {
     const semanName: string = parserOptions.semanticName
 
     return (
-      '    public void parse(' +
+      (parserOptions.useASTLib ? '    public Node parse(' : '    public void parse(') +
       scannerName +
       ' scanner, ' +
       semanName +
@@ -386,21 +418,28 @@ export class JavaParserGenerator {
       '        this.semanticAnalyser = semanticAnalyser;\n' +
       '\n' +
       '        stack.clear();\n' +
-      //      '        stack.push(new Integer(DOLLAR));\n' + // JDK Antigo - deprecated
-      //      '        stack.push(new Integer(START_SYMBOL));\n' + // JDK Antigo - deprecated
       '        stack.push(DOLLAR);\n' +
       '        stack.push(START_SYMBOL);\n' +
+      (parserOptions.useASTLib ?
+      '        this.forest.push(new Node(new Token(EPSILON, "", 0)));\n'
+      :
+      ''
+      ) +
       '\n' +
       '        currentToken = scanner.nextToken();\n' +
       '\n' +
       '        while ( ! step() )\n' +
       '            ;\n' +
+      (parserOptions.useASTLib ?
+      '\n        return this.forest.pop().kidnap(0);\n'
+      :
+      '') +
       '    }\n' +
       ''
     )
   }
 
-  private emitStep(): string {
+  private emitStep(options: Options): string {
     return (
       '    private boolean step() throws LexicalError, SyntacticError, SemanticError\n' +
       '    {\n' +
@@ -418,10 +457,14 @@ export class JavaParserGenerator {
       '\n' +
       '        if (x == EPSILON)\n' +
       '        {\n' +
+      (options.useASTLib ?
+      '            this.depopulateForest(new Node(new Token(EPSILON, "", 0)));\n':'')+
       '            return false;\n' +
       '        }\n' +
       '        else if (isTerminal(x))\n' +
       '        {\n' +
+      (options.useASTLib ?
+      '            this.depopulateForest(new Node(currentToken));\n':'')+
       '            if (x == a)\n' +
       '            {\n' +
       '                if (stack.empty())\n' +
@@ -447,6 +490,8 @@ export class JavaParserGenerator {
       '        }\n' +
       '        else // isSemanticAction(x)\n' +
       '        {\n' +
+      (options.useASTLib ?
+      '            this.depopulateForest(new Node(x - FIRST_SEMANTIC_ACTION, previousToken));\n':'')+
       '            semanticAnalyser.executeAction(x-FIRST_SEMANTIC_ACTION, previousToken);\n' +
       '            return false;\n' +
       '        }\n' +
@@ -461,9 +506,13 @@ export class JavaParserGenerator {
       '            //empilha a produção em ordem reversa\n' +
       '            for (int i=production.length-1; i>=0; i--)\n' +
       '            {\n' +
-      //      '                stack.push(new Integer(production[i]));\n' + // JDK Antigo - deprecated
       '                stack.push(production[i]);\n' +
       '            }\n' +
+      (options.useASTLib ?
+      '            this.forest.push(new Node(NonTerm.getNonTermFromIndex(topStack)));\n'+
+      '            this.nodect.push(production.length);\n'
+      :
+      '')+
       '            return true;\n' +
       '        }\n' +
       '        else\n' +
