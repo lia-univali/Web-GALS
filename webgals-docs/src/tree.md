@@ -1,5 +1,9 @@
 # Árvore Sintática em Memória
 
+O Web GALS vêm com uma biblioteca para ajudar na criação e manipulação de árvores sintáticas 
+em memoria. Nomeada **BibAST**, esta permite o desenvolvimento de compiladores com uma metodologia
+baseada em transformações recursivas.
+
 > [!WARNING]
 > A biblioteca ainda está em desenvolvimento e atualmente não tem suporte a Delphi.
 > A API esta sujeita a mudar até novembro de 2026.

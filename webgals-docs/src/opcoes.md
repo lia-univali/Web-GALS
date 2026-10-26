@@ -58,7 +58,7 @@ novas funcionalidades são desabilitadas.
 O Web GALS é compativel com o GALS 2003 até certo ponto: todas as novas funcionalidades irão inevitavelmente gerar incompatibilidades e,
 por isso, é oferecido a opção de gerar um projeto estritamente compatível com a versão antiga, onde as novas funcionalidades estão desabilitadas.
 
-- **Formato `.gals` -- (GALS 2003)**: Python e Rust desativados; LR(1)-Canônico e LALR(1) desativados; não salva o conteúdo da janela de simulação.
+- **Formato `.gals` -- (GALS 2003)**: Python e Rust desativados; LR(1)-Canônico e LALR(1) desativados; BibAST desativada; não salva o conteúdo da janela de simulação.
 - **Formato `.vgls` -- (Web GALS)**: Suporte completo.
 
 ## Opções do Analisador Léxico
@@ -134,6 +134,12 @@ A aba de opções do Analisador Sintático permite o usuário configurar qual al
 > O LR(1) Canônico e por consequência o LALR(1) podem travar o Web GALS caso a gramática seja muito complexa.
 
 Algumas classes impõem restrições na construção da gramática que devem ser observadas quando for descrevê-la.
+
+#### Biblioteca para manipulação da árvore abstrata (BibAST)
+
+- **Sem biblioteca de manipulação:** Gera o projeto sem capacidade de representar a árvore de derivação sintática em memoria.
+- **Integrar biblioteca de manipulação ao projeto:** Incorpora a biblioteca de manipulação e geração de árvores sintáticas abstratas ao projeto gerado
+pelo Web GALS. A função da classe sintático passa a retornar um valor do tipo `Node` que representa a árvore sintática aceita pelo analisador sintático.
 
 <!-- Levando em consideração minha descoberta que a unica diferença entre o SLR(1), LALR(1) e LR(1)
      é a tabela gerada, é muito provável que o Delphi tem suporte sim ao LALR(1) e LR(1). Só não vou
