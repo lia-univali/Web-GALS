@@ -293,13 +293,17 @@ export class PythonParserGenerator {
       `class ${classname}:\n\n` +
       '\tdef execute_action(self, action: int, token: Token):\n' +
       '\t\tprint("Ação: ", action, "Token: ", token)\n\n'+
+      (options.useASTLib ?
       'class CustomNode:\n' +
       '\n' +
-      '\tdef __eq__(self, other):' +
-      '\t\treturn True' +
+      '\tdef __eq__(self, other):\n' +
+      '\t\treturn True\n' +
       '\n' +
-      '\tdef __str__(self):' +
-      '\t\treturn "#CUSTOM"'
+      '\tdef __str__(self):\n' +
+      '\t\treturn "#CUSTOM"\n'
+      :
+      ''
+      )
     )
   }
 

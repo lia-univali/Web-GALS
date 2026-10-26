@@ -587,11 +587,11 @@ export class CppParserGenerator {
   private semanticHAST(): string {
     let res: string[] = []
 
-    res.push("    class CustomNode {\n");
-    res.push("    public:\n");
-    res.push("        std::string to_string(void) const;\n");
-    res.push("        bool operator==(const CustomNode& rhs) const;\n");
-    res.push("    };\n");
+    res.push("class CustomNode {\n");
+    res.push("public:\n");
+    res.push("    std::string to_string(void) const;\n");
+    res.push("    bool operator==(const CustomNode& rhs) const;\n");
+    res.push("};\n");
 
     return res.join('');
   }
