@@ -32,9 +32,9 @@ export function parsIdToString(value: number) {
 }
 
 export class Options {
-  public scannerName: string = 'Lexico'
-  public parserName: string = 'Sintatico'
-  public semanticName: string = 'Semantico'
+  public scannerName: string = 'Lexical'
+  public parserName: string = 'Syntactic'
+  public semanticName: string = 'Semantic'
   public pkgName: string = ''
 
   public generateScanner: boolean = true
