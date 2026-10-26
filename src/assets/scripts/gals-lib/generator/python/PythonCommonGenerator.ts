@@ -49,7 +49,12 @@ export class PythonCommonGenerator {
       (options.generateParser ? `sem = ${options.semanticName}()\n` : '') +
       `\ntry:\n` +
       (options.generateParser && options.generateScanner
-        ? '\tsyn.parse(lex, sem)\n'
+        ? (options.useASTLib ?
+          '\ttree = syn.parse(lex)\n'+
+          '\ttree.print_tree()\n'
+          :
+          '\tsyn.parse(lex, sem)\n'
+          )
         : '\t# syn.parse(lex, sem)\n') +
       `except AnalysisError as e:\n` +
       `\tprint(e)\n`
@@ -114,9 +119,31 @@ export class PythonCommonGenerator {
       '\tEPSILON = 0\n' +
       '\tDOLLAR  = 1\n' +
       this.constList(fa, g) +
+      (options.useASTLib ?
+      '\tdef __str__(self):\n' +
+      '\t\treturn self.name\n'
+      : '') +
       (options.generateScanner ? this.lexDecls(fa, options) : '') +
-      (options.generateParser ? await this.syntDecls(g, options) : '')
+      (options.generateParser ? await this.syntDecls(g, options) : '') +
+      (options.generateParser && options.useASTLib ? this.nonTermsEnum(g) : '')
     )
+  }
+
+  private nonTermsEnum(g: Grammar): string {
+    let res: string[] = []
+
+    res.push("\nclass NonTerm(Enum):\n");
+    res.push("\tEPSILON = 0\n");
+    for (let i = 0; i < g.nonTerminals.length; i++) {
+      const nt = g.nonTerminals[i];
+      const j = i + g.FIRST_NON_TERMINAL;
+      res.push(`\tnt_${nt.slice(1, -1)} = ${j}\n`)
+    }
+
+    res.push('\tdef __str__(self):\n')
+    res.push('\t\treturn self.name\n')
+
+    return res.join('');
   }
 
   private constList(fa: FiniteAutomata, g: Grammar): string {

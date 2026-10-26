@@ -26,6 +26,11 @@ export class JavaCommonGenerator {
     }
     if (g !== null) {
       result.set('ParserConstants.java', await this.generateParserConstants(g, options))
+
+      if (options.useASTLib && fa !== null) {
+        result.set('Reflection.java', this.generateReflection(fa, g, options))
+        result.set('NonTerm.java', this.generateNonTerm(g, options))
+      }
     }
 
     result.set('AnalysisError.java', this.generateAnalysisError(options))
@@ -34,6 +39,113 @@ export class JavaCommonGenerator {
     result.set('SemanticError.java', this.generateSemanticError(options))
 
     return result
+  }
+
+  private generateNonTerm(g: Grammar, options: Options): string {
+    let res: string[] = []
+
+    const packageName = options.pkgName
+    if (packageName && packageName !== '') {
+      res.push(`package ${packageName};\n\n`)
+    }
+
+    res.push("public enum NonTerm {\n");
+    res.push("    EPSILON(0),\n");
+
+    for (let i = 0; i < g.nonTerminals.length; i++) {
+      const nt = g.nonTerminals[i];
+      const j = i + g.FIRST_NON_TERMINAL;
+      res.push(`    nt_${nt.slice(1, -1)}(${j})`)
+      res.push(",\n")
+    }
+    res.pop();
+
+    res.push(";\n");
+    res.push("\n");
+    res.push("    private final int index;\n");
+    res.push("\n");
+    res.push("    NonTerm(int index) {\n");
+    res.push("        this.index = index;\n");
+    res.push("    }\n");
+    res.push("\n");
+    res.push("    public int index() {\n");
+    res.push("        return index;\n");
+    res.push("    }\n");
+
+    res.push('    public static NonTerm getNonTermFromIndex(int index) {\n');
+    res.push('        switch (index) {\n');
+    res.push('            case 0:\n');
+    res.push('                return NonTerm.EPSILON;\n');
+
+    for (let i = 0; i < g.nonTerminals.length; i++) {
+      const nt = g.nonTerminals[i];
+      const j = i + g.FIRST_NON_TERMINAL;
+      res.push(`            case ${j}:\n`)
+      res.push(`                return NonTerm.nt_${nt.slice(1, -1)};\n`)
+    }
+
+    res.push('            default:\n');
+    res.push('                throw new RuntimeException("Unknown index:" + index);\n');
+    res.push('        }\n');
+    res.push('    }\n');
+
+    res.push("}\n");
+
+    return res.join('')
+  }
+
+  private generateReflection(fa: FiniteAutomata, g: Grammar, options: Options): string {
+    let res: string[] = []
+
+    const packageName = options.pkgName
+    if (packageName && packageName !== '') {
+      res.push(`package ${packageName};\n\n`)
+    }
+
+    res.push("import java.util.Map;\n");
+    res.push("\n");
+    res.push("public final class Reflection {\n");
+    res.push("\n");
+    res.push("    public static final Map<Integer, String> TOKENS = Map.ofEntries(\n");
+    res.push(`        Map.entry(0, "EPSILON"),\n`)
+    res.push(`        Map.entry(1, "DOLLAR"),\n`)
+
+    const tokens = fa.tokens.toArray()!;
+
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i];
+      let str: string;
+
+      if (t.charAt(0) == '"')
+        str = 't_TOKEN_' + (i + 2);
+      else
+        str = 't_' + t;
+
+      res.push(`        Map.entry(${i + 2}, "${str}")`)
+      res.push(",\n");
+    }
+
+    res.pop();
+    res.push("\n    );\n");
+
+    res.push("");
+    res.push("\n");
+    res.push("    public static final Map<Integer, String> NONTERMS = Map.ofEntries(\n");
+    res.push(`        Map.entry(0, "EPSILON"),\n`);
+
+    for (let i = 0; i < g.nonTerminals.length; i++) {
+      const nt = g.nonTerminals[i];
+      const j = i + g.FIRST_NON_TERMINAL;
+      res.push(`        Map.entry(${j}, "nt_${nt.slice(1, -1)}")`);
+      res.push(",\n")
+    }
+    res.pop();
+
+    res.push("\n    );\n");
+    res.push("}\n");
+
+
+    return res.join('')
   }
 
   private generateToken(options: Options): string {

@@ -64,8 +64,14 @@ public class Main
 		try (var f = new FileReader("program.txt")) {
 			lex.setInput(f);
 			syn.parse(lex, sem);
-		} catch (Exception e) {
-			System.out.println(e);
+         } catch ( LexicalError e ) {
+			System.out.println("Erro léxico: " + e.toString());
+		} catch ( SyntacticError e ) {
+			System.out.println("Erro Sintático: " + e.toString());
+		} catch ( SemanticError e ) {
+			System.out.println("Erro Semântico: " + e.toString());
+		} catch ( Exception e ) {
+			System.out.println(e.toString());
 		}
 
 	}
@@ -79,6 +85,7 @@ public class Main
 #include <Lexico.h>
 #include <Sintatico.h>
 #include <Semantico.h>
+#include <SemanticError.h>
 
 int main(void) {
 
@@ -100,10 +107,18 @@ int main(void) {
 	{
 		syn.parse(&lex, &sem);
 	}
-	catch ( AnalysisError& e )
-	{
-		std::cerr << e.getMessage() << " @ " << e.getPosition() << std::endl;
-	}
+	catch ( LexicalError& e )
+    {
+        std::cerr << "Erro léxico: " << e.getMessage() << " @ " << e.getPosition() << std::endl;
+    }
+    catch ( SyntacticError& e )
+    {
+        std::cerr << "Erro sintático: " << e.getMessage() << " @ " << e.getPosition() << std::endl;
+    }
+    catch ( SemanticError& e )
+    {
+        std::cerr << "Erro semântico: " << e.getMessage() << " @ " << e.getPosition() << std::endl;
+    }
 
 }
 ```
@@ -143,7 +158,7 @@ semantico.destroy;
 from Lexico    import Lexico
 from Sintatico import Sintatico
 from Semantico import Semantico
-from Errors    import AnalysisError
+from Errors    import LexicalError, SyntacticError, SemanticError
 
 with open('program.txt') as file:
 
@@ -155,8 +170,12 @@ with open('program.txt') as file:
 
     try:
         syn.parse(lex, sem)
-    except AnalysisError as e:
-        print(e)
+    except LexicalError as e:
+		print("Erro Léxico:", e)
+	except SyntacticError as e:
+		print("Erro Sintático:", e)
+	except SemanticError as e:
+		print("Erro Semântico:", e)
 
 ```
 
