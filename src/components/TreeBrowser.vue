@@ -21,13 +21,39 @@ export default defineComponent({
   },
   data() {
     return {
-      isOpen: true
+      isOpen: this.isRoot
     }
   },
   computed: {
     isFolder() {
       if (this.node == null) return false
       return this.node.children && this.node.children.length
+    }
+  },
+  methods: {
+
+    collapseTreeCb() {
+      if (this.$refs.children) {
+        for (const child of this.$refs.children as any[]) {
+          child.collapseTree()
+        }
+      }
+    },
+    collapseTree() {
+      this.isOpen = false;
+      if (this.$refs.children) {
+        for (const child of this.$refs.children as any[]) {
+          child.collapseTree()
+        }
+      }
+    },
+    expandTree() {
+      this.isOpen = true;
+      if (this.$refs.children) {
+        for (const child of this.$refs.children as any[]) {
+          child.expandTree()
+        }
+      }
     }
   }
 })
@@ -37,7 +63,7 @@ export default defineComponent({
   <div class="tree">
     <ul>
       <li :class="{ not__final: !isFinal, root: isRoot }">
-        <details :open="isRoot" v-if="isFolder">
+        <details :open="isOpen" v-if="isFolder" @toggle="isOpen = ($event.target as HTMLDetailsElement).open">
           <summary
             :style="{
               fontWeight: isFolder ? 'bold' : 'normal',
@@ -45,8 +71,11 @@ export default defineComponent({
             }"
           >
             {{ node?.value }}
+            <button class='text-button' @click.stop="collapseTreeCb">-</button>
+            <button class='text-button' @click.stop="expandTree">+</button>
           </summary>
           <TreeBrowser
+            ref='children'
             v-for="(child, index) in node?.children"
             :key="child.value == null ? '' : `${child.value}#${index},${depth}`"
             :node="child"
@@ -81,6 +110,7 @@ ul {
 ul summary {
   cursor: pointer;
   list-style-type: '';
+  white-space: nowrap;
 }
 
 ul summary::after {
@@ -101,6 +131,44 @@ ul li::before {
   content: '';
   width: 14px;
   height: 1em;
+}
+
+button.text-button {
+	background: none;
+	border: none;
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+}
+
+
+button.text-button {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: white;
+  cursor: pointer;
+
+  width: 1.5em;
+  height: 1.5em;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+summary:hover button.text-button {
+  color: inherit;
+}
+
+button.text-button:hover {
+  background: #dfd;
 }
 
 .not__final::after {
