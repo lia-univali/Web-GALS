@@ -315,7 +315,7 @@ where
 
 | Linguagem | Protótipo | Versão Try? |
 |-----------|-----------| ----------  |
-| C++       | <pre>static void transform(std::unique_ptr<Node>& self, std::function&lt;void(std::unique_ptr<Node>&)&gt; t)</pre> | Não |
+| C++       | <pre>static void transform(std::unique_ptr&lt;Node&gt;& self, std::function&lt;void(std::unique_ptr&lt;Node&gt;&)&gt; t)</pre> | Não |
 | Java      | <pre>public void transform(Consumer&lt;Node&gt; t)</pre>                                                            | <span style="text-justify: none;">Sim, lança <pre style="font-size: 13pt;">AnalysisError</pre></span> |
 | Python    | <pre>def transform(self, t)</pre>                                                                                   | Não |
 | Rust      | <pre>pub fn transform&lt;F&gt;(self: &mut Box&lt;Self&gt;, t: &mut F) where F: FnMut(&mut Box&lt;Self&gt;)</pre>   | <span style="text-justify: none;">Sim, retorna <pre style="font-size: 13pt;">Result&lt;(), AnalysisError&gt;</pre></span> |
@@ -335,7 +335,7 @@ where
 ```
 | Linguagem | Protótipo |
 |-----------|-----------|
-| C++       | <pre>static void transformPreorder(std::unique_ptr<Node>& self, std::function&lt;void(std::unique_ptr<Node>&)&gt; t)</pre> |
+| C++       | <pre>static void transformPreorder(std::unique_ptr&lt;Node&gt& self, std::function&lt;void(std::unique_ptr&lt;Node&gt&)&gt; t)</pre> |
 | Java      | <pre>public void transformPreoder(Consumer&lt;Node&gt; t)</pre>                                                            |
 | Python    | <pre>def transform_preorder(self, t)</pre>                                                                                   |
 | Rust      | <pre>pub fn transform_preorder&lt;F&gt;(self: &mut Box&lt;Self&gt;, t: &mut F) where F: FnMut(&mut Box&lt;Self&gt;)</pre>   |
@@ -356,7 +356,7 @@ where
 ```
 | Linguagem | Protótipo |
 |-----------|-----------|
-| C++       | <pre>static void transformDual(std::unique_ptr<Node>& self, std::function&lt;void(std::unique_ptr<Node>&, bool)&gt; t)</pre> |
+| C++       | <pre>static void transformDual(std::unique_ptr&lt;Node&gt& self, std::function&lt;void(std::unique_ptr&lt;Node&gt&, bool)&gt; t)</pre> |
 | Java      | <pre>public void transformDual(BiConsumer&lt;Node, Boolean&gt; t)</pre>                                                            |
 | Python    | <pre>def transform_dual(self, t)</pre>                                                                                   |
 | Rust      | <pre>pub fn transform_dual&lt;F&gt;(self: &mut Box&lt;Self&gt;, t: &mut F) where F: FnMut(&mut Box&lt;Self&gt;, bool)</pre>   |
