@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-608d6f9d.js";
+            window.path_to_searchindex_js = "searchindex-e3f143c1.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -229,7 +229,7 @@ novas funcionalidades são desabilitadas.
 <p>O Web GALS é compativel com o GALS 2003 até certo ponto: todas as novas funcionalidades irão inevitavelmente gerar incompatibilidades e,
 por isso, é oferecido a opção de gerar um projeto estritamente compatível com a versão antiga, onde as novas funcionalidades estão desabilitadas.</p>
 <ul>
-<li><strong>Formato <code>.gals</code> – (GALS 2003)</strong>: Python e Rust desativados; LR(1)-Canônico e LALR(1) desativados; não salva o conteúdo da janela de simulação.</li>
+<li><strong>Formato <code>.gals</code> – (GALS 2003)</strong>: Python e Rust desativados; LR(1)-Canônico e LALR(1) desativados; BibAST desativada; não salva o conteúdo da janela de simulação.</li>
 <li><strong>Formato <code>.vgls</code> – (Web GALS)</strong>: Suporte completo.</li>
 </ul>
 <h2 id="opções-do-analisador-léxico"><a class="header" href="#opções-do-analisador-léxico">Opções do Analisador Léxico</a></h2>
@@ -300,6 +300,12 @@ por isso, é oferecido a opção de gerar um projeto estritamente compatível co
 <p>O LR(1) Canônico e por consequência o LALR(1) podem travar o Web GALS caso a gramática seja muito complexa.</p>
 </blockquote>
 <p>Algumas classes impõem restrições na construção da gramática que devem ser observadas quando for descrevê-la.</p>
+<h4 id="biblioteca-para-manipulação-da-árvore-abstrata-bibast"><a class="header" href="#biblioteca-para-manipulação-da-árvore-abstrata-bibast">Biblioteca para manipulação da árvore abstrata (BibAST)</a></h4>
+<ul>
+<li><strong>Sem biblioteca de manipulação:</strong> Gera o projeto sem capacidade de representar a árvore de derivação sintática em memoria.</li>
+<li><strong>Integrar biblioteca de manipulação ao projeto:</strong> Incorpora a biblioteca de manipulação e geração de árvores sintáticas abstratas ao projeto gerado
+pelo Web GALS. A função da classe sintático passa a retornar um valor do tipo <code>Node</code> que representa a árvore sintática aceita pelo analisador sintático.</li>
+</ul>
 <!-- Levando em consideração minha descoberta que a unica diferença entre o SLR(1), LALR(1) e LR(1)
      é a tabela gerada, é muito provável que o Delphi tem suporte sim ao LALR(1) e LR(1). Só não vou
      testar pois não estou com vontade de comprar uma licença de Delphi (principalmente já que tal nem

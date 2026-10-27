@@ -36,7 +36,7 @@
             const path_to_root = "";
             const default_light_theme = "gals";
             const default_dark_theme = "gals";
-            window.path_to_searchindex_js = "searchindex-608d6f9d.js";
+            window.path_to_searchindex_js = "searchindex-e3f143c1.js";
         </script>
         <!-- Start loading toc.js asap -->
         <script src="toc-96c027f1.js"></script>
@@ -224,8 +224,14 @@ public class Main
 		try (var f = new FileReader("program.txt")) {
 			lex.setInput(f);
 			syn.parse(lex, sem);
-		} catch (Exception e) {
-			System.out.println(e);
+         } catch ( LexicalError e ) {
+			System.out.println("Erro léxico: " + e.toString());
+		} catch ( SyntacticError e ) {
+			System.out.println("Erro Sintático: " + e.toString());
+		} catch ( SemanticError e ) {
+			System.out.println("Erro Semântico: " + e.toString());
+		} catch ( Exception e ) {
+			System.out.println(e.toString());
 		}
 
 	}
@@ -237,6 +243,7 @@ public class Main
 #include &lt;Lexico.h&gt;
 #include &lt;Sintatico.h&gt;
 #include &lt;Semantico.h&gt;
+#include &lt;SemanticError.h&gt;
 
 int main(void) {
 
@@ -258,10 +265,18 @@ int main(void) {
 	{
 		syn.parse(&amp;lex, &amp;sem);
 	}
-	catch ( AnalysisError&amp; e )
-	{
-		std::cerr &lt;&lt; e.getMessage() &lt;&lt; " @ " &lt;&lt; e.getPosition() &lt;&lt; std::endl;
-	}
+	catch ( LexicalError&amp; e )
+    {
+        std::cerr &lt;&lt; "Erro léxico: " &lt;&lt; e.getMessage() &lt;&lt; " @ " &lt;&lt; e.getPosition() &lt;&lt; std::endl;
+    }
+    catch ( SyntacticError&amp; e )
+    {
+        std::cerr &lt;&lt; "Erro sintático: " &lt;&lt; e.getMessage() &lt;&lt; " @ " &lt;&lt; e.getPosition() &lt;&lt; std::endl;
+    }
+    catch ( SemanticError&amp; e )
+    {
+        std::cerr &lt;&lt; "Erro semântico: " &lt;&lt; e.getMessage() &lt;&lt; " @ " &lt;&lt; e.getPosition() &lt;&lt; std::endl;
+    }
 
 }
 </code></pre>
@@ -295,7 +310,7 @@ semantico.destroy;
 <pre><code class="language-python">from Lexico    import Lexico
 from Sintatico import Sintatico
 from Semantico import Semantico
-from Errors    import AnalysisError
+from Errors    import LexicalError, SyntacticError, SemanticError
 
 with open('program.txt') as file:
 
@@ -307,8 +322,12 @@ with open('program.txt') as file:
 
     try:
         syn.parse(lex, sem)
-    except AnalysisError as e:
-        print(e)
+    except LexicalError as e:
+		print("Erro Léxico:", e)
+	except SyntacticError as e:
+		print("Erro Sintático:", e)
+	except SemanticError as e:
+		print("Erro Semântico:", e)
 
 </code></pre>
 <h5 id="rust"><a class="header" href="#rust">Rust</a></h5>
