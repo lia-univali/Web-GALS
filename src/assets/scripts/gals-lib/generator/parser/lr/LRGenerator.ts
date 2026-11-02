@@ -191,7 +191,7 @@ export abstract class LRGenerator {
     return result
   }
 
-  protected async resolveConflicts(table: Set<Command>[][]): Promise<Command[][]> {
+  protected async resolveConflicts(table: Set<Command>[][], prods?: List<Production>): Promise<Command[][]> {
     const result: Command[][] = []
 
     const error: Command = Command.createError()
@@ -206,7 +206,7 @@ export abstract class LRGenerator {
             result[i][j] = table[i][j].values().next().value! //.iterator().next();
             break
           default:
-            result[i][j] = await this.solve(table[i][j], i, j)
+            result[i][j] = await this.solve(table[i][j], i, j, prods)
             break
         }
       }
@@ -215,7 +215,7 @@ export abstract class LRGenerator {
     return result
   }
 
-  private async solve(set: Set<Command>, state: number, input: number): Promise<Command> {
+  private async solve(set: Set<Command>, state: number, input: number, prods?: List<Production>): Promise<Command> {
     const cmds: Command[] = []
     let i = 0
 
@@ -233,7 +233,7 @@ export abstract class LRGenerator {
     if (equals) return cmds[0]
     else {
       const lrConflictSolver: LRConflictSolver = new LRConflictSolver()
-      lrConflictSolver.setup(cmds, state)
+      lrConflictSolver.setup(cmds, state, prods)
       return cmds[await lrConflictSolver.resolve(this.g, input)]
     }
   }

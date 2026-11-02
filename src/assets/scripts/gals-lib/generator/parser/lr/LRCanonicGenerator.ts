@@ -212,7 +212,7 @@ export class LRCanonicGenerator extends LRGenerator {
 
     const resultSet: Set<Command>[][] = result.map((row) => row.map((map) => new Set(map.values())))
 
-    let cft = await this.resolveConflicts(resultSet)
+    let cft = await this.resolveConflicts(resultSet, this.g.productions)
 
     return cft
   }

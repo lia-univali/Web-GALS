@@ -17,6 +17,8 @@ export default defineComponent({
     fecharModal() {
       const formulario = document.getElementById('modal__arquivo')
       if (formulario != null) formulario.style.display = 'none'
+      const bg = document.getElementById('modal__arquivo__darkbg')
+      if (bg != null) bg.style.display = 'none'
     },
     adicionarProjeto() {
       const input = document.getElementById('nomeProjeto') as HTMLInputElement
@@ -48,6 +50,8 @@ export default defineComponent({
 </script>
 
 <template>
+  <div class="modal__arquivo__darkbg" id="modal__arquivo__darkbg">
+  </div>
   <div class="modal__arquivo" id="modal__arquivo">
     <h2>Novo Projeto</h2>
     <div class="modal__arquivo__inner" id="modal__arquivo__inner">
@@ -59,6 +63,15 @@ export default defineComponent({
 </template>
 
 <style scoped>
+.modal__arquivo__darkbg {
+  position: fixed;
+  inset: 0;
+
+  background-color: rgba(0, 0, 0, 0.5);
+
+  z-index: 99998;
+  display: none;
+}
 h2 {
   font-family: 'IBM Plex Sans';
   text-align: center;

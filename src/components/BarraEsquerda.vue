@@ -77,6 +77,8 @@ export default defineComponent({
         modalConfiguracoesRef.preencherModal()
         modalConfiguracoesRef.resetShadowStates()
         modal.style.display = 'flex'
+        const bg = document.getElementById('modal__configuracoes__darkbg')
+        if (bg != null) bg.style.display = 'flex'
       }
     },
     abrirDocumentacao() {
@@ -145,6 +147,8 @@ export default defineComponent({
     abrirModalNovoArquivo() {
       const formulario = document.getElementById('modal__arquivo')
       if (formulario != null) formulario.style.display = 'flex'
+      const bg = document.getElementById('modal__arquivo__darkbg')
+      if (bg != null) bg.style.display = 'flex'
 
       const input = document.getElementById('nomeProjeto') as HTMLInputElement
       if (input != null) input.value = ''
@@ -154,6 +158,8 @@ export default defineComponent({
 
       const formulario = document.getElementById('modal__arquivo__editar')
       if (formulario != null) formulario.style.display = 'flex'
+      const bg = document.getElementById('modal__arquivo__editar__darkbg')
+      if (bg != null) bg.style.display = 'flex'
 
       const input = document.getElementById('nomeProjetoEditar') as HTMLInputElement
       if (input != null) input.value = ''
@@ -208,9 +214,6 @@ export default defineComponent({
         undefined,
       )
         .then(([html, _gramatica]) => {
-        // TODO: Mover para thread
-//        this.store.gramatica = gramatica
-
           const newTab = window.open()
           if (newTab) {
             newTab.document.write(html)
@@ -268,8 +271,6 @@ export default defineComponent({
           undefined,
           undefined,
         )
-        // TODO: Mover para thread
-//        this.store.gramatica = gramatica
 
         const newTab = window.open()
         if (newTab) {

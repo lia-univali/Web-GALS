@@ -58,9 +58,15 @@ export const projetoStore = defineStore('projetos', {
     });
 
     simulationworker.addEventListener('message', (event) => {
-      if (event.data.type === 'rpc_request')
-      {
-        UIBridge.uibridgeimpl(this, simulationworker, event.data)
+      if (event.data.type === 'rpc_request') {
+        const store = projetoStore()
+
+        UIBridge.uibridgeimpl(
+          store,
+          simulationworker,
+          event.data,
+          store.conflictModalCb
+        )
       }
     })
 
@@ -94,6 +100,7 @@ export const projetoStore = defineStore('projetos', {
       necessarioRecriar: true,
       simulationworker: simulationworker,
       currGrammarLine: 1,
+      conflictModalCb: async (a: string, b: string) => { return "1" }
     }
   },
   getters: {
@@ -199,7 +206,12 @@ export const projetoStore = defineStore('projetos', {
     },
     markDirty(): void {
       this.listaProjetos[this.selecionado].dirty = true
-    }
+    },
+    setConflictModalCb(
+      callback: (text: string, defaultValue: string) => Promise<string>
+    ) {
+      this.conflictModalCb = callback
+    },
   }
 })
 

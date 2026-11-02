@@ -7,10 +7,12 @@ import BarraEsquerda from './components/BarraEsquerda.vue'
 import ModalNovoArquivo from './components/ModalNovoArquivo.vue'
 import ModalEditarArquivo from './components/ModalEditarArquivo.vue'
 import RailroadJanela from './components/RailroadJanela.vue'
+import ModalConflito from './components/ModalConflito.vue'
 import { Splitpanes, Pane } from 'splitpanes'
 import 'splitpanes/dist/splitpanes.css'
 import { projetoStore } from './stores/projetoStore'
 import '@/vendor/railroad.css'
+import * as UIBridge from '@/workers/UIBridge'
 
 export default defineComponent({
   name: 'GalsWeb',
@@ -23,7 +25,8 @@ export default defineComponent({
     BarraEsquerda,
     ModalNovoArquivo,
     ModalEditarArquivo,
-    RailroadJanela
+    RailroadJanela,
+    ModalConflito
   },
   setup() {
     const store = projetoStore()
@@ -39,8 +42,22 @@ export default defineComponent({
     })
 
     return {
-      layout
+      layout,
+      store
     }
+  },
+  mounted() {
+    const modal = this.$refs.modalconflito as any
+
+    const handler = (
+      text: string,
+      defaultValue: string
+    ): Promise<string> => {
+      return modal.pedirResolucao(text, defaultValue)
+    }
+
+    this.store.setConflictModalCb(handler)
+    UIBridge.setConflictModalHandler(handler)
   },
   methods: {
     resizeLayout(event: any) {
@@ -55,6 +72,7 @@ export default defineComponent({
 <template>
   <ModalNovoArquivo />
   <ModalEditarArquivo />
+  <ModalConflito ref="modalconflito"/>
   <BarraSuperior />
 
   <div class="contentor__geral">

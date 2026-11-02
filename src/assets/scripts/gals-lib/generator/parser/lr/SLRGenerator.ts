@@ -229,7 +229,7 @@ export class SLRGenerator extends LRGenerator {
 
     const resultSet: Set<Command>[][] = result.map((row) => row.map((map) => new Set(map.values())))
 
-    return await this.resolveConflicts(resultSet)
+    return await this.resolveConflicts(resultSet, this.g.productions)
   }
 
   private indexOfListLRItem(list: List<List<LRItem>>, item: List<LRItem>): number {

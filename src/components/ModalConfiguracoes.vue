@@ -113,6 +113,8 @@ export default defineComponent({
     fecharModal() {
       const modal = document.getElementById('modal__configuracoes')
       if (modal != null) modal.style.display = 'none'
+      const bg = document.getElementById('modal__configuracoes__darkbg')
+      if (bg != null) bg.style.display = 'none'
     },
     changeTab(tab: string) {
       let tablinks = document.getElementsByClassName('tablinks')
@@ -281,263 +283,277 @@ export default defineComponent({
 </script>
 
 <template>
-  <div :key="store.selecionado" class="modal__configuracoes" id="modal__configuracoes">
-    <h2>Configurações</h2>
-    <div class="modal__configuracoes__inner" id="modal__configuracoes__inner">
-      <span id="close" v-on:click="fecharModal"></span>
-
-      <div class="tab">
-        <button class="tablinks active" @click="changeTab('Geral')">Geral</button>
-        <button class="tablinks" @click="changeTab('Léxico')">Léxico</button>
-        <button class="tablinks" @click="changeTab('Sintático')">Sintático</button>
-      </div>
-
-      <form id="formOptions" @submit.prevent="enviarForms" ref="form">
-        <div v-show="activeTab == 'Geral'" id="Geral" class="tabcontent">
-          <fieldset id="gerar">
-            <legend>Gerar</legend>
-            <div>
-              <input type="radio" id="gerarLexico" name="gerar" value="1" checked />
-              <label for="gerarLexico">Analisador Léxico</label>
-            </div>
-
-            <div>
-              <input type="radio" id="gerarSintatico" name="gerar" value="2" />
-              <label for="gerarSintatico">Analisador Sintático</label>
-            </div>
-
-            <div>
-              <input type="radio" id="gerarLexicoSintatico" name="gerar" value="3" />
-              <label for="gerarLexicoSintatico">Analisador Léxico e Sintático</label>
-            </div>
-          </fieldset>
-
-          <fieldset @change="langChanged">
-            <legend>Linguagem</legend>
-            <div>
-              <input type="radio" id="linguagemJava" name="linguagem" value="Java" checked />
-              <label for="linguagemJava">Java</label>
-            </div>
-
-            <div>
-              <input type="radio" id="linguagemC++" name="linguagem" value="C++" />
-              <label for="linguagemC++">C++</label>
-            </div>
-
-            <div>
-              <input type="radio" id="linguagemDelphi" name="linguagem" value="Delphi" />
-              <label for="linguagemDelphi">Delphi</label>
-            </div>
-
-            <div>
-              <input :disabled="form === '.gals'" type="radio" id="linguagemPython" name="linguagem" value="Python" />
-              <label :class="{ disabled__label: form === '.gals' }" for="linguagemPython">Python</label>
-            </div>
-
-            <div>
-              <input :disabled="form === '.gals'" type="radio" id="linguagemRust" name="linguagem" value="Rust" />
-              <label :class="{ disabled__label: form === '.gals' }" for="linguagemRust">Rust</label>
-            </div>
-
-            <!-- <div>
-              <input type="radio" id="linguagemC#" name="linguagem" value="C#" />
-              <label for="linguagemC#">C#</label>
-            </div> -->
-          </fieldset>
-
-          <fieldset>
-            <legend>Classes</legend>
-            <table>
-              <tbody>
-                <tr>
-                  <td>
-                    <label for="arquivoLexico">Analisador Léxico</label>
-                  </td>
-                  <td>
-                    <input
-                      type="input"
-                      id="arquivoLexico"
-                      name="nomeLexico"
-                      value="Lexico"
-                      checked
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="arquivoSintatico">Analisador Sintático</label>
-                  </td>
-                  <td>
-                    <input
-                      type="input"
-                      id="arquivoSintatico"
-                      name="nomeSintatico"
-                      value="Sintatico"
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td><label for="arquivoSemantico">Analisador Semantico</label></td>
-                  <td>
-                    <input
-                      type="input"
-                      id="arquivoSemantico"
-                      name="nomeSemantico"
-                      value="Semantico"
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="arquivoNamespace">
-                      <span v-if="lang === 'Java'"> Pacote </span>
-                      <span
-                        v-if="lang === 'C++' || lang === 'Delphi'"
-                        :class="{ disabled__label: lang === 'Delphi' }"
-                      >
-                        Namespace
-                      </span>
-                      <span v-if="lang === 'Rust' || lang === 'Python'"> Módulo </span>
-                    </label>
-                  </td>
-                  <td>
-                    <input
-                      :disabled="lang === 'Delphi'"
-                      type="input"
-                      id="arquivoNamespace"
-                      name="nameNamespace"
-                      value=""
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </fieldset>
-          <fieldset id="format" @change="formChanged">
-            <legend>Formato do Projeto</legend>
-            <div>
-              <input type="radio" id="formatoGALS" name="formatoarquivo" value=".gals" checked />
-              <label for="formatoGALS">Formato .gals (GALS 2003)</label>
-            </div>
-            <div>
-              <input type="radio" id="formatoVGLS" name="formatoarquivo" value=".vgls" checked />
-              <label for="formatoVGLS">Formato .vgls (Web GALS)</label>
-            </div>
-          </fieldset>
-        </div>
-
-        <div v-show="activeTab == 'Léxico'" id="Léxico" class="tabcontent">
-          <fieldset>
-            <legend>Forma de Entrada</legend>
-            <div>
-              <input
-                type="radio"
-                id="formaEntradaStream"
-                name="tipoEntrada"
-                value="Stream"
-                checked
-              />
-              <label for="formaEntradaStream">Stream</label>
-            </div>
-
-            <div>
-              <input type="radio" id="formaEntradaString" name="tipoEntrada" value="String" />
-              <label for="formaEntradaString">String</label>
-            </div>
-          </fieldset>
-
-          <fieldset @change="autoChanged">
-            <legend>Implementação do Autômato</legend>
-            <div>
-              <input type="radio" id="automatoCompleto" name="automato" value="Full" checked />
-              <label for="automatoCompleto">Tabela Completa</label>
-            </div>
-
-            <div>
-              <input
-                :disabled="lang !== 'Java'"
-                type="radio"
-                id="automatoCompactado"
-                name="automato"
-                value="Compact"
-              />
-              <label :class="{ disabled__label: lang !== 'Java' }" for="automatoCompactado"
-                >Tabela Compactada (Só para Java)</label
-              >
-            </div>
-
-            <div>
-              <input type="radio" id="automatoEspecifico" name="automato" value="Hardcode" />
-              <label for="automatoEspecifico">Específica (Código)</label>
-            </div>
-          </fieldset>
-
-          <div>
-            <input type="checkbox" id="sensibilidade" name="sensibilidade" />
-            <label for="sensibilidade">Diferenciar maiúscula/minúscula em casos especiais</label>
-          </div>
-        </div>
-
-        <div v-show="activeTab == 'Sintático'" id="Sintático" class="tabcontent">
-          <fieldset @change="parsChanged">
-            <legend>Classe do Analisador Sintático</legend>
-
-            <fieldset>
-              <legend>Descendentes</legend>
-
-              <div>
-                <input type="radio" id="sintaticoLLRec" name="parser" value="RD" />
-                <label for="sintaticoLLRec">Descendente Recursivo</label>
-              </div>
-
-              <div>
-                <input type="radio" id="sintaticoLLPred" name="parser" value="LL" />
-                <label for="sintaticoLLPred">LL(1)</label>
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend>Ascendentes</legend>
-
-              <div>
-                <input type="radio" id="sintaticoSLR" name="parser" value="SLR" />
-                <label for="sintaticoSLR">SLR(1)</label>
-              </div>
-
-              <div>
-                <input :disabled="form === '.gals'" type="radio" id="sintaticoLALR" name="parser" value="LALR" />
-                <label :class="{ disabled__label: form === '.gals' }" for="sintaticoLALR">LALR(1) <span style="color: red">*</span></label>
-              </div>
-
-              <div>
-                <input :disabled="form === '.gals'" type="radio" id="sintaticoLRCanonico" name="parser" value="LR" />
-                <label :class="{ disabled__label: form === '.gals' }" for="sintaticoLRCanonico">LR(1) <span style="color: red">*</span></label>
-              </div>
-            </fieldset>
-          </fieldset>
-          <fieldset @change="astChanged">
-            <legend>Biblioteca para Manipulação da Árvore Abstrata</legend>
-            <div>
-              <input type="radio" id="dontUseASTLib" name="ASTLib" value="false" checked />
-              <label for="dontUseASTLib">Sem biblioteca de manipulação</label>
-            </div>
-            <div>
-              <input :disabled="form === '.gals'" type="radio" id="useASTLib" name="ASTLib" value="true" />
-              <label for="useASTLib">Integrar biblioteca de manipulação ao projeto</label>
-            </div>
-          </fieldset>
-          <span style="color: red">*: demora para processar gramáticas grandes.</span>
-        </div>
-        <button class="btn_aplicarConfiguracoes">Aplicar</button>
-      </form>
-      <!-- <p v-if="selecionado != -1" style="white-space: pre-line; text-align: center;">{{ projetos[selecionado].options }}</p> -->
+  <Teleport to="body">
+    <div class="modal__configuracoes__darkbg" id="modal__configuracoes__darkbg">
     </div>
-  </div>
+    <div :key="store.selecionado" class="modal__configuracoes" id="modal__configuracoes">
+      <h2>Configurações</h2>
+      <div class="modal__configuracoes__inner" id="modal__configuracoes__inner">
+        <span id="close" v-on:click="fecharModal"></span>
+
+        <div class="tab">
+          <button class="tablinks active" @click="changeTab('Geral')">Geral</button>
+          <button class="tablinks" @click="changeTab('Léxico')">Léxico</button>
+          <button class="tablinks" @click="changeTab('Sintático')">Sintático</button>
+        </div>
+
+        <form id="formOptions" @submit.prevent="enviarForms" ref="form">
+          <div v-show="activeTab == 'Geral'" id="Geral" class="tabcontent">
+            <fieldset id="gerar">
+              <legend>Gerar</legend>
+              <div>
+                <input type="radio" id="gerarLexico" name="gerar" value="1" checked />
+                <label for="gerarLexico">Analisador Léxico</label>
+              </div>
+
+              <div>
+                <input type="radio" id="gerarSintatico" name="gerar" value="2" />
+                <label for="gerarSintatico">Analisador Sintático</label>
+              </div>
+
+              <div>
+                <input type="radio" id="gerarLexicoSintatico" name="gerar" value="3" />
+                <label for="gerarLexicoSintatico">Analisador Léxico e Sintático</label>
+              </div>
+            </fieldset>
+
+            <fieldset @change="langChanged">
+              <legend>Linguagem</legend>
+              <div>
+                <input type="radio" id="linguagemJava" name="linguagem" value="Java" checked />
+                <label for="linguagemJava">Java</label>
+              </div>
+
+              <div>
+                <input type="radio" id="linguagemC++" name="linguagem" value="C++" />
+                <label for="linguagemC++">C++</label>
+              </div>
+
+              <div>
+                <input type="radio" id="linguagemDelphi" name="linguagem" value="Delphi" />
+                <label for="linguagemDelphi">Delphi</label>
+              </div>
+
+              <div>
+                <input :disabled="form === '.gals'" type="radio" id="linguagemPython" name="linguagem" value="Python" />
+                <label :class="{ disabled__label: form === '.gals' }" for="linguagemPython">Python</label>
+              </div>
+
+              <div>
+                <input :disabled="form === '.gals'" type="radio" id="linguagemRust" name="linguagem" value="Rust" />
+                <label :class="{ disabled__label: form === '.gals' }" for="linguagemRust">Rust</label>
+              </div>
+
+              <!-- <div>
+                <input type="radio" id="linguagemC#" name="linguagem" value="C#" />
+                <label for="linguagemC#">C#</label>
+              </div> -->
+            </fieldset>
+
+            <fieldset>
+              <legend>Classes</legend>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>
+                      <label for="arquivoLexico">Analisador Léxico</label>
+                    </td>
+                    <td>
+                      <input
+                        type="input"
+                        id="arquivoLexico"
+                        name="nomeLexico"
+                        value="Lexico"
+                        checked
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="arquivoSintatico">Analisador Sintático</label>
+                    </td>
+                    <td>
+                      <input
+                        type="input"
+                        id="arquivoSintatico"
+                        name="nomeSintatico"
+                        value="Sintatico"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><label for="arquivoSemantico">Analisador Semantico</label></td>
+                    <td>
+                      <input
+                        type="input"
+                        id="arquivoSemantico"
+                        name="nomeSemantico"
+                        value="Semantico"
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label for="arquivoNamespace">
+                        <span v-if="lang === 'Java'"> Pacote </span>
+                        <span
+                          v-if="lang === 'C++' || lang === 'Delphi'"
+                          :class="{ disabled__label: lang === 'Delphi' }"
+                        >
+                          Namespace
+                        </span>
+                        <span v-if="lang === 'Rust' || lang === 'Python'"> Módulo </span>
+                      </label>
+                    </td>
+                    <td>
+                      <input
+                        :disabled="lang === 'Delphi'"
+                        type="input"
+                        id="arquivoNamespace"
+                        name="nameNamespace"
+                        value=""
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </fieldset>
+            <fieldset id="format" @change="formChanged">
+              <legend>Formato do Projeto</legend>
+              <div>
+                <input type="radio" id="formatoGALS" name="formatoarquivo" value=".gals" checked />
+                <label for="formatoGALS">Formato .gals (GALS 2003)</label>
+              </div>
+              <div>
+                <input type="radio" id="formatoVGLS" name="formatoarquivo" value=".vgls" checked />
+                <label for="formatoVGLS">Formato .vgls (Web GALS)</label>
+              </div>
+            </fieldset>
+          </div>
+
+          <div v-show="activeTab == 'Léxico'" id="Léxico" class="tabcontent">
+            <fieldset>
+              <legend>Forma de Entrada</legend>
+              <div>
+                <input
+                  type="radio"
+                  id="formaEntradaStream"
+                  name="tipoEntrada"
+                  value="Stream"
+                  checked
+                />
+                <label for="formaEntradaStream">Stream</label>
+              </div>
+
+              <div>
+                <input type="radio" id="formaEntradaString" name="tipoEntrada" value="String" />
+                <label for="formaEntradaString">String</label>
+              </div>
+            </fieldset>
+
+            <fieldset @change="autoChanged">
+              <legend>Implementação do Autômato</legend>
+              <div>
+                <input type="radio" id="automatoCompleto" name="automato" value="Full" checked />
+                <label for="automatoCompleto">Tabela Completa</label>
+              </div>
+
+              <div>
+                <input
+                  :disabled="lang !== 'Java'"
+                  type="radio"
+                  id="automatoCompactado"
+                  name="automato"
+                  value="Compact"
+                />
+                <label :class="{ disabled__label: lang !== 'Java' }" for="automatoCompactado"
+                  >Tabela Compactada (Só para Java)</label
+                >
+              </div>
+
+              <div>
+                <input type="radio" id="automatoEspecifico" name="automato" value="Hardcode" />
+                <label for="automatoEspecifico">Específica (Código)</label>
+              </div>
+            </fieldset>
+
+            <div>
+              <input type="checkbox" id="sensibilidade" name="sensibilidade" />
+              <label for="sensibilidade">Diferenciar maiúscula/minúscula em casos especiais</label>
+            </div>
+          </div>
+
+          <div v-show="activeTab == 'Sintático'" id="Sintático" class="tabcontent">
+            <fieldset @change="parsChanged">
+              <legend>Classe do Analisador Sintático</legend>
+
+              <fieldset>
+                <legend>Descendentes</legend>
+
+                <div>
+                  <input type="radio" id="sintaticoLLRec" name="parser" value="RD" />
+                  <label for="sintaticoLLRec">Descendente Recursivo</label>
+                </div>
+
+                <div>
+                  <input type="radio" id="sintaticoLLPred" name="parser" value="LL" />
+                  <label for="sintaticoLLPred">LL(1)</label>
+                </div>
+              </fieldset>
+
+              <fieldset>
+                <legend>Ascendentes</legend>
+
+                <div>
+                  <input type="radio" id="sintaticoSLR" name="parser" value="SLR" />
+                  <label for="sintaticoSLR">SLR(1)</label>
+                </div>
+
+                <div>
+                  <input :disabled="form === '.gals'" type="radio" id="sintaticoLALR" name="parser" value="LALR" />
+                  <label :class="{ disabled__label: form === '.gals' }" for="sintaticoLALR">LALR(1) <span style="color: red">*</span></label>
+                </div>
+
+                <div>
+                  <input :disabled="form === '.gals'" type="radio" id="sintaticoLRCanonico" name="parser" value="LR" />
+                  <label :class="{ disabled__label: form === '.gals' }" for="sintaticoLRCanonico">LR(1) <span style="color: red">*</span></label>
+                </div>
+              </fieldset>
+            </fieldset>
+            <fieldset @change="astChanged">
+              <legend>Biblioteca para Manipulação da Árvore Abstrata</legend>
+              <div>
+                <input type="radio" id="dontUseASTLib" name="ASTLib" value="false" checked />
+                <label for="dontUseASTLib">Sem biblioteca de manipulação</label>
+              </div>
+              <div>
+                <input :disabled="form === '.gals'" type="radio" id="useASTLib" name="ASTLib" value="true" />
+                <label for="useASTLib">Integrar biblioteca de manipulação ao projeto</label>
+              </div>
+            </fieldset>
+            <span style="color: red">*: demora para processar gramáticas grandes.</span>
+          </div>
+          <button class="btn_aplicarConfiguracoes">Aplicar</button>
+        </form>
+        <!-- <p v-if="selecionado != -1" style="white-space: pre-line; text-align: center;">{{ projetos[selecionado].options }}</p> -->
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
 * {
   font-family: 'IBM Plex Sans';
+}
+
+.modal__configuracoes__darkbg {
+  position: fixed;
+  inset: 0;
+
+  background-color: rgba(0, 0, 0, 0.5);
+
+  z-index: 10001;
+  display: none;
 }
 
 h2 {
@@ -555,7 +571,7 @@ h2 {
   height: 74vh;
 
   position: fixed;
-  z-index: 99999;
+  z-index: 10002;
   top: 0;
   bottom: 0;
   left: 0;

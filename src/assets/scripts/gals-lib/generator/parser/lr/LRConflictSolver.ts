@@ -2,6 +2,8 @@ import { ConflictSolver } from '../ConflictSolver'
 import { Grammar } from '../Grammar'
 import { Command } from './Command'
 import { installRPCHandler } from '@/workers/workerRPC'
+import { List } from '../../../DataStructures'
+import { Production } from '../../../util/Production'
 import * as UIBridge from '@/workers/UIBridge'
 
 installRPCHandler()
@@ -21,6 +23,7 @@ export class LRConflictSolver extends ConflictSolver {
   private _conflict: Command[]
   private _state: number
   private _conflictListModel: Array<ConflictModel>
+  private _productions: List<Production> | undefined
 
   constructor(conflict?: Command[], state?: number) {
     super()
@@ -46,7 +49,7 @@ export class LRConflictSolver extends ConflictSolver {
       let label: string
       switch (this._conflict[i].getType()) {
         case Command.REDUCE:
-          label = 'Reduzir, pela produção ' + this._conflict[i].getParameter()
+          label = 'Reduzir, pela produção ' + (this._productions !== undefined ? this._productions.get(this._conflict[i].getParameter()) : this._conflict[i].getParameter())
           break
         case Command.ACTION:
           label = 'Executar ação semântica ' + this._conflict[i].getParameter()
@@ -81,7 +84,8 @@ export class LRConflictSolver extends ConflictSolver {
     let result: string | null = null
 
     try {
-      result = await UIBridge.prompt(header, '1')
+//      result = await UIBridge.prompt(header, '1')
+      result = await UIBridge.conflictModalPrompt(header, '1')
     } catch (e) {
       console.log(e, 'Prompt não encontrado')
     }
@@ -188,9 +192,10 @@ export class LRConflictSolver extends ConflictSolver {
     //});
   }
 
-  setup(conflict: Command[], state: number) {
+  setup(conflict: Command[], state: number, prods?: List<Production>) {
     this._conflict = conflict
     this._state = state
+    this._productions = prods
   }
 }
 
