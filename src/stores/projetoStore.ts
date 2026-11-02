@@ -100,7 +100,7 @@ export const projetoStore = defineStore('projetos', {
       necessarioRecriar: true,
       simulationworker: simulationworker,
       currGrammarLine: 1,
-      conflictModalCb: async (a: string, b: string) => { return "1" }
+      conflictModalCb: async (s: number, a: string, b: string[][]) => { return "1" }
     }
   },
   getters: {
@@ -208,7 +208,7 @@ export const projetoStore = defineStore('projetos', {
       this.listaProjetos[this.selecionado].dirty = true
     },
     setConflictModalCb(
-      callback: (text: string, defaultValue: string) => Promise<string>
+      callback: (state: number, intext: string, conflicts: string[][]) => Promise<string>
     ) {
       this.conflictModalCb = callback
     },

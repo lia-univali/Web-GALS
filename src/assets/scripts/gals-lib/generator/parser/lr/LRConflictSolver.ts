@@ -38,54 +38,38 @@ export class LRConflictSolver extends ConflictSolver {
     if (input == 0) inText = '$'
     else inText = g.terminals[input - 1]
 
-    let header = ''
-    header += '- O estado no topo da pilha é: ' + this._state + '\n'
-    header += '- O símbolo da entrada é: ' + inText + '\n'
-    header += '\nQual ação a ser executada:'
-
     this._conflictListModel = []
-
+    
+    let conflictstosend = []
     for (let i = 0; i < this._conflict.length; i++) {
       let label: string
+      let content: string
       switch (this._conflict[i].getType()) {
         case Command.REDUCE:
-          label = 'Reduzir, pela produção ' + (this._productions !== undefined ? this._productions.get(this._conflict[i].getParameter()) : this._conflict[i].getParameter())
+          label = 'Reduzir, pela produção'
+          content = (this._productions !== undefined ? this._productions.get(this._conflict[i].getParameter()).toString() : this._conflict[i].getParameter()).toString()
           break
         case Command.ACTION:
-          label = 'Executar ação semântica ' + this._conflict[i].getParameter()
+          label = 'Executar ação semântica'
+          content = this._conflict[i].getParameter().toString()
           break
         case Command.SHIFT:
-          label = 'Empilhar "' + inText + '"'
+          label = 'Empilhar'
+          content = inText
           break
         default:
           label = this._conflict[i].toString()
+          content = ""
           break
       }
-      header += '\nOpção ' + (i + 1) + ': ' + label
+      conflictstosend.push([label, content])
       this._conflictListModel.push({ label: label, command: i })
     }
-
-    header +=
-      '\n\nOBS: Se cancelar ou digitar opção inválida,\na opção 1 será escolhida como padrão.'
-
-    //TODO change to choose conflict resolver and not the first rule
-
-    //alert(header)
-
-    // if (confirm(header)) {
-    //     op = 1
-    //     console.log('Thing was saved to the database.');
-    //   } else {
-    //     op = 2
-    //     // Do nothing!
-    //     console.log('Thing was not saved to the database.');
-    //   }
 
     let result: string | null = null
 
     try {
-//      result = await UIBridge.prompt(header, '1')
-      result = await UIBridge.conflictModalPrompt(header, '1')
+      result = await UIBridge.conflictModalPrompt(this._state, inText, conflictstosend);
     } catch (e) {
       console.log(e, 'Prompt não encontrado')
     }
@@ -98,33 +82,7 @@ export class LRConflictSolver extends ConflictSolver {
     else if (resultNumber < 0 || resultNumber > this._conflict.length) resultNumber = 0
     else resultNumber--
 
-    // this.showModal(
-    //     'Are you sure you want to delete this item?',
-    //     'Delete',
-    //     'Cancel',
-    //     () => {
-    //         // Delete item logic
-    //         op = 1;
-    //         console.log('Item deleted');
-    //     },
-    //     () => {
-    //         op = 2;
-    //         // Cancel logic
-    //         console.log('Action canceled');
-    //     }
-    // );
-
-    //this.showDialog(header,this._conflictListModel)
-    // .then((chosenCommand) => {
-    //     alert(`Comando escolhido: ${chosenCommand}`);
-    // });
-
-    //alert("Teste: " + resultNumber + "  teste:" + this._conflict.length )
-    ////console.log(this._conflictListModel[0].command)
-    //return this._conflictListModel[0].command;
     return this._conflictListModel[resultNumber].command
-    //return showDialog();
-    //return -1;
   }
 
   // public async handleDialogWithResolved(header: string) {

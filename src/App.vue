@@ -50,10 +50,11 @@ export default defineComponent({
     const modal = this.$refs.modalconflito as any
 
     const handler = (
-      text: string,
-      defaultValue: string
+      state: number,
+      intext: string,
+      conflicts: string[][]
     ): Promise<string> => {
-      return modal.pedirResolucao(text, defaultValue)
+      return modal.pedirResolucao(state, intext, conflicts)
     }
 
     this.store.setConflictModalCb(handler)

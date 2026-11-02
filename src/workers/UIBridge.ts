@@ -2,8 +2,9 @@
 import { workerRPC } from '@/workers/workerRPC'
 
 type ConflictModalHandler = (
-  text: string,
-  defaultValue: string
+  state: number,
+  intext: string,
+  conflicts: string[][]
 ) => Promise<string>
 
 let mainThreadConflictModalHandler: ConflictModalHandler | null = null
@@ -17,11 +18,12 @@ function uibridgeimpl_prompt(text: string, defaultValue: string): string | null 
 }
 
 async function uibridgeimpl_conflictModalPrompt(
-  text: string,
-  defaultValue: string,
+  state: number,
+  intext: string,
+  conflicts: string[][],
   conflictModal: ConflictModalHandler
 ): Promise<string> {
-  return await conflictModal(text, defaultValue)
+  return await conflictModal(state, intext, conflicts)
 }
 
 export async function uibridgeimpl(
@@ -42,8 +44,9 @@ export async function uibridgeimpl(
 
     case 'conflictModalPrompt':
       result = await uibridgeimpl_conflictModalPrompt(
-        data.payload.text,
-        data.payload.defaultValue,
+        data.payload.state,
+        data.payload.intext,
+        data.payload.conflicts,
         conflictModal
       )
       break
@@ -61,8 +64,11 @@ export async function uibridgeimpl(
 }
 
 export async function conflictModalPrompt(
-  header: string,
-  def: string
+  state: number,
+  intext: string,
+  conflicts: string[][]
+//  header: string,
+//  def: string
 ): Promise<string> {
   const isMainThread =
     typeof window !== 'undefined' &&
@@ -73,12 +79,13 @@ export async function conflictModalPrompt(
       throw new Error('Conflict modal handler has not been registered')
     }
 
-    return mainThreadConflictModalHandler(header, def)
+    return mainThreadConflictModalHandler(state, intext, conflicts)
   }
 
   return workerRPC('conflictModalPrompt', {
-    text: header,
-    defaultValue: def
+    state: state,
+    intext: intext,
+    conflicts: conflicts
   })
 }
 

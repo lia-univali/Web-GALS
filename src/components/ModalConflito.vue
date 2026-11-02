@@ -9,9 +9,10 @@ export default defineComponent({
 
   data() {
     return {
-      modalText: '',
-      resolution: '',
-      resolver: null as ((value: string) => void) | null
+      state: 0,
+      intext: '',
+      conflicts: [] as string[][],
+      resolver: null as ((value: string) => void) | null,
     }
   },
 
@@ -38,9 +39,10 @@ export default defineComponent({
       if (bg != null) bg.style.display = 'flex'
     },
 
-    pedirResolucao(text: string, defaultValue: string): Promise<string> {
-      this.modalText = text
-      this.resolution = defaultValue
+    pedirResolucao(state: number, intext: string, conflicts: string[][]): Promise<string> {
+      this.state = state
+      this.intext = intext
+      this.conflicts = conflicts
 
       this.abrirModal()
 
@@ -52,10 +54,13 @@ export default defineComponent({
     resolverConflito() {
       this.fecharModal()
 
+      let form: any = this.$refs.formConflicts
+      let solution = form.solution.value !== undefined ? (parseInt(form.solution.value, 10) + 1) : 1
+
       const resolve = this.resolver
       this.resolver = null
 
-      resolve?.(this.resolution)
+      resolve?.(solution.toString())
     }
   }
 })
@@ -68,10 +73,26 @@ export default defineComponent({
     <h2>Conflito Gramatical</h2>
 
     <div class="modal__conflito__inner" id="modal__conflito__inner">
-      <p><pre>{{ modalText }}</pre></p>
-
-      <input v-model="resolution" type="text" />
-
+      <p>
+        A gramática especificada é ambígua, e existe uma (ou mais) transições que não podem ser decididas automaticamente.
+        <br><br>
+        O estado no topo da pilha é: <span class="inline-data">{{ state }}</span>
+        <br>
+        O símbolo da entrada é: <span class="inline-data">{{ intext }}</span>
+        <br><br>
+        Escolha qual ação deve ser executada:
+        <br>
+      </p>
+      <form ref="formConflicts">
+          <fieldset id="solution">
+            <div v-for="(conflict, index) in conflicts" :key="conflict[1]" class="modal__conflito__for">
+              <div>
+                <input type="radio" :id="'solution' + index.toString()" name="solution" :value="index" :checked="index == 0"/>
+                <label :for="'solution' + index.toString()"><b>{{ conflict[0] }}:</b> <span class="inline-data">{{ conflict[1] }}</span></label>
+              </div>
+            </div>
+          </fieldset>
+      </form>
       <button v-on:click="resolverConflito">
         Resolver
       </button>
@@ -80,6 +101,10 @@ export default defineComponent({
 </template>
 
 <style scoped>
+* {
+  font-family: 'IBM Plex Sans';
+}
+
 .modal__conflito__darkbg {
   position: fixed;
   inset: 0;
@@ -94,6 +119,10 @@ h2 {
   text-align: center;
   font-weight: 600;
   color: #424242;
+}
+.inline-data {
+  font-family: Consolas, Monaco, 'Andale Mono', 'Lucida Console', monospace;
+  white-space: nowrap;
 }
 button {
   font-family: 'IBM Plex Sans';
@@ -132,7 +161,7 @@ button:active {
   border-radius: 5px;
   background-color: #f2f2f2;
   padding: 20px;
-  width: fit-content;
+  width: 50vw;
   height: fit-content;
 
   position: fixed;
@@ -166,12 +195,12 @@ button:active {
 
   display: flex;
   flex-direction: column;
-  gap: 15px;
 
   overflow: none;
 }
-pre {
-  overflow: auto;
+.modal__conflito__for {
+  display: flex;
+  flex-direction: column;
 }
 </style>
 
