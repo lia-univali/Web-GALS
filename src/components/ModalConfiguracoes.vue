@@ -322,7 +322,7 @@ export default defineComponent({
 
               <div>
                 <input type="checkbox" id="gerarSomenteConstantes" name="gerarSomenteConstantes"/>
-                <label for="gerarSomenteConstantes">Gerar Somente Constântes</label>
+                <label for="gerarSomenteConstantes">Gerar Somente Constantes</label>
               </div>
             </fieldset>
 
