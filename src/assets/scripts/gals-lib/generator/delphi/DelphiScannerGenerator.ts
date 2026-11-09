@@ -21,7 +21,9 @@ export class DelphiScannerGenerator {
       scanner = this.buildScanner(fa, options)
     } else scanner = this.buildEmptyScanner(options)
 
-    result.set('U' + classname + '.pas', scanner)
+    if (options.genOnlyConstants == false) {
+      result.set('U' + classname + '.pas', scanner)
+    }
 
     return result
   }

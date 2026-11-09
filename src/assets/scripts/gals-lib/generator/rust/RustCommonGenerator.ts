@@ -25,14 +25,17 @@ export class RustCommonGenerator {
 
     let pkgpath = options.pkgName !== '' ? options.pkgName + '/' : ''
 
-    result.set('Cargo.toml', this.generateCargotoml())
-    result.set('src/main.rs', this.mainfunc(options))
-    result.set(`src/${pkgpath}token.rs`, this.generateToken(options))
-    result.set(`src/${pkgpath}errors.rs`, this.generateErrors(options))
     result.set(`src/${pkgpath}constants.rs`, await this.generateConstants(fa, g, options))
 
-    if (pkgpath !== '') {
-      result.set(`src/${pkgpath}mod.rs`, this.generateMod(options))
+    if (options.genOnlyConstants == false) {
+      result.set('Cargo.toml', this.generateCargotoml())
+      result.set('src/main.rs', this.mainfunc(options))
+      result.set(`src/${pkgpath}token.rs`, this.generateToken(options))
+      result.set(`src/${pkgpath}errors.rs`, this.generateErrors(options))
+
+      if (pkgpath !== '') {
+        result.set(`src/${pkgpath}mod.rs`, this.generateMod(options))
+      }
     }
 
     return result

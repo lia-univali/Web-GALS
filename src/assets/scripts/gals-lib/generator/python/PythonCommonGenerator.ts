@@ -22,9 +22,12 @@ export class PythonCommonGenerator {
       throw new Error('FiniteAutomata and Grammar must not be null')
     }
 
-    result.set('Token.py', this.generateToken(options))
     result.set('Constants.py', await this.generateConstants(fa, g, options))
-    result.set('Errors.py', this.generateErrors(options))
+
+    if (options.genOnlyConstants == false) {
+      result.set('Token.py', this.generateToken(options))
+      result.set('Errors.py', this.generateErrors(options))
+    }
 
     return result
   }

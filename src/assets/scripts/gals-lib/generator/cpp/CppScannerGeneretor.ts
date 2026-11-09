@@ -28,8 +28,10 @@ export class CppScannerGeneretor {
       scannerCpp = this.buildEmptyScannerCpp(options)
     }
 
-    result.set(classname + '.h', scannerH)
-    result.set(classname + '.cpp', scannerCpp)
+    if (options.genOnlyConstants == false) {
+      result.set(classname + '.h', scannerH)
+      result.set(classname + '.cpp', scannerCpp)
+    }
 
     return result
   }

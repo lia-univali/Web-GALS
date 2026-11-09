@@ -9,7 +9,7 @@ export class DelphiParserGenerator {
     // throws NotLLException
     const result: Map<string, string> = new Map()
 
-    if (g != null) {
+    if (g != null && options.genOnlyConstants == false) {
       const classname: string = options.parserName
 
       let parser: string | null

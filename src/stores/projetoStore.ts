@@ -51,6 +51,13 @@ function storeFrom3To4(j: any) {
   j.version = 4;
 }
 
+function storeFrom4to5(j: any) {
+  for (let p of j.listaProjetos) {
+    p.optionsGals.genOnlyConstants = false;
+  }
+  j.version = 5;
+}
+
 export const projetoStore = defineStore('projetos', {
   state: () => {
     const simulationworker = new Worker(new URL('@/workers/simulation.worker.ts', import.meta.url), {
@@ -71,7 +78,7 @@ export const projetoStore = defineStore('projetos', {
     })
 
     return {
-      version: 4,
+      version: 5,
       listaProjetos: [
         {
           id: 0,
@@ -122,7 +129,11 @@ export const projetoStore = defineStore('projetos', {
         storeFrom3To4(parsed);
       }
 
-      if (parsed.version !== 4) {
+      if (parsed.version === 4) {
+        storeFrom4to5(parsed);
+      }
+
+      if (parsed.version !== 5) {
         return;
       }
 

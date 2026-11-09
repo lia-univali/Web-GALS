@@ -74,6 +74,11 @@ export class Options {
 
   public useASTLib: boolean = Options.DONT_USE_ASTLIB
 
+  public static readonly GEN_EVERYTHING: boolean = false
+  public static readonly GEN_ONLY_CONST: boolean = true
+
+  public genOnlyConstants: boolean = Options.GEN_EVERYTHING
+
 
   public toString(): string {
     let bfr = ''
@@ -158,7 +163,8 @@ export class Options {
   public extendedToString(): string {
     let bfr = ''
 
-    bfr += "UseAstLib = " + (this.useASTLib ? 'true' : 'false');
+    bfr += "UseAstLib = " + (this.useASTLib ? 'true\n' : 'false\n');
+    bfr += "GenOnlyConstants = " + (this.genOnlyConstants ? 'true' : 'false')
 
     return bfr
   }
@@ -233,7 +239,9 @@ export class Options {
       else throw new Error('Erro processando arquivo')
     } else if (name.toUpperCase() === 'UseAstLib'.toUpperCase()) {
       this.useASTLib = /true/i.test(value)
-    } else throw new Error('Erro processando arquivo')
+    } else if (name.toUpperCase() == 'GenOnlyConstants'.toUpperCase()) this.genOnlyConstants = /true/i.test(value)
+
+    else throw new Error('Erro processando -arquivo')
   }
 }
 

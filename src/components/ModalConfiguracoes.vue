@@ -217,6 +217,7 @@ export default defineComponent({
       newOptions.setOption('Parser', form.parser.value)
 
       newOptions.setOption('UseAstLib', form.ASTLib.value)
+      newOptions.setOption('GenOnlyConstants', form.gerarSomenteConstantes.checked)
 
       this.projetos[this.selecionado].optionsGals = newOptions
       this.projetos[this.selecionado].options = newOptions.toString()
@@ -277,6 +278,9 @@ export default defineComponent({
 
       if (Options.DONT_USE_ASTLIB == opcoes.useASTLib) form.ASTLib.value = 'false'
       else if (Options.USE_ASTLIB == opcoes.useASTLib) form.ASTLib.value = 'true'
+
+      if (Options.GEN_EVERYTHING == opcoes.genOnlyConstants) form.gerarSomenteConstantes.checked = undefined
+      else if (Options.GEN_ONLY_CONST == opcoes.genOnlyConstants) form.gerarSomenteConstantes.checked = 'true'
     }
   }
 })
@@ -314,6 +318,11 @@ export default defineComponent({
               <div>
                 <input type="radio" id="gerarLexicoSintatico" name="gerar" value="3" />
                 <label for="gerarLexicoSintatico">Analisador Léxico e Sintático</label>
+              </div>
+
+              <div>
+                <input type="checkbox" id="gerarSomenteConstantes" name="gerarSomenteConstantes"/>
+                <label for="gerarSomenteConstantes">Gerar Somente Constântes</label>
               </div>
             </fieldset>
 

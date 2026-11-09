@@ -22,14 +22,16 @@ export class CppCommomGenerator {
       throw new Error('FiniteAutomata and Grammar must not be null')
     }
 
-    result.set('Token.h', this.generateToken(options))
     result.set('Constants.h', await this.generateConstantsH(fa, g, options))
     result.set('Constants.cpp', await this.generateConstantsCpp(fa, g, options))
 
-    result.set('AnalysisError.h', this.generateAnalysisError(options))
-    result.set('LexicalError.h', this.generateLexicalError(options))
-    result.set('SyntacticError.h', this.generateSyntacticError(options))
-    result.set('SemanticError.h', this.generateSemanticError(options))
+    if (options.genOnlyConstants == false) {
+      result.set('Token.h', this.generateToken(options))
+      result.set('AnalysisError.h', this.generateAnalysisError(options))
+      result.set('LexicalError.h', this.generateLexicalError(options))
+      result.set('SyntacticError.h', this.generateSyntacticError(options))
+      result.set('SemanticError.h', this.generateSemanticError(options))
+    }
 
     return result
   }

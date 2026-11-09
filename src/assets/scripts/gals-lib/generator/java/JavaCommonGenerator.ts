@@ -19,24 +19,28 @@ export class JavaCommonGenerator {
   ): Promise<Map<string, string>> {
     const result: Map<string, string> = new Map()
 
-    result.set('Token.java', this.generateToken(options))
     result.set('Constants.java', this.generateConstants(fa, g, options))
+
     if (fa !== null) {
       result.set('ScannerConstants.java', this.generateScannerConstants(fa, options))
     }
+
     if (g !== null) {
       result.set('ParserConstants.java', await this.generateParserConstants(g, options))
 
-      if (options.useASTLib && fa !== null) {
+      if (options.useASTLib && fa !== null && options.genOnlyConstants == false) {
         result.set('Reflection.java', this.generateReflection(fa, g, options))
         result.set('NonTerm.java', this.generateNonTerm(g, options))
       }
     }
 
-    result.set('AnalysisError.java', this.generateAnalysisError(options))
-    result.set('LexicalError.java', this.generateLexicalError(options))
-    result.set('SyntacticError.java', this.generateSyntacticError(options))
-    result.set('SemanticError.java', this.generateSemanticError(options))
+    if (options.genOnlyConstants == false) {
+      result.set('Token.java', this.generateToken(options))
+      result.set('AnalysisError.java', this.generateAnalysisError(options))
+      result.set('LexicalError.java', this.generateLexicalError(options))
+      result.set('SyntacticError.java', this.generateSyntacticError(options))
+      result.set('SemanticError.java', this.generateSemanticError(options))
+    }
 
     return result
   }

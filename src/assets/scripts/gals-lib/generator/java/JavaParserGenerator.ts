@@ -32,13 +32,15 @@ export class JavaParserGenerator {
 
       if (parser === null) throw new SyntacticError('String do Parser é nulo.')
 
-      result.set(classname + '.java', parser)
+      if (options.genOnlyConstants == false) {
+        result.set(classname + '.java', parser)
 
-      result.set(options.semanticName + '.java', this.generateSemanticAnalyser(options))
+        result.set(options.semanticName + '.java', this.generateSemanticAnalyser(options))
 
-      if (options.useASTLib) {
-        result.set('Node.java', this.generateNode(options));
-        result.set('CstmNode.java', this.generateCstmNode(options));
+        if (options.useASTLib) {
+          result.set('Node.java', this.generateNode(options));
+          result.set('CstmNode.java', this.generateCstmNode(options));
+        }
       }
     }
 

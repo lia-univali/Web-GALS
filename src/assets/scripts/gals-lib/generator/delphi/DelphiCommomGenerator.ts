@@ -25,13 +25,15 @@ export class DelphiCommomGenerator {
 
     const result: Map<string, string> = new Map()
 
-    result.set('UToken.pas', this.generateToken())
     result.set('UConstants.pas', await this.generateConstants(fa, g, options))
 
-    result.set('UAnalysisError.pas', this.generateAnalysisError())
-    result.set('ULexicalError.pas', this.generateLexicalError())
-    result.set('USyntacticError.pas', this.generateSyntacticError())
-    result.set('USemanticError.pas', this.generateSemanticError())
+    if (options.genOnlyConstants == false) {
+      result.set('UToken.pas', this.generateToken())
+      result.set('UAnalysisError.pas', this.generateAnalysisError())
+      result.set('ULexicalError.pas', this.generateLexicalError())
+      result.set('USyntacticError.pas', this.generateSyntacticError())
+      result.set('USemanticError.pas', this.generateSemanticError())
+    }
 
     return result
   }

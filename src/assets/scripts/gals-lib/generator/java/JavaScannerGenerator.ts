@@ -17,7 +17,9 @@ export class JavaScannerGenerator {
       scanner = this.buildScanner(fa, options)
     } else scanner = this.buildEmptyScanner(options)
 
-    result.set(classname + '.java', scanner)
+    if (options.genOnlyConstants == false) {
+      result.set(classname + '.java', scanner)
+    }
 
     return result
   }

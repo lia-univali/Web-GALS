@@ -13,7 +13,7 @@ export class PythonScannerGenerator {
     let scanner: string = ''
     const classname: string = options.scannerName
 
-    if (options.generateScanner == true) {
+    if (options.generateScanner == true && options.genOnlyConstants == false) {
       if (fa != null) {
         scanner = this.buildScanner(fa, options)
       } else {

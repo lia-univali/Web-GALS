@@ -10,7 +10,7 @@ export class RustParserGenerator {
     const result: Map<string, string> = new Map()
     const pkgpath = options.pkgName !== '' ? options.pkgName + '/' : ''
 
-    if (options.generateParser == true) {
+    if (options.generateParser == true && options.genOnlyConstants == false) {
       if (g != null) {
         result.set(`src/${pkgpath}parser.rs`, await this.parser(g, options))
         result.set(`src/${pkgpath}codegen.rs`, this.semantic(options))

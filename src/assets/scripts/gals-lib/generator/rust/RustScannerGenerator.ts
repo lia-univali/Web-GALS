@@ -13,7 +13,7 @@ export class RustScannerGenerator {
     let scanner: string = ''
     const pkgpath = options.pkgName !== '' ? options.pkgName + '/' : ''
 
-    if (options.generateScanner == true) {
+    if (options.generateScanner == true && options.genOnlyConstants == false) {
       if (fa != null) {
         scanner = this.buildScanner(fa, options)
       } else {

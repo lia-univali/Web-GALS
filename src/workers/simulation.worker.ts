@@ -50,7 +50,8 @@ self.onmessage = (event) => {
                   }
                 }
 
-                if (mainfunc != null) {
+                // TODO: Mover para PythonCommonGenerator
+                if (mainfunc != null && opts.genOnlyConstants == false) {
                   zip.file('main.py', mainfunc)
                 }
 

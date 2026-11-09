@@ -11,7 +11,7 @@ export class PythonParserGenerator {
     //throws NotLLException
     const result: Map<string, string> = new Map()
 
-    if (options.generateParser == true) {
+    if (options.generateParser == true && options.genOnlyConstants == false) {
       if (g != null) {
         const classname: string = options.parserName
 

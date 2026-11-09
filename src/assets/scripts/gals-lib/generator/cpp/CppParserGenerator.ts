@@ -11,7 +11,7 @@ export class CppParserGenerator {
     //throws NotLLException
     const result: Map<string, string> = new Map()
 
-    if (g != null) {
+    if (g != null && options.genOnlyConstants == false) {
       const classname: string = options.parserName
 
       result.set(classname + '.h', await this.parserH(g, options))
