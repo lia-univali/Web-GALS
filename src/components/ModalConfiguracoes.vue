@@ -150,6 +150,11 @@ export default defineComponent({
         form.automato.value = 'Full'
         this.scnr = 'Full'
       }
+
+      if (this.lang === 'Delphi' && this.ast === 'true') {
+        this.ast = 'false'
+        form.ASTLib.value = 'false'
+      }
     },
     formChanged(e: Event) {
       const form = e.target as HTMLFormElement
@@ -187,6 +192,11 @@ export default defineComponent({
       if (form == null) return
 
       this.ast = form.value
+
+      // wut
+      if (this.lang === 'Delphi' && this.ast === 'true') {
+        this.ast = 'false'
+      }
     },
     enviarForms(e: Event) {
       if (e == null) return
@@ -339,7 +349,7 @@ export default defineComponent({
               </div>
 
               <div>
-                <input type="radio" id="linguagemDelphi" name="linguagem" value="Delphi" />
+                <input :disabled="ast === 'true'" type="radio" id="linguagemDelphi" name="linguagem" value="Delphi" />
                 <label for="linguagemDelphi">Delphi</label>
               </div>
 
@@ -536,7 +546,7 @@ export default defineComponent({
                 <label for="dontUseASTLib">Sem biblioteca de manipulação</label>
               </div>
               <div>
-                <input :disabled="form === '.gals'" type="radio" id="useASTLib" name="ASTLib" value="true" />
+                <input :disabled="form === '.gals' || lang === 'Delphi'" type="radio" id="useASTLib" name="ASTLib" value="true" />
                 <label for="useASTLib">Integrar biblioteca de manipulação ao projeto</label>
               </div>
             </fieldset>
@@ -577,7 +587,7 @@ h2 {
   background-color: #dedede;
   padding: 10px;
   width: 40vw;
-  height: 74vh;
+  height: 87vh;
 
   position: fixed;
   z-index: 10002;
