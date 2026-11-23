@@ -281,6 +281,30 @@ export class PythonParserGenerator {
     res.push("			n.children = new_children\n");
     res.push("\n");
     res.push("		self.transform(transform)\n");
+    res.push("\n");
+    res.push("	def trim(self, tgtkd):\n");
+    res.push("		def transform(n):\n");
+    res.push("			n.children[:] = [\n");
+    res.push("				c for c in n.children\n");
+    res.push("				if not (c.is_similar(tgtkd) and c.ccount() == 0)\n");
+    res.push("			]\n");
+    res.push("\n");
+    res.push("		self.transform(transform)\n");
+    res.push("\n");
+    res.push("	def exchange(self, tgtkd, which):\n");
+    res.push("		def transform(n):\n");
+    res.push("			if not n.is_similar(tgtkd):\n");
+    res.push("				return\n");
+    res.push("			if which >= n.ccount():\n");
+    res.push("				return\n");
+    res.push("			c = n.follow(which)\n");
+    res.push("			patkd = n.kind\n");
+    res.push("			kidkd = c.kind\n");
+    res.push("			c.morph(patkd)\n");
+    res.push("			n.morph(kidkd)\n");
+    res.push("\n");
+    res.push("		self.transform(transform)\n");
+
 
     return res.join('')
   }

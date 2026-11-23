@@ -1,11 +1,13 @@
 # Árvore Sintática em Memória
 
 O Web GALS vêm com uma biblioteca para ajudar na criação e manipulação de árvores sintáticas 
-em memoria. Nomeada **BibAST**, esta permite o desenvolvimento de compiladores com uma metodologia
-baseada em transformações recursivas.
+em memoria. Ela permite o desenvolvimento de compiladores com uma metodologia baseada em 
+transformações recursivas.
 
 > [!WARNING]
-> A biblioteca ainda está em desenvolvimento e atualmente não tem suporte a Delphi.
+> A biblioteca não tem suporte a Delphi.
+
+> [!WARNING]
 > A API esta sujeita a mudar até novembro de 2026.
 
 ## Árvore abstrata
@@ -55,7 +57,7 @@ try {
 			sem.executeAction(a + 1, actlex);
 		}
 	});
-	tree.printTree(0);
+	tree->print_tree(0);
 } catch ( ... ) {
 	...
 }
@@ -295,6 +297,38 @@ executar `raise(B, C)` resultará em:
 
 <center><img src="./raise2.png" alt="Exemplo pós transformação raise."></center>
 <center><i>Exemplo pós transformação raise.</i></center>
+
+#### Transformação `trim`
+
+Protótipo: `trim(target: NodeKind)`.
+
+Este método é usado para deletar qualquer nó com `NodeKind` igual a `tgtkd` que não tenha nenhum filho.
+
+Por exemplo, a seguinte árvore:
+
+<center><img src="./trim1.png" alt="Exemplo pré transformação trim."></center>
+<center><i>Exemplo pré transformação trim.</i></center>
+
+perde seus nós `NodeKind` igual `B` sem filhos ao executar `trim(B)`.
+
+<center><img src="./trim2.png" alt="Exemplo pós transformação trim."></center>
+<center><i>Exemplo pós transformação trim.</i></center>
+
+#### Transformação `exchange`
+
+Protótipo: `exchange(target: NodeKind, which: int)`.
+
+Este método procura pelo nó filho da posição `which` e troca os `NodeKind`s entre o pai e tal filho.
+
+Por exemplo, a seguinte árvore:
+
+<center><img src="./xchg1.png" alt="Exemplo pré transformação exchange."></center>
+<center><i>Exemplo pré transformação exchange.</i></center>
+
+troca o `NodeKind` entre os nós `A` e `C`, preservando a estrutura da árvore, ao executar `exchange(A, 1)`.
+
+<center><img src="./xchg2.png" alt="Exemplo pós transformação exchange."></center>
+<center><i>Exemplo pós transformação exchange.</i></center>
 
 ## Transformações Customizadas
 

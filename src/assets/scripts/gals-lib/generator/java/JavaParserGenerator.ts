@@ -351,6 +351,29 @@ export class JavaParserGenerator {
     res.push("            n.children.addAll(newChildren);\n");
     res.push("        });\n");
     res.push("    }\n");
+
+    res.push("    public void trim(NodeKind tgtkd) {\n")
+    res.push("        transform(n -> {\n")
+    res.push("            n.getChildren().removeIf(c ->\n")
+    res.push("                c.isSimilar(tgtkd) && c.ccount() == 0\n")
+    res.push("            );\n")
+    res.push("        });\n")
+    res.push("    }\n")
+    res.push("\n")
+    res.push("    public void exchange(NodeKind tgtkd, int which) {\n")
+    res.push("        transform(n -> {\n")
+    res.push("            if (!n.isSimilar(tgtkd))\n")
+    res.push("                return;\n")
+    res.push("            if (which >= n.ccount())\n")
+    res.push("                return;\n")
+    res.push("            var c = n.follow(which);\n")
+    res.push("            var patkd = n.getKind();\n")
+    res.push("            var kidkd = c.getKind();\n")
+    res.push("            c.morph(patkd);\n")
+    res.push("            n.morph(kidkd);\n")
+    res.push("        });\n")
+    res.push("    }\n")
+
     res.push("}\n");
 
     return res.join('')

@@ -183,6 +183,14 @@ export class CppParserGenerator {
     res.push("        	std::unique_ptr<Node>& self,\n");
     res.push("        	std::pair<NodeKind, NodeData> destkd,\n");
     res.push("        	std::pair<NodeKind, NodeData> srckd);\n");
+    res.push("        static void trim(\n")
+    res.push("          std::unique_ptr<Node>& self,\n")
+    res.push("          std::pair<NodeKind, NodeData> tgtkd);\n")
+    res.push("\n")
+    res.push("        static void exchange(\n")
+    res.push("          std::unique_ptr<Node>& self,\n")
+    res.push("          std::pair<NodeKind, NodeData> tgtkd,\n")
+    res.push("          size_t which);\n")
     res.push("\n");
 
     res.push("};\n");
@@ -549,6 +557,40 @@ export class CppParserGenerator {
     res.push("	try_delete_terminal(destkd.second);\n");
     res.push("	try_delete_terminal(srckd.second);\n");
     res.push("}\n");
+    res.push("void Node::trim(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd\n");
+    res.push(") {\n");
+    res.push("	transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto& children = n->getChildren();\n");
+    res.push("		std::erase_if(children, [&](const std::unique_ptr<Node>& c) {\n");
+    res.push("			return KDCOMPARE(c->getKind().first, c->getKind().second, tgtkd.first, tgtkd.second) && c->ccount() == 0;\n");
+    res.push("		});\n");
+    res.push("	});\n");
+    res.push("}\n");
+    res.push("\n");
+    res.push("void Node::exchange(\n");
+    res.push("	std::unique_ptr<Node>& self,\n");
+    res.push("	std::pair<NodeKind, NodeData> tgtkd,\n");
+    res.push("	size_t which\n");
+    res.push(") {\n");
+    res.push("	transform(self, [&](std::unique_ptr<Node>& n) {\n");
+    res.push("		auto [_patkd1, _patkd2] = n->getKind();\n");
+    res.push("		NodeKind patkd1 = _patkd1;\n");
+    res.push("		NodeData patkd2 = _patkd2;\n");
+    res.push("		if (!KDCOMPARE(patkd1, patkd2, tgtkd.first, tgtkd.second))\n");
+    res.push("			return;\n");
+    res.push("		if (which >= n->ccount())\n");
+    res.push("			return;\n");
+    res.push("		auto& c = n->follow(which);\n");
+    res.push("		auto [_kidkd1, _kidkd2] = c->getKind();\n");
+    res.push("		NodeKind kidkd1 = _kidkd1;\n");
+    res.push("		NodeData kidkd2 = _kidkd2;\n");
+    res.push("		c->morph(patkd1, patkd2);\n");
+    res.push("		n->morph(kidkd1, kidkd2);\n");
+    res.push("	});\n");
+    res.push("}\n");
+
 
     this.closeNamespace(options);
 

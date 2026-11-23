@@ -300,6 +300,24 @@ export class RustParserGenerator {
     res.push("                .collect();\n");
     res.push("        });\n");
     res.push("    }\n")
+    res.push("    pub fn trim(self: &mut Box<Self>, tgtkd: NodeKind) {\n")
+    res.push("        self.transform(&mut |n| {\n")
+    res.push("            n.get_children_mut()\n")
+    res.push("                .retain(|c| !(c.get_kind().is_similar(&tgtkd) && c.ccount() == 0));\n")
+    res.push("        });\n")
+    res.push("    }\n")
+    res.push("    pub fn exchange(self: &mut Box<Self>, tgtkd: NodeKind, which: usize) {\n")
+    res.push("        self.transform(&mut |n| {\n")
+    res.push("            if n.get_kind().is_similar(&tgtkd) == false {\n")
+    res.push("                return;\n")
+    res.push("            }\n")
+    res.push("            let patkd = n.get_kind().clone();\n")
+    res.push("            let Some(c) = n.follow_mut(which) else { return };\n")
+    res.push("            let kidkd = c.get_kind().clone();\n")
+    res.push("            c.morph(patkd);\n")
+    res.push("            n.morph(kidkd);\n")
+    res.push("        });\n")
+    res.push("    }\n")
     res.push("}\n");
 
     return res.join('');
