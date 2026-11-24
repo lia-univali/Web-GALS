@@ -295,7 +295,18 @@ export abstract class LRGenerator {
       result += '</TR>'
     }
 
-    result += '</TABLE>' + '</FONT></BODY>' + '</HTML>'
+    result += '</TABLE><CODE><TABLE border=0>';
+
+     for (let i = 0; i < this.g.productions.size(); i++) {
+      result += '<TR>'
+
+      result += '<TD align=right nowrap>' + i + '&nbsp;-&nbsp;</TD>'
+      result += '<TD>' + HTMLDialog.translateString(this.g.productions.get(i).toString()) + '</TD>'
+
+      result += '</TR>'
+    }
+
+    result += '</TABLE></CODE></FONT></BODY>' + '</HTML>'
 
     return result.toString()
   }
